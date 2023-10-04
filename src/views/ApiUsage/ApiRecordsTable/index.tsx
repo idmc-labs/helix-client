@@ -20,6 +20,7 @@ import {
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
+    createExternalLinkColumn,
     createDateColumn,
     createNumberColumn,
 } from '#components/tableHelpers';
@@ -76,6 +77,10 @@ const CLIENT_TRACK_INFORMATION_LIST = gql`
                     code
                 }
                 apiTypeDisplay
+                description
+                exampleRequest
+                responseType
+                usage
             }
         }
     }
@@ -235,11 +240,33 @@ function ApiRecordsTable(props: ApiRecordProps) {
 
     const columns = useMemo(
         () => ([
-            createTextColumn<ApiFields, string>(
-                'api_name',
+            createExternalLinkColumn<ApiFields, string>(
+                'api_type_display',
                 'API',
-                (item) => item.apiTypeDisplay,
-                { sortable: true },
+                (item) => ({
+                    title: item.apiTypeDisplay,
+                    link: item.exampleRequest,
+                }),
+            ),
+            createTextColumn<ApiFields, string>(
+                'response_type',
+                'API Response',
+                (item) => item.responseType,
+            ),
+            createTextColumn<ApiFields, string>(
+                'usage',
+                'API Usage',
+                (item) => item.usage,
+            ),
+            createTextColumn<ApiFields, string>(
+                'description',
+                'API Description',
+                (item) => item.description,
+            ),
+            createTextColumn<ApiFields, string>(
+                'client__name',
+                'Client Name',
+                (item) => item.client?.name,
             ),
             createTextColumn<ApiFields, string>(
                 'client__code',
