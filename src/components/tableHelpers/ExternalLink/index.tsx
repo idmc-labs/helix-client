@@ -19,7 +19,7 @@ function ExternalLinkCell(props: ExternalLinkProps) {
         className,
     } = props;
 
-    if (!title) {
+    if (isFalsyString(title)) {
         return null;
     }
 

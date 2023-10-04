@@ -12,6 +12,9 @@ import {
     Schema,
     ArraySchema,
 } from '@togglecorp/toggle-form';
+import {
+    isNotDefined,
+} from '@togglecorp/fujs';
 
 import { PartialForm } from '#types';
 import {
@@ -26,6 +29,7 @@ import {
     isFlowCategory,
     isHousingTerm,
     isDisplacementTerm,
+    isStockCategory,
 } from '#utils/selectionConstants';
 import {
     Unit,
@@ -33,6 +37,16 @@ import {
     Figure_Category_Types as FigureCategoryTypes,
     Crisis_Type as CrisisType,
 } from '#generated/types';
+
+function pastDateCondition(value: string | null | undefined) {
+    if (isNotDefined(value)) {
+        return undefined;
+    }
+    if (new Date(value) <= new Date()) {
+        return undefined;
+    }
+    return 'Date should not be in the future';
+}
 
 // FIXME: the comparison should be type-safe but
 // we are currently downcasting string literals to string
@@ -163,7 +177,7 @@ const figure: Figure = {
             quantifier: [requiredCondition],
             reported: [requiredCondition, integerCondition, greaterThanOrEqualToCondition(0)],
             role: [requiredCondition],
-            startDate: [requiredStringCondition],
+            startDate: [requiredStringCondition, pastDateCondition],
             startDateAccuracy: [],
             country: [requiredCondition],
             term: [requiredCondition],
@@ -174,7 +188,9 @@ const figure: Figure = {
             sources: [requiredListCondition, arrayCondition],
             geoLocations,
 
-            endDate: [requiredCondition],
+            endDate: isStockCategory(value?.category)
+                ? [requiredCondition]
+                : [requiredCondition, pastDateCondition],
             endDateAccuracy: [nullCondition],
             householdSize: [nullCondition],
 
