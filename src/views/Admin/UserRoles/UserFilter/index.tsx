@@ -19,8 +19,15 @@ import {
 } from '#utils/common';
 
 import { PartialForm, PurgeNull } from '#types';
-import { UserListQueryVariables, RolesListQuery } from '#generated/types';
+import {
+    UserListQueryVariables,
+    RolesListQuery,
+    User_Role as UserRole,
+} from '#generated/types';
 import styles from './styles.css';
+
+const regionalCoordinator: UserRole = 'REGIONAL_COORDINATOR';
+const monitoringExpert: UserRole = 'MONITORING_EXPERT';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type UserFilterFields = Omit<UserListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
@@ -120,7 +127,8 @@ function UserFilter(props: UsersFilterProps) {
         () => rolesOptions
             ?.roleList
             ?.enumValues
-            ?.filter((item) => (item.name !== 'ADMIN' && item.name !== 'GUEST')),
+            // eslint-disable-next-line max-len
+            ?.filter((item) => (item.name === regionalCoordinator || item.name === monitoringExpert)),
         [rolesOptions],
     );
 
