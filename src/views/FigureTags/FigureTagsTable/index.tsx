@@ -202,7 +202,7 @@ function FigureTagsTable(props: FigureTagsProps) {
     );
 
     const { user } = useContext(DomainContext);
-    const figureTagPermissions = user?.permissions?.figure;
+    const figureTagPermissions = user?.permissions?.figuretag;
 
     const columns = useMemo(
         () => ([

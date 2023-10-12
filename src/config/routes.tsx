@@ -324,9 +324,9 @@ const routeSettings = {
         },
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => (
-            permissions.figure?.add
-            || permissions.figure?.change
-            || permissions.figure?.delete
+            permissions.figuretag?.add
+            || permissions.figuretag?.change
+            || permissions.figuretag?.delete
         ),
     }),
     violenceContext: wrap({

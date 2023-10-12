@@ -6,6 +6,7 @@ import {
 // Note: constants for figureCategory enum
 export const flowCategories: FigureCategoryTypes[] = [
     'NEW_DISPLACEMENT',
+    'RETURN',
     'MULTIPLE_DISPLACEMENT',
     'PARTIAL_FLOW',
     'CROSS_BORDER_FLIGHT',
@@ -16,9 +17,10 @@ export const flowCategories: FigureCategoryTypes[] = [
     'FAILED_LOCAL_INTEGRATION',
     'LOCAL_INTEGRATION',
     'FAILED_RETURN_RETURNEE_DISPLACEMENT',
-    'UNVERIFIED_FLOW',
-    'RETURN',
     'FAILED_RELOCATION_ELSEWHERE',
+    'BIRTH',
+    'UNVERIFIED_FLOW',
+    'PEOPLE_DISPLACED_ACROSS_BORDERS_FLOW',
 ];
 
 export const stockCategories: FigureCategoryTypes[] = [
@@ -77,6 +79,7 @@ const visibleCategories: FigureCategoryTypes[] = [
     // 'UNVERIFIED_FLOW',
     // 'BIRTH',
     // 'FAILED_RELOCATION_ELSEWHERE',
+    'PEOPLE_DISPLACED_ACROSS_BORDERS_FLOW',
 ];
 export function isVisibleCategory(value: FigureCategoryTypes) {
     return visibleCategories.includes(value);

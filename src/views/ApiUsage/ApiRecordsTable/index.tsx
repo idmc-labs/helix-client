@@ -240,11 +240,16 @@ function ApiRecordsTable(props: ApiRecordProps) {
 
     const columns = useMemo(
         () => ([
-            createExternalLinkColumn<ApiFields, string>(
+            createTextColumn<ApiFields, string>(
                 'api_type_display',
-                'API',
+                'API Name',
+                (item) => item.apiTypeDisplay,
+            ),
+            createExternalLinkColumn<ApiFields, string>(
+                'example_request',
+                'API URL',
                 (item) => ({
-                    title: item.apiTypeDisplay,
+                    title: item.exampleRequest,
                     link: item.exampleRequest,
                 }),
             ),
