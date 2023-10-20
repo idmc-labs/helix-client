@@ -65,7 +65,6 @@ const CREATE_EXTRACTION = gql`
                     fullName
                 }
                 filterFigureHasDisaggregatedData
-                filterFigureDisplacementTypes
                 filterFigureTerms
             }
             errors
@@ -107,7 +106,6 @@ const UPDATE_EXTRACTION = gql`
                     fullName
                 }
                 filterFigureHasDisaggregatedData
-                filterFigureDisplacementTypes
                 filterFigureTerms
             }
             errors
