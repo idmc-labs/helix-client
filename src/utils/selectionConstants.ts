@@ -62,7 +62,7 @@ const visibleCategories: FigureCategoryTypes[] = [
     'RETURN',
     'LOCALLY_INTEGRATED_IDPS',
     'IDPS_SETTLED_ELSEWHERE',
-    'PEOPLE_DISPLACED_ACROSS_BORDERS',
+    // 'PEOPLE_DISPLACED_ACROSS_BORDERS',
     'NEW_DISPLACEMENT',
     'MULTIPLE_DISPLACEMENT',
     // 'PARTIAL_STOCK',
@@ -79,7 +79,7 @@ const visibleCategories: FigureCategoryTypes[] = [
     // 'UNVERIFIED_FLOW',
     // 'BIRTH',
     // 'FAILED_RELOCATION_ELSEWHERE',
-    'PEOPLE_DISPLACED_ACROSS_BORDERS_FLOW',
+    // 'PEOPLE_DISPLACED_ACROSS_BORDERS_FLOW',
 ];
 export function isVisibleCategory(value: FigureCategoryTypes) {
     return visibleCategories.includes(value);

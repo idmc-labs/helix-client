@@ -250,11 +250,14 @@ const countryLinePaint: mapboxgl.LinePaint = {
 
 const origin: Identifier = 'ORIGIN';
 const destination: Identifier = 'DESTINATION';
+const originAndDestination: Identifier = 'ORIGIN_AND_DESTINATION';
 
 const pointCirclePaint: mapboxgl.CirclePaint = {
     'circle-color': [
         'case',
         ['==', ['get', 'identifier'], origin],
+        sourceColor,
+        ['==', ['get', 'identifier'], originAndDestination],
         sourceColor,
         ['==', ['get', 'identifier'], destination],
         destinationColor,
