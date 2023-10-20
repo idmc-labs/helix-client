@@ -97,6 +97,7 @@ import {
     ReReviewFigureMutationVariables,
 
     FigureLastReviewCommentStatusType,
+    Identifier,
 } from '#generated/types';
 import {
     isFlowCategory,
@@ -718,15 +719,17 @@ function FigureInput(props: FigureInputProps) {
     const generatedFigureName = useMemo(
         () => {
             const sortedLocations = [...(value.geoLocations ?? [])].sort((a, b) => {
-                if (a.identifier === 'ORIGIN' && b.identifier === 'DESTINATION') {
-                    return -1;
-                }
-
-                if (a.identifier === 'DESTINATION' && b.identifier === 'ORIGIN') {
-                    return 1;
-                }
-
-                return 0;
+                const order: {
+                    [key in Identifier]: number
+                } = {
+                    ORIGIN: 3,
+                    ORIGIN_AND_DESTINATION: 2,
+                    DESTINATION: 1,
+                };
+                return (
+                    (isDefined(b.identifier) ? order[b.identifier] : 0)
+                    - (isDefined(a.identifier) ? order[a.identifier] : 0)
+                );
             });
             const locationsText = unique(
                 // FIXME: get admin 1 for locations

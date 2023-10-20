@@ -170,7 +170,6 @@ function CommentForm(props: CommentFormProps) {
         onValueChange,
         onErrorSet,
         validate,
-        pristine,
         onValueSet,
     } = useForm(
         assigneeMode
@@ -373,7 +372,7 @@ function CommentForm(props: CommentFormProps) {
                     name={undefined}
                     variant="primary"
                     type="submit"
-                    disabled={pristine || loading || (value.commentType !== 'GREEN' && !value.comment)}
+                    disabled={loading || (value.commentType !== 'GREEN' && !value.comment)}
                 >
                     Submit
                 </Button>
