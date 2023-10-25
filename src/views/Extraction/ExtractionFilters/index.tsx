@@ -55,7 +55,6 @@ import {
     Figure_Terms as FigureTerms,
     Crisis_Type as CrisisType,
     Figure_Review_Status as FigureReviewStatus,
-    Displacement_Type as DisplacementType,
     Role,
 } from '#generated/types';
 import styles from './styles.css';
@@ -97,13 +96,6 @@ const FORM_OPTIONS = gql`
             }
         }
         figureReviewStatus: __type(name: "FIGURE_REVIEW_STATUS") {
-            name
-            enumValues {
-                name
-                description
-            }
-        }
-        displacementType: __type(name: "DISPLACEMENT_TYPE") {
             name
             enumValues {
                 name
@@ -160,7 +152,6 @@ const EXTRACTION_FILTER = gql`
             filterEntryArticleTitle
             filterFigureCrisisTypes
             filterFigureHasDisaggregatedData
-            filterFigureDisplacementTypes
             filterFigureEvents {
                 id
                 name
@@ -227,7 +218,6 @@ const schema: FormSchema = {
         filterFigureSources: [arrayCondition],
         filterFigureHasDisaggregatedData: [],
         filterCreatedBy: [arrayCondition],
-        filterFigureDisplacementTypes: [arrayCondition],
         filterFigureEvents: [arrayCondition],
         filterFigureReviewStatus: [arrayCondition],
     }),
@@ -246,7 +236,6 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureSources: [],
     filterFigureTerms: [],
     filterCreatedBy: [],
-    filterFigureDisplacementTypes: [],
     filterFigureEvents: [],
     filterFigureReviewStatus: [],
 };
@@ -411,7 +400,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     filterFigureEvents: otherAttrs.filterFigureEvents?.map((e) => e.id),
                     filterFigureReviewStatus: otherAttrs.filterFigureReviewStatus,
                     filterFigureHasDisaggregatedData: otherAttrs.filterFigureHasDisaggregatedData,
-                    filterFigureDisplacementTypes: otherAttrs.filterFigureDisplacementTypes,
                 });
                 onFormValueSet(formValue);
                 onFilterChange(formValue);
@@ -476,12 +464,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
     type ReviewStatusOptions = GetEnumOptions<
         typeof reviewStatusOptions,
         NonNullable<typeof value.filterFigureReviewStatus>[number]
-    >;
-
-    const displacementTypes = data?.displacementType?.enumValues;
-    type DisplacementTypeOptions = GetEnumOptions<
-        typeof displacementTypes,
-        NonNullable<typeof value.filterFigureDisplacementTypes>[number]
     >;
 
     type FigureCategoryTypeOptions = typeof categoryTypeOptions;
@@ -735,6 +717,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         (hasNoData(value.filterFigureCategoryTypes)
                             && hasNoData(value.filterFigureCategories)
                             && hasNoData(value.filterFigureTags)
+                            && hasNoData(value.filterFigureHasDisaggregatedData)
                             && !filtersExpanded)
                         && styles.hidden,
                     )}
@@ -790,52 +773,17 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         grouped
                         hideOptionFilter={figureCategoryHideOptionFilter}
                     />
-                </Row>
-                <div
-                    className={_cs(
-                        styles.label,
-                        !filtersExpanded && styles.hidden,
-                    )}
-                >
-                    Figures disaggregated
-                </div>
-                <Row
-                    singleColumnNoGrow
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterFigureHasDisaggregatedData)
-                            && hasNoData(value.filterFigureDisplacementTypes)
-                            && !filtersExpanded)
-                        && styles.hidden,
-                    )}
-                >
                     <BooleanInput
                         className={_cs(
                             styles.input,
                             (hasNoData(value.filterFigureHasDisaggregatedData) && !filtersExpanded)
                             && styles.hidden,
                         )}
-                        label="Has Age/Gender Disaggregation"
+                        label="Has Disaggregated Data"
                         name="filterFigureHasDisaggregatedData"
                         value={value.filterFigureHasDisaggregatedData}
                         onChange={onValueChange}
                         error={error?.fields?.filterFigureHasDisaggregatedData}
-                        disabled={disabled || queryOptionsLoading || !!queryOptionsError}
-                    />
-                    <MultiSelectInput<DisplacementType, 'filterFigureDisplacementTypes', NonNullable<DisplacementTypeOptions>[number], { containerClassName?: string }>
-                        className={_cs(
-                            styles.input,
-                            (hasNoData(value.filterFigureDisplacementTypes) && !filtersExpanded)
-                            && styles.hidden,
-                        )}
-                        options={displacementTypes as DisplacementTypeOptions}
-                        keySelector={enumKeySelector}
-                        labelSelector={enumLabelSelector}
-                        label="Rural/Urban Disaggregation"
-                        name="filterFigureDisplacementTypes"
-                        value={value.filterFigureDisplacementTypes}
-                        onChange={onValueChange}
-                        error={error?.fields?.filterFigureDisplacementTypes?.$internal}
                         disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                     />
                 </Row>
