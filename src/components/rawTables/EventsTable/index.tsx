@@ -1,16 +1,20 @@
-import React, { useMemo, useCallback, useContext, useEffect } from 'react';
+import React, { useMemo, useCallback, useContext } from 'react';
 import {
     gql,
     useQuery,
     useMutation,
 } from '@apollo/client';
 import { isDefined } from '@togglecorp/fujs';
+import { getOperationName } from 'apollo-link';
 import {
     Table,
     TableColumn,
     TableHeaderCell,
     TableHeaderCellProps,
     Modal,
+    ConfirmButton,
+    Button,
+    Pager,
 } from '@togglecorp/toggle-ui';
 import {
     createLinkColumn,
@@ -25,8 +29,10 @@ import Loading from '#components/Loading';
 import EventForm from '#components/forms/EventForm';
 import StackedProgressCell, { StackedProgressProps } from '#components/tableHelpers/StackedProgress';
 import { CrisisOption } from '#components/selections/CrisisSelectInput';
+import { CountryOption } from '#components/selections/CountrySelectInput';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import useModalState from '#hooks/useModalState';
 import {
     EventListQuery,
@@ -41,6 +47,8 @@ import {
     ClearSelfAssigneeFromEventMutationVariables,
     SetSelfAssigneeToEventMutation,
     SetSelfAssigneeToEventMutationVariables,
+    ExportEventsMutation,
+    ExportEventsMutationVariables,
 } from '#generated/types';
 
 import route from '#config/routes';
@@ -49,6 +57,8 @@ import AssigneeChangeForm from './AssigneeChangeForm';
 import ActionCell, { ActionProps } from './EventsAction';
 import IgnoreActionCell, { IgnoreActionProps } from './EventsIgnore';
 import QaSettingsModal from './QaSettingsModal';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];
 
@@ -144,6 +154,49 @@ export const EVENT_LIST = gql`
     }
 `;
 
+const EVENT_EXPORT = gql`
+    mutation ExportEvents(
+        $name: String,
+        $eventTypes:[String!],
+        $crisisByIds: [ID!],
+        $countries:[ID!],
+        $violenceSubTypes: [ID!],
+        $disasterSubTypes: [ID!],
+        $contextOfViolences: [ID!],
+        $osvSubTypeByIds: [ID!],
+        $glideNumbers: [String!],
+        $createdByIds: [ID!],
+        $startDate_Gte: Date,
+        $endDate_Lte: Date,
+        $qaRule: String,
+        $ignoreQa: Boolean,
+        $reviewStatus: [String!],
+        $assignees: [ID!],
+    ) {
+        exportEvents(
+            contextOfViolences: $contextOfViolences,
+            name: $name,
+            eventTypes:$eventTypes,
+            crisisByIds: $crisisByIds,
+            countries: $countries,
+            violenceSubTypes: $violenceSubTypes,
+            disasterSubTypes: $disasterSubTypes,
+            createdByIds: $createdByIds,
+            startDate_Gte: $startDate_Gte,
+            endDate_Lte: $endDate_Lte,
+            qaRule: $qaRule,
+            ignoreQa: $ignoreQa,
+            osvSubTypeByIds: $osvSubTypeByIds,
+            glideNumbers: $glideNumbers,
+            reviewStatus: $reviewStatus,
+            assignees: $assignees,
+        ) {
+            errors
+            ok
+        }
+    }
+`;
+
 const EVENT_DELETE = gql`
     mutation DeleteEvent($id: ID!) {
         deleteEvent(id: $id) {
@@ -217,18 +270,30 @@ const keySelector = (item: EventFields) => item.id;
 interface EventsProps {
     className?: string;
     crisis?: CrisisOption | null;
+    country?: CountryOption | null;
     qaMode?: 'MULTIPLE_RF' | 'NO_RF' | 'IGNORE_QA' | undefined;
     filters: EventListQueryVariables | undefined;
-    onTotalFiguresChange?: (value: number) => void;
+
+    page: number;
+    pageSize: number;
+    onPageChange: (value: number) => void;
+    onPageSizeChange: (value: number) => void;
+    pagerPageControlDisabled?: boolean;
 }
 
-function NudeEventTable(props: EventsProps) {
+function useEventTable(props: EventsProps) {
     const {
         className,
         crisis,
+        country,
         qaMode,
         filters,
-        onTotalFiguresChange,
+
+        page,
+        pageSize,
+        onPageChange,
+        onPageSizeChange,
+        pagerPageControlDisabled,
     } = props;
 
     const {
@@ -452,6 +517,37 @@ function NudeEventTable(props: EventsProps) {
         },
     );
 
+    const [
+        exportEvents,
+        { loading: exportingTableData },
+    ] = useMutation<ExportEventsMutation, ExportEventsMutationVariables>(
+        EVENT_EXPORT,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportEvents: exportEventResponse } = response;
+                if (!exportEventResponse) {
+                    return;
+                }
+                const { errors, ok } = exportEventResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({
+                        children: 'Export started successfully!',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
     const handleIgnoreEvent = useCallback(
         (ignoreValues: IgnoreEventMutationVariables['event']) => {
             ignoreEvent({
@@ -530,6 +626,15 @@ function NudeEventTable(props: EventsProps) {
             showEventTriangulationChangeModal(id);
         },
         [showEventTriangulationChangeModal],
+    );
+
+    const handleExportTableData = useCallback(
+        () => {
+            exportEvents({
+                variables: filters,
+            });
+        },
+        [exportEvents, filters],
     );
 
     const columns = useMemo(
@@ -751,82 +856,105 @@ function NudeEventTable(props: EventsProps) {
     );
     const totalEventsCount = eventsData?.eventList?.totalCount ?? 0;
 
-    // NOTE: if we don't pass total figures count this way,
-    // we will have to use Portal to move the Pager component
-    useEffect(
-        () => {
-            if (onTotalFiguresChange) {
-                onTotalFiguresChange(totalEventsCount);
-            }
-        },
-        [onTotalFiguresChange, totalEventsCount],
-    );
-
-    return (
-        <>
-            {totalEventsCount > 0 && (
-                <Table
-                    className={className}
-                    data={eventsData?.eventList?.results}
-                    keySelector={keySelector}
-                    columns={columns}
-                    resizableColumn
-                    fixedColumnWidth
-                />
-            )}
-            {(
-                loadingEvents
-                || deletingEvent
-                || ignoringEvent
-                || clearingAssigneeFromEvent
-                || clearingSelfAssigneeFromEvent
-                || settingSelfAssigneeToEvent
-            ) && <Loading absolute />}
-            {!loadingEvents && totalEventsCount <= 0 && (
-                <Message
-                    message="No events found."
-                />
-            )}
-            {shouldShowAddEventModal && (
-                <Modal
-                    onClose={hideAddEventModal}
-                    // eslint-disable-next-line no-nested-ternary
-                    heading={editableEventId?.id
-                        ? (editableEventId?.clone ? 'Clone Event' : 'Edit Event')
-                        : 'Add Event'}
-                    size="large"
-                    freeHeight
+    return {
+        exportButton: (
+            <ConfirmButton
+                confirmationHeader="Confirm Export"
+                confirmationMessage="Are you sure you want to export this table data?"
+                name={undefined}
+                onConfirm={handleExportTableData}
+                disabled={exportingTableData}
+            >
+                Export
+            </ConfirmButton>
+        ),
+        addButton: (
+            eventPermissions?.add && !qaMode && (
+                <Button
+                    name={undefined}
+                    onClick={showAddEventModal}
                 >
-                    <EventForm
-                        id={editableEventId?.id}
-                        clone={editableEventId?.clone}
-                        onEventCreate={handleEventCreate}
-                        onEventFormCancel={hideAddEventModal}
-                        defaultCrisis={crisis}
+                    Add Event
+                </Button>
+            )
+        ),
+        pager: (
+            <Pager
+                activePage={page}
+                itemsCount={totalEventsCount}
+                maxItemsPerPage={pageSize}
+                onActivePageChange={onPageChange}
+                onItemsPerPageChange={onPageSizeChange}
+                itemsPerPageControlHidden={pagerPageControlDisabled}
+            />
+        ),
+        table: (
+            <>
+                {totalEventsCount > 0 && (
+                    <Table
+                        className={className}
+                        data={eventsData?.eventList?.results}
+                        keySelector={keySelector}
+                        columns={columns}
+                        resizableColumn
+                        fixedColumnWidth
                     />
-                </Modal>
-            )}
-            {shouldShowEventAssigneeChangeModal && assigneeChangeEventId && (
-                <Modal
-                    onClose={hideEventAssigneeChangeModal}
-                    heading="Set Assignee"
-                    size="medium"
-                    freeHeight
-                >
-                    <AssigneeChangeForm
-                        id={assigneeChangeEventId}
-                        onFormCancel={hideEventAssigneeChangeModal}
+                )}
+                {(
+                    loadingEvents
+                    || deletingEvent
+                    || ignoringEvent
+                    || clearingAssigneeFromEvent
+                    || clearingSelfAssigneeFromEvent
+                    || settingSelfAssigneeToEvent
+                ) && <Loading absolute />}
+                {!loadingEvents && totalEventsCount <= 0 && (
+                    <Message
+                        message="No events found."
                     />
-                </Modal>
-            )}
-            {shouldShowEventTriangulationChangeModal && editTriangulationEventId && (
-                <QaSettingsModal
-                    eventId={editTriangulationEventId}
-                    onClose={hideEventTriangulationChangeModal}
-                />
-            )}
-        </>
-    );
+                )}
+                {shouldShowAddEventModal && (
+                    <Modal
+                        onClose={hideAddEventModal}
+                        // eslint-disable-next-line no-nested-ternary
+                        heading={editableEventId?.id
+                            ? (editableEventId?.clone ? 'Clone Event' : 'Edit Event')
+                            : 'Add Event'}
+                        size="large"
+                        freeHeight
+                    >
+                        <EventForm
+                            id={editableEventId?.id}
+                            clone={editableEventId?.clone}
+                            onEventCreate={handleEventCreate}
+                            onEventFormCancel={hideAddEventModal}
+                            defaultCrisis={crisis}
+                            defaultCountry={country}
+                        />
+                    </Modal>
+                )}
+                {shouldShowEventAssigneeChangeModal && assigneeChangeEventId && (
+                    <Modal
+                        onClose={hideEventAssigneeChangeModal}
+                        heading="Set Assignee"
+                        size="medium"
+                        freeHeight
+                    >
+                        <AssigneeChangeForm
+                            id={assigneeChangeEventId}
+                            onFormCancel={hideEventAssigneeChangeModal}
+                        />
+                    </Modal>
+                )}
+                {shouldShowEventTriangulationChangeModal && editTriangulationEventId && (
+                    <QaSettingsModal
+                        eventId={editTriangulationEventId}
+                        onClose={hideEventTriangulationChangeModal}
+                    />
+                )}
+            </>
+        ),
+    };
 }
 
-export default NudeEventTable;
+export default useEventTable;

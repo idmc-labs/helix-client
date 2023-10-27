@@ -1,85 +1,25 @@
 import React, { useMemo, useState, useCallback, useContext } from 'react';
 import {
-    gql,
-    useMutation,
-} from '@apollo/client';
-import { getOperationName } from 'apollo-link';
-import {
-    Button,
     useSortState,
     SortContext,
-    Pager,
-    ConfirmButton,
-    Modal,
 } from '@togglecorp/toggle-ui';
 
-import EventForm from '#components/forms/EventForm';
-import EventsFilter from '#components/tables/EventsEntriesFiguresTable/EventsFilter';
-import NudeEventTable from '#components/tables/EventsEntriesFiguresTable/NudeEventsTable';
-import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
+import EventsFilter from '#components/rawTables/EventsTable/EventsFilter';
+import useEventTable from '#components/rawTables/EventsTable';
 import Container from '#components/Container';
 import { CrisisOption } from '#components/selections/CrisisSelectInput';
-import NotificationContext from '#components/NotificationContext';
 import {
     EventListQueryVariables,
-    ExportEventsMutation,
-    ExportEventsMutationVariables,
     Qa_Rule_Type as QaRuleType,
     User_Role as UserRole,
 } from '#generated/types';
 import DomainContext from '#components/DomainContext';
-import useModalState from '#hooks/useModalState';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { User } from '#types';
 
 import styles from './styles.css';
 
-const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
-
 // type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];
-
-export const EVENT_EXPORT = gql`
-    mutation ExportEvents(
-        $name: String,
-        $eventTypes:[String!],
-        $crisisByIds: [ID!],
-        $countries:[ID!],
-        $violenceSubTypes: [ID!],
-        $disasterSubTypes: [ID!],
-        $contextOfViolences: [ID!],
-        $osvSubTypeByIds: [ID!],
-        $glideNumbers: [String!],
-        $createdByIds: [ID!],
-        $startDate_Gte: Date,
-        $endDate_Lte: Date,
-        $qaRule: String,
-        $ignoreQa: Boolean,
-        $reviewStatus: [String!],
-        $assignees: [ID!],
-    ) {
-        exportEvents(
-            contextOfViolences: $contextOfViolences,
-            name: $name,
-            eventTypes:$eventTypes,
-            crisisByIds: $crisisByIds,
-            countries: $countries,
-            violenceSubTypes: $violenceSubTypes,
-            disasterSubTypes: $disasterSubTypes,
-            createdByIds: $createdByIds,
-            startDate_Gte: $startDate_Gte,
-            endDate_Lte: $endDate_Lte,
-            qaRule: $qaRule,
-            ignoreQa: $ignoreQa,
-            osvSubTypeByIds: $osvSubTypeByIds,
-            glideNumbers: $glideNumbers,
-            reviewStatus: $reviewStatus,
-            assignees: $assignees,
-        ) {
-            errors
-            ok
-        }
-    }
-`;
 
 const regionalCoordinator: UserRole = 'REGIONAL_COORDINATOR';
 const monitoringExpert: UserRole = 'MONITORING_EXPERT';
@@ -101,12 +41,12 @@ const defaultSorting = {
 
 interface EventsProps {
     className?: string;
-
+    title?: string;
     crisis?: CrisisOption | null;
+
     reviewStatus?: string[] | null
     assignee?: string | null;
     qaMode?: 'MULTIPLE_RF' | 'NO_RF' | 'IGNORE_QA' | undefined;
-    title?: string;
 }
 
 function EventsTable(props: EventsProps) {
@@ -128,8 +68,6 @@ function EventsTable(props: EventsProps) {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const debouncedPage = useDebouncedValue(page);
-
-    const [totalCount, setTotalCount] = useState(0);
 
     const { user } = useContext(DomainContext);
 
@@ -176,17 +114,6 @@ function EventsTable(props: EventsProps) {
     const ignoreQa: boolean | undefined = qaMode
         ? qaMode === 'IGNORE_QA'
         : undefined;
-
-    const {
-        notify,
-        notifyGQLError,
-    } = useContext(NotificationContext);
-
-    const [
-        shouldShowAddEventModal, ,
-        showAddEventModal,
-        hideAddEventModal,
-    ] = useModalState<undefined>();
 
     const crisisId = crisis?.id;
 
@@ -243,47 +170,21 @@ function EventsTable(props: EventsProps) {
         ],
     );
 
-    const [
-        exportEvents,
-        { loading: exportingEvents },
-    ] = useMutation<ExportEventsMutation, ExportEventsMutationVariables>(
-        EVENT_EXPORT,
-        {
-            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
-            onCompleted: (response) => {
-                const { exportEvents: exportEventResponse } = response;
-                if (!exportEventResponse) {
-                    return;
-                }
-                const { errors, ok } = exportEventResponse;
-                if (errors) {
-                    notifyGQLError(errors);
-                }
-                if (ok) {
-                    notify({
-                        children: 'Export started successfully!',
-                    });
-                }
-            },
-            onError: (error) => {
-                notify({
-                    children: error.message,
-                    variant: 'error',
-                });
-            },
-        },
-    );
-
-    const handleExportTableData = useCallback(
-        () => {
-            exportEvents({
-                variables: eventsVariables,
-            });
-        },
-        [exportEvents, eventsVariables],
-    );
-
-    const eventPermissions = user?.permissions?.event;
+    const {
+        table: eventsTable,
+        exportButton: eventsExportButton,
+        addButton: eventsAddButton,
+        pager: eventsPager,
+    } = useEventTable({
+        className: styles.table,
+        crisis,
+        qaMode,
+        filters: eventsVariables,
+        page,
+        pageSize,
+        onPageChange: setPage,
+        onPageSizeChange: handlePageSizeChange,
+    });
 
     return (
         <Container
@@ -293,34 +194,11 @@ function EventsTable(props: EventsProps) {
             heading={title || 'Events'}
             headerActions={(
                 <>
-                    {eventPermissions?.add && !qaMode && (
-                        <Button
-                            name={undefined}
-                            onClick={showAddEventModal}
-                        >
-                            Add Event
-                        </Button>
-                    )}
-                    <ConfirmButton
-                        confirmationHeader="Confirm Export"
-                        confirmationMessage="Are you sure you want to export this table data?"
-                        name={undefined}
-                        onConfirm={handleExportTableData}
-                        disabled={exportingEvents}
-                    >
-                        Export
-                    </ConfirmButton>
+                    {eventsAddButton}
+                    {eventsExportButton}
                 </>
             )}
-            footerContent={(
-                <Pager
-                    activePage={page}
-                    itemsCount={totalCount}
-                    maxItemsPerPage={pageSize}
-                    onActivePageChange={setPage}
-                    onItemsPerPageChange={handlePageSizeChange}
-                />
-            )}
+            footerContent={eventsPager}
             description={(
                 <EventsFilter
                     onFilterChange={onFilterChange}
@@ -336,29 +214,8 @@ function EventsTable(props: EventsProps) {
             )}
         >
             <SortContext.Provider value={sortState}>
-                <NudeEventTable
-                    className={styles.table}
-                    crisis={crisis}
-                    qaMode={qaMode}
-                    filters={eventsVariables}
-                    onTotalFiguresChange={setTotalCount}
-                />
+                {eventsTable}
             </SortContext.Provider>
-            {shouldShowAddEventModal && (
-                <Modal
-                    onClose={hideAddEventModal}
-                    heading="Add Event"
-                    size="large"
-                    freeHeight
-                >
-                    <EventForm
-                        // FIXME: we need to also refetch entries
-                        onEventCreate={hideAddEventModal}
-                        onEventFormCancel={hideAddEventModal}
-                        defaultCrisis={crisis}
-                    />
-                </Modal>
-            )}
         </Container>
     );
 }

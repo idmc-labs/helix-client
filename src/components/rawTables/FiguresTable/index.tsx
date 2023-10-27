@@ -1,9 +1,10 @@
-import React, { useMemo, useCallback, useContext, useEffect } from 'react';
+import React, { useMemo, useCallback, useContext } from 'react';
 import {
     gql,
     useQuery,
     useMutation,
 } from '@apollo/client';
+import { getOperationName } from 'apollo-link';
 import {
     isDefined,
 } from '@togglecorp/fujs';
@@ -12,6 +13,8 @@ import {
     TableColumn,
     TableHeaderCell,
     TableHeaderCellProps,
+    ConfirmButton,
+    Pager,
 } from '@togglecorp/toggle-ui';
 import {
     createLinkColumn,
@@ -21,55 +24,76 @@ import {
     createNumberColumn,
     createCustomActionColumn,
 } from '#components/tableHelpers';
-
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
-import SymbolCell, { SymbolCellProps } from '#components/tableHelpers/SymbolCell';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
-
+import SymbolCell, { SymbolCellProps } from '#components/tableHelpers/SymbolCell';
 import {
-    LatestFigureListQuery,
-    LatestFigureListQueryVariables,
-    DeleteLatestFigureMutation,
-    DeleteLatestFigureMutationVariables,
-    EntriesQueryVariables,
+    ExtractionFigureListQuery,
+    ExtractionFigureListQueryVariables,
+    DeleteFigureMutation,
+    DeleteFigureMutationVariables,
+    ExtractionEntryListFiltersQueryVariables,
+    ExportFiguresMutation,
+    ExportFiguresMutationVariables,
 } from '#generated/types';
 import route from '#config/routes';
 
-const FIGURE_LIST = gql`
-    query LatestFigureList(
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
+
+export const FIGURE_LIST = gql`
+    query ExtractionFigureList(
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $filterFigureEvents: [ID!],
-        $filterEntryArticleTitle: String,
+
         $filterCreatedBy: [ID!],
-        $filterEntryPublishers: [ID!],
-        $filterFigureSources: [ID!],
+        $filterEntryArticleTitle: String,
+        $filterEntryPublishers:[ID!],
+        $filterFigureCategories: [String!],
         $filterFigureCategoryTypes: [String!],
         $filterFigureCountries: [ID!],
+        $filterFigureCrises: [ID!],
+        $filterFigureCrisisTypes: [String!],
         $filterFigureEndBefore: Date,
-        $filterFigureRoles: [String!],
-        $filterFigureStartAfter: Date,
+        $filterFigureEvents: [ID!],
+        $filterFigureGeographicalGroups: [ID!],
+        $filterFigureHasDisaggregatedData: Boolean,
+        $filterFigureRegions: [ID!],
         $filterFigureReviewStatus: [String!],
+        $filterFigureRoles: [String!],
+        $filterFigureSources: [ID!],
+        $filterFigureStartAfter: Date,
+        $filterFigureTags: [ID!],
+        $filterFigureTerms: [ID!],
     ) {
         figureList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            filterFigureEvents: $filterFigureEvents,
-            filterEntryArticleTitle: $filterEntryArticleTitle,
+
             filterCreatedBy: $filterCreatedBy,
+            filterEntryArticleTitle: $filterEntryArticleTitle,
             filterEntryPublishers: $filterEntryPublishers,
-            filterFigureSources: $filterFigureSources,
+            filterFigureCategories: $filterFigureCategories,
             filterFigureCategoryTypes: $filterFigureCategoryTypes,
             filterFigureCountries: $filterFigureCountries,
+            filterFigureCrises: $filterFigureCrises,
+            filterFigureCrisisTypes: $filterFigureCrisisTypes,
             filterFigureEndBefore: $filterFigureEndBefore,
-            filterFigureRoles: $filterFigureRoles,
-            filterFigureStartAfter: $filterFigureStartAfter,
+            filterFigureEvents: $filterFigureEvents,
+            filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
+            filterFigureHasDisaggregatedData: $filterFigureHasDisaggregatedData,
+            filterFigureRegions: $filterFigureRegions,
             filterFigureReviewStatus: $filterFigureReviewStatus,
+            filterFigureRoles: $filterFigureRoles,
+            filterFigureSources: $filterFigureSources,
+            filterFigureStartAfter: $filterFigureStartAfter,
+            filterFigureTags: $filterFigureTags,
+            filterFigureTerms: $filterFigureTerms,
         ) {
             page
             pageSize
@@ -82,10 +106,10 @@ const FIGURE_LIST = gql`
                     id
                     fullName
                 }
-                geolocations
-                sourcesReliability
                 category
                 categoryDisplay
+                geolocations
+                sourcesReliability
                 country {
                     id
                     idmcShortName
@@ -118,6 +142,7 @@ const FIGURE_LIST = gql`
                 stockReportingDate
                 includeIdu
                 isHousingDestruction
+
                 reviewStatus
                 reviewStatusDisplay
             }
@@ -125,8 +150,59 @@ const FIGURE_LIST = gql`
     }
 `;
 
+const FIGURES_DOWNLOAD = gql`
+    mutation ExportFigures(
+        $filterContextOfViolences: [ID!],
+        $filterCreatedBy: [ID!],
+        $filterEntryArticleTitle: String,
+        $filterEntryPublishers: [ID!],
+        $filterFigureCategories: [String!],
+        $filterFigureCategoryTypes: [String!],
+        $filterFigureCountries: [ID!],
+        $filterFigureCrises: [ID!],
+        $filterFigureCrisisTypes: [String!],
+        $filterFigureEndBefore: Date,
+        $filterFigureEvents: [ID!],
+        $filterFigureGeographicalGroups: [ID!],
+        $filterFigureHasDisaggregatedData: Boolean,
+        $filterFigureRegions: [ID!],
+        $filterFigureReviewStatus: [String!],
+        $filterFigureRoles: [String!],
+        $filterFigureSources: [ID!],
+        $filterFigureStartAfter: Date,
+        $filterFigureTags: [ID!],
+        $filterFigureTerms: [ID!],
+    ) {
+       exportFigures(
+            filterContextOfViolences: $filterContextOfViolences,
+            filterCreatedBy: $filterCreatedBy,
+            filterEntryArticleTitle: $filterEntryArticleTitle,
+            filterEntryPublishers: $filterEntryPublishers,
+            filterFigureCategories: $filterFigureCategories,
+            filterFigureCategoryTypes: $filterFigureCategoryTypes,
+            filterFigureCountries: $filterFigureCountries,
+            filterFigureCrises: $filterFigureCrises,
+            filterFigureCrisisTypes: $filterFigureCrisisTypes,
+            filterFigureEndBefore: $filterFigureEndBefore,
+            filterFigureEvents: $filterFigureEvents,
+            filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
+            filterFigureHasDisaggregatedData: $filterFigureHasDisaggregatedData,
+            filterFigureRegions: $filterFigureRegions,
+            filterFigureReviewStatus: $filterFigureReviewStatus,
+            filterFigureRoles: $filterFigureRoles,
+            filterFigureSources: $filterFigureSources,
+            filterFigureStartAfter: $filterFigureStartAfter,
+            filterFigureTags: $filterFigureTags,
+            filterFigureTerms: $filterFigureTerms,
+        ) {
+           errors
+            ok
+        }
+    }
+`;
+
 const FIGURE_DELETE = gql`
-    mutation DeleteLatestFigure($id: ID!) {
+    mutation DeleteFigure($id: ID!) {
         deleteFigure(id: $id) {
             errors
             result {
@@ -136,27 +212,37 @@ const FIGURE_DELETE = gql`
     }
 `;
 
-type FigureFields = NonNullable<NonNullable<LatestFigureListQuery['figureList']>['results']>[number];
+type FigureFields = NonNullable<NonNullable<ExtractionFigureListQuery['figureList']>['results']>[number];
 
 const keySelector = (item: FigureFields) => item.id;
 
 interface NudeFigureTableProps {
     className?: string;
-    filters: EntriesQueryVariables;
-    onTotalFiguresChange?: (value: number) => void;
     eventColumnHidden?: boolean;
     crisisColumnHidden?: boolean;
     entryColumnHidden?: boolean;
+    filters?: ExtractionEntryListFiltersQueryVariables;
+
+    page: number;
+    pageSize: number;
+    onPageChange: (value: number) => void;
+    onPageSizeChange: (value: number) => void;
+    pagerPageControlDisabled?: boolean;
 }
 
-function NudeFigureTable(props: NudeFigureTableProps) {
+function useFigureTable(props: NudeFigureTableProps) {
     const {
         className,
         eventColumnHidden,
         crisisColumnHidden,
         entryColumnHidden,
         filters,
-        onTotalFiguresChange,
+
+        page,
+        pageSize,
+        onPageChange,
+        onPageSizeChange,
+        pagerPageControlDisabled,
     } = props;
 
     const {
@@ -164,7 +250,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
         data: figuresData = previousData,
         loading: loadingFigures,
         refetch: refetchFigures,
-    } = useQuery<LatestFigureListQuery, LatestFigureListQueryVariables>(FIGURE_LIST, {
+    } = useQuery<ExtractionFigureListQuery, ExtractionFigureListQueryVariables>(FIGURE_LIST, {
         variables: filters,
     });
 
@@ -176,7 +262,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
     const [
         deleteFigure,
         { loading: deletingFigure },
-    ] = useMutation<DeleteLatestFigureMutation, DeleteLatestFigureMutationVariables>(
+    ] = useMutation<DeleteFigureMutation, DeleteFigureMutationVariables>(
         FIGURE_DELETE,
         {
             onCompleted: (response) => {
@@ -204,6 +290,37 @@ function NudeFigureTable(props: NudeFigureTableProps) {
         },
     );
 
+    const [
+        exportFigures,
+        { loading: exportingTableData },
+    ] = useMutation<ExportFiguresMutation, ExportFiguresMutationVariables>(
+        FIGURES_DOWNLOAD,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportFigures: exportFiguresResponse } = response;
+                if (!exportFiguresResponse) {
+                    return;
+                }
+                const { errors, ok } = exportFiguresResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({
+                        children: 'Export started successfully!',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
     const handleFigureDelete = useCallback(
         (id: string) => {
             deleteFigure({
@@ -211,6 +328,15 @@ function NudeFigureTable(props: NudeFigureTableProps) {
             });
         },
         [deleteFigure],
+    );
+
+    const handleExportTableData = useCallback(
+        () => {
+            exportFigures({
+                variables: filters,
+            });
+        },
+        [exportFigures, filters],
     );
 
     const { user } = useContext(DomainContext);
@@ -275,6 +401,11 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     'Cause',
                     (item) => item.event?.eventTypeDisplay,
                     { sortable: true },
+                ),
+                createTextColumn<FigureFields, string>(
+                    'figure_typology',
+                    'Figure Type',
+                    (item) => item.figureTypology,
                 ),
                 createTextColumn<FigureFields, string>(
                     'country__idmc_short_name',
@@ -350,11 +481,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     'Housing Destruction',
                     (item) => (item.isHousingDestruction ? 'Yes' : 'No'),
                 ),
-                createTextColumn<FigureFields, string>(
-                    'figure_typology',
-                    'Figure Type',
-                    (item) => item.figureTypology,
-                ),
                 eventColumnHidden
                     ? undefined
                     : createLinkColumn<FigureFields, string>(
@@ -414,36 +540,48 @@ function NudeFigureTable(props: NudeFigureTableProps) {
     const queryBasedFigureList = figuresData?.figureList?.results;
     const totalFiguresCount = figuresData?.figureList?.totalCount ?? 0;
 
-    // NOTE: if we don't pass total figures count this way,
-    // we will have to use Portal to move the Pager component
-    useEffect(
-        () => {
-            if (onTotalFiguresChange) {
-                onTotalFiguresChange(totalFiguresCount);
-            }
-        },
-        [onTotalFiguresChange, totalFiguresCount],
-    );
-
-    return (
-        <>
-            {totalFiguresCount > 0 && (
-                <Table
-                    className={className}
-                    data={queryBasedFigureList}
-                    keySelector={keySelector}
-                    columns={columns}
-                    resizableColumn
-                    fixedColumnWidth
-                />
-            )}
-            {(loadingFigures || deletingFigure) && <Loading absolute />}
-            {!loadingFigures && totalFiguresCount <= 0 && (
-                <Message
-                    message="No figures found."
-                />
-            )}
-        </>
-    );
+    return {
+        exportButton: (
+            <ConfirmButton
+                confirmationHeader="Confirm Export"
+                confirmationMessage="Are you sure you want to export this table data?"
+                name={undefined}
+                onConfirm={handleExportTableData}
+                disabled={exportingTableData}
+            >
+                Export
+            </ConfirmButton>
+        ),
+        pager: (
+            <Pager
+                activePage={page}
+                itemsCount={totalFiguresCount}
+                maxItemsPerPage={pageSize}
+                onActivePageChange={onPageChange}
+                onItemsPerPageChange={onPageSizeChange}
+                itemsPerPageControlHidden={pagerPageControlDisabled}
+            />
+        ),
+        table: (
+            <>
+                {totalFiguresCount > 0 && (
+                    <Table
+                        className={className}
+                        data={queryBasedFigureList}
+                        keySelector={keySelector}
+                        columns={columns}
+                        resizableColumn
+                        fixedColumnWidth
+                    />
+                )}
+                {(loadingFigures || deletingFigure) && <Loading absolute />}
+                {!loadingFigures && totalFiguresCount <= 0 && (
+                    <Message
+                        message="No figures found."
+                    />
+                )}
+            </>
+        ),
+    };
 }
-export default NudeFigureTable;
+export default useFigureTable;

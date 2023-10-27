@@ -18,7 +18,7 @@ import TextBlock from '#components/TextBlock';
 import NumberBlock from '#components/NumberBlock';
 
 import CrisisForm from '#components/forms/CrisisForm';
-import EventsTable from '#components/tables/EventsTable';
+import EventsEntriesFiguresTable from '#components/tables/EventsEntriesFiguresTable';
 import useModalState from '#hooks/useModalState';
 
 import {
@@ -148,10 +148,11 @@ function Crisis(props: CrisisProps) {
                     markdown={crisisData?.crisis?.crisisNarrative ?? 'Narrative not available'}
                 />
             </Container>
-            <EventsTable
+            <EventsEntriesFiguresTable
                 className={styles.largeContainer}
                 // NOTE: replacing with a placeholder crisis so that the id is always defined
                 crisis={crisisData?.crisis ?? { id: crisisId, name: '???' }}
+                crisisColumnHidden
             />
             {shouldShowAddCrisisModal && (
                 <Modal

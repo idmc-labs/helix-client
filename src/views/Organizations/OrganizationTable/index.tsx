@@ -365,6 +365,14 @@ function OrganizationTable(props: OrganizationProps) {
             className={_cs(className, styles.container)}
             headerActions={(
                 <>
+                    {orgPermissions?.add && (
+                        <Button
+                            name={undefined}
+                            onClick={showAddOrganizationModal}
+                        >
+                            Add Organization
+                        </Button>
+                    )}
                     <ConfirmButton
                         confirmationHeader="Confirm Export"
                         confirmationMessage="Are you sure you want to export this table data?"
@@ -374,14 +382,6 @@ function OrganizationTable(props: OrganizationProps) {
                     >
                         Export
                     </ConfirmButton>
-                    {orgPermissions?.add && (
-                        <Button
-                            name={undefined}
-                            onClick={showAddOrganizationModal}
-                        >
-                            Add Organization
-                        </Button>
-                    )}
                 </>
             )}
             description={(

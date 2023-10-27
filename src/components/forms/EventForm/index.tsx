@@ -412,6 +412,7 @@ interface EventFormProps {
     eventHiddenWhileReadonly?: boolean;
     onEventFormCancel?: () => void;
     defaultCrisis?: CrisisOption | null | undefined;
+    defaultCountry?: CountryOption | null | undefined;
     disabled?: boolean;
     clone?: boolean;
 }
@@ -426,6 +427,7 @@ function EventForm(props: EventFormProps) {
         className,
         onEventFormCancel,
         defaultCrisis,
+        defaultCountry,
         clone,
     } = props;
 
@@ -442,7 +444,7 @@ function EventForm(props: EventFormProps) {
     const [
         countries,
         setCountries,
-    ] = useState<CountryOption[] | null | undefined>();
+    ] = useState<CountryOption[] | null | undefined>(defaultCountry ? [defaultCountry] : undefined);
     const [
         crises,
         setCrises,
@@ -459,6 +461,7 @@ function EventForm(props: EventFormProps) {
 
     const defaultFormValues: PartialForm<FormType> = {
         crisis: defaultCrisis?.id,
+        countries: defaultCountry ? [defaultCountry.id] : undefined,
     };
 
     const {

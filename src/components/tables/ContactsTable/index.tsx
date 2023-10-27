@@ -53,6 +53,7 @@ const GET_CONTACTS_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
+
         $name: String,
         $countriesOfOperation: [String!],
     ) {
@@ -403,6 +404,14 @@ function ContactsTable(props: ContactsTableProps) {
             contentClassName={styles.content}
             headerActions={(
                 <>
+                    {contactPermissions?.add && (
+                        <Button
+                            name={undefined}
+                            onClick={showAddContactModal}
+                        >
+                            Add Contact
+                        </Button>
+                    )}
                     <ConfirmButton
                         confirmationHeader="Confirm Export"
                         confirmationMessage="Are you sure you want to export this table data?"
@@ -412,14 +421,6 @@ function ContactsTable(props: ContactsTableProps) {
                     >
                         Export
                     </ConfirmButton>
-                    {contactPermissions?.add && (
-                        <Button
-                            name={undefined}
-                            onClick={showAddContactModal}
-                        >
-                            Add Contact
-                        </Button>
-                    )}
                 </>
             )}
             description={(

@@ -25,7 +25,7 @@ import {
     enumLabelSelector,
 } from '#utils/common';
 import {
-    EntriesQueryVariables,
+    ExtractionEntryListFiltersQueryVariables,
     FigureOptionsForFiltersQuery,
 } from '#generated/types';
 import styles from './styles.css';
@@ -42,7 +42,7 @@ const FIGURE_OPTIONS = gql`
 `;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-type EntriesFilterFields = Omit<EntriesQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type EntriesFilterFields = Omit<ExtractionEntryListFiltersQueryVariables, 'ordering' | 'page' | 'pageSize'>;
 type FormType = PurgeNull<PartialForm<EntriesFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -66,7 +66,7 @@ const defaultFormValues: PartialForm<FormType> = {
 
 interface EntriesFilterProps {
     className?: string;
-    onFilterChange: (value: PurgeNull<EntriesQueryVariables>) => void;
+    onFilterChange: (value: PurgeNull<ExtractionEntryListFiltersQueryVariables>) => void;
     reviewStatusHidden?: boolean;
 }
 
@@ -125,7 +125,7 @@ function EntriesFilter(props: EntriesFilterProps) {
                 <TextInput
                     className={styles.input}
                     icons={<IoSearchOutline />}
-                    label="Name"
+                    label="Search"
                     name="filterEntryArticleTitle"
                     value={value.filterEntryArticleTitle}
                     onChange={onValueChange}
@@ -150,6 +150,97 @@ function EntriesFilter(props: EntriesFilterProps) {
                     onChange={onValueChange}
                     value={value.filterFigureSources}
                     error={error?.fields?.filterFigureSources?.$internal}
+                />
+                <MultiSelectInput<FigureTerms, 'filterFigureTerms', NonNullable<TermOptions>[number], { containerClassName?: string }>
+                    options={terms as TermOptions}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    label="Terms"
+                    name="filterFigureTerms"
+                    value={value.filterFigureTerms}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureTerms?.$internal}
+                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                />
+                <MultiSelectInput<Role, 'filterFigureRoles', NonNullable<FigureRoleOptions>[number], { containerClassName?: string }>
+                    options={figureRoles as FigureRoleOptions}
+                    label="Roles"
+                    name="filterFigureRoles"
+                    value={value.filterFigureRoles}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.filterFigureRoles?.$internal}
+                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                />
+                <MultiSelectInput<string, 'filterFigureCategoryTypes', NonNullable<FigureCategoryTypeOptions>[number], { containerClassName?: string }>
+                    className={_cs(
+                        styles.input,
+                        (hasNoData(value.filterFigureCategoryTypes) && !filtersExpanded)
+                        && styles.hidden,
+                    )}
+                    options={categoryTypeOptions}
+                    label="Category Types"
+                    name="filterFigureCategoryTypes"
+                    value={value.filterFigureCategoryTypes}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.filterFigureCategoryTypes?.$internal}
+                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                />
+                <MultiSelectInput<FigureCategoryTypes, 'filterFigureCategories', NonNullable<FigureCategoryOptions>[number], { containerClassName?: string }>
+                    className={_cs(
+                        styles.input,
+                        (hasNoData(value.filterFigureCategories) && !filtersExpanded)
+                        && styles.hidden,
+                    )}
+                    options={figureCategories as FigureCategoryOptions}
+                    label="Categories"
+                    name="filterFigureCategories"
+                    value={value.filterFigureCategories}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureCategories?.$internal}
+                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    groupKeySelector={figureCategoryGroupKeySelector}
+                    groupLabelSelector={figureCategoryGroupLabelSelector}
+                    grouped
+                    hideOptionFilter={figureCategoryHideOptionFilter}
+                />
+                {/* FIXME: hide this if country is already selected */}
+                <CountryMultiSelectInput
+                    options={countryOptions}
+                    onOptionsChange={setCountries}
+                    label="Countries"
+                    name="filterFigureCountries"
+                    value={value.filterFigureCountries}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureCountries?.$internal}
+                    disabled={disabled}
+                />
+                {/* FIXME: hide this if event is already selected */}
+                <EventMultiSelectInput
+                    label="Events"
+                    options={eventOptions}
+                    name="filterFigureEvents"
+                    onOptionsChange={setEventOptions}
+                    onChange={onValueChange}
+                    value={value.filterFigureEvents}
+                    error={error?.fields?.filterFigureEvents?.$internal}
+                    disabled={disabled}
+                />
+                <MultiSelectInput<CrisisType, 'filterFigureCrisisTypes', NonNullable<CrisisTypeOptions>[number], { containerClassName?: string }>
+                    options={data?.crisisType?.enumValues as CrisisTypeOptions}
+                    label="Causes"
+                    name="filterFigureCrisisTypes"
+                    value={value.filterFigureCrisisTypes}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.filterFigureCrisisTypes?.$internal}
+                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
                 {!reviewStatusHidden && (
                     <MultiSelectInput
