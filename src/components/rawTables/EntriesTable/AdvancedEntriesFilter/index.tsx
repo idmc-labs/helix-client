@@ -220,6 +220,8 @@ const schema: FormSchema = {
         filterCreatedBy: [arrayCondition],
         filterFigureEvents: [arrayCondition],
         filterFigureReviewStatus: [arrayCondition],
+        filterFigureHasExcerptIdu: [],
+        filterFigureHasHousingDestruction: [],
     }),
 };
 
@@ -238,6 +240,8 @@ const defaultFormValues: PartialForm<FormType> = {
     filterCreatedBy: [],
     filterFigureEvents: [],
     filterFigureReviewStatus: [],
+    filterFigureHasExcerptIdu: undefined,
+    filterFigureHasHousingDestruction: undefined,
 };
 
 interface ExtractionFiltersProps {

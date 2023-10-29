@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import {
     TextInput,
     Button,
@@ -20,6 +20,13 @@ import { gql, useQuery } from '@apollo/client';
 
 import NonFieldError from '#components/NonFieldError';
 import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
+import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
+import EventMultiSelectInput, { EventOption } from '#components/selections/EventMultiSelectInput';
+import BooleanInput from '#components/selections/BooleanInput';
+import {
+    isFlowCategory,
+    isVisibleCategory,
+} from '#utils/selectionConstants';
 import {
     enumKeySelector,
     enumLabelSelector,
@@ -27,8 +34,20 @@ import {
 import {
     ExtractionEntryListFiltersQueryVariables,
     FigureOptionsForFiltersQuery,
+    Figure_Category_Types as FigureCategoryTypes,
 } from '#generated/types';
+
 import styles from './styles.css';
+
+const categoryTypeOptions = [
+    { name: 'FLOW', description: 'Flow' },
+    { name: 'STOCK', description: 'Stock' },
+];
+
+interface FigureCategory {
+    name: FigureCategoryTypes;
+    description: string;
+}
 
 const FIGURE_OPTIONS = gql`
     query FigureOptionsForFilters {
@@ -38,8 +57,49 @@ const FIGURE_OPTIONS = gql`
                 description
             }
         }
+        figureTermList: __type(name: "FIGURE_TERMS") {
+            enumValues {
+                name
+                description
+            }
+        }
+        figureCategoryList: __type(name: "FIGURE_CATEGORY_TYPES") {
+            enumValues {
+                name
+                description
+            }
+        }
+        figureRoleList: __type(name: "ROLE") {
+            enumValues {
+                name
+                description
+            }
+        }
+        figureCrisisType: __type(name: "CRISIS_TYPE") {
+            enumValues {
+                name
+                description
+            }
+        }
     }
 `;
+
+interface DisplacementTypeOption {
+    name: FigureCategoryTypes;
+    description?: string | null | undefined;
+}
+
+const figureCategoryGroupKeySelector = (item: DisplacementTypeOption) => (
+    isFlowCategory(item.name) ? 'Flow' : 'Stock'
+);
+
+const figureCategoryGroupLabelSelector = (item: DisplacementTypeOption) => (
+    isFlowCategory(item.name) ? 'Flow' : 'Stock'
+);
+
+const figureCategoryHideOptionFilter = (item: DisplacementTypeOption) => (
+    isVisibleCategory(item.name)
+);
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type EntriesFilterFields = Omit<ExtractionEntryListFiltersQueryVariables, 'ordering' | 'page' | 'pageSize'>;
@@ -54,20 +114,27 @@ const schema: FormSchema = {
         filterEntryPublishers: [arrayCondition],
         filterFigureSources: [arrayCondition],
         filterFigureReviewStatus: [arrayCondition],
+        filterFigureCountries: [arrayCondition],
+        filterFigureEvents: [arrayCondition],
+        filterFigureTerms: [arrayCondition],
+        filterFigureRoles: [arrayCondition],
+        filterFigureCategoryTypes: [arrayCondition],
+        filterFigureCategories: [arrayCondition],
+        filterFigureCrisisTypes: [arrayCondition],
+        filterFigureHasExcerptIdu: [],
+        filterFigureHasHousingDestruction: [],
     }),
-};
-
-const defaultFormValues: PartialForm<FormType> = {
-    filterEntryArticleTitle: undefined,
-    filterEntryPublishers: undefined,
-    filterFigureSources: undefined,
-    filterFigureReviewStatus: undefined,
 };
 
 interface EntriesFilterProps {
     className?: string;
     onFilterChange: (value: PurgeNull<ExtractionEntryListFiltersQueryVariables>) => void;
     reviewStatusHidden?: boolean;
+    countriesHidden?: boolean;
+    eventsHidden?: boolean;
+    defaultCountries?: string[];
+    defaultEvents?: string[];
+    disabled?: boolean;
 }
 
 function EntriesFilter(props: EntriesFilterProps) {
@@ -75,6 +142,11 @@ function EntriesFilter(props: EntriesFilterProps) {
         className,
         onFilterChange,
         reviewStatusHidden,
+        disabled,
+        defaultCountries,
+        defaultEvents,
+        countriesHidden,
+        eventsHidden,
     } = props;
 
     const [
@@ -87,6 +159,34 @@ function EntriesFilter(props: EntriesFilterProps) {
         loading: figureOptionsLoading,
         error: figureOptionsError,
     } = useQuery<FigureOptionsForFiltersQuery>(FIGURE_OPTIONS);
+
+    const [
+        countryOptions,
+        setCountryOptions,
+    ] = useState<CountryOption[] | undefined | null>();
+
+    const [
+        eventOptions,
+        setEventOptions,
+    ] = useState<EventOption[] | undefined | null>();
+
+    const defaultFormValues: PartialForm<FormType> = useMemo(() => ({
+        filterEntryArticleTitle: undefined,
+        filterEntryPublishers: undefined,
+        filterFigureSources: undefined,
+        filterFigureReviewStatus: undefined,
+        filterFigureCountries: defaultCountries,
+        filterFigureEvents: defaultEvents,
+        filterFigureTerms: undefined,
+        filterFigureRoles: undefined,
+        filterFigureCategoryTypes: undefined,
+        filterFigureCategories: undefined,
+        filterFigureHasExcerptIdu: undefined,
+        filterFigureHasHousingDestruction: undefined,
+    }), [
+        defaultCountries,
+        defaultEvents,
+    ]);
 
     const {
         pristine,
@@ -103,7 +203,11 @@ function EntriesFilter(props: EntriesFilterProps) {
             onValueSet(defaultFormValues);
             onFilterChange(defaultFormValues);
         },
-        [onValueSet, onFilterChange],
+        [
+            onValueSet,
+            onFilterChange,
+            defaultFormValues,
+        ],
     );
 
     const handleSubmit = React.useCallback((finalValues: FormType) => {
@@ -151,8 +255,8 @@ function EntriesFilter(props: EntriesFilterProps) {
                     value={value.filterFigureSources}
                     error={error?.fields?.filterFigureSources?.$internal}
                 />
-                <MultiSelectInput<FigureTerms, 'filterFigureTerms', NonNullable<TermOptions>[number], { containerClassName?: string }>
-                    options={terms as TermOptions}
+                <MultiSelectInput
+                    options={data?.figureTermList?.enumValues}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     label="Terms"
@@ -160,10 +264,10 @@ function EntriesFilter(props: EntriesFilterProps) {
                     value={value.filterFigureTerms}
                     onChange={onValueChange}
                     error={error?.fields?.filterFigureTerms?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                    disabled={disabled}
                 />
-                <MultiSelectInput<Role, 'filterFigureRoles', NonNullable<FigureRoleOptions>[number], { containerClassName?: string }>
-                    options={figureRoles as FigureRoleOptions}
+                <MultiSelectInput
+                    options={data?.figureRoleList?.enumValues}
                     label="Roles"
                     name="filterFigureRoles"
                     value={value.filterFigureRoles}
@@ -171,14 +275,9 @@ function EntriesFilter(props: EntriesFilterProps) {
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     error={error?.fields?.filterFigureRoles?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                    disabled={disabled}
                 />
-                <MultiSelectInput<string, 'filterFigureCategoryTypes', NonNullable<FigureCategoryTypeOptions>[number], { containerClassName?: string }>
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterFigureCategoryTypes) && !filtersExpanded)
-                        && styles.hidden,
-                    )}
+                <MultiSelectInput
                     options={categoryTypeOptions}
                     label="Category Types"
                     name="filterFigureCategoryTypes"
@@ -187,21 +286,16 @@ function EntriesFilter(props: EntriesFilterProps) {
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     error={error?.fields?.filterFigureCategoryTypes?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                    disabled={disabled}
                 />
-                <MultiSelectInput<FigureCategoryTypes, 'filterFigureCategories', NonNullable<FigureCategoryOptions>[number], { containerClassName?: string }>
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterFigureCategories) && !filtersExpanded)
-                        && styles.hidden,
-                    )}
-                    options={figureCategories as FigureCategoryOptions}
+                <MultiSelectInput
+                    options={data?.figureCategoryList?.enumValues as FigureCategory[]}
                     label="Categories"
                     name="filterFigureCategories"
                     value={value.filterFigureCategories}
                     onChange={onValueChange}
                     error={error?.fields?.filterFigureCategories?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                    disabled={disabled}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     groupKeySelector={figureCategoryGroupKeySelector}
@@ -209,30 +303,32 @@ function EntriesFilter(props: EntriesFilterProps) {
                     grouped
                     hideOptionFilter={figureCategoryHideOptionFilter}
                 />
-                {/* FIXME: hide this if country is already selected */}
-                <CountryMultiSelectInput
-                    options={countryOptions}
-                    onOptionsChange={setCountries}
-                    label="Countries"
-                    name="filterFigureCountries"
-                    value={value.filterFigureCountries}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureCountries?.$internal}
-                    disabled={disabled}
-                />
-                {/* FIXME: hide this if event is already selected */}
-                <EventMultiSelectInput
-                    label="Events"
-                    options={eventOptions}
-                    name="filterFigureEvents"
-                    onOptionsChange={setEventOptions}
-                    onChange={onValueChange}
-                    value={value.filterFigureEvents}
-                    error={error?.fields?.filterFigureEvents?.$internal}
-                    disabled={disabled}
-                />
-                <MultiSelectInput<CrisisType, 'filterFigureCrisisTypes', NonNullable<CrisisTypeOptions>[number], { containerClassName?: string }>
-                    options={data?.crisisType?.enumValues as CrisisTypeOptions}
+                {!countriesHidden && (
+                    <CountryMultiSelectInput
+                        options={countryOptions}
+                        onOptionsChange={setCountryOptions}
+                        label="Countries"
+                        name="filterFigureCountries"
+                        value={value.filterFigureCountries}
+                        onChange={onValueChange}
+                        error={error?.fields?.filterFigureCountries?.$internal}
+                        disabled={disabled}
+                    />
+                )}
+                {!eventsHidden && (
+                    <EventMultiSelectInput
+                        label="Events"
+                        options={eventOptions}
+                        name="filterFigureEvents"
+                        onOptionsChange={setEventOptions}
+                        onChange={onValueChange}
+                        value={value.filterFigureEvents}
+                        error={error?.fields?.filterFigureEvents?.$internal}
+                        disabled={disabled}
+                    />
+                )}
+                <MultiSelectInput
+                    options={data?.figureCrisisType?.enumValues}
                     label="Causes"
                     name="filterFigureCrisisTypes"
                     value={value.filterFigureCrisisTypes}
@@ -240,7 +336,7 @@ function EntriesFilter(props: EntriesFilterProps) {
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     error={error?.fields?.filterFigureCrisisTypes?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                    disabled={disabled}
                 />
                 {!reviewStatusHidden && (
                     <MultiSelectInput
@@ -256,6 +352,22 @@ function EntriesFilter(props: EntriesFilterProps) {
                         disabled={figureOptionsLoading || !!figureOptionsError}
                     />
                 )}
+                <BooleanInput
+                    label="Has Excerpt IDU"
+                    name="filterFigureHasExcerptIdu"
+                    value={value.filterFigureHasExcerptIdu}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureHasExcerptIdu}
+                    disabled={disabled}
+                />
+                <BooleanInput
+                    label="Has Housing Destruction"
+                    name="filterFigureHasHousingDestruction"
+                    value={value.filterFigureHasHousingDestruction}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureHasHousingDestruction}
+                    disabled={disabled}
+                />
                 <div className={styles.formButtons}>
                     <Button
                         name={undefined}

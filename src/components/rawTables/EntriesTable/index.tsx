@@ -64,6 +64,8 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $filterFigureStartAfter: Date,
         $filterFigureTags: [ID!],
         $filterFigureTerms: [ID!],
+        $filterFigureHasExcerptIdu: Boolean,
+        $filterFigureHasHousingDestruction: Boolean,
     ) {
         extractionEntryList(
             ordering: $ordering,
@@ -89,6 +91,8 @@ export const EXTRACTION_ENTRY_LIST = gql`
             filterFigureStartAfter: $filterFigureStartAfter,
             filterFigureTags: $filterFigureTags,
             filterFigureTerms: $filterFigureTerms,
+            filterFigureHasExcerptIdu: $filterFigureHasExcerptIdu,
+            filterFigureHasHousingDestruction: $filterFigureHasHousingDestruction,
         ) {
             page
             pageSize
@@ -136,6 +140,8 @@ const ENTRIES_EXPORT = gql`
         $filterFigureStartAfter: Date,
         $filterFigureTags: [ID!],
         $filterFigureTerms: [ID!],
+        $filterFigureHasExcerptIdu: Boolean,
+        $filterFigureHasHousingDestruction: Boolean,
     ) {
        exportEntries(
             filterContextOfViolences: $filterContextOfViolences,
@@ -158,6 +164,8 @@ const ENTRIES_EXPORT = gql`
             filterFigureStartAfter: $filterFigureStartAfter,
             filterFigureTags: $filterFigureTags,
             filterFigureTerms: $filterFigureTerms,
+            filterFigureHasExcerptIdu: $filterFigureHasExcerptIdu,
+            filterFigureHasHousingDestruction: $filterFigureHasHousingDestruction,
         ) {
            errors
             ok

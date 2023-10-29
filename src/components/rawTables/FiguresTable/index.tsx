@@ -69,6 +69,8 @@ export const FIGURE_LIST = gql`
         $filterFigureStartAfter: Date,
         $filterFigureTags: [ID!],
         $filterFigureTerms: [ID!],
+        $filterFigureHasExcerptIdu: Boolean,
+        $filterFigureHasHousingDestruction: Boolean,
     ) {
         figureList(
             ordering: $ordering,
@@ -94,6 +96,8 @@ export const FIGURE_LIST = gql`
             filterFigureStartAfter: $filterFigureStartAfter,
             filterFigureTags: $filterFigureTags,
             filterFigureTerms: $filterFigureTerms,
+            filterHasExcerptIdu: $filterFigureHasExcerptIdu,
+            filterHasHousingDestruction: $filterFigureHasHousingDestruction,
         ) {
             page
             pageSize
@@ -172,6 +176,8 @@ const FIGURES_DOWNLOAD = gql`
         $filterFigureStartAfter: Date,
         $filterFigureTags: [ID!],
         $filterFigureTerms: [ID!],
+        $filterFigureHasExcerptIdu: Boolean,
+        $filterFigureHasHousingDestruction: Boolean,
     ) {
        exportFigures(
             filterContextOfViolences: $filterContextOfViolences,
@@ -194,6 +200,8 @@ const FIGURES_DOWNLOAD = gql`
             filterFigureStartAfter: $filterFigureStartAfter,
             filterFigureTags: $filterFigureTags,
             filterFigureTerms: $filterFigureTerms,
+            filterHasExcerptIdu: $filterFigureHasExcerptIdu,
+            filterHasHousingDestruction: $filterFigureHasHousingDestruction,
         ) {
            errors
             ok

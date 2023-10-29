@@ -1,5 +1,8 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { _cs } from '@togglecorp/fujs';
+import {
+    _cs,
+    isDefined,
+} from '@togglecorp/fujs';
 import {
     TabList,
     Tab,
@@ -226,12 +229,20 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
                             <EntriesFilter
                                 onFilterChange={onFilterChange}
                                 reviewStatusHidden={!!reviewStatus}
+                                defaultEvents={eventId ? [eventId] : undefined}
+                                eventsHidden={isDefined(eventId)}
+                                defaultCountries={countryId ? [countryId] : undefined}
+                                countriesHidden={isDefined(countryId)}
                             />
                         )}
                         {selectedTab === 'Figures' && (
                             <EntriesFilter
                                 onFilterChange={onFilterChange}
                                 reviewStatusHidden={!!reviewStatus}
+                                defaultEvents={eventId ? [eventId] : undefined}
+                                defaultCountries={countryId ? [countryId] : undefined}
+                                eventsHidden={isDefined(eventId)}
+                                countriesHidden={isDefined(countryId)}
                             />
                         )}
                     </>

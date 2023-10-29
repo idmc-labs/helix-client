@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     TabList,
     Tab,
@@ -353,11 +353,15 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
                         {selectedTab === 'Entries' && (
                             <EntriesFilter
                                 onFilterChange={onFilterChange}
+                                defaultCountries={countryId ? [countryId] : undefined}
+                                countriesHidden={isDefined(countryId)}
                             />
                         )}
                         {selectedTab === 'Figures' && (
                             <EntriesFilter
                                 onFilterChange={onFilterChange}
+                                defaultCountries={countryId ? [countryId] : undefined}
+                                countriesHidden={isDefined(countryId)}
                             />
                         )}
                     </>
