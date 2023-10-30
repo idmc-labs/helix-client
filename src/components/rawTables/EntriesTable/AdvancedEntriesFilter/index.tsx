@@ -168,6 +168,8 @@ const EXTRACTION_FILTER = gql`
                 id
             }
             filterFigureReviewStatus
+            filterFigureHasExcerptIdu
+            filterFigureHasHousingDestruction
         }
     }
 `;
@@ -404,6 +406,8 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     filterFigureEvents: otherAttrs.filterFigureEvents?.map((e) => e.id),
                     filterFigureReviewStatus: otherAttrs.filterFigureReviewStatus,
                     filterFigureHasDisaggregatedData: otherAttrs.filterFigureHasDisaggregatedData,
+                    filterFigureHasHousingDestruction: otherAttrs.filterFigureHasHousingDestruction,
+                    filterFigureHasExcerptIdu: otherAttrs.filterFigureHasExcerptIdu,
                 });
                 onFormValueSet(formValue);
                 onFilterChange(formValue);
@@ -788,6 +792,42 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         value={value.filterFigureHasDisaggregatedData}
                         onChange={onValueChange}
                         error={error?.fields?.filterFigureHasDisaggregatedData}
+                        disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                    />
+                </Row>
+                <Row
+                    className={_cs(
+                        styles.input,
+                        (hasNoData(value.filterFigureHasExcerptIdu)
+                            && hasNoData(value.filterFigureHasHousingDestruction)
+                            && !filtersExpanded)
+                        && styles.hidden,
+                    )}
+                >
+                    <BooleanInput
+                        className={_cs(
+                            styles.input,
+                            (hasNoData(value.filterFigureHasExcerptIdu) && !filtersExpanded)
+                            && styles.hidden,
+                        )}
+                        label="Has Excerpt IDU"
+                        name="filterFigureHasExcerptIdu"
+                        value={value.filterFigureHasExcerptIdu}
+                        onChange={onValueChange}
+                        error={error?.fields?.filterFigureHasExcerptIdu}
+                        disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                    />
+                    <BooleanInput
+                        className={_cs(
+                            styles.input,
+                            (hasNoData(value.filterFigureHasHousingDestruction) && !filtersExpanded)
+                            && styles.hidden,
+                        )}
+                        label="Has Housing Destruction"
+                        name="filterFigureHasHousingDestruction"
+                        value={value.filterFigureHasHousingDestruction}
+                        onChange={onValueChange}
+                        error={error?.fields?.filterFigureHasHousingDestruction}
                         disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                     />
                 </Row>

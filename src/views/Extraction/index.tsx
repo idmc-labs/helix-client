@@ -66,6 +66,8 @@ const CREATE_EXTRACTION = gql`
                 }
                 filterFigureHasDisaggregatedData
                 filterFigureTerms
+                filterFigureHasHousingDestruction
+                filterFigureHasExcerptIdu
             }
             errors
         }
@@ -107,6 +109,8 @@ const UPDATE_EXTRACTION = gql`
                 }
                 filterFigureHasDisaggregatedData
                 filterFigureTerms
+                filterFigureHasHousingDestruction
+                filterFigureHasExcerptIdu
             }
             errors
         }
