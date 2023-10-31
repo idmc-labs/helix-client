@@ -1,139 +1,25 @@
-import React, { useState, useMemo, useLayoutEffect, useContext, useCallback } from 'react';
+import React, { useState, useMemo, useLayoutEffect, useCallback } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
     TabList,
     Tab,
     Tabs,
     TabPanel,
-    Pager,
     SortContext,
     TableSortDirection,
     useSortState,
-    ConfirmButton,
 } from '@togglecorp/toggle-ui';
-import { getOperationName } from 'apollo-link';
-import { gql, useMutation } from '@apollo/client';
 
 import {
     ExtractionEntryListFiltersQueryVariables,
-    ExportEntriesMutation,
-    ExportEntriesMutationVariables,
-    ExportFiguresMutation,
-    ExportFiguresMutationVariables,
 } from '#generated/types';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 
-import NotificationContext from '#components/NotificationContext';
 import Container from '#components/Container';
-import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 
-import NudeEntryTable from './NudeEntryTable';
-import NudeFigureTable from './NudeFigureTable';
+import useEntryTable from '#components/rawTables/EntriesTable';
+import useFigureTable from '#components/rawTables/FiguresTable';
 import styles from './styles.css';
-
-const ENTRIES_DOWNLOAD = gql`
-    mutation ExportEntries(
-        $filterFigureCategories: [String!],
-        $filterEntryArticleTitle: String,
-        $filterContextOfViolences: [ID!],
-        $filterCreatedBy: [ID!],
-        $filterEntryPublishers: [ID!],
-        $filterFigureSources: [ID!],
-        $filterFigureCrises: [ID!],
-        $filterFigureCrisisTypes: [String!],
-        $filterFigureCategoryTypes: [String!],
-        $filterFigureCountries: [ID!],
-        $filterFigureEndBefore: Date,
-        $filterFigureGeographicalGroups: [ID!],
-        $filterFigureRegions: [ID!],
-        $filterFigureRoles: [String!],
-        $filterFigureHasDisaggregatedData: Boolean,
-        $filterFigureStartAfter: Date,
-        $filterFigureTags: [ID!],
-        $filterFigureTerms: [ID!],
-        $filterFigureEvents: [ID!],
-        $filterFigureReviewStatus: [String!],
-    ) {
-       exportEntries(
-            filterFigureCategories: $filterFigureCategories,
-            filterEntryArticleTitle: $filterEntryArticleTitle,
-            filterCreatedBy: $filterCreatedBy,
-            filterContextOfViolences: $filterContextOfViolences,
-            filterEntryPublishers: $filterEntryPublishers,
-            filterFigureSources: $filterFigureSources,
-            filterFigureCrises: $filterFigureCrises,
-            filterFigureCrisisTypes: $filterFigureCrisisTypes,
-            filterFigureCategoryTypes: $filterFigureCategoryTypes,
-            filterFigureCountries: $filterFigureCountries,
-            filterFigureEndBefore: $filterFigureEndBefore,
-            filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
-            filterFigureRegions: $filterFigureRegions,
-            filterFigureRoles: $filterFigureRoles,
-            filterFigureHasDisaggregatedData: $filterFigureHasDisaggregatedData,
-            filterFigureStartAfter: $filterFigureStartAfter,
-            filterFigureTags: $filterFigureTags,
-            filterFigureTerms: $filterFigureTerms,
-            filterFigureEvents: $filterFigureEvents,
-            filterFigureReviewStatus: $filterFigureReviewStatus,
-        ) {
-           errors
-            ok
-        }
-    }
-`;
-
-const FIGURES_DOWNLOAD = gql`
-    mutation ExportFigures(
-        $filterFigureCategories: [String!],
-        $filterEntryArticleTitle: String,
-        $filterContextOfViolences: [ID!],
-        $filterCreatedBy: [ID!],
-        $filterEntryPublishers: [ID!],
-        $filterFigureSources: [ID!],
-        $filterFigureCrises: [ID!],
-        $filterFigureCrisisTypes: [String!],
-        $filterFigureCategoryTypes: [String!],
-        $filterFigureCountries: [ID!],
-        $filterFigureEndBefore: Date,
-        $filterFigureGeographicalGroups: [ID!],
-        $filterFigureRegions: [ID!],
-        $filterFigureRoles: [String!],
-        $filterFigureHasDisaggregatedData: Boolean,
-        $filterFigureStartAfter: Date,
-        $filterFigureTags: [ID!],
-        $filterFigureTerms: [ID!],
-        $filterFigureEvents: [ID!],
-        $filterFigureReviewStatus: [String!],
-    ) {
-       exportFigures(
-            filterFigureCategories: $filterFigureCategories,
-            filterEntryArticleTitle: $filterEntryArticleTitle,
-            filterCreatedBy: $filterCreatedBy,
-            filterContextOfViolences: $filterContextOfViolences,
-            filterEntryPublishers: $filterEntryPublishers,
-            filterFigureSources: $filterFigureSources,
-            filterFigureCrises: $filterFigureCrises,
-            filterFigureCrisisTypes: $filterFigureCrisisTypes,
-            filterFigureCategoryTypes: $filterFigureCategoryTypes,
-            filterFigureCountries: $filterFigureCountries,
-            filterFigureEndBefore: $filterFigureEndBefore,
-            filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
-            filterFigureRegions: $filterFigureRegions,
-            filterFigureRoles: $filterFigureRoles,
-            filterFigureHasDisaggregatedData: $filterFigureHasDisaggregatedData,
-            filterFigureStartAfter: $filterFigureStartAfter,
-            filterFigureTags: $filterFigureTags,
-            filterFigureTerms: $filterFigureTerms,
-            filterFigureEvents: $filterFigureEvents,
-            filterFigureReviewStatus: $filterFigureReviewStatus,
-        ) {
-           errors
-            ok
-        }
-    }
-`;
-
-const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 type Tabs = 'Entries' | 'Figures';
 
@@ -160,11 +46,6 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         filters,
     } = props;
 
-    const {
-        notify,
-        notifyGQLError,
-    } = useContext(NotificationContext);
-
     const [selectedTab, setSelectedTab] = useState<'Entries' | 'Figures' | undefined>('Figures');
 
     const [entriesPage, setEntriesPage] = useState(1);
@@ -174,9 +55,6 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
     const [figuresPage, setFiguresPage] = useState(1);
     const [figuresPageSize, setFiguresPageSize] = useState(10);
     const debouncedFiguresPage = useDebouncedValue(figuresPage);
-
-    const [totalEntriesCount, setTotalEntriesCount] = useState(0);
-    const [totalFiguresCount, setTotalFiguresCount] = useState(0);
 
     const entriesSortState = useSortState();
     const { sorting: entriesSorting } = entriesSortState;
@@ -247,85 +125,29 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         [],
     );
 
-    const [
-        exportEntries,
-        { loading: exportingEntries },
-    ] = useMutation<ExportEntriesMutation, ExportEntriesMutationVariables>(
-        ENTRIES_DOWNLOAD,
-        {
-            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
-            onCompleted: (response) => {
-                const { exportEntries: exportEntriesResponse } = response;
-                if (!exportEntriesResponse) {
-                    return;
-                }
-                const { errors, ok } = exportEntriesResponse;
-                if (errors) {
-                    notifyGQLError(errors);
-                }
-                if (ok) {
-                    notify({
-                        children: 'Export started successfully!',
-                    });
-                }
-            },
-            onError: (error) => {
-                notify({
-                    children: error.message,
-                    variant: 'error',
-                });
-            },
-        },
-    );
+    const {
+        table: entriesTable,
+        exportButton: entriesExportButton,
+        pager: entriesPager,
+    } = useEntryTable({
+        filters: entriesVariables,
+        page: entriesPage,
+        pageSize: entriesPageSize,
+        onPageChange: setEntriesPage,
+        onPageSizeChange: handleEntriesPageSizeChange,
+    });
 
-    const [
-        exportFigures,
-        { loading: exportingFigures },
-    ] = useMutation<ExportFiguresMutation, ExportFiguresMutationVariables>(
-        FIGURES_DOWNLOAD,
-        {
-            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
-            onCompleted: (response) => {
-                const { exportFigures: exportFiguresResponse } = response;
-                if (!exportFiguresResponse) {
-                    return;
-                }
-                const { errors, ok } = exportFiguresResponse;
-                if (errors) {
-                    notifyGQLError(errors);
-                }
-                if (ok) {
-                    notify({
-                        children: 'Export started successfully!',
-                    });
-                }
-            },
-            onError: (error) => {
-                notify({
-                    children: error.message,
-                    variant: 'error',
-                });
-            },
-        },
-    );
-
-    const handleExportEntriesData = useCallback(
-        () => {
-            exportEntries({
-                variables: filters,
-            });
-        },
-        [exportEntries, filters],
-    );
-
-    const handleExportFiguresData = useCallback(
-        () => {
-            exportFigures({
-                variables: filters,
-            });
-        },
-        [exportFigures, filters],
-    );
+    const {
+        table: figuresTable,
+        exportButton: figuresExportButton,
+        pager: figuresPager,
+    } = useFigureTable({
+        filters: figuresVariables,
+        page: figuresPage,
+        pageSize: figuresPageSize,
+        onPageChange: setFiguresPage,
+        onPageSizeChange: handleFiguresPageSizeChange,
+    });
 
     return (
         <Tabs
@@ -352,70 +174,26 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                 contentClassName={styles.content}
                 headerActions={(
                     <>
-                        {selectedTab === 'Entries' && (
-                            <ConfirmButton
-                                confirmationHeader="Export"
-                                confirmationMessage="Are you sure you want to export entries?"
-                                name={undefined}
-                                onConfirm={handleExportEntriesData}
-                                disabled={exportingEntries}
-                                variant="default"
-                            >
-                                Export
-                            </ConfirmButton>
-                        )}
-                        {selectedTab === 'Figures' && (
-                            <ConfirmButton
-                                confirmationHeader="Export"
-                                confirmationMessage="Are you sure you want to export figures?"
-                                name={undefined}
-                                onConfirm={handleExportFiguresData}
-                                disabled={exportingFigures}
-                                variant="default"
-                            >
-                                Export
-                            </ConfirmButton>
-                        )}
+                        {selectedTab === 'Entries' && entriesExportButton}
+                        {selectedTab === 'Figures' && figuresExportButton}
                         {headingActions}
                     </>
                 )}
                 footerContent={(
                     <>
-                        {selectedTab === 'Entries' && (
-                            <Pager
-                                activePage={entriesPage}
-                                itemsCount={totalEntriesCount}
-                                maxItemsPerPage={entriesPageSize}
-                                onActivePageChange={setEntriesPage}
-                                onItemsPerPageChange={handleEntriesPageSizeChange}
-                            />
-                        )}
-                        {selectedTab === 'Figures' && (
-                            <Pager
-                                activePage={figuresPage}
-                                itemsCount={totalFiguresCount}
-                                maxItemsPerPage={figuresPageSize}
-                                onActivePageChange={setFiguresPage}
-                                onItemsPerPageChange={handleFiguresPageSizeChange}
-                            />
-                        )}
+                        {selectedTab === 'Entries' && entriesPager}
+                        {selectedTab === 'Figures' && figuresPager}
                     </>
                 )}
             >
                 <TabPanel name="Entries">
                     <SortContext.Provider value={entriesSortState}>
-                        <NudeEntryTable
-                            filters={entriesVariables}
-                            onTotalEntriesChange={setTotalEntriesCount}
-                        />
+                        {entriesTable}
                     </SortContext.Provider>
                 </TabPanel>
                 <TabPanel name="Figures">
                     <SortContext.Provider value={figuresSortState}>
-                        <NudeFigureTable
-                            filters={figuresVariables}
-                            onTotalFiguresChange={setTotalFiguresCount}
-                        />
+                        {figuresTable}
                     </SortContext.Provider>
                 </TabPanel>
             </Container>

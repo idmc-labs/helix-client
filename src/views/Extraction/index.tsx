@@ -16,7 +16,7 @@ import route from '#config/routes';
 import { reverseRoute } from '#hooks/useRouteMatching';
 
 import ExtractionEntriesTable from './ExtractionEntriesTable';
-import ExtractionFilters from './ExtractionFilters';
+import AdvancedEntriesFilter from '#components/rawTables/EntriesTable/AdvancedEntriesFilter';
 import SavedFiltersList, { GET_SAVED_QUERY_LIST } from './SavedFiltersList';
 
 import {
@@ -66,6 +66,8 @@ const CREATE_EXTRACTION = gql`
                 }
                 filterFigureHasDisaggregatedData
                 filterFigureTerms
+                filterFigureHasHousingDestruction
+                filterFigureHasExcerptIdu
             }
             errors
         }
@@ -107,6 +109,8 @@ const UPDATE_EXTRACTION = gql`
                 }
                 filterFigureHasDisaggregatedData
                 filterFigureTerms
+                filterFigureHasHousingDestruction
+                filterFigureHasExcerptIdu
             }
             errors
         }
@@ -377,7 +381,7 @@ function Extraction(props: ExtractionProps) {
                 <PageHeader
                     title={header}
                 />
-                <ExtractionFilters
+                <AdvancedEntriesFilter
                     className={styles.container}
                     id={queryId}
                     onFilterChange={setExtractionQueryFilters}

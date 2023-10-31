@@ -1,11 +1,15 @@
-import React, { useMemo, useCallback, useContext, useEffect } from 'react'; import {
+import React, { useMemo, useCallback, useContext } from 'react';
+import {
     gql,
     useQuery,
     useMutation,
 } from '@apollo/client';
+import { getOperationName } from 'apollo-link';
 import { isDefined } from '@togglecorp/fujs';
 import {
     Table,
+    ConfirmButton,
+    Pager,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
@@ -14,6 +18,7 @@ import {
     createCustomActionColumn,
 } from '#components/tableHelpers';
 
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
@@ -21,6 +26,8 @@ import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
 import {
+    ExportEntriesMutation,
+    ExportEntriesMutationVariables,
     ExtractionEntryListFiltersQueryVariables,
     ExtractionEntryListFiltersQuery,
     DeleteEntryMutation,
@@ -29,55 +36,63 @@ import {
 
 import route from '#config/routes';
 
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
+
 // FIXME: add more filters for date aggregates
 export const EXTRACTION_ENTRY_LIST = gql`
     query ExtractionEntryListFilters(
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $filterEntryArticleTitle: String,
+
         $filterCreatedBy: [ID!],
-        $filterFigureCategories: [String!],
+        $filterEntryArticleTitle: String,
         $filterEntryPublishers: [ID!],
-        $filterFigureSources: [ID!],
-        $filterFigureCrises: [ID!],
-        $filterFigureCrisisTypes: [String!],
+        $filterFigureCategories: [String!],
         $filterFigureCategoryTypes: [String!],
         $filterFigureCountries: [ID!],
+        $filterFigureCrises: [ID!],
+        $filterFigureCrisisTypes: [String!],
         $filterFigureEndBefore: Date,
+        $filterFigureEvents: [ID!],
         $filterFigureGeographicalGroups: [ID!],
-        $filterFigureRegions: [ID!],
-        $filterFigureRoles: [String!],
         $filterFigureHasDisaggregatedData: Boolean,
+        $filterFigureRegions: [ID!],
+        $filterFigureReviewStatus: [String!],
+        $filterFigureRoles: [String!],
+        $filterFigureSources: [ID!],
         $filterFigureStartAfter: Date,
         $filterFigureTags: [ID!],
         $filterFigureTerms: [ID!],
-        $filterFigureEvents: [ID!],
-        $filterFigureReviewStatus: [String!],
+        $filterFigureHasExcerptIdu: Boolean,
+        $filterFigureHasHousingDestruction: Boolean,
     ) {
         extractionEntryList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            filterFigureCategories: $filterFigureCategories,
-            filterEntryArticleTitle: $filterEntryArticleTitle,
+
             filterCreatedBy: $filterCreatedBy,
+            filterEntryArticleTitle: $filterEntryArticleTitle,
             filterEntryPublishers: $filterEntryPublishers,
-            filterFigureSources: $filterFigureSources,
-            filterFigureCrises: $filterFigureCrises,
-            filterFigureCrisisTypes: $filterFigureCrisisTypes,
+            filterFigureCategories: $filterFigureCategories,
             filterFigureCategoryTypes: $filterFigureCategoryTypes,
             filterFigureCountries: $filterFigureCountries,
+            filterFigureCrises: $filterFigureCrises,
+            filterFigureCrisisTypes: $filterFigureCrisisTypes,
             filterFigureEndBefore: $filterFigureEndBefore,
+            filterFigureEvents: $filterFigureEvents,
             filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
-            filterFigureRegions: $filterFigureRegions,
-            filterFigureRoles: $filterFigureRoles,
             filterFigureHasDisaggregatedData: $filterFigureHasDisaggregatedData,
+            filterFigureRegions: $filterFigureRegions,
+            filterFigureReviewStatus: $filterFigureReviewStatus,
+            filterFigureRoles: $filterFigureRoles,
+            filterFigureSources: $filterFigureSources,
             filterFigureStartAfter: $filterFigureStartAfter,
             filterFigureTags: $filterFigureTags,
             filterFigureTerms: $filterFigureTerms,
-            filterFigureEvents: $filterFigureEvents,
-            filterFigureReviewStatus: $filterFigureReviewStatus,
+            filterFigureHasExcerptIdu: $filterFigureHasExcerptIdu,
+            filterFigureHasHousingDestruction: $filterFigureHasHousingDestruction,
         ) {
             page
             pageSize
@@ -103,6 +118,61 @@ export const EXTRACTION_ENTRY_LIST = gql`
     }
 `;
 
+const ENTRIES_EXPORT = gql`
+    mutation ExportEntries(
+        $filterContextOfViolences: [ID!],
+        $filterCreatedBy: [ID!],
+        $filterEntryArticleTitle: String,
+        $filterEntryPublishers: [ID!],
+        $filterFigureCategories: [String!],
+        $filterFigureCategoryTypes: [String!],
+        $filterFigureCountries: [ID!],
+        $filterFigureCrises: [ID!],
+        $filterFigureCrisisTypes: [String!],
+        $filterFigureEndBefore: Date,
+        $filterFigureEvents: [ID!],
+        $filterFigureGeographicalGroups: [ID!],
+        $filterFigureHasDisaggregatedData: Boolean,
+        $filterFigureRegions: [ID!],
+        $filterFigureReviewStatus: [String!],
+        $filterFigureRoles: [String!],
+        $filterFigureSources: [ID!],
+        $filterFigureStartAfter: Date,
+        $filterFigureTags: [ID!],
+        $filterFigureTerms: [ID!],
+        $filterFigureHasExcerptIdu: Boolean,
+        $filterFigureHasHousingDestruction: Boolean,
+    ) {
+       exportEntries(
+            filterContextOfViolences: $filterContextOfViolences,
+            filterCreatedBy: $filterCreatedBy,
+            filterEntryArticleTitle: $filterEntryArticleTitle,
+            filterEntryPublishers: $filterEntryPublishers,
+            filterFigureCategories: $filterFigureCategories,
+            filterFigureCategoryTypes: $filterFigureCategoryTypes,
+            filterFigureCountries: $filterFigureCountries,
+            filterFigureCrises: $filterFigureCrises,
+            filterFigureCrisisTypes: $filterFigureCrisisTypes,
+            filterFigureEndBefore: $filterFigureEndBefore,
+            filterFigureEvents: $filterFigureEvents,
+            filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
+            filterFigureHasDisaggregatedData: $filterFigureHasDisaggregatedData,
+            filterFigureRegions: $filterFigureRegions,
+            filterFigureReviewStatus: $filterFigureReviewStatus,
+            filterFigureRoles: $filterFigureRoles,
+            filterFigureSources: $filterFigureSources,
+            filterFigureStartAfter: $filterFigureStartAfter,
+            filterFigureTags: $filterFigureTags,
+            filterFigureTerms: $filterFigureTerms,
+            filterFigureHasExcerptIdu: $filterFigureHasExcerptIdu,
+            filterFigureHasHousingDestruction: $filterFigureHasHousingDestruction,
+        ) {
+           errors
+            ok
+        }
+    }
+`;
+
 const ENTRY_DELETE = gql`
     mutation DeleteEntry($id: ID!) {
         deleteEntry(id: $id) {
@@ -121,14 +191,24 @@ const keySelector = (item: EntryFields) => item.id;
 interface NudeEntryTableProps {
     className?: string;
     filters?: ExtractionEntryListFiltersQueryVariables;
-    onTotalEntriesChange?: (value: number) => void;
+
+    page: number;
+    pageSize: number;
+    onPageChange: (value: number) => void;
+    onPageSizeChange: (value: number) => void;
+    pagerPageControlDisabled?: boolean;
 }
 
-function NudeEntryTable(props: NudeEntryTableProps) {
+function useEntryTable(props: NudeEntryTableProps) {
     const {
         className,
         filters,
-        onTotalEntriesChange,
+
+        page,
+        pageSize,
+        onPageChange,
+        onPageSizeChange,
+        pagerPageControlDisabled,
     } = props;
 
     const {
@@ -136,7 +216,7 @@ function NudeEntryTable(props: NudeEntryTableProps) {
         data: entriesData = previousData,
         loading: loadingEntries,
         refetch: refetchEntries,
-        // eslint-disable-next-line max-len
+    // eslint-disable-next-line max-len
     } = useQuery<ExtractionEntryListFiltersQuery, ExtractionEntryListFiltersQueryVariables>(EXTRACTION_ENTRY_LIST, {
         variables: filters,
     });
@@ -174,6 +254,46 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                 });
             },
         },
+    );
+
+    const [
+        exportEntries,
+        { loading: exportingTableData },
+    ] = useMutation<ExportEntriesMutation, ExportEntriesMutationVariables>(
+        ENTRIES_EXPORT,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportEntries: exportEntriesResponse } = response;
+                if (!exportEntriesResponse) {
+                    return;
+                }
+                const { errors, ok } = exportEntriesResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({
+                        children: 'Export started successfully!',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const handleExportTableData = useCallback(
+        () => {
+            exportEntries({
+                variables: filters,
+            });
+        },
+        [exportEntries, filters],
     );
 
     const handleEntryDelete = useCallback(
@@ -252,36 +372,48 @@ function NudeEntryTable(props: NudeEntryTableProps) {
     const queryBasedEntryList = entriesData?.extractionEntryList?.results;
     const totalEntriesCount = entriesData?.extractionEntryList?.totalCount ?? 0;
 
-    // NOTE: if we don't pass total figures count this way,
-    // we will have to use Portal to move the Pager component
-    useEffect(
-        () => {
-            if (onTotalEntriesChange) {
-                onTotalEntriesChange(totalEntriesCount);
-            }
-        },
-        [onTotalEntriesChange, totalEntriesCount],
-    );
-
-    return (
-        <>
-            {totalEntriesCount > 0 && (
-                <Table
-                    className={className}
-                    data={queryBasedEntryList}
-                    keySelector={keySelector}
-                    columns={columns}
-                    resizableColumn
-                    fixedColumnWidth
-                />
-            )}
-            {(loadingEntries || deletingEntry) && <Loading absolute />}
-            {!loadingEntries && totalEntriesCount <= 0 && (
-                <Message
-                    message="No entries found."
-                />
-            )}
-        </>
-    );
+    return {
+        exportButton: (
+            <ConfirmButton
+                confirmationHeader="Confirm Export"
+                confirmationMessage="Are you sure you want to export this table data?"
+                name={undefined}
+                onConfirm={handleExportTableData}
+                disabled={exportingTableData}
+            >
+                Export
+            </ConfirmButton>
+        ),
+        pager: (
+            <Pager
+                activePage={page}
+                itemsCount={totalEntriesCount}
+                maxItemsPerPage={pageSize}
+                onActivePageChange={onPageChange}
+                onItemsPerPageChange={onPageSizeChange}
+                itemsPerPageControlHidden={pagerPageControlDisabled}
+            />
+        ),
+        table: (
+            <>
+                {totalEntriesCount > 0 && (
+                    <Table
+                        className={className}
+                        data={queryBasedEntryList}
+                        keySelector={keySelector}
+                        columns={columns}
+                        resizableColumn
+                        fixedColumnWidth
+                    />
+                )}
+                {(loadingEntries || deletingEntry) && <Loading absolute />}
+                {!loadingEntries && totalEntriesCount <= 0 && (
+                    <Message
+                        message="No entries found."
+                    />
+                )}
+            </>
+        ),
+    };
 }
-export default NudeEntryTable;
+export default useEntryTable;

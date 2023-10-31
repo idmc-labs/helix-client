@@ -1,120 +1,34 @@
-import React, { useState, useMemo, useCallback, useContext } from 'react';
-import {
-    gql,
-    useMutation,
-} from '@apollo/client';
-import { getOperationName } from 'apollo-link';
-import { _cs } from '@togglecorp/fujs';
+import React, { useState, useMemo, useCallback } from 'react';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     TabList,
     Tab,
     Tabs,
     TabPanel,
-    Pager,
     SortContext,
     TableSortDirection,
     useSortState,
-    ConfirmButton,
 } from '@togglecorp/toggle-ui';
 
-import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
-import { EVENT_EXPORT } from '#components/tables/EventsTable';
 import Container from '#components/Container';
-import NotificationContext from '#components/NotificationContext';
 import {
-    EntriesQueryVariables,
-    LatestFigureListQueryVariables,
+    ExtractionEntryListFiltersQueryVariables,
+    ExtractionFigureListQueryVariables,
     EventListQueryVariables,
-    ExportEventEntriesMutation,
-    ExportEventEntriesMutationVariables,
-    ExportEventFiguresMutation,
-    ExportEventFiguresMutationVariables,
-    ExportEventsMutation,
-    ExportEventsMutationVariables,
 } from '#generated/types';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { PurgeNull } from '#types';
 
-import NudeEntryTable from '#components/tables/EntriesFiguresTable/NudeEntryTable';
-import NudeFigureTable from '#components/tables/EntriesFiguresTable/NudeFigureTable';
-import EntriesFilter from '#components/tables/EntriesFiguresTable/EntriesFilter';
-import FiguresFilter from '#components/tables/EntriesFiguresTable/FiguresFilter';
-import NudeEventTable from './NudeEventsTable';
-import EventsFilter from './EventsFilter';
+import useEntryTable from '#components/rawTables/EntriesTable';
+import { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
+import { CountryOption } from '#components/selections/CountrySelectInput';
+import useFigureTable from '#components/rawTables/FiguresTable';
+import EntriesFilter from '#components/rawTables/EntriesTable/EntriesFilter';
+import useEventTable from '#components/rawTables/EventsTable';
+import EventsFilter from '#components/rawTables/EventsTable/EventsFilter';
 import styles from './styles.css';
 
-const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 type Tabs = 'Entries' | 'Figures';
-
-const ENTRIES_EXPORT = gql`
-    mutation ExportEventEntries(
-        $filterFigureEvents: [ID!],
-        $filterEntryArticleTitle: String,
-        $filterContextOfViolences: [ID!],
-        $filterCreatedBy: [ID!],
-        $filterEntryPublishers: [ID!],
-        $filterFigureSources: [ID!],
-        $filterFigureCategoryTypes: [String!],
-        $filterFigureCountries: [ID!],
-        $filterFigureEndBefore: Date,
-        $filterFigureRoles: [String!],
-        $filterFigureStartAfter: Date,
-        $filterFigureReviewStatus: [String!],
-    ) {
-       exportEntries(
-            filterFigureEvents: $filterFigureEvents,
-            filterEntryArticleTitle: $filterEntryArticleTitle,
-            filterContextOfViolences: $filterContextOfViolences,
-            filterCreatedBy: $filterCreatedBy,
-            filterEntryPublishers: $filterEntryPublishers,
-            filterFigureSources: $filterFigureSources,
-            filterFigureCategoryTypes: $filterFigureCategoryTypes,
-            filterFigureCountries: $filterFigureCountries,
-            filterFigureEndBefore: $filterFigureEndBefore,
-            filterFigureRoles: $filterFigureRoles,
-            filterFigureStartAfter: $filterFigureStartAfter,
-            filterFigureReviewStatus: $filterFigureReviewStatus,
-        ) {
-           errors
-            ok
-        }
-    }
-`;
-
-const FIGURES_EXPORT = gql`
-    mutation ExportEventFigures(
-        $filterFigureEvents: [ID!],
-        $filterEntryArticleTitle: String,
-        $filterContextOfViolences: [ID!],
-        $filterCreatedBy: [ID!],
-        $filterEntryPublishers: [ID!],
-        $filterFigureSources: [ID!],
-        $filterFigureCategoryTypes: [String!],
-        $filterFigureCountries: [ID!],
-        $filterFigureEndBefore: Date,
-        $filterFigureRoles: [String!],
-        $filterFigureStartAfter: Date,
-        $filterFigureReviewStatus: [String!],
-    ) {
-       exportFigures(
-            filterFigureEvents: $filterFigureEvents,
-            filterEntryArticleTitle: $filterEntryArticleTitle,
-            filterContextOfViolences: $filterContextOfViolences,
-            filterCreatedBy: $filterCreatedBy,
-            filterEntryPublishers: $filterEntryPublishers,
-            filterFigureSources: $filterFigureSources,
-            filterFigureCategoryTypes: $filterFigureCategoryTypes,
-            filterFigureCountries: $filterFigureCountries,
-            filterFigureEndBefore: $filterFigureEndBefore,
-            filterFigureRoles: $filterFigureRoles,
-            filterFigureStartAfter: $filterFigureStartAfter,
-            filterFigureReviewStatus: $filterFigureReviewStatus,
-        ) {
-           errors
-            ok
-        }
-    }
-`;
 
 interface TableSortParameter {
     name: string;
@@ -136,9 +50,10 @@ interface EventsEntriesFiguresTableProps {
     eventColumnHidden?: boolean;
     crisisColumnHidden?: boolean;
 
+    crisis?: CrisisOption | null;
     eventId?: string;
     userId?: string;
-    countryId?: string;
+    country?: CountryOption | null;
 }
 
 function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
@@ -151,14 +66,11 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
         eventColumnHidden,
         crisisColumnHidden,
         userId,
-        countryId,
         eventId,
+        crisis,
+        country,
     } = props;
 
-    const {
-        notify,
-        notifyGQLError,
-    } = useContext(NotificationContext);
     const [selectedTab, setSelectedTab] = useState<'Entries' | 'Figures' | 'Events' | undefined>('Figures');
 
     const [entriesPage, setEntriesPage] = useState(pageFromProps ?? 1);
@@ -172,10 +84,6 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
     const [eventsPage, setEventsPage] = useState(pageFromProps ?? 1);
     const [eventsPageSize, setEventsPageSize] = useState(pageSizeFromProps ?? 10);
     const debouncedEventsPage = useDebouncedValue(eventsPage);
-
-    const [totalEntriesCount, setTotalEntriesCount] = useState(0);
-    const [totalFiguresCount, setTotalFiguresCount] = useState(0);
-    const [totalEventsCount, setTotalEventsCount] = useState(0);
 
     const entriesSortState = useSortState();
     const { sorting: entriesSorting } = entriesSortState;
@@ -201,20 +109,23 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
     const [
         entriesQueryFilters,
         setEntriesQueryFilters,
-    ] = useState<PurgeNull<EntriesQueryVariables>>();
+    ] = useState<PurgeNull<ExtractionEntryListFiltersQueryVariables>>();
 
     const [
         figuresQueryFilters,
         setFiguresQueryFilters,
-    ] = useState<PurgeNull<LatestFigureListQueryVariables>>();
+    ] = useState<PurgeNull<ExtractionFigureListQueryVariables>>();
 
     const [
         eventsQueryFilters,
         setEventsQueryFilters,
     ] = useState<PurgeNull<EventListQueryVariables>>();
 
+    const crisisId = crisis?.id;
+    const countryId = country?.id;
+
     const onFilterChange = React.useCallback(
-        (value: PurgeNull<EntriesQueryVariables>) => {
+        (value: PurgeNull<ExtractionEntryListFiltersQueryVariables>) => {
             if (selectedTab === 'Entries') {
                 setEntriesQueryFilters(value);
             } else if (selectedTab === 'Figures') {
@@ -229,11 +140,14 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
     );
 
     const entriesVariables = useMemo(
-        (): EntriesQueryVariables => ({
+        (): ExtractionEntryListFiltersQueryVariables => ({
             ordering: entriesOrdering,
             page: debouncedEntriesPage,
             pageSize: entriesPageSize,
             ...entriesQueryFilters,
+            filterFigureCrises: crisisId
+                ? [crisisId]
+                : entriesQueryFilters?.filterFigureCrises,
             filterFigureEvents: eventId
                 ? [eventId]
                 : entriesQueryFilters?.filterFigureEvents,
@@ -251,12 +165,13 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
             eventId,
             userId,
             countryId,
+            crisisId,
             entriesQueryFilters,
         ],
     );
 
     const figuresVariables = useMemo(
-        (): EntriesQueryVariables => ({
+        (): ExtractionEntryListFiltersQueryVariables => ({
             ordering: figuresOrdering,
             page: debouncedFiguresPage,
             pageSize: figuresPageSize,
@@ -264,6 +179,9 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
             filterFigureEvents: eventId
                 ? [eventId]
                 : figuresQueryFilters?.filterFigureEvents,
+            filterFigureCrises: crisisId
+                ? [crisisId]
+                : figuresQueryFilters?.filterFigureCrises,
             filterCreatedBy: userId
                 ? [userId]
                 : figuresQueryFilters?.filterCreatedBy,
@@ -278,6 +196,7 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
             eventId,
             userId,
             countryId,
+            crisisId,
             figuresQueryFilters,
         ],
     );
@@ -288,6 +207,9 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
             page: debouncedEventsPage,
             pageSize: eventsPageSize,
             ...eventsQueryFilters,
+            crisisByIds: crisisId
+                ? [crisisId]
+                : eventsQueryFilters?.crisisByIds,
             countries: countryId
                 ? [countryId]
                 : eventsQueryFilters?.countries,
@@ -302,6 +224,7 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
             eventsQueryFilters,
             userId,
             countryId,
+            crisisId,
         ],
     );
 
@@ -329,127 +252,53 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
         [],
     );
 
-    const [
-        exportEventEntries,
-        { loading: exportingEventEntries },
-    ] = useMutation<ExportEventEntriesMutation, ExportEventEntriesMutationVariables>(
-        ENTRIES_EXPORT,
-        {
-            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
-            onCompleted: (response) => {
-                const { exportEntries: exportEntriesResponse } = response;
-                if (!exportEntriesResponse) {
-                    return;
-                }
-                const { errors, ok } = exportEntriesResponse;
-                if (errors) {
-                    notifyGQLError(errors);
-                }
-                if (ok) {
-                    notify({
-                        children: 'Export started successfully!',
-                    });
-                }
-            },
-            onError: (error) => {
-                notify({
-                    children: error.message,
-                    variant: 'error',
-                });
-            },
-        },
-    );
+    const {
+        table: entriesTable,
+        exportButton: entriesExportButton,
+        pager: entriesPager,
+    } = useEntryTable({
+        className: styles.table,
+        filters: entriesVariables,
+        page: entriesPage,
+        pageSize: entriesPageSize,
+        onPageChange: setEntriesPage,
+        onPageSizeChange: handleEntriesPageSizeChange,
+        pagerPageControlDisabled,
+    });
 
-    const [
-        exportFigureEntries,
-        { loading: exportingFigureEntries },
-    ] = useMutation<ExportEventFiguresMutation, ExportEventFiguresMutationVariables>(
-        FIGURES_EXPORT,
-        {
-            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
-            onCompleted: (response) => {
-                const { exportFigures: exportFiguresResponse } = response;
-                if (!exportFiguresResponse) {
-                    return;
-                }
-                const { errors, ok } = exportFiguresResponse;
-                if (errors) {
-                    notifyGQLError(errors);
-                }
-                if (ok) {
-                    notify({
-                        children: 'Export started successfully!',
-                    });
-                }
-            },
-            onError: (error) => {
-                notify({
-                    children: error.message,
-                    variant: 'error',
-                });
-            },
-        },
-    );
+    const {
+        table: eventsTable,
+        exportButton: eventsExportButton,
+        addButton: eventsAddButton,
+        pager: eventsPager,
+    } = useEventTable({
+        className: styles.table,
+        crisis,
+        country,
+        filters: eventsVariables,
+        page: eventsPage,
+        pageSize: eventsPageSize,
+        onPageChange: setEventsPage,
+        onPageSizeChange: handleEventsPageSizeChange,
+        pagerPageControlDisabled,
+    });
 
-    const [
-        exportEvents,
-        { loading: exportingEvents },
-    ] = useMutation<ExportEventsMutation, ExportEventsMutationVariables>(
-        EVENT_EXPORT,
-        {
-            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
-            onCompleted: (response) => {
-                const { exportEvents: exportEventResponse } = response;
-                if (!exportEventResponse) {
-                    return;
-                }
-                const { errors, ok } = exportEventResponse;
-                if (errors) {
-                    notifyGQLError(errors);
-                }
-                if (ok) {
-                    notify({
-                        children: 'Export started successfully!',
-                    });
-                }
-            },
-            onError: (error) => {
-                notify({
-                    children: error.message,
-                    variant: 'error',
-                });
-            },
-        },
-    );
+    const {
+        table: figuresTable,
+        exportButton: figuresExportButton,
+        pager: figuresPager,
+    } = useFigureTable({
+        className: styles.table,
+        eventColumnHidden,
+        crisisColumnHidden,
+        filters: figuresVariables,
+        page: figuresPage,
+        pageSize: figuresPageSize,
+        onPageChange: setFiguresPage,
+        onPageSizeChange: handleFiguresPageSizeChange,
+        pagerPageControlDisabled,
+    });
 
-    const handleExportTableData = useCallback(
-        () => {
-            if (selectedTab === 'Entries') {
-                exportEventEntries({
-                    variables: entriesVariables,
-                });
-            } else if (selectedTab === 'Figures') {
-                exportFigureEntries({
-                    variables: figuresVariables,
-                });
-            } else {
-                exportEvents({
-                    variables: eventsVariables,
-                });
-            }
-        },
-        [
-            selectedTab,
-            entriesVariables,
-            figuresVariables,
-            eventsVariables,
-            exportEventEntries,
-            exportFigureEntries,
-            exportEvents,
-        ],
-    );
-
-    // TODO: handle export of figure and entry
     return (
         <Tabs
             value={selectedTab}
@@ -478,17 +327,16 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
                 )}
                 className={_cs(className, styles.eventsEntriesFiguresTable)}
                 headerActions={(
-                    <ConfirmButton
-                        confirmationHeader="Confirm Export"
-                        confirmationMessage="Are you sure you want to export this table data?"
-                        name={undefined}
-                        onConfirm={handleExportTableData}
-                        disabled={
-                            exportingEventEntries || exportingFigureEntries || exportingEvents
-                        }
-                    >
-                        Export
-                    </ConfirmButton>
+                    <>
+                        {selectedTab === 'Entries' && entriesExportButton}
+                        {selectedTab === 'Events' && (
+                            <>
+                                {eventsAddButton}
+                                {eventsExportButton}
+                            </>
+                        )}
+                        {selectedTab === 'Figures' && figuresExportButton}
+                    </>
                 )}
                 contentClassName={styles.content}
                 description={(
@@ -499,17 +347,21 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
                                 createdBySelectionDisabled={!!userId}
                                 countriesSelectionDisabled={!!countryId}
                                 reviewStatusSelectionDisabled={false}
-                                crisisSelectionDisabled
+                                crisisSelectionDisabled={!!crisisId}
                             />
                         )}
                         {selectedTab === 'Entries' && (
                             <EntriesFilter
                                 onFilterChange={onFilterChange}
+                                defaultCountries={countryId ? [countryId] : undefined}
+                                countriesHidden={isDefined(countryId)}
                             />
                         )}
                         {selectedTab === 'Figures' && (
-                            <FiguresFilter
+                            <EntriesFilter
                                 onFilterChange={onFilterChange}
+                                defaultCountries={countryId ? [countryId] : undefined}
+                                countriesHidden={isDefined(countryId)}
                             />
                         )}
                     </>
@@ -517,66 +369,25 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
                 )}
                 footerContent={!pagerDisabled && (
                     <>
-                        {selectedTab === 'Events' && (
-                            <Pager
-                                activePage={eventsPage}
-                                itemsCount={totalEventsCount}
-                                maxItemsPerPage={eventsPageSize}
-                                onActivePageChange={setEventsPage}
-                                onItemsPerPageChange={handleEventsPageSizeChange}
-                                itemsPerPageControlHidden={pagerPageControlDisabled}
-                            />
-                        )}
-                        {selectedTab === 'Entries' && (
-                            <Pager
-                                activePage={entriesPage}
-                                itemsCount={totalEntriesCount}
-                                maxItemsPerPage={entriesPageSize}
-                                onActivePageChange={setEntriesPage}
-                                onItemsPerPageChange={handleEntriesPageSizeChange}
-                                itemsPerPageControlHidden={pagerPageControlDisabled}
-                            />
-                        )}
-                        {selectedTab === 'Figures' && (
-                            <Pager
-                                activePage={figuresPage}
-                                itemsCount={totalFiguresCount}
-                                maxItemsPerPage={figuresPageSize}
-                                onActivePageChange={setFiguresPage}
-                                onItemsPerPageChange={handleFiguresPageSizeChange}
-                                itemsPerPageControlHidden={pagerPageControlDisabled}
-                            />
-                        )}
+                        {selectedTab === 'Entries' && entriesPager}
+                        {selectedTab === 'Events' && eventsPager}
+                        {selectedTab === 'Figures' && figuresPager}
                     </>
                 )}
             >
                 <TabPanel name="Events">
                     <SortContext.Provider value={eventsSortState}>
-                        <NudeEventTable
-                            className={styles.table}
-                            filters={eventsVariables}
-                            onTotalFiguresChange={setTotalEventsCount}
-                        />
+                        {eventsTable}
                     </SortContext.Provider>
                 </TabPanel>
                 <TabPanel name="Entries">
                     <SortContext.Provider value={entriesSortState}>
-                        <NudeEntryTable
-                            className={styles.table}
-                            filters={entriesVariables}
-                            onTotalEntriesChange={setTotalEntriesCount}
-                        />
+                        {entriesTable}
                     </SortContext.Provider>
                 </TabPanel>
                 <TabPanel name="Figures">
                     <SortContext.Provider value={figuresSortState}>
-                        <NudeFigureTable
-                            className={styles.table}
-                            eventColumnHidden={eventColumnHidden}
-                            crisisColumnHidden={crisisColumnHidden}
-                            filters={figuresVariables}
-                            onTotalFiguresChange={setTotalFiguresCount}
-                        />
+                        {figuresTable}
                     </SortContext.Provider>
                 </TabPanel>
             </Container>

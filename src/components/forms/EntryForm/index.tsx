@@ -1,5 +1,4 @@
 import React, { useCallback, useState, useContext, useRef, useMemo } from 'react';
-import ReactDOM from 'react-dom';
 import { Prompt, Redirect, useLocation } from 'react-router-dom';
 import {
     _cs,
@@ -29,6 +28,7 @@ import {
     useMutation,
 } from '@apollo/client';
 
+import Portal from '#components/Portal';
 import { EventListOption } from '#components/selections/EventListSelectInput';
 import Loading from '#components/Loading';
 import NonFieldError from '#components/NonFieldError';
@@ -117,22 +117,6 @@ interface EntryFormProps {
 
     initialFigureId?: string | null | undefined;
     initialFieldType: string | null;
-}
-
-interface PortalProps {
-    parentNode: Element | null | undefined;
-    children: React.ReactNode | null | undefined;
-}
-
-function Portal(props: PortalProps) {
-    const {
-        parentNode,
-        children,
-    } = props;
-    if (!parentNode) {
-        return null;
-    }
-    return ReactDOM.createPortal(children, parentNode);
 }
 
 function EntryForm(props: EntryFormProps) {

@@ -431,7 +431,10 @@ function Country(props: CountryProps) {
             <div className={styles.fullWidth}>
                 <EventsEntriesFiguresTable
                     className={styles.largeContainer}
-                    countryId={countryId}
+                    country={(
+                        countryData?.country
+                        ?? { id: countryId, idmcShortName: '???' }
+                    )}
                 />
                 <ContactsTable
                     className={styles.largeContainer}

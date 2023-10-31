@@ -445,15 +445,6 @@ function ReportsTable(props: ReportsProps) {
             heading={title || 'Reports'}
             headerActions={(
                 <>
-                    <ConfirmButton
-                        confirmationHeader="Confirm Export"
-                        confirmationMessage="Are you sure you want to export this table data?"
-                        name={undefined}
-                        onConfirm={handleExportTableData}
-                        disabled={exportingReports}
-                    >
-                        Export
-                    </ConfirmButton>
                     {reportPermissions?.add && (
                         <Button
                             name={undefined}
@@ -463,6 +454,15 @@ function ReportsTable(props: ReportsProps) {
                             Add Report
                         </Button>
                     )}
+                    <ConfirmButton
+                        confirmationHeader="Confirm Export"
+                        confirmationMessage="Are you sure you want to export this table data?"
+                        name={undefined}
+                        onConfirm={handleExportTableData}
+                        disabled={exportingReports}
+                    >
+                        Export
+                    </ConfirmButton>
                 </>
             )}
             footerContent={(

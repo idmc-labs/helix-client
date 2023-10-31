@@ -269,17 +269,15 @@ function ReportCountryTable(props: ReportCountryProps) {
             headerActions={(
                 <>
                     {reportPermissions?.add && (
-                        <>
-                            <ConfirmButton
-                                confirmationHeader="Confirm Export"
-                                confirmationMessage="Are you sure you want to export this table data?"
-                                name={undefined}
-                                onConfirm={handleExportTableData}
-                                disabled={exportingCountries}
-                            >
-                                Export
-                            </ConfirmButton>
-                        </>
+                        <ConfirmButton
+                            confirmationHeader="Confirm Export"
+                            confirmationMessage="Are you sure you want to export this table data?"
+                            name={undefined}
+                            onConfirm={handleExportTableData}
+                            disabled={exportingCountries}
+                        >
+                            Export
+                        </ConfirmButton>
                     )}
                 </>
             )}
