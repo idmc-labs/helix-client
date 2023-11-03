@@ -47,6 +47,7 @@ interface EntriesFiguresTableProps {
     eventColumnHidden?: boolean;
     crisisColumnHidden?: boolean;
 
+    crisisId?: string;
     eventId?: string;
     userId?: string;
     countryId?: string;
@@ -65,6 +66,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
         userId,
         countryId,
         eventId,
+        crisisId,
         reviewStatus,
     } = props;
 
@@ -109,13 +111,16 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
             ordering: entriesOrdering,
             page: entriesPage,
             pageSize: entriesPageSize,
+            ...entriesQueryFilters,
+            filterFigureCrises: crisisId
+                ? [crisisId]
+                : entriesQueryFilters?.filterFigureCrises,
             filterFigureEvents: eventId ? [eventId] : undefined,
             filterCreatedBy: userId ? [userId] : undefined,
             filterFigureCountries: countryId ? [countryId] : undefined,
             filterFigureReviewStatus: reviewStatus
                 ? [reviewStatus]
                 : entriesQueryFilters?.filterFigureReviewStatus,
-            ...entriesQueryFilters,
         }),
         [
             entriesOrdering,
@@ -123,6 +128,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
             entriesPageSize,
             eventId,
             userId,
+            crisisId,
             countryId,
             entriesQueryFilters,
             reviewStatus,
@@ -134,19 +140,23 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
             ordering: figuresOrdering,
             page: figuresPage,
             pageSize: figuresPageSize,
+            ...entriesQueryFilters,
+            filterFigureCrises: crisisId
+                ? [crisisId]
+                : entriesQueryFilters?.filterFigureCrises,
             filterFigureEvents: eventId ? [eventId] : undefined,
             filterCreatedBy: userId ? [userId] : undefined,
             filterFigureCountries: countryId ? [countryId] : undefined,
             filterFigureReviewStatus: reviewStatus
                 ? [reviewStatus]
                 : entriesQueryFilters?.filterFigureReviewStatus,
-            ...entriesQueryFilters,
         }),
         [
             figuresOrdering,
             figuresPage,
             figuresPageSize,
             eventId,
+            crisisId,
             userId,
             countryId,
             entriesQueryFilters,
@@ -233,6 +243,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
                                 eventsHidden={isDefined(eventId)}
                                 defaultCountries={countryId ? [countryId] : undefined}
                                 countriesHidden={isDefined(countryId)}
+                                defaultCrises={crisisId ? [crisisId] : undefined}
                             />
                         )}
                         {selectedTab === 'Figures' && (
@@ -243,6 +254,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
                                 defaultCountries={countryId ? [countryId] : undefined}
                                 eventsHidden={isDefined(eventId)}
                                 countriesHidden={isDefined(countryId)}
+                                defaultCrises={crisisId ? [crisisId] : undefined}
                             />
                         )}
                     </>

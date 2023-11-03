@@ -15,8 +15,20 @@ import { GetCountriesQuery, GetCountriesQueryVariables } from '#generated/types'
 import styles from './styles.css';
 
 const COUNTRIES = gql`
-    query GetCountries($search: String, $regions: [String!], $ordering: String) {
-        countryList(countryName: $search, regionByIds: $regions, ordering: $ordering) {
+    query GetCountries(
+        $search: String,
+        $regions: [String!],
+        $events: [ID!],
+        $crises: [ID!],
+        $ordering: String,
+    ) {
+        countryList(
+            countryName: $search,
+            regionByIds: $regions,
+            ordering: $ordering,
+            events: $events,
+            crises: $crises,
+        ) {
             totalCount
             results {
                 id
@@ -43,13 +55,17 @@ type SelectInputProps<
     Def,
     'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
 > & {
-    regions?: string[],
+    defaultRegions?: string[],
+    defaultEvents?: string[];
+    defaultCrises?: string[];
 };
 
 function CountryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
-        regions,
+        defaultRegions,
+        defaultEvents,
+        defaultCrises,
         ...otherProps
     } = props;
 
@@ -61,14 +77,21 @@ function CountryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const searchVariable = useMemo(
         (): GetCountriesQueryVariables => {
             if (!debouncedSearchText) {
-                return { ordering: 'idmcShortName' };
+                return {
+                    ordering: 'idmcShortName',
+                    regions: defaultRegions ?? undefined,
+                    events: defaultEvents,
+                    crises: defaultCrises,
+                };
             }
             return {
                 search: debouncedSearchText,
-                regions: regions ?? undefined,
+                regions: defaultRegions ?? undefined,
+                events: defaultEvents,
+                crises: defaultCrises,
             };
         },
-        [debouncedSearchText, regions],
+        [debouncedSearchText, defaultRegions, defaultEvents, defaultCrises],
     );
 
     const {

@@ -549,7 +549,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                             onChange={onValueChange}
                             disabled={disabled}
                             onOptionsChange={setCrises}
-                            countries={value.filterFigureCountries}
+                            // countries={value.filterFigureCountries}
                         />
                         <EventMultiSelectInput
                             label="Events"

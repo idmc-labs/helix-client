@@ -16,8 +16,18 @@ import SearchMultiSelectInputWithChip from '#components/SearchMultiSelectInputWi
 import styles from './styles.css';
 
 const EVENT = gql`
-    query GetEvent($search: String, $ordering: String) {
-        eventList(name: $search, ordering: $ordering) {
+    query GetEvent(
+        $search: String,
+        $crises: [ID!],
+        $countries: [ID!],
+        $ordering: String,
+    ) {
+        eventList(
+            name: $search,
+            ordering: $ordering,
+            crisisByIds: $crises,
+            countries: $countries,
+        ) {
             totalCount
             results {
                 id
@@ -35,18 +45,24 @@ const labelSelector = (d: EventOption) => d.name;
 type Def = { containerClassName?: string };
 type MultiSelectInputProps<
     K extends string,
-    > = SearchMultiSelectInputProps<
-        string,
-        K,
-        EventOption,
-        Def,
-        'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
-    > & { chip?: boolean };
+> = SearchMultiSelectInputProps<
+    string,
+    K,
+    EventOption,
+    Def,
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+> & {
+    chip?: boolean,
+    defaultCountries?: string[];
+    defaultCrises?: string[];
+};
 
 function EventMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
     const {
         className,
         chip,
+        defaultCountries,
+        defaultCrises,
         ...otherProps
     } = props;
 
@@ -57,9 +73,17 @@ function EventMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>
 
     const searchVariable = useMemo(
         (): GetEventQueryVariables => (
-            debouncedSearchText ? { search: debouncedSearchText } : { ordering: '-createdAt' }
+            debouncedSearchText ? {
+                search: debouncedSearchText,
+                countries: defaultCountries,
+                crises: defaultCrises,
+            } : {
+                ordering: '-createdAt',
+                countries: defaultCountries,
+                crises: defaultCrises,
+            }
         ),
-        [debouncedSearchText],
+        [debouncedSearchText, defaultCountries, defaultCrises],
     );
 
     const {

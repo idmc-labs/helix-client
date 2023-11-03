@@ -19,8 +19,18 @@ import styles from './styles.css';
 
 const EVENT_LIST = gql`
     ${EVENT_FRAGMENT}
-    query GetEventList($search: String, $ordering: String) {
-        eventList(name: $search, ordering: $ordering) {
+    query GetEventList(
+        $search: String,
+        $crises: [ID!],
+        $countries: [ID!],
+        $ordering: String,
+    ) {
+        eventList(
+            name: $search,
+            ordering: $ordering,
+            crisisByIds: $crises,
+            countries: $countries,
+        ) {
             totalCount
             results {
                 ...EventResponse
@@ -37,13 +47,16 @@ const labelSelector = (d: EventListOption) => d.name;
 type Def = { containerClassName?: string };
 type SelectInputProps<
     K extends string,
-    > = SearchSelectInputProps<
-        string,
-        K,
-        EventListOption,
-        Def,
-        'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
-    >;
+> = SearchSelectInputProps<
+    string,
+    K,
+    EventListOption,
+    Def,
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+> & {
+    defaultCountries?: string[];
+    defaultCrises?: string[];
+};
 
 function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
@@ -51,6 +64,8 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
         value,
         options,
         disabled,
+        defaultCountries,
+        defaultCrises,
         ...otherProps
     } = props;
 
@@ -61,9 +76,17 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
 
     const searchVariable = useMemo(
         (): GetEventListQueryVariables => (
-            debouncedSearchText ? { search: debouncedSearchText } : { ordering: '-createdAt' }
+            debouncedSearchText ? {
+                search: debouncedSearchText,
+                countries: defaultCountries,
+                crises: defaultCrises,
+            } : {
+                ordering: '-createdAt',
+                countries: defaultCountries,
+                crises: defaultCrises,
+            }
         ),
-        [debouncedSearchText],
+        [debouncedSearchText, defaultCountries, defaultCrises],
     );
 
     const {

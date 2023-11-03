@@ -348,20 +348,31 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
                                 countriesSelectionDisabled={!!countryId}
                                 reviewStatusSelectionDisabled={false}
                                 crisisSelectionDisabled={!!crisisId}
+                                defaultCountries={countryId ? [countryId] : undefined}
+                                defaultEvents={eventId ? [eventId] : undefined}
+                                defaultCrises={crisisId ? [crisisId] : undefined}
                             />
                         )}
                         {selectedTab === 'Entries' && (
                             <EntriesFilter
                                 onFilterChange={onFilterChange}
+                                reviewStatusHidden={false}
+                                defaultEvents={eventId ? [eventId] : undefined}
                                 defaultCountries={countryId ? [countryId] : undefined}
+                                eventsHidden={isDefined(eventId)}
                                 countriesHidden={isDefined(countryId)}
+                                defaultCrises={crisisId ? [crisisId] : undefined}
                             />
                         )}
                         {selectedTab === 'Figures' && (
                             <EntriesFilter
                                 onFilterChange={onFilterChange}
+                                reviewStatusHidden={false}
+                                defaultEvents={eventId ? [eventId] : undefined}
                                 defaultCountries={countryId ? [countryId] : undefined}
+                                eventsHidden={isDefined(eventId)}
                                 countriesHidden={isDefined(countryId)}
+                                defaultCrises={crisisId ? [crisisId] : undefined}
                             />
                         )}
                     </>

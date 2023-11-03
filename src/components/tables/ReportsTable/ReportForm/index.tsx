@@ -723,7 +723,7 @@ function ReportForm(props: ReportFormProps) {
                             onChange={onValueChange}
                             disabled={disabled}
                             onOptionsChange={setCrises}
-                            countries={value.filterFigureCountries}
+                            // countries={value.filterFigureCountries}
                         />
                         <EventMultiSelectInput
                             label="Events"

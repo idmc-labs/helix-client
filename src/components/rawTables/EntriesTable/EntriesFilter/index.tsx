@@ -129,12 +129,15 @@ const schema: FormSchema = {
 interface EntriesFilterProps {
     className?: string;
     onFilterChange: (value: PurgeNull<ExtractionEntryListFiltersQueryVariables>) => void;
+    disabled?: boolean;
+
     reviewStatusHidden?: boolean;
     countriesHidden?: boolean;
     eventsHidden?: boolean;
+
     defaultCountries?: string[];
+    defaultCrises?: string[];
     defaultEvents?: string[];
-    disabled?: boolean;
 }
 
 function EntriesFilter(props: EntriesFilterProps) {
@@ -143,6 +146,7 @@ function EntriesFilter(props: EntriesFilterProps) {
         onFilterChange,
         reviewStatusHidden,
         disabled,
+        defaultCrises,
         defaultCountries,
         defaultEvents,
         countriesHidden,
@@ -313,6 +317,9 @@ function EntriesFilter(props: EntriesFilterProps) {
                         onChange={onValueChange}
                         error={error?.fields?.filterFigureCountries?.$internal}
                         disabled={disabled}
+                        // defaultCountries={defaultCountries}
+                        defaultCrises={defaultCrises}
+                        defaultEvents={defaultEvents}
                     />
                 )}
                 {!eventsHidden && (
@@ -325,6 +332,8 @@ function EntriesFilter(props: EntriesFilterProps) {
                         value={value.filterFigureEvents}
                         error={error?.fields?.filterFigureEvents?.$internal}
                         disabled={disabled}
+                        defaultCountries={defaultCountries}
+                        defaultCrises={defaultCrises}
                     />
                 )}
                 <MultiSelectInput

@@ -7,7 +7,6 @@ import {
 import EventsFilter from '#components/rawTables/EventsTable/EventsFilter';
 import useEventTable from '#components/rawTables/EventsTable';
 import Container from '#components/Container';
-import { CrisisOption } from '#components/selections/CrisisSelectInput';
 import {
     EventListQueryVariables,
     Qa_Rule_Type as QaRuleType,
@@ -42,7 +41,6 @@ const defaultSorting = {
 interface EventsProps {
     className?: string;
     title?: string;
-    crisis?: CrisisOption | null;
 
     reviewStatus?: string[] | null
     assignee?: string | null;
@@ -52,7 +50,6 @@ interface EventsProps {
 function EventsTable(props: EventsProps) {
     const {
         className,
-        crisis,
         qaMode,
         title,
         assignee,
@@ -115,8 +112,6 @@ function EventsTable(props: EventsProps) {
         ? qaMode === 'IGNORE_QA'
         : undefined;
 
-    const crisisId = crisis?.id;
-
     const [
         eventQueryFilters,
         setEventQueryFilters,
@@ -153,9 +148,6 @@ function EventsTable(props: EventsProps) {
             assignees: assignee
                 ? [assignee]
                 : eventQueryFilters?.assignees,
-            crisisByIds: crisisId
-                ? [crisisId]
-                : eventQueryFilters?.crisisByIds,
         }),
         [
             ordering,
@@ -166,7 +158,6 @@ function EventsTable(props: EventsProps) {
             reviewStatus,
             ignoreQa,
             eventQueryFilters,
-            crisisId,
         ],
     );
 
@@ -177,7 +168,6 @@ function EventsTable(props: EventsProps) {
         pager: eventsPager,
     } = useEventTable({
         className: styles.table,
-        crisis,
         qaMode,
         filters: eventsVariables,
         page,
@@ -202,7 +192,7 @@ function EventsTable(props: EventsProps) {
             description={(
                 <EventsFilter
                     onFilterChange={onFilterChange}
-                    crisisSelectionDisabled={!!crisisId}
+                    crisisSelectionDisabled={false}
                     reviewStatusSelectionDisabled={!!reviewStatus}
                     createdBySelectionDisabled={false}
                     countriesSelectionDisabled={false}

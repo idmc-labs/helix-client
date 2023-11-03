@@ -15,8 +15,18 @@ import { GetEventQuery, GetEventQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
 const EVENT = gql`
-    query GetEvent($search: String, $ordering: String) {
-        eventList(name: $search, ordering: $ordering) {
+    query GetEvent(
+        $search: String,
+        $crises: [ID!],
+        $countries: [ID!],
+        $ordering: String,
+    ) {
+        eventList(
+            name: $search,
+            ordering: $ordering,
+            crisisByIds: $crises,
+            countries: $countries,
+        ) {
             totalCount
             results {
                 id
@@ -40,11 +50,16 @@ type SelectInputProps<
     EventOption,
     Def,
     'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
->;
+> & {
+    defaultCountries?: string[];
+    defaultCrises?: string[];
+};
 
 function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
+        defaultCountries,
+        defaultCrises,
         ...otherProps
     } = props;
 
@@ -55,9 +70,17 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
 
     const searchVariable = useMemo(
         (): GetEventQueryVariables => (
-            debouncedSearchText ? { search: debouncedSearchText } : { ordering: '-createdAt' }
+            debouncedSearchText ? {
+                search: debouncedSearchText,
+                countries: defaultCountries,
+                crises: defaultCrises,
+            } : {
+                ordering: '-createdAt',
+                countries: defaultCountries,
+                crises: defaultCrises,
+            }
         ),
-        [debouncedSearchText],
+        [debouncedSearchText, defaultCountries, defaultCrises],
     );
 
     const {

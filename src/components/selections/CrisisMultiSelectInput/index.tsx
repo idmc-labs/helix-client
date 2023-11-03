@@ -41,13 +41,13 @@ type SelectInputProps<
     Def,
     'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
 > & {
-    countries?: string[],
+    defaultCountries?: string[],
 };
 
 function CrisisMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
-        countries,
+        defaultCountries,
         ...otherProps
     } = props;
 
@@ -59,14 +59,17 @@ function CrisisMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const searchVariable = useMemo(
         (): GetCrisesQueryVariables => {
             if (!debouncedSearchText) {
-                return { ordering: '-createdAt' };
+                return {
+                    ordering: '-createdAt',
+                    countries: defaultCountries ?? undefined,
+                };
             }
             return {
                 search: debouncedSearchText,
-                countries: countries ?? undefined,
+                countries: defaultCountries ?? undefined,
             };
         },
-        [debouncedSearchText, countries],
+        [debouncedSearchText, defaultCountries],
     );
 
     const {

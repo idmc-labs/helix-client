@@ -15,8 +15,8 @@ import { GetCrisisQuery, GetCrisisQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
 const CRISIS = gql`
-    query GetCrisis($search: String, $ordering: String) {
-        crisisList(name: $search, ordering: $ordering) {
+    query GetCrisis($search: String, $countries: [String!], $ordering: String) {
+        crisisList(name: $search, countries: $countries, ordering: $ordering) {
             totalCount
             results {
                 id
@@ -40,11 +40,14 @@ type SelectInputProps<
     CrisisOption,
     Def,
     'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
->;
+> & {
+    defaultCountries?: string[],
+};
 
 function CrisisSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
+        defaultCountries,
         ...otherProps
     } = props;
 
@@ -54,10 +57,19 @@ function CrisisSelectInput<K extends string>(props: SelectInputProps<K>) {
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetCrisisQueryVariables => (
-            debouncedSearchText ? { search: debouncedSearchText } : { ordering: '-createdAt' }
-        ),
-        [debouncedSearchText],
+        (): GetCrisisQueryVariables => {
+            if (!debouncedSearchText) {
+                return {
+                    ordering: '-createdAt',
+                    countries: defaultCountries ?? undefined,
+                };
+            }
+            return {
+                search: debouncedSearchText,
+                countries: defaultCountries ?? undefined,
+            };
+        },
+        [debouncedSearchText, defaultCountries],
     );
 
     const {
