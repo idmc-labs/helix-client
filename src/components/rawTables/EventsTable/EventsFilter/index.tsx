@@ -191,14 +191,16 @@ interface EventsFilterProps {
 
     defaultCreatedByIds?: string[];
     defaultCountries?: string[];
+    defaultEvents?: string[];
+    defaultCrises?: string[];
 
     defaultCreatedByOptions?: UserOption[];
     defaultCountriesOptions?: CountryOption[];
 
-    reviewStatusSelectionDisabled: boolean;
-    crisisSelectionDisabled: boolean;
-    createdBySelectionDisabled: boolean;
     countriesSelectionDisabled: boolean;
+    crisisSelectionDisabled: boolean;
+    reviewStatusSelectionDisabled: boolean;
+    createdBySelectionDisabled: boolean;
 }
 
 function EventsFilter(props: EventsFilterProps) {
@@ -212,6 +214,8 @@ function EventsFilter(props: EventsFilterProps) {
 
         defaultCreatedByIds,
         defaultCountries,
+        defaultEvents,
+        defaultCrises,
         defaultCreatedByOptions,
         defaultCountriesOptions,
     } = props;
@@ -431,6 +435,7 @@ function EventsFilter(props: EventsFilterProps) {
                         onChange={onValueChange}
                         // disabled={disabled}
                         onOptionsChange={setCrisesByIds}
+                        defaultCountries={defaultCountries}
                     />
                 )}
                 {!countriesSelectionDisabled && (
@@ -443,6 +448,8 @@ function EventsFilter(props: EventsFilterProps) {
                         value={value.countries}
                         onChange={onValueChange}
                         error={error?.fields?.countries?.$internal}
+                        defaultCrises={defaultCrises}
+                        defaultEvents={defaultEvents}
                     />
                 )}
                 <div className={styles.formButtons}>

@@ -15,8 +15,20 @@ import { GetCountryQuery, GetCountryQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
 const COUNTRY = gql`
-    query GetCountry($search: String, $ordering: String) {
-        countryList(countryName: $search, ordering: $ordering) {
+    query GetCountry(
+        $search: String,
+        $regions: [String!],
+        $events: [ID!],
+        $crises: [ID!],
+        $ordering: String,
+    ) {
+        countryList(
+            countryName: $search,
+            regionByIds: $regions,
+            ordering: $ordering,
+            events: $events,
+            crises: $crises,
+        ) {
             totalCount
             results {
                 id
@@ -42,11 +54,18 @@ type SelectInputProps<
     CountryOption,
     Def,
     'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalCount'
->;
+> & {
+    defaultRegions?: string[],
+    defaultEvents?: string[];
+    defaultCrises?: string[];
+};
 
 function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
+        defaultRegions,
+        defaultEvents,
+        defaultCrises,
         ...otherProps
     } = props;
 
@@ -56,10 +75,23 @@ function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetCountryQueryVariables => (
-            debouncedSearchText ? { search: debouncedSearchText } : { ordering: 'idmcShortName' }
-        ),
-        [debouncedSearchText],
+        (): GetCountryQueryVariables => {
+            if (!debouncedSearchText) {
+                return {
+                    ordering: 'idmcShortName',
+                    regions: defaultRegions ?? undefined,
+                    events: defaultEvents,
+                    crises: defaultCrises,
+                };
+            }
+            return {
+                search: debouncedSearchText,
+                regions: defaultRegions ?? undefined,
+                events: defaultEvents,
+                crises: defaultCrises,
+            };
+        },
+        [debouncedSearchText, defaultRegions, defaultEvents, defaultCrises],
     );
 
     const {
