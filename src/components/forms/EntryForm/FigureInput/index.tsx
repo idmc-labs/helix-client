@@ -47,6 +47,7 @@ import {
     IoAddOutline,
     IoEyeOutline,
     IoEyeOffOutline,
+    IoOpenOutline,
 } from 'react-icons/io5';
 
 import { EVENT_FRAGMENT } from '#components/forms/EntryForm/queries';
@@ -1279,6 +1280,19 @@ function FigureInput(props: FigureInputProps) {
                         readOnly={!editMode || !!value.country || figureAlreadySavedOnce}
                         actions={(
                             <>
+                                {value.event && (
+                                    <ButtonLikeLink
+                                        route={route.event}
+                                        attrs={{ eventId: value.event }}
+                                        transparent
+                                        compact
+                                        title="Open Event"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <IoOpenOutline />
+                                    </ButtonLikeLink>
+                                )}
                                 <Button
                                     onClick={toggleEventDetailsShown}
                                     name={undefined}

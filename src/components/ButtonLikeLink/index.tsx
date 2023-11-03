@@ -18,6 +18,8 @@ export interface ButtonLikeLinkProps extends PropsFromButton {
     title?: string;
     hash?: string;
     search?: string;
+    target?: string;
+    rel?: string;
 }
 
 function ButtonLikeLink(props: ButtonLikeLinkProps) {
@@ -27,6 +29,8 @@ function ButtonLikeLink(props: ButtonLikeLinkProps) {
         title,
         hash,
         search,
+        target,
+        rel,
         ...buttonProps
     } = props;
 
@@ -43,6 +47,8 @@ function ButtonLikeLink(props: ButtonLikeLinkProps) {
             title={title}
             hash={hash}
             search={search}
+            target={target}
+            rel={rel}
         >
             <VisualFeedback />
             {children}
