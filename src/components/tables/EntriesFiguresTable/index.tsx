@@ -115,9 +115,15 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
             filterFigureCrises: crisisId
                 ? [crisisId]
                 : entriesQueryFilters?.filterFigureCrises,
-            filterFigureEvents: eventId ? [eventId] : undefined,
-            filterCreatedBy: userId ? [userId] : undefined,
-            filterFigureCountries: countryId ? [countryId] : undefined,
+            filterFigureEvents: eventId
+                ? [eventId]
+                : entriesQueryFilters?.filterFigureEvents,
+            filterCreatedBy: userId
+                ? [userId]
+                : entriesQueryFilters?.filterCreatedBy,
+            filterFigureCountries: countryId
+                ? [countryId]
+                : entriesQueryFilters?.filterFigureCountries,
             filterFigureReviewStatus: reviewStatus
                 ? [reviewStatus]
                 : entriesQueryFilters?.filterFigureReviewStatus,
@@ -144,9 +150,15 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
             filterFigureCrises: crisisId
                 ? [crisisId]
                 : entriesQueryFilters?.filterFigureCrises,
-            filterFigureEvents: eventId ? [eventId] : undefined,
-            filterCreatedBy: userId ? [userId] : undefined,
-            filterFigureCountries: countryId ? [countryId] : undefined,
+            filterFigureEvents: eventId
+                ? [eventId]
+                : entriesQueryFilters?.filterFigureEvents,
+            filterCreatedBy: userId
+                ? [userId]
+                : entriesQueryFilters?.filterCreatedBy,
+            filterFigureCountries: countryId
+                ? [countryId]
+                : entriesQueryFilters?.filterFigureCountries,
             filterFigureReviewStatus: reviewStatus
                 ? [reviewStatus]
                 : entriesQueryFilters?.filterFigureReviewStatus,
