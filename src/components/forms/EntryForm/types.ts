@@ -14,7 +14,11 @@ export type FormType = CreateEntryMutationVariables['entry'];
 
 type RawFigure = NonNullable<NonNullable<FormType['figures']>[number]>;
 // FIXME: use WithID
-export type FigureFormProps = PurgeNull<RawFigure> & { id: string };
+export type FigureFormProps = PurgeNull<RawFigure> & {
+    id: string,
+    stale?: boolean,
+    deleted?: boolean,
+};
 
 export type AgeFormProps = NonNullable<NonNullable<FigureFormProps['disaggregationAge']>[number]>;
 export type GeoLocationFormProps = NonNullable<NonNullable<FigureFormProps['geoLocations']>[number]>;

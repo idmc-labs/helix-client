@@ -165,7 +165,19 @@ type Figure = ObjectSchema<PartialForm<FigureFormProps>>;
 type FigureField = ReturnType<Figure['fields']>;
 const figure: Figure = {
     fields: (value): FigureField => {
+        if (!value?.stale) {
+            return {
+                stale: [],
+                deleted: [],
+                uuid: [],
+            };
+        }
+
         let basicFields: FigureField = {
+            // FIXME: We do not send this to the server
+            stale: [],
+            deleted: [],
+
             uuid: [],
             id: [idCondition],
             calculationLogic: [requiredStringCondition],
