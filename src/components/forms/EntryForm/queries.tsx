@@ -188,9 +188,6 @@ export const ENTRY_FRAGMENT = gql`
         associatedParkedItem {
             id
         }
-        figures {
-            ...FigureResponse
-        }
         articleTitle
         document {
             id
@@ -233,6 +230,9 @@ export const ENTRY = gql`
     query Entry($id: ID!) {
         entry(id: $id) {
             ...EntryResponse
+            figures {
+                ...FigureResponse
+            }
         }
     }
 `;

@@ -639,6 +639,34 @@ function EntryForm(props: EntryFormProps) {
         onValueRemove: onFigureRemove,
     } = useFormArray<'figures', PartialFigureValues>('figures', onValueChange);
 
+    const handleFigureChange: typeof onFigureChange = useCallback(
+        (val, otherName) => {
+            onFigureChange(
+                (oldValue) => {
+                    const newVal = typeof val === 'function'
+                        ? val(oldValue)
+                        : val;
+                    return { ...newVal, stale: true };
+                },
+                otherName,
+            );
+        },
+        [onFigureChange],
+    );
+
+    const handleFigureRemove: typeof onFigureRemove = useCallback(
+        (index) => {
+            onFigureChange(
+                (oldValue) => ({
+                    ...oldValue,
+                    deleted: true,
+                }),
+                index,
+            );
+        },
+        [onFigureChange],
+    );
+
     const handleFigureAdd = useCallback(
         () => {
             const uuid = uuidv4();
@@ -764,6 +792,8 @@ function EntryForm(props: EntryFormProps) {
 
     const editMode = mode === 'edit';
 
+    console.log(value.figures);
+
     return (
         <>
             {editMode && (
@@ -877,15 +907,15 @@ function EntryForm(props: EntryFormProps) {
                                 <div className={styles.emptyMessage}>
                                     No figures yet
                                 </div>
-                            ) : value.figures?.map((fig, index) => (
+                            ) : value.figures?.filter((fig) => !fig.deleted).map((fig, index) => (
                                 <FigureInput
                                     key={fig.uuid}
                                     selectedFigure={selectedFigure}
                                     setSelectedFigure={handleSelectedFigureChange}
                                     index={index}
                                     value={fig}
-                                    onChange={onFigureChange}
-                                    onRemove={onFigureRemove}
+                                    onChange={handleFigureChange}
+                                    onRemove={handleFigureRemove}
                                     error={error?.fields?.figures?.members?.[fig.uuid]}
                                     disabled={loading || !processed}
                                     mode={mode}
