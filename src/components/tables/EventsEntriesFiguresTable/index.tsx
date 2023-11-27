@@ -360,6 +360,7 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
                                 defaultEvents={eventId ? [eventId] : undefined}
                                 defaultCountries={countryId ? [countryId] : undefined}
                                 eventsHidden={isDefined(eventId)}
+                                crisesHidden={isDefined(eventId) || isDefined(crisisId)}
                                 countriesHidden={isDefined(countryId)}
                                 defaultCrises={crisisId ? [crisisId] : undefined}
                             />
@@ -371,6 +372,7 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
                                 defaultEvents={eventId ? [eventId] : undefined}
                                 defaultCountries={countryId ? [countryId] : undefined}
                                 eventsHidden={isDefined(eventId)}
+                                crisesHidden={isDefined(eventId) || isDefined(crisisId)}
                                 countriesHidden={isDefined(countryId)}
                                 defaultCrises={crisisId ? [crisisId] : undefined}
                             />

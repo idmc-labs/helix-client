@@ -937,52 +937,52 @@ function Report(props: ReportProps) {
                     >
                         <div className={styles.stats}>
                             {(!reportTypes || reportTypes.length <= 0 || reportTypes.includes('CONFLICT')) && (
-                                <>
-                                    <NumberBlock
-                                        label={(
-                                            <>
-                                                Internal Displacements
-                                                <br />
-                                                (Conflict)
-                                            </>
-                                        )}
-                                        value={report?.totalDisaggregation?.totalFlowConflictSum}
-                                    />
-                                    <NumberBlock
-                                        label={(
-                                            <>
-                                                No. of IDPs
-                                                <br />
-                                                (Conflict)
-                                            </>
-                                        )}
-                                        value={report?.totalDisaggregation?.totalStockConflictSum}
-                                    />
-                                </>
+                                <NumberBlock
+                                    label={(
+                                        <>
+                                            Internal Displacements
+                                            <br />
+                                            (Conflict)
+                                        </>
+                                    )}
+                                    value={report?.totalDisaggregation?.totalFlowConflictSum}
+                                />
                             )}
                             {(!reportTypes || reportTypes.length <= 0 || reportTypes.includes('DISASTER')) && (
-                                <>
-                                    <NumberBlock
-                                        label={(
-                                            <>
-                                                Internal Displacements
-                                                <br />
-                                                (Disaster)
-                                            </>
-                                        )}
-                                        value={report?.totalDisaggregation?.totalFlowDisasterSum}
-                                    />
-                                    <NumberBlock
-                                        label={(
-                                            <>
-                                                No. of IDPs
-                                                <br />
-                                                (Disaster)
-                                            </>
-                                        )}
-                                        value={report?.totalDisaggregation?.totalStockDisasterSum}
-                                    />
-                                </>
+                                <NumberBlock
+                                    label={(
+                                        <>
+                                            Internal Displacements
+                                            <br />
+                                            (Disaster)
+                                        </>
+                                    )}
+                                    value={report?.totalDisaggregation?.totalFlowDisasterSum}
+                                />
+                            )}
+                            {(!reportTypes || reportTypes.length <= 0 || reportTypes.includes('CONFLICT')) && (
+                                <NumberBlock
+                                    label={(
+                                        <>
+                                            No. of IDPs
+                                            <br />
+                                            (Conflict)
+                                        </>
+                                    )}
+                                    value={report?.totalDisaggregation?.totalStockConflictSum}
+                                />
+                            )}
+                            {(!reportTypes || reportTypes.length <= 0 || reportTypes.includes('DISASTER')) && (
+                                <NumberBlock
+                                    label={(
+                                        <>
+                                            No. of IDPs
+                                            <br />
+                                            (Disaster)
+                                        </>
+                                    )}
+                                    value={report?.totalDisaggregation?.totalStockDisasterSum}
+                                />
                             )}
                             <NumberBlock
                                 label="Countries"
@@ -1004,7 +1004,6 @@ function Report(props: ReportProps) {
                                 label="Figures"
                                 value={report?.figuresReport?.totalCount}
                             />
-                            <div />
                         </div>
                     </Container>
                     <Container

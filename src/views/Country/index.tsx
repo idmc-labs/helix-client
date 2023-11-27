@@ -28,7 +28,6 @@ import useBasicToggle from '#hooks/useBasicToggle';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import route from '#config/routes';
 
-import Wip from '#components/Wip';
 import NumberBlock from '#components/NumberBlock';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
@@ -95,7 +94,7 @@ const countryFillPaint: mapboxgl.FillPaint = {
 };
 
 const countryLinePaint: mapboxgl.LinePaint = {
-    'line-color': '#ffffff',
+    'line-color': '#334053',
     'line-width': 1,
 };
 
@@ -271,46 +270,22 @@ function Country(props: CountryProps) {
                                 <NumberBlock
                                     label={(
                                         <>
-                                            No. of IDPs
-                                            <br />
-                                            {`(Conflict ${year})`}
-                                        </>
-                                    )}
-                                    value={countryData?.country?.totalStockConflict}
-                                />
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            No. of Crises
-                                            <br />
-                                            (Conflict)
-                                        </>
-                                    )}
-                                    value={countryData?.country?.crisesConflict?.totalCount}
-                                />
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            No. of Events
-                                            <br />
-                                            (Conflict)
-                                        </>
-                                    )}
-                                    value={countryData?.country?.eventsConflict?.totalCount}
-                                />
-                                <NumberBlock
-                                    label="Entries"
-                                    value={countryData?.country?.entries?.totalCount}
-                                />
-                                <NumberBlock
-                                    label={(
-                                        <>
                                             Internal Displacements
                                             <br />
                                             {`(Disaster ${year})`}
                                         </>
                                     )}
                                     value={countryData?.country?.totalFlowDisaster}
+                                />
+                                <NumberBlock
+                                    label={(
+                                        <>
+                                            No. of IDPs
+                                            <br />
+                                            {`(Conflict ${year})`}
+                                        </>
+                                    )}
+                                    value={countryData?.country?.totalStockConflict}
                                 />
                                 <NumberBlock
                                     label={(
@@ -327,10 +302,30 @@ function Country(props: CountryProps) {
                                         <>
                                             No. of Crises
                                             <br />
+                                            (Conflict)
+                                        </>
+                                    )}
+                                    value={countryData?.country?.crisesConflict?.totalCount}
+                                />
+                                <NumberBlock
+                                    label={(
+                                        <>
+                                            No. of Crises
+                                            <br />
                                             (Disaster)
                                         </>
                                     )}
                                     value={countryData?.country?.crisesDisaster?.totalCount}
+                                />
+                                <NumberBlock
+                                    label={(
+                                        <>
+                                            No. of Events
+                                            <br />
+                                            (Conflict)
+                                        </>
+                                    )}
+                                    value={countryData?.country?.eventsConflict?.totalCount}
                                 />
                                 <NumberBlock
                                     label={(
@@ -342,7 +337,10 @@ function Country(props: CountryProps) {
                                     )}
                                     value={countryData?.country?.eventsDisaster?.totalCount}
                                 />
-                                <div />
+                                <NumberBlock
+                                    label="Entries"
+                                    value={countryData?.country?.entries?.totalCount}
+                                />
                             </div>
                             <Map
                                 mapStyle={lightStyle}
@@ -395,21 +393,7 @@ function Country(props: CountryProps) {
                             onSummaryFormOpen={handleSummaryFormOpen}
                             onSummaryFormClose={handleSummaryFormClose}
                         />
-                        <Wip>
-                            <Container
-                                className={styles.container}
-                                heading="Recent Activity"
-                            />
-                        </Wip>
                     </div>
-                    <Wip>
-                        <div>
-                            <Container
-                                className={styles.container}
-                                heading="Country Crises Overtime"
-                            />
-                        </div>
-                    </Wip>
                 </div>
                 <div className={styles.sideContent}>
                     <ContextualAnalysis

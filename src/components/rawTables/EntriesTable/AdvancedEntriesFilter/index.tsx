@@ -6,7 +6,7 @@ import {
     MultiSelectInput,
     Switch,
 } from '@togglecorp/toggle-ui';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     PartialForm,
     PurgeNull,
@@ -27,6 +27,7 @@ import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/Cri
 import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
 import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
 import EventMultiSelectInput, { EventOption } from '#components/selections/EventMultiSelectInput';
+import ViolenceContextMultiSelectInput, { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
 
 import Container from '#components/Container';
 import NonFieldError from '#components/NonFieldError';
@@ -35,6 +36,8 @@ import Loading from '#components/Loading';
 import Row from '#components/Row';
 
 import {
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
     enumKeySelector,
     enumLabelSelector,
     hasNoData,
@@ -50,12 +53,8 @@ import {
     ExtractionForFormQuery,
     ExtractionForFormQueryVariables,
     ExtractionEntryListFiltersQueryVariables,
-    CreateExtractionMutationVariables,
     Figure_Category_Types as FigureCategoryTypes,
-    Figure_Terms as FigureTerms,
     Crisis_Type as CrisisType,
-    Figure_Review_Status as FigureReviewStatus,
-    Role,
 } from '#generated/types';
 import styles from './styles.css';
 import BooleanInput from '#components/selections/BooleanInput';
@@ -100,6 +99,48 @@ const FORM_OPTIONS = gql`
             enumValues {
                 name
                 description
+            }
+        }
+        violenceList {
+            results {
+                id
+                name
+                subTypes {
+                    results {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+        contextOfViolenceList {
+            results {
+              id
+              name
+            }
+        }
+        disasterCategoryList {
+            results {
+                id
+                name
+                subCategories {
+                    results {
+                        id
+                        name
+                        types {
+                            results {
+                                id
+                                name
+                                subTypes {
+                                    results {
+                                        id
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -170,30 +211,71 @@ const EXTRACTION_FILTER = gql`
             filterFigureReviewStatus
             filterFigureHasExcerptIdu
             filterFigureHasHousingDestruction
+            filterContextOfViolence {
+                id
+                name
+            }
+            filterFigureDisasterSubTypes {
+                id
+                name
+            }
+            filterFigureViolenceSubTypes {
+                id
+                name
+            }
         }
     }
 `;
 
+interface ViolenceOption {
+    violenceTypeId: string;
+    violenceTypeName: string;
+}
+const violenceGroupKeySelector = (item: ViolenceOption) => (
+    item.violenceTypeId
+);
+const violenceGroupLabelSelector = (item: ViolenceOption) => (
+    item.violenceTypeName
+);
+
+interface DisasterOption {
+    disasterTypeId: string;
+    disasterTypeName: string;
+    disasterSubCategoryId: string;
+    disasterSubCategoryName: string;
+    disasterCategoryId: string;
+    disasterCategoryName: string;
+}
+const disasterGroupKeySelector = (item: DisasterOption) => (
+    `${item.disasterCategoryId}-${item.disasterSubCategoryId}-${item.disasterTypeId}`
+);
+const disasterGroupLabelSelector = (item: DisasterOption) => (
+    `${item.disasterCategoryName} › ${item.disasterSubCategoryName} › ${item.disasterTypeName}`
+);
+
+// FIXME: the comparison should be type-safe but
+// we are currently down-casting string literals to string
+const conflict: CrisisType = 'CONFLICT';
+const disaster: CrisisType = 'DISASTER';
+
 interface DisplacementTypeOption {
-    name: FigureCategoryTypes;
+    // name: FigureCategoryTypes;
+    name: string;
     description?: string | null | undefined;
 }
 const figureCategoryGroupKeySelector = (item: DisplacementTypeOption) => (
-    isFlowCategory(item.name) ? 'Flow' : 'Stock'
+    isFlowCategory(item.name as FigureCategoryTypes) ? 'Flow' : 'Stock'
 );
 
 const figureCategoryGroupLabelSelector = (item: DisplacementTypeOption) => (
-    isFlowCategory(item.name) ? 'Flow' : 'Stock'
+    isFlowCategory(item.name as FigureCategoryTypes) ? 'Flow' : 'Stock'
 );
 
 const figureCategoryHideOptionFilter = (item: DisplacementTypeOption) => (
-    isVisibleCategory(item.name)
+    isVisibleCategory(item.name as FigureCategoryTypes)
 );
 
-// NOTE: should have used ExtractionEntryListFiltersQueryVariables instead of
-// CreateExtractionMutationVariables['extraction'] but the type is looser
-// eslint-disable-next-line @typescript-eslint/ban-types
-type ExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
+type ExtractionFiltersFields = Omit<ExtractionEntryListFiltersQueryVariables, 'ordering' | 'page' | 'pageSize'>;
 type FormType = PurgeNull<PartialForm<
     ExtractionFiltersFields
 >>;
@@ -201,30 +283,46 @@ type FormType = PurgeNull<PartialForm<
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
-    fields: (): FormSchemaFields => ({
-        filterFigureRegions: [arrayCondition],
-        filterFigureCountries: [arrayCondition],
-        filterFigureCrises: [arrayCondition],
-        filterFigureCrisisTypes: [arrayCondition],
-        filterFigureTags: [arrayCondition],
-        filterEntryArticleTitle: [],
+    fields: (filterValue): FormSchemaFields => {
+        let basicFields: FormSchemaFields = {
+            filterFigureRegions: [arrayCondition],
+            filterFigureCountries: [arrayCondition],
+            filterFigureCrises: [arrayCondition],
+            filterFigureCrisisTypes: [arrayCondition],
+            filterFigureTags: [arrayCondition],
+            filterEntryArticleTitle: [],
 
-        filterFigureRoles: [arrayCondition],
-        filterFigureTerms: [arrayCondition],
-        filterFigureStartAfter: [],
-        filterFigureEndBefore: [],
-        filterFigureCategories: [arrayCondition],
-        filterFigureCategoryTypes: [],
-        filterFigureGeographicalGroups: [arrayCondition],
-        filterEntryPublishers: [arrayCondition],
-        filterFigureSources: [arrayCondition],
-        filterFigureHasDisaggregatedData: [],
-        filterCreatedBy: [arrayCondition],
-        filterFigureEvents: [arrayCondition],
-        filterFigureReviewStatus: [arrayCondition],
-        filterFigureHasExcerptIdu: [],
-        filterFigureHasHousingDestruction: [],
-    }),
+            filterFigureRoles: [arrayCondition],
+            filterFigureTerms: [arrayCondition],
+            filterFigureStartAfter: [],
+            filterFigureEndBefore: [],
+            filterFigureCategories: [arrayCondition],
+            filterFigureCategoryTypes: [],
+            filterFigureGeographicalGroups: [arrayCondition],
+            filterEntryPublishers: [arrayCondition],
+            filterFigureSources: [arrayCondition],
+            filterFigureHasDisaggregatedData: [],
+            filterCreatedBy: [arrayCondition],
+            filterFigureEvents: [arrayCondition],
+            filterFigureReviewStatus: [arrayCondition],
+            filterFigureHasExcerptIdu: [],
+            filterFigureHasHousingDestruction: [],
+        };
+        if (filterValue?.filterFigureCrisisTypes?.includes(conflict)) {
+            basicFields = {
+                ...basicFields,
+                filterFigureViolenceSubTypes: [arrayCondition],
+                filterContextOfViolences: [],
+            };
+        }
+        if (filterValue?.filterFigureCrisisTypes?.includes(disaster)) {
+            basicFields = {
+                ...basicFields,
+                filterFigureDisasterSubTypes: [arrayCondition],
+            };
+        }
+        return basicFields;
+    },
 };
 
 const defaultFormValues: PartialForm<FormType> = {
@@ -301,6 +399,10 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
         eventOptions,
         setEventOptions,
     ] = useState<EventOption[] | undefined | null>();
+    const [
+        violenceContextOptions,
+        setViolenceContextOptions,
+    ] = useState<ViolenceContextOption[] | null | undefined>();
 
     const [
         filtersExpanded, , , ,
@@ -385,6 +487,9 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 if (otherAttrs.filterCreatedBy) {
                     setCreatedByOptions(otherAttrs.filterCreatedBy);
                 }
+                if (otherAttrs.filterContextOfViolence) {
+                    setViolenceContextOptions(otherAttrs.filterContextOfViolence);
+                }
                 const formValue = removeNull({
                     filterFigureRegions: otherAttrs.filterFigureRegions?.map((r) => r.id),
                     filterFigureGeographicalGroups: otherAttrs.filterFigureGeographicalGroups
@@ -408,6 +513,11 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     filterFigureHasDisaggregatedData: otherAttrs.filterFigureHasDisaggregatedData,
                     filterFigureHasHousingDestruction: otherAttrs.filterFigureHasHousingDestruction,
                     filterFigureHasExcerptIdu: otherAttrs.filterFigureHasExcerptIdu,
+                    filterContextOfViolences: otherAttrs.filterContextOfViolence?.map((e) => e.id),
+                    // eslint-disable-next-line max-len
+                    filterFigureDisasterSubTypes: otherAttrs.filterFigureDisasterSubTypes?.map((e) => e.id),
+                    // eslint-disable-next-line max-len
+                    filterFigureViolenceSubTypes: otherAttrs.filterFigureViolenceSubTypes?.map((e) => e.id),
                 });
                 onFormValueSet(formValue);
                 onFilterChange(formValue);
@@ -476,11 +586,39 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
 
     type FigureCategoryTypeOptions = typeof categoryTypeOptions;
 
+    const violenceOptions = data?.violenceList?.results?.flatMap((violenceType) => (
+        violenceType.subTypes?.results?.map((violenceSubType) => ({
+            ...violenceSubType,
+            violenceTypeId: violenceType.id,
+            violenceTypeName: violenceType.name,
+        }))
+    )).filter(isDefined);
+
+    // eslint-disable-next-line max-len
+    const disasterSubTypeOptions = data?.disasterCategoryList?.results?.flatMap((disasterCategory) => (
+        disasterCategory.subCategories?.results?.flatMap((disasterSubCategory) => (
+            disasterSubCategory.types?.results?.flatMap((disasterType) => (
+                disasterType.subTypes?.results?.map((disasterSubType) => ({
+                    ...disasterSubType,
+                    disasterTypeId: disasterType.id,
+                    disasterTypeName: disasterType.name,
+                    disasterSubCategoryId: disasterSubCategory.id,
+                    disasterSubCategoryName: disasterSubCategory.name,
+                    disasterCategoryId: disasterCategory.id,
+                    disasterCategoryName: disasterCategory.name,
+                }))
+            ))
+        ))
+    )).filter(isDefined);
+
     const loading = extractionQueryLoading;
     const errored = !!extractionDataError;
     const disabled = loading || errored;
 
     const filterChanged = initialFormValues !== value;
+
+    const conflictType = value.filterFigureCrisisTypes?.includes(conflict);
+    const disasterType = value.filterFigureCrisisTypes?.includes(disaster);
 
     return (
         <form
@@ -529,7 +667,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         <div className={_cs(styles.label)}>
                             Displacement classification
                         </div>
-                        <MultiSelectInput<CrisisType, 'filterFigureCrisisTypes', NonNullable<CrisisTypeOptions>[number], { containerClassName?: string }>
+                        <MultiSelectInput
                             options={data?.crisisType?.enumValues as CrisisTypeOptions}
                             label="Causes"
                             name="filterFigureCrisisTypes"
@@ -566,7 +704,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         <div className={_cs(styles.label)}>
                             Data Filters
                         </div>
-                        <MultiSelectInput<FigureTerms, 'filterFigureTerms', NonNullable<TermOptions>[number], { containerClassName?: string }>
+                        <MultiSelectInput
                             options={terms as TermOptions}
                             keySelector={enumKeySelector}
                             labelSelector={enumLabelSelector}
@@ -577,7 +715,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                             error={error?.fields?.filterFigureTerms?.$internal}
                             disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                         />
-                        <MultiSelectInput<Role, 'filterFigureRoles', NonNullable<FigureRoleOptions>[number], { containerClassName?: string }>
+                        <MultiSelectInput
                             options={figureRoles as FigureRoleOptions}
                             label="Roles"
                             name="filterFigureRoles"
@@ -650,6 +788,78 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 >
                     Additional Filters
                 </div>
+                {(conflictType || disasterType) && (
+                    <Row
+                        className={_cs(
+                            styles.input,
+                            (hasNoData(value.filterFigureViolenceSubTypes)
+                                && hasNoData(value.filterContextOfViolences)
+                                && hasNoData(value.filterFigureDisasterSubTypes)
+                                && !filtersExpanded)
+                            && styles.hidden,
+                        )}
+                    >
+                        {conflictType && (
+                            <>
+                                <MultiSelectInput
+                                    className={_cs(
+                                        styles.input,
+                                        // eslint-disable-next-line max-len
+                                        (hasNoData(value.filterFigureViolenceSubTypes) && !filtersExpanded)
+                                        && styles.hidden,
+                                    )}
+                                    options={violenceOptions}
+                                    keySelector={basicEntityKeySelector}
+                                    labelSelector={basicEntityLabelSelector}
+                                    label="Violence Types"
+                                    name="filterFigureViolenceSubTypes"
+                                    value={value.filterFigureViolenceSubTypes}
+                                    onChange={onValueChange}
+                                    error={error?.fields?.filterFigureViolenceSubTypes?.$internal}
+                                    groupLabelSelector={violenceGroupLabelSelector}
+                                    groupKeySelector={violenceGroupKeySelector}
+                                    grouped
+                                />
+                                <ViolenceContextMultiSelectInput
+                                    className={_cs(
+                                        styles.input,
+                                        // eslint-disable-next-line max-len
+                                        (hasNoData(value.filterContextOfViolences) && !filtersExpanded)
+                                        && styles.hidden,
+                                    )}
+                                    options={violenceContextOptions}
+                                    label="Context of Violence"
+                                    name="filterContextOfViolences"
+                                    value={value.filterContextOfViolences}
+                                    onChange={onValueChange}
+                                    onOptionsChange={setViolenceContextOptions}
+                                    error={error?.fields?.filterContextOfViolences?.$internal}
+                                />
+                            </>
+                        )}
+                        {disasterType && (
+                            <MultiSelectInput
+                                className={_cs(
+                                    styles.input,
+                                    // eslint-disable-next-line max-len
+                                    (hasNoData(value.filterFigureDisasterSubTypes) && !filtersExpanded)
+                                    && styles.hidden,
+                                )}
+                                options={disasterSubTypeOptions}
+                                keySelector={basicEntityKeySelector}
+                                labelSelector={basicEntityLabelSelector}
+                                label="Hazard Types"
+                                name="filterFigureDisasterSubTypes"
+                                value={value.filterFigureDisasterSubTypes}
+                                onChange={onValueChange}
+                                error={error?.fields?.filterFigureDisasterSubTypes?.$internal}
+                                groupLabelSelector={disasterGroupLabelSelector}
+                                groupKeySelector={disasterGroupKeySelector}
+                                grouped
+                            />
+                        )}
+                    </Row>
+                )}
                 <Row
                     className={_cs(
                         styles.input,
@@ -706,7 +916,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         error={error?.fields?.filterFigureSources?.$internal}
                         disabled={disabled}
                     />
-                    <MultiSelectInput<FigureReviewStatus, 'filterFigureReviewStatus', NonNullable<ReviewStatusOptions>[number], { containerClassName?: string }>
+                    <MultiSelectInput
                         className={styles.input}
                         options={reviewStatusOptions as ReviewStatusOptions}
                         label="Review Status"
@@ -761,7 +971,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         error={error?.fields?.filterFigureCategoryTypes?.$internal}
                         disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                     />
-                    <MultiSelectInput<FigureCategoryTypes, 'filterFigureCategories', NonNullable<FigureCategoryOptions>[number], { containerClassName?: string }>
+                    <MultiSelectInput
                         className={_cs(
                             styles.input,
                             (hasNoData(value.filterFigureCategories) && !filtersExpanded)

@@ -253,6 +253,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
                                 reviewStatusHidden={!!reviewStatus}
                                 defaultEvents={eventId ? [eventId] : undefined}
                                 eventsHidden={isDefined(eventId)}
+                                crisesHidden={isDefined(eventId) || isDefined(crisisId)}
                                 defaultCountries={countryId ? [countryId] : undefined}
                                 countriesHidden={isDefined(countryId)}
                                 defaultCrises={crisisId ? [crisisId] : undefined}
@@ -265,6 +266,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
                                 defaultEvents={eventId ? [eventId] : undefined}
                                 defaultCountries={countryId ? [countryId] : undefined}
                                 eventsHidden={isDefined(eventId)}
+                                crisesHidden={isDefined(eventId) || isDefined(crisisId)}
                                 countriesHidden={isDefined(countryId)}
                                 defaultCrises={crisisId ? [crisisId] : undefined}
                             />

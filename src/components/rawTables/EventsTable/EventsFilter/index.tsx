@@ -120,7 +120,7 @@ const EVENT_OPTIONS = gql`
 
 const schema: FormSchema = {
     fields: (eventValue): FormSchemaFields => {
-        const basicFields: FormSchemaFields = {
+        let basicFields: FormSchemaFields = {
             countries: [arrayCondition],
             eventTypes: [arrayCondition],
             reviewStatus: [arrayCondition],
@@ -135,14 +135,14 @@ const schema: FormSchema = {
             disasterSubTypes: [nullCondition, arrayCondition],
         };
         if (eventValue?.eventTypes?.includes(conflict)) {
-            return {
+            basicFields = {
                 ...basicFields,
                 violenceSubTypes: [arrayCondition],
                 contextOfViolences: [],
             };
         }
         if (eventValue?.eventTypes?.includes(disaster)) {
-            return {
+            basicFields = {
                 ...basicFields,
                 disasterSubTypes: [arrayCondition],
             };
@@ -428,6 +428,20 @@ function EventsFilter(props: EventsFilterProps) {
                         groupLabelSelector={disasterGroupLabelSelector}
                         groupKeySelector={disasterGroupKeySelector}
                         grouped
+                    />
+                )}
+                {!reviewStatusSelectionDisabled && (
+                    <MultiSelectInput
+                        className={styles.input}
+                        options={data?.eventReviewStatus?.enumValues}
+                        label="Review Status"
+                        name="reviewStatus"
+                        value={value.reviewStatus}
+                        onChange={onValueChange}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        error={error?.fields?.reviewStatus?.$internal}
+                        disabled={eventOptionsLoading || !!eventOptionsError}
                     />
                 )}
                 {!crisisSelectionDisabled && (

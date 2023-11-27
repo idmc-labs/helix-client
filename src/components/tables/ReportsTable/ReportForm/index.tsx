@@ -299,13 +299,13 @@ const schema: FormSchema = {
             filterFigureDisasterSubTypes: [nullCondition, arrayCondition],
         };
         if (reportValue?.filterFigureCrisisTypes?.includes(disaster)) {
-            return {
+            basicFields = {
                 ...basicFields,
                 filterFigureDisasterSubTypes: [arrayCondition],
             };
         }
         if (reportValue?.filterFigureCrisisTypes?.includes(conflict)) {
-            return {
+            basicFields = {
                 ...basicFields,
                 filterFigureViolenceSubTypes: [arrayCondition],
             };

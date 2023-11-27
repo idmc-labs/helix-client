@@ -1,9 +1,7 @@
 import React, { useContext } from 'react';
 import { _cs } from '@togglecorp/fujs';
 
-import Wip from '#components/Wip';
 import DomainContext from '#components/DomainContext';
-import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import MyResources from '#components/lists/MyResources';
 import ParkedItemTable from '#components/tables/ParkedItemTable';
@@ -30,12 +28,6 @@ function Dashboard(props: DashboardProps) {
             <div className={styles.content}>
                 <div className={styles.mainContent}>
                     <div className={styles.top}>
-                        <Wip>
-                            <Container
-                                className={styles.container}
-                                heading="For Review"
-                            />
-                        </Wip>
                         <ParkedItemTable
                             className={styles.container}
                             headerActions={(
@@ -61,27 +53,9 @@ function Dashboard(props: DashboardProps) {
                             pageSize={5}
                             userId={user?.id}
                         />
-                        <Wip>
-                            <Container
-                                className={styles.container}
-                                heading="IDP Map"
-                            />
-                        </Wip>
-                        <Wip>
-                            <Container
-                                className={styles.container}
-                                heading="IDP Trends"
-                            />
-                        </Wip>
                     </div>
                 </div>
                 <div className={styles.sideContent}>
-                    <Wip>
-                        <Container
-                            className={styles.container}
-                            heading="Recent Updates"
-                        />
-                    </Wip>
                     <MyResources
                         className={styles.container}
                     />

@@ -11,7 +11,6 @@ import QuickActionLink from '#components/QuickActionLink';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
-import ButtonLikeLink from '#components/ButtonLikeLink';
 import route from '#config/routes';
 import { Parking_Lot_Status as ParkingLotStatus } from '#generated/types';
 
@@ -58,7 +57,7 @@ function ActionCell(props: ActionProps) {
                 </QuickActionLink>
             )}
             {parkedItemStatus !== 'REVIEWED' && (
-                <ButtonLikeLink
+                <QuickActionLink
                     route={route.newEntryFromParkedItem}
                     attrs={{ parkedItemId: id }}
                     icons={<IoDocumentOutline />}

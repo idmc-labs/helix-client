@@ -16,25 +16,28 @@
         min-height: 400px;
     }
 
+    .extra-large-container {
+        min-height: 600px;
+    }
+
     .details {
         display: flex;
         flex-direction: column;
+        gap: var(--spacing-medium);
 
         .stats {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: var(--spacing-medium);
-
-            >* {
-                flex-basis: 0;
-                flex-grow: 1;
-                min-width: 16rem;
-            }
+            display: grid;
+            grid-gap: var(--spacing-medium);
+            grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
 
             .hidden {
                 display: none;
             }
+        }
+
+        .map-container {
+            flex-grow: 1;
+            min-height: 400px;
         }
     }
 }

@@ -111,7 +111,10 @@ export function listToMap<T, K extends string | number, V>(
 }
 
 type Bounds = [number, number, number, number];
-export function mergeBbox(bboxes: GeoJSON.BBox[]) {
+export function mergeBbox(bboxes: GeoJSON.BBox[] | undefined) {
+    if (!bboxes || bboxes.length <= 0) {
+        return undefined;
+    }
     const boundsFeatures = bboxes.map((b) => bboxPolygon(b));
     const boundsFeatureCollection = featureCollection(boundsFeatures);
     const combinedPolygons = combine(boundsFeatureCollection);

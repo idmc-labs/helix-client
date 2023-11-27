@@ -76,33 +76,25 @@
 
         .left-content {
             display: flex;
-            flex-basis: 70%;
             flex-direction: column;
+            flex-grow: 1;
             overflow: auto;
             gap: var(--spacing-large);
 
             .idp-map {
                 .stats {
-                    display: flex;
-                    flex-wrap: wrap;
-                    justify-content: space-between;
-                    gap: var(--spacing-medium);
-
-                    >* {
-                        flex-basis: 0;
-                        flex-grow: 1;
-                        min-width: 16rem;
-                    }
+                    display: grid;
+                    grid-gap: var(--spacing-medium);
+                    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
                 }
             }
         }
 
         .side-content {
             display: flex;
-            flex-basis: 30%;
             flex-direction: column;
             flex-shrink: 0;
-            width: calc(160px + 10vw);
+            width: calc(160px + 16vw);
             gap: var(--spacing-large);
         }
     }

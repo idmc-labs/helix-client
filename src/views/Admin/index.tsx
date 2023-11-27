@@ -1,8 +1,6 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 
-import Wip from '#components/Wip';
-import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 
 import UserRoles from './UserRoles';
@@ -21,12 +19,6 @@ function Admin(props: AdminProps) {
                 title="Admin"
             />
             <div className={styles.content}>
-                <Wip>
-                    <Container
-                        className={styles.container}
-                        heading="For Review"
-                    />
-                </Wip>
                 <UserRoles
                     className={styles.container}
                 />

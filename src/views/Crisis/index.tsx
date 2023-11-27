@@ -4,12 +4,19 @@ import {
     gql,
     useQuery,
 } from '@apollo/client';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
+import Map, {
+    MapContainer,
+    MapBounds,
+    MapSource,
+    MapLayer,
+} from '@togglecorp/re-map';
 import {
     Button,
     Modal,
 } from '@togglecorp/toggle-ui';
 
+import { mergeBbox } from '#utils/common';
 import { MarkdownPreview } from '#components/MarkdownEditor';
 import DomainContext from '#components/DomainContext';
 import Container from '#components/Container';
@@ -34,6 +41,8 @@ const CRISIS = gql`
             countries {
                 id
                 idmcShortName
+                boundingBox
+                geojsonUrl
             }
             crisisNarrative
             crisisType
@@ -48,6 +57,20 @@ const CRISIS = gql`
         }
     }
 `;
+
+type Bounds = [number, number, number, number];
+
+const lightStyle = 'mapbox://styles/togglecorp/cl50rwy0a002d14mo6w9zprio';
+
+const countryFillPaint: mapboxgl.FillPaint = {
+    'fill-color': '#354052', // empty color
+    'fill-opacity': 0.2,
+};
+
+const countryLinePaint: mapboxgl.LinePaint = {
+    'line-color': '#334053',
+    'line-width': 1,
+};
 
 interface CrisisProps {
     className?: string;
@@ -82,6 +105,12 @@ function Crisis(props: CrisisProps) {
         hideAddCrisisModal,
     ] = useModalState();
 
+    const bounds = mergeBbox(
+        crisisData?.crisis?.countries
+            ?.map((country) => country.boundingBox as (GeoJSON.BBox | null | undefined))
+            .filter(isDefined),
+    );
+
     return (
         <div className={_cs(styles.crisis, className)}>
             <PageHeader
@@ -97,48 +126,79 @@ function Crisis(props: CrisisProps) {
                 )}
             />
             <Container
-                className={styles.container}
+                className={styles.extraLargeContainer}
                 contentClassName={styles.details}
                 heading="Details"
             >
-                {crisisData ? (
-                    <div className={styles.stats}>
-                        <TextBlock
-                            label="Cause"
-                            value={crisisData?.crisis?.crisisTypeDisplay}
-                        />
-                        <NumberBlock
-                            label="Internal displacements"
-                            value={crisisData?.crisis?.totalFlowNdFigures}
-                        />
-                        <NumberBlock
-                            label={
-                                crisisData?.crisis?.stockIdpFiguresMaxEndDate
-                                    ? `No. of IDPs as of ${crisisData.crisis.stockIdpFiguresMaxEndDate}`
-                                    : 'No. of IDPs'
-                            }
-                            value={crisisData?.crisis?.totalStockIdpFigures}
-                        />
-                        <TextBlock
-                            label="As of"
-                            value={crisisData?.crisis?.stockIdpFiguresMaxEndDate}
-                        />
-                        <TextBlock
-                            label="Start Date"
-                            value={crisisData?.crisis?.startDate}
-                        />
-                        <TextBlock
-                            label="End Date"
-                            value={crisisData?.crisis?.endDate}
-                        />
-                        <TextBlock
-                            label="Countries"
-                            value={crisisData?.crisis?.countries?.map((country) => country.idmcShortName).join(', ')}
-                        />
-                    </div>
-                ) : (
-                    'Details not available'
-                )}
+                <div className={styles.stats}>
+                    <NumberBlock
+                        label="Internal displacements"
+                        value={crisisData?.crisis?.totalFlowNdFigures}
+                    />
+                    <NumberBlock
+                        label={
+                            crisisData?.crisis?.stockIdpFiguresMaxEndDate
+                                ? `No. of IDPs as of ${crisisData.crisis.stockIdpFiguresMaxEndDate}`
+                                : 'No. of IDPs'
+                        }
+                        value={crisisData?.crisis?.totalStockIdpFigures}
+                    />
+                    <TextBlock
+                        label="Start Date"
+                        value={crisisData?.crisis?.startDate}
+                    />
+                    <TextBlock
+                        label="End Date"
+                        value={crisisData?.crisis?.endDate}
+                    />
+                    <TextBlock
+                        label="Cause"
+                        value={crisisData?.crisis?.crisisTypeDisplay}
+                    />
+                    <TextBlock
+                        label="Countries"
+                        value={crisisData?.crisis?.countries?.map((country) => country.idmcShortName).join(', ')}
+                    />
+                </div>
+                <Map
+                    mapStyle={lightStyle}
+                    mapOptions={{
+                        logoPosition: 'bottom-left',
+                    }}
+                    scaleControlShown
+                    navControlShown
+                >
+                    <MapContainer className={styles.mapContainer} />
+                    <MapBounds
+                        bounds={bounds as Bounds | undefined}
+                        padding={50}
+                    />
+                    {crisisData?.crisis?.countries?.map((country) => (
+                        <MapSource
+                            key={country.id}
+                            sourceKey={`country-${country.id}`}
+                            sourceOptions={{
+                                type: 'geojson',
+                            }}
+                            geoJson={country.geojsonUrl}
+                        >
+                            <MapLayer
+                                layerKey="country-fill"
+                                layerOptions={{
+                                    type: 'fill',
+                                    paint: countryFillPaint,
+                                }}
+                            />
+                            <MapLayer
+                                layerKey="country-line"
+                                layerOptions={{
+                                    type: 'line',
+                                    paint: countryLinePaint,
+                                }}
+                            />
+                        </MapSource>
+                    ))}
+                </Map>
             </Container>
             <Container
                 className={styles.container}
