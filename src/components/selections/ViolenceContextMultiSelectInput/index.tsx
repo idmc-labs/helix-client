@@ -10,6 +10,7 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
+import useOptions from '#hooks/useOptions';
 import { GetViolenceContextQuery, GetViolenceContextQueryVariables } from '#generated/types';
 import SearchMultiSelectInputWithChip from '#components/SearchMultiSelectInputWithChip';
 
@@ -40,7 +41,7 @@ type MultiSelectInputProps<
         K,
         ViolenceContextOption,
         Def,
-        'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+        'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
     > & { chip?: boolean };
 
 function ViolenceContextMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
@@ -73,6 +74,7 @@ function ViolenceContextMultiSelectInput<K extends string>(props: MultiSelectInp
 
     const searchOptions = data?.contextOfViolenceList?.results;
     const totalOptionsCount = data?.contextOfViolenceList?.totalCount;
+    const [options, setOptions] = useOptions('contextOfViolence');
 
     if (chip) {
         return (
@@ -87,6 +89,8 @@ function ViolenceContextMultiSelectInput<K extends string>(props: MultiSelectInp
                 searchOptions={searchOptions}
                 optionsPending={loading}
                 totalOptionsCount={totalOptionsCount ?? undefined}
+                options={options}
+                onOptionsChange={setOptions}
             />
         );
     }
@@ -103,6 +107,8 @@ function ViolenceContextMultiSelectInput<K extends string>(props: MultiSelectInp
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
+            options={options}
+            onOptionsChange={setOptions}
         />
     );
 }

@@ -39,12 +39,8 @@ function Dashboard(props: DashboardProps) {
                                     Go to Media Monitoring Platform
                                 </a>
                             )}
-                            defaultUser={user?.id}
-                            defaultStatus="TO_BE_REVIEWED"
-                            detailsHidden
-                            searchHidden
-                            addButtonHidden
-                            pageChangeHidden
+                            assignedUser={user?.id}
+                            status="TO_BE_REVIEWED"
                         />
                     </div>
                     <div className={styles.bottom}>

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import {
     TextInput,
     Button,
@@ -20,7 +20,7 @@ import {
 } from 'react-icons/io5';
 
 import NonFieldError from '#components/NonFieldError';
-import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
+import CountryMultiSelectInput from '#components/selections/CountryMultiSelectInput';
 import BooleanInput from '#components/selections/BooleanInput';
 
 import {
@@ -71,19 +71,16 @@ const STATUS_OPTIONS = gql`
 
 interface ReportFilterProps {
     className?: string;
+    initialFilter?: PartialForm<FormType>;
     onFilterChange: (value: PurgeNull<ReportsQueryVariables>) => void;
 }
 
 function ReportFilter(props: ReportFilterProps) {
     const {
         className,
+        initialFilter,
         onFilterChange,
     } = props;
-
-    const [
-        filterFigureCountries,
-        setFilterFigureCountries,
-    ] = useState<CountryOption[] | null | undefined>();
 
     const {
         pristine,
@@ -93,7 +90,7 @@ function ReportFilter(props: ReportFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(defaultFormValues, schema);
+    } = useForm(initialFilter ?? defaultFormValues, schema);
 
     const {
         data: statusOptions,
@@ -109,7 +106,7 @@ function ReportFilter(props: ReportFilterProps) {
         [onValueSet, onFilterChange],
     );
 
-    const handleSubmit = React.useCallback((finalValues: FormType) => {
+    const handleSubmit = useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
@@ -136,8 +133,6 @@ function ReportFilter(props: ReportFilterProps) {
                 />
                 <CountryMultiSelectInput
                     className={styles.input}
-                    options={filterFigureCountries}
-                    onOptionsChange={setFilterFigureCountries}
                     label="Countries"
                     name="filterFigureCountries"
                     value={value.filterFigureCountries}

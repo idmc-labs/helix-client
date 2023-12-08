@@ -35,12 +35,14 @@ const defaultFormValues: PartialForm<FormType> = {
 
 interface ViolenceContextFilterProps {
     className?: string;
+    initialFilter?: PartialForm<FormType>;
     onFilterChange: (value: PurgeNull<ContextOfViolenceListQueryVariables>) => void;
 }
 
 function ViolenceContextFilter(props: ViolenceContextFilterProps) {
     const {
         className,
+        initialFilter,
         onFilterChange,
     } = props;
 
@@ -52,7 +54,7 @@ function ViolenceContextFilter(props: ViolenceContextFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(defaultFormValues, schema);
+    } = useForm(initialFilter ?? defaultFormValues, schema);
 
     const onResetFilters = useCallback(
         () => {
@@ -62,7 +64,7 @@ function ViolenceContextFilter(props: ViolenceContextFilterProps) {
         [onValueSet, onFilterChange],
     );
 
-    const handleSubmit = React.useCallback((finalValues: FormType) => {
+    const handleSubmit = useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);

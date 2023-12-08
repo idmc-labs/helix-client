@@ -60,8 +60,7 @@ import {
     Date_Accuracy as DateAccuracy,
     Displacement_Occurred as DisplacementOccurred,
 } from '#generated/types';
-import { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
-import { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
+import useOptions from '#hooks/useOptions';
 
 import {
     ENTRY,
@@ -331,22 +330,14 @@ function EntryForm(props: EntryFormProps) {
 
     const [redirectId, setRedirectId] = useState<string | undefined>();
 
-    const [
-        organizations,
-        setOrganizations,
-    ] = useState<OrganizationOption[] | null | undefined>([]);
+    // NOTE: we are not using useOptions as this event has more details
     const [
         events,
         setEvents,
     ] = useState<EventListOption[] | null | undefined>([]);
-    const [
-        tagOptions,
-        setTagOptions,
-    ] = useState<FigureTagOption[] | undefined | null>();
-    const [
-        violenceContextOptions,
-        setViolenceContextOptions,
-    ] = useState<ViolenceContextOption[] | null | undefined>();
+    const [, setOrganizations] = useOptions('organization');
+    const [, setTagOptions] = useOptions('tag');
+    const [, setViolenceContextOptions] = useOptions('contextOfViolence');
 
     const {
         data: figureOptionsData,
@@ -1330,8 +1321,6 @@ function EntryForm(props: EntryFormProps) {
                             onRemoveAttachment={handleAttachmentRemove}
                             onUrlProcess={handleUrlProcess}
                             onRemoveUrl={handleRemoveUrl}
-                            organizations={organizations}
-                            setOrganizations={setOrganizations}
                             mode={mode}
                         />
                     </TabPanel>
@@ -1391,10 +1380,6 @@ function EntryForm(props: EntryFormProps) {
                                             mode={mode}
                                             // eslint-disable-next-line max-len
                                             optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
-                                            tagOptions={tagOptions}
-                                            setTagOptions={setTagOptions}
-                                            violenceContextOptions={violenceContextOptions}
-                                            setViolenceContextOptions={setViolenceContextOptions}
                                             events={events}
                                             setEvents={setEvents}
                                             // eslint-disable-next-line max-len
@@ -1427,8 +1412,6 @@ function EntryForm(props: EntryFormProps) {
                                             // eslint-disable-next-line max-len
                                             otherSubTypeOptions={figureOptionsData?.otherSubTypeList}
                                             trafficLightShown={trafficLightShown}
-                                            organizations={organizations}
-                                            setOrganizations={setOrganizations}
                                             onFigureClone={handleFigureClone}
                                             isRecommended={figureMapping[fig.uuid]?.role === 'RECOMMENDED'}
                                             reviewStatus={figureMapping[fig.uuid]?.reviewStatus}

@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useCallback } from 'react';
 import {
     TextInput,
     DateInput,
@@ -28,7 +28,6 @@ import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import Loading from '#components/Loading';
 import NotificationContext from '#components/NotificationContext';
-import { CountryOption } from '#components/selections/CountrySelectInput';
 import { WithId } from '#utils/common';
 
 import { transformToFormError } from '#utils/errorTransform';
@@ -163,12 +162,14 @@ const CONTACT_DATA = gql`
     }
 `;
 
+const defaultFormValues: PartialForm<FormType> = {};
+
 interface CommunicationFormProps {
-    contact: ContactType['id'];
     id: string | undefined;
     onHideAddCommunicationModal: () => void;
     onAddCommunicationCache: MutationUpdaterFn<CreateCommunicationMutation>;
-    defaultCountry?: CountryOption | null;
+
+    contact: ContactType['id'];
 }
 
 function CommunicationForm(props: CommunicationFormProps) {
@@ -177,13 +178,7 @@ function CommunicationForm(props: CommunicationFormProps) {
         onHideAddCommunicationModal,
         onAddCommunicationCache,
         id,
-        defaultCountry,
     } = props;
-
-    const defaultFormValues: PartialForm<FormType> = useMemo(
-        () => (defaultCountry ? { country: defaultCountry.id } : {}),
-        [defaultCountry],
-    );
 
     const {
         pristine,
@@ -322,7 +317,7 @@ function CommunicationForm(props: CommunicationFormProps) {
         },
     );
 
-    const handleSubmit = React.useCallback(
+    const handleSubmit = useCallback(
         (finalValues: PartialForm<FormType>) => {
             if (finalValues.id) {
                 updateCommunication({
@@ -367,7 +362,6 @@ function CommunicationForm(props: CommunicationFormProps) {
                 onChange={onValueChange}
                 error={error?.fields?.country}
                 disabled={disabled}
-                readOnly={!!defaultCountry}
                 autoFocus
             />
             <Row>

@@ -115,6 +115,12 @@ const schema: FormSchema = {
     }),
 };
 
+const defaultFormValues: PartialForm<FormType> = {
+    code: undefined,
+    name: undefined,
+    isActive: undefined,
+};
+
 interface ClientRecordProps {
     className?: string;
     id: string | undefined;
@@ -131,12 +137,6 @@ function ClientRecordForm(props: ClientRecordProps) {
         className,
         onClientCreateCancel,
     } = props;
-
-    const defaultFormValues: PartialForm<FormType> = {
-        code: undefined,
-        name: undefined,
-        isActive: undefined,
-    };
 
     const {
         pristine,

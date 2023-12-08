@@ -8,9 +8,9 @@ import {
 import {
     Button,
     Tabs,
-    Tab,
+    // Tab,
     TabPanel,
-    TabList,
+    // TabList,
     DateTimeRange,
     DateTime,
     Modal,
@@ -48,13 +48,14 @@ import {
     SetPfaVisibleInGiddMutationVariables,
 } from '#generated/types';
 
+import useOptions from '#hooks/useOptions';
 import ButtonLikeExternalLink from '#components/ButtonLikeExternalLink';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import UserItem from '#components/UserItem';
 import NumberBlock from '#components/NumberBlock';
 import { MarkdownPreview } from '#components/MarkdownEditor';
-import ReportSelectInput, { ReportOption } from '#components/selections/ReportSelectInput';
+import ReportSelectInput from '#components/selections/ReportSelectInput';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import route from '#config/routes';
 
@@ -62,11 +63,6 @@ import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import ReportComments from './ReportComments';
-import ReportCountryTable from './ReportCountryTable';
-import ReportCrisisTable from './ReportCrisisTable';
-import ReportEventTable from './ReportEventTable';
-import ReportEntryTable from './ReportEntryTable';
-import ReportFigureTable from './ReportFigureTable';
 import styles from './styles.css';
 import QuickActionButton from '#components/QuickActionButton';
 import AnalysisUpdateForm from './Analysis/AnalysisUpdateForm';
@@ -147,21 +143,6 @@ const REPORT = gql`
             filterFigureEndBefore
             filterFigureCrisisTypes
             publicFigureAnalysis
-            countriesReport {
-                totalCount
-            }
-            crisesReport {
-                totalCount
-            }
-            entriesReport {
-                totalCount
-            }
-            eventsReport {
-                totalCount
-            }
-            figuresReport {
-                totalCount
-            }
 
             generatedFrom
             isPfaVisibleInGidd
@@ -417,7 +398,7 @@ function Report(props: ReportProps) {
         (): ReportQueryVariables | undefined => ({ id: reportId }),
         [reportId],
     );
-    const [reportOptions, setReportOptions] = useState<ReportOption[] | undefined | null>();
+    const [, setReportOptions] = useOptions('report');
 
     const {
         data: reportData,
@@ -766,6 +747,7 @@ function Report(props: ReportProps) {
         [report, reportTypes],
     );
 
+    /*
     const tabs = (
         <TabList>
             <Tab
@@ -795,6 +777,7 @@ function Report(props: ReportProps) {
             </Tab>
         </TabList>
     );
+    */
 
     const status = !reportDataLoading && (
         <>
@@ -919,8 +902,6 @@ function Report(props: ReportProps) {
                         name="report"
                         value={reportId}
                         onChange={handleReportChange}
-                        options={reportOptions}
-                        onOptionsChange={setReportOptions}
                         placeholder="Select a report"
                         nonClearable
                     />
@@ -984,6 +965,7 @@ function Report(props: ReportProps) {
                                     value={report?.totalDisaggregation?.totalStockDisasterSum}
                                 />
                             )}
+                            {/*
                             <NumberBlock
                                 label="Countries"
                                 value={report?.countriesReport?.totalCount}
@@ -1004,6 +986,7 @@ function Report(props: ReportProps) {
                                 label="Figures"
                                 value={report?.figuresReport?.totalCount}
                             />
+                            */}
                         </div>
                     </Container>
                     <Container
@@ -1210,39 +1193,49 @@ function Report(props: ReportProps) {
                     onChange={setSelectedTab}
                 >
                     <TabPanel name="country">
+                        {/*
                         <ReportCountryTable
                             tabs={tabs}
                             className={styles.largeContainer}
                             report={reportId}
                         />
+                        */}
                     </TabPanel>
                     <TabPanel name="crisis">
+                        {/*
                         <ReportCrisisTable
                             tabs={tabs}
                             className={styles.largeContainer}
                             report={reportId}
                         />
+                        */}
                     </TabPanel>
                     <TabPanel name="event">
+                        {/*
                         <ReportEventTable
                             tabs={tabs}
                             className={styles.largeContainer}
                             report={reportId}
                         />
+                        */}
                     </TabPanel>
                     <TabPanel name="entry">
+                        {/*
                         <ReportEntryTable
                             tabs={tabs}
                             className={styles.largeContainer}
                             report={reportId}
                         />
+                        */}
                     </TabPanel>
                     <TabPanel name="figure">
+                        {/*
                         <ReportFigureTable
                             tabs={tabs}
                             className={styles.largeContainer}
                             report={reportId}
                         />
+                        */}
                     </TabPanel>
                 </Tabs>
             </div>

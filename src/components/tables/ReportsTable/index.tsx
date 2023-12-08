@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext } from 'react';
 import {
     gql,
     useQuery,
@@ -7,7 +7,6 @@ import {
 import { isNaN } from '@togglecorp/fujs';
 import {
     Table,
-    useSortState,
     Pager,
     Modal,
     Button,
@@ -26,6 +25,8 @@ import {
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
 
+import useFilterState from '#hooks/useFilterState';
+import { expandObject } from '#utils/common';
 import useModalState from '#hooks/useModalState';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
@@ -43,9 +44,8 @@ import {
     ExportReportsMutationVariables,
 } from '#generated/types';
 import route from '#config/routes';
-import useDebouncedValue from '#hooks/useDebouncedValue';
 
-import ReportForm from './ReportForm';
+import ReportForm from '#components/forms/ReportForm';
 import ReportFilter from './ReportFilter';
 import styles from './styles.css';
 
@@ -149,40 +149,23 @@ const REPORT_DOWNLOAD = gql`
     }
 `;
 
-const defaultSorting = {
-    name: 'created_at',
-    direction: 'dsc',
-};
-
 const keySelector = (item: ReportFields) => item.id;
 
 interface ReportsProps {
     className?: string;
     title?: string;
 
-    onlyGiddReports?: boolean;
-    onlyPFAVisibleReports?: boolean;
+    isGiddReport?: boolean;
+    isPfaVisibleInGidd?: boolean;
 }
 
 function ReportsTable(props: ReportsProps) {
     const {
         className,
         title,
-        onlyGiddReports,
-        onlyPFAVisibleReports,
+        isGiddReport,
+        isPfaVisibleInGidd,
     } = props;
-
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting || defaultSorting;
-
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
-
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-    const debouncedPage = useDebouncedValue(page);
 
     const {
         notify,
@@ -196,43 +179,46 @@ function ReportsTable(props: ReportsProps) {
         hideAddReportModal,
     ] = useModalState();
 
-    const [
-        reportsQueryFilters,
-        setReportsQueryFilters,
-    ] = useState<PurgeNull<ReportsQueryVariables>>({});
+    const {
+        page,
+        rawPage,
+        setPage,
 
-    const onFilterChange = React.useCallback(
-        (value: PurgeNull<ReportsQueryVariables>) => {
-            setReportsQueryFilters(value);
-            setPage(1);
-        },
-        [],
-    );
+        ordering,
+        sortState,
 
-    const handlePageSizeChange = useCallback(
-        (value: number) => {
-            setPageSize(value);
-            setPage(1);
+        // rawFilter,
+        filter,
+        setFilter,
+
+        rawPageSize,
+        pageSize,
+        setPageSize,
+    } = useFilterState<PurgeNull<ReportsQueryVariables>>({
+        filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
         },
-        [],
-    );
+    });
 
     const reportsVariables = useMemo(
-        (): ReportsQueryVariables => ({
+        () => expandObject<ReportsQueryVariables >({
             ordering,
-            page: debouncedPage,
+            page,
             pageSize,
-            ...reportsQueryFilters,
-            isGiddReport: onlyGiddReports || reportsQueryFilters.isGiddReport,
-            isPfaVisibleInGidd: onlyPFAVisibleReports || reportsQueryFilters.isPfaVisibleInGidd,
+            ...filter,
+        }, {
+            isGiddReport: isGiddReport ? true : undefined,
+            isPfaVisibleInGidd: isPfaVisibleInGidd ? true : undefined,
         }),
         [
             ordering,
-            debouncedPage,
+            page,
+            filter,
             pageSize,
-            reportsQueryFilters,
-            onlyGiddReports,
-            onlyPFAVisibleReports,
+            isGiddReport,
+            isPfaVisibleInGidd,
         ],
     );
 
@@ -277,7 +263,7 @@ function ReportsTable(props: ReportsProps) {
         },
     );
 
-    const handleReportCreate = React.useCallback(() => {
+    const handleReportCreate = useCallback(() => {
         refetchReports(reportsVariables);
         hideAddReportModal();
     }, [refetchReports, reportsVariables, hideAddReportModal]);
@@ -325,10 +311,10 @@ function ReportsTable(props: ReportsProps) {
     const handleExportTableData = useCallback(
         () => {
             exportReports({
-                variables: reportsQueryFilters,
+                variables: filter,
             });
         },
-        [exportReports, reportsQueryFilters],
+        [exportReports, filter],
     );
 
     const { user } = useContext(DomainContext);
@@ -467,16 +453,16 @@ function ReportsTable(props: ReportsProps) {
             )}
             footerContent={(
                 <Pager
-                    activePage={page}
+                    activePage={rawPage}
                     itemsCount={totalReportsCount}
-                    maxItemsPerPage={pageSize}
+                    maxItemsPerPage={rawPageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={handlePageSizeChange}
+                    onItemsPerPageChange={setPageSize}
                 />
             )}
             description={(
                 <ReportFilter
-                    onFilterChange={onFilterChange}
+                    onFilterChange={setFilter}
                 />
             )}
         >

@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useContext } from 'react';
+import React, { useMemo, useContext, useCallback } from 'react';
 
 import {
     TextInput,
@@ -29,6 +29,7 @@ import {
     MutationUpdaterFn,
 } from '@apollo/client';
 
+import useOptions from '#hooks/useOptions';
 import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
@@ -52,9 +53,9 @@ import {
     ContactQueryVariables,
 } from '#generated/types';
 
-import OrganizationSelectInput, { OrganizationOption } from '#components/selections/OrganizationSelectInput';
+import OrganizationSelectInput from '#components/selections/OrganizationSelectInput';
 import CountrySelectInput from '#components/selections/CountrySelectInput';
-import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
+import CountryMultiSelectInput from '#components/selections/CountryMultiSelectInput';
 import Loading from '#components/Loading';
 
 import styles from './styles.css';
@@ -195,11 +196,12 @@ const schema: FormSchema = {
     }),
 };
 
+const defaultFormValues: PartialForm<FormType> = {};
+
 interface ContactFormProps {
     id: string | undefined;
     onHideAddContactModal: () => void;
     onAddContactCache: MutationUpdaterFn<CreateContactMutation>;
-    defaultCountryOption?: CountryOption | undefined | null;
 }
 
 function ContactForm(props: ContactFormProps) {
@@ -207,13 +209,8 @@ function ContactForm(props: ContactFormProps) {
         id,
         onAddContactCache,
         onHideAddContactModal,
-        defaultCountryOption,
     } = props;
 
-    const defaultFormValues: PartialForm<FormType> = useMemo(
-        () => (defaultCountryOption ? { countriesOfOperation: [defaultCountryOption.id] } : {}),
-        [defaultCountryOption],
-    );
     const {
         pristine,
         value,
@@ -225,20 +222,13 @@ function ContactForm(props: ContactFormProps) {
         onPristineSet,
     } = useForm(defaultFormValues, schema);
 
+    const [, setOrganizationOptions] = useOptions('organization');
+    const [, setCountryOptions] = useOptions('country');
+
     const {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
-    const [
-        organizationOptions,
-        setOrganizationOptions,
-    ] = useState<OrganizationOption[] | undefined | null>();
-    const [
-        countryOptions,
-        setCountryOptions,
-    ] = useState<CountryOption[] | undefined | null>(
-        defaultCountryOption ? [defaultCountryOption] : undefined,
-    );
 
     const contactVariables = useMemo(
         (): ContactQueryVariables | undefined => (
@@ -371,7 +361,7 @@ function ContactForm(props: ContactFormProps) {
         },
     );
 
-    const handleSubmit = React.useCallback(
+    const handleSubmit = useCallback(
         (finalValues: PartialForm<FormType>) => {
             if (finalValues.id) {
                 updateContact({
@@ -460,32 +450,25 @@ function ContactForm(props: ContactFormProps) {
             <Row>
                 <CountrySelectInput
                     label="Country"
-                    options={countryOptions}
                     name="country"
-                    onOptionsChange={setCountryOptions}
                     onChange={onValueChange}
                     value={value.country}
                     error={error?.fields?.country}
                     disabled={disabled}
                 />
                 <CountryMultiSelectInput
-                    options={countryOptions}
-                    onOptionsChange={setCountryOptions}
                     label="Countries of Operation *"
                     name="countriesOfOperation"
                     value={value.countriesOfOperation}
                     onChange={onValueChange}
                     error={error?.fields?.countriesOfOperation?.$internal}
-                    readOnly={!!defaultCountryOption}
                     disabled={disabled}
                 />
             </Row>
             <Row>
                 <OrganizationSelectInput
                     label="Organization"
-                    options={organizationOptions}
                     name="organization"
-                    onOptionsChange={setOrganizationOptions}
                     onChange={onValueChange}
                     value={value.organization}
                     error={error?.fields?.organization}

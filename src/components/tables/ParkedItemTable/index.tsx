@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext } from 'react';
 import {
     gql,
     useQuery,
@@ -7,7 +7,6 @@ import {
 import { isDefined } from '@togglecorp/fujs';
 import {
     Table,
-    useSortState,
     Pager,
     Modal,
     Button,
@@ -21,16 +20,17 @@ import {
     createCustomActionColumn,
 } from '#components/tableHelpers';
 
+import { expandObject } from '#utils/common';
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 import ActionCell, { ActionProps } from './Action';
 
+import useFilterState from '#hooks/useFilterState';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
 import useModalState from '#hooks/useModalState';
-import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import {
     ParkedItemListQuery,
@@ -88,52 +88,47 @@ const PARKING_LOT_DELETE = gql`
     }
 `;
 
-const defaultSorting = {
-    name: 'created_at',
-    direction: 'dsc',
-};
-
 const keySelector = (item: ParkedItemFields) => item.id;
 
 interface ParkedItemProps {
     className?: string;
     headerActions?: JSX.Element;
-    defaultUser?: string;
-    defaultStatus?: string;
-    detailsHidden?: boolean;
-    searchHidden?: boolean;
-    addButtonHidden?: boolean;
-    actionsHidden?: boolean;
-    pageChangeHidden?: boolean;
+
+    assignedUser?: string;
+    status?: string;
 }
 
 function ParkedItemTable(props: ParkedItemProps) {
     const {
         className,
         headerActions,
-        defaultStatus,
-        defaultUser,
-        detailsHidden,
-        searchHidden,
-        addButtonHidden,
-        actionsHidden,
-        pageChangeHidden,
+
+        assignedUser,
+        status,
     } = props;
 
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting || defaultSorting;
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-    const debouncedPage = useDebouncedValue(page);
+    const {
+        page,
+        rawPage,
+        setPage,
 
-    const [
-        parkedItemQueryFilters,
-        setParkedItemQueryFilters,
-    ] = useState<PurgeNull<ParkedItemListQueryVariables>>();
+        ordering,
+        sortState,
+
+        // rawFilter,
+        filter,
+        setFilter,
+
+        rawPageSize,
+        pageSize,
+        setPageSize,
+    } = useFilterState<PurgeNull<ParkedItemListQueryVariables>>({
+        filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
+    });
 
     const {
         notify,
@@ -147,37 +142,23 @@ function ParkedItemTable(props: ParkedItemProps) {
         hideAddParkedItemModal,
     ] = useModalState();
 
-    const onFilterChange = React.useCallback(
-        (value: PurgeNull<ParkedItemListQueryVariables>) => {
-            setParkedItemQueryFilters(value);
-            setPage(1);
-        }, [],
-    );
-
-    const handlePageSizeChange = useCallback(
-        (value: number) => {
-            setPageSize(value);
-            setPage(1);
-        },
-        [],
-    );
-
     const variables = useMemo(
-        () => ({
+        () => expandObject<ParkedItemListQueryVariables>({
             ordering,
-            page: debouncedPage,
+            page,
             pageSize,
-            statusIn: defaultStatus ? [defaultStatus] : undefined,
-            assignedToIn: defaultUser ? [defaultUser] : undefined,
-            ...parkedItemQueryFilters,
+            ...filter,
+        }, {
+            statusIn: status ? [status] : undefined,
+            assignedToIn: assignedUser ? [assignedUser] : undefined,
         }),
         [
             ordering,
-            debouncedPage,
+            page,
             pageSize,
-            defaultStatus,
-            defaultUser,
-            parkedItemQueryFilters,
+            filter,
+            status,
+            assignedUser,
         ],
     );
 
@@ -222,7 +203,7 @@ function ParkedItemTable(props: ParkedItemProps) {
         },
     );
 
-    const handleParkedItemCreate = React.useCallback(() => {
+    const handleParkedItemCreate = useCallback(() => {
         refetchParkedItem(variables);
         hideAddParkedItemModal();
     }, [refetchParkedItem, variables, hideAddParkedItemModal]);
@@ -236,8 +217,8 @@ function ParkedItemTable(props: ParkedItemProps) {
         [deleteParkedItem],
     );
 
-    const { user } = useContext(DomainContext);
-    const parkedItemPermissions = user?.permissions?.parkeditem;
+    const { user: userFromDomain } = useContext(DomainContext);
+    const parkedItemPermissions = userFromDomain?.permissions?.parkeditem;
 
     const columns = useMemo(
         () => ([
@@ -253,7 +234,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                 (item) => item.createdBy?.fullName,
                 { sortable: true },
             ),
-            detailsHidden
+            assignedUser
                 ? undefined
                 : createTextColumn<ParkedItemFields, string>(
                     'assigned_to__full_name',
@@ -268,7 +249,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                 { sortable: true },
                 'large',
             ),
-            detailsHidden
+            status
                 ? undefined
                 : createTextColumn<ParkedItemFields, string>(
                     'status',
@@ -286,15 +267,13 @@ function ParkedItemTable(props: ParkedItemProps) {
                 }),
                 { sortable: true },
             ),
-            detailsHidden
-                ? undefined
-                : createTextColumn<ParkedItemFields, string>(
-                    'comments',
-                    'Comments',
-                    (item) => item.comments,
-                    { sortable: true },
-                    'large',
-                ),
+            createTextColumn<ParkedItemFields, string>(
+                'comments',
+                'Comments',
+                (item) => item.comments,
+                { sortable: true },
+                'large',
+            ),
             createCustomActionColumn<ParkedItemFields, string, ActionProps>(
                 ActionCell,
                 (_, datum) => ({
@@ -306,7 +285,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                         ? showAddParkedItemModal
                         : undefined,
                     parkedItemStatus: datum.status,
-                    actionsHidden,
+                    actionsHidden: false,
                 }),
                 'action',
                 '',
@@ -315,8 +294,8 @@ function ParkedItemTable(props: ParkedItemProps) {
             ),
         ].filter(isDefined)),
         [
-            detailsHidden,
-            actionsHidden,
+            assignedUser,
+            status,
             showAddParkedItemModal,
             handleParkedItemDelete,
             parkedItemPermissions?.delete,
@@ -334,7 +313,7 @@ function ParkedItemTable(props: ParkedItemProps) {
             headerActions={(
                 <>
                     {headerActions}
-                    {!addButtonHidden && parkedItemPermissions?.add && (
+                    {parkedItemPermissions?.add && (
                         <Button
                             name={undefined}
                             onClick={showAddParkedItemModal}
@@ -345,19 +324,20 @@ function ParkedItemTable(props: ParkedItemProps) {
                     )}
                 </>
             )}
-            description={!searchHidden && (
+            description={(
                 <ParkedItemFilter
-                    onFilterChange={onFilterChange}
+                    onFilterChange={setFilter}
+                    status={status}
+                    assignedUser={assignedUser}
                 />
             )}
             footerContent={(
                 <Pager
-                    activePage={page}
+                    activePage={rawPage}
                     itemsCount={totalParkedItemCount}
-                    maxItemsPerPage={pageSize}
+                    maxItemsPerPage={rawPageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={handlePageSizeChange}
-                    itemsPerPageControlHidden={pageChangeHidden}
+                    onItemsPerPageChange={setPageSize}
                 />
             )}
         >

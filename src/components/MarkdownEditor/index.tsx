@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { InputContainer, InputContainerProps } from '@togglecorp/toggle-ui';
 import Markdown from 'react-mde';
 import MarkdownView, { MarkdownViewProps } from 'react-showdown';
@@ -60,7 +60,7 @@ function MarkdownEditor<K extends string>(props: Props<K>) {
         readOnly,
     } = props;
 
-    const [selectedTab, setSelectedTab] = React.useState<'write' | 'preview'>('write');
+    const [selectedTab, setSelectedTab] = useState<'write' | 'preview'>('write');
     const handleValueChange = useCallback(
         (newVal) => {
             if (!disabled && !readOnly && onChange) {

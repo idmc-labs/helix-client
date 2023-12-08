@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
     Tabs,
@@ -32,7 +32,7 @@ function TabRedux(props: TabReduxProps) {
         name,
         children,
     } = props;
-    const context = React.useContext(TabsContext);
+    const context = useContext(TabsContext);
 
     const handleClick = useCallback(
         (e: React.MouseEvent<HTMLAnchorElement>) => {

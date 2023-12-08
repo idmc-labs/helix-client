@@ -10,6 +10,7 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
+import useOptions from '#hooks/useOptions';
 import { GetFigureTagListQuery, GetFigureTagListQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
@@ -39,7 +40,7 @@ type SelectInputProps<
     K,
     FigureTagOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
 >;
 
 function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -72,6 +73,8 @@ function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>)
     const searchOptions = data?.figureTagList?.results;
     const totalOptionsCount = data?.figureTagList?.totalCount;
 
+    const [options, setOptions] = useOptions('tag');
+
     return (
         <SearchMultiSelectInput
             {...otherProps}
@@ -83,6 +86,8 @@ function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>)
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
+            options={options}
+            onOptionsChange={setOptions}
         />
     );
 }

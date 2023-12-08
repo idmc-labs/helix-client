@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 type ValueOrSetterFn<T> = T | ((value: T) => T);
 function isSetterFn<T>(value: ValueOrSetterFn<T>): value is ((value: T) => T) {
@@ -6,7 +6,7 @@ function isSetterFn<T>(value: ValueOrSetterFn<T>): value is ((value: T) => T) {
 }
 
 function useInputState<T>(initialValue: T) {
-    const [value, setValue] = React.useState<T>(initialValue);
+    const [value, setValue] = useState<T>(initialValue);
 
     type SetValue = React.Dispatch<React.SetStateAction<T>>;
     const setValueSafe: SetValue = React.useCallback((newValueOrSetter) => {

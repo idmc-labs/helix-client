@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -24,7 +24,7 @@ import {
 } from '#generated/types';
 import NonFieldError from '#components/NonFieldError';
 
-import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
+import UserMultiSelectInput from '#components/selections/UserMultiSelectInput';
 import { PartialForm, PurgeNull } from '#types';
 import styles from './styles.css';
 
@@ -62,13 +62,21 @@ const defaultFormValues: PartialForm<FormType> = {
 
 interface ParkedItemFilterProps {
     className?: string;
+    initialFilter?: PartialForm<FormType>;
     onFilterChange: (value: PurgeNull<ParkedItemListQueryVariables>) => void;
+
+    assignedUser?: string;
+    status?: string;
 }
 
 function ParkedItemFilter(props: ParkedItemFilterProps) {
     const {
         className,
+        initialFilter,
         onFilterChange,
+
+        assignedUser,
+        status,
     } = props;
 
     const {
@@ -79,11 +87,6 @@ function ParkedItemFilter(props: ParkedItemFilterProps) {
 
     const statusOptions = parkedItemOptions?.status?.enumValues;
 
-    const [
-        assignedToOptions,
-        setAssignedToOptions,
-    ] = useState<UserOption[] | null | undefined>();
-
     const {
         pristine,
         value,
@@ -92,7 +95,7 @@ function ParkedItemFilter(props: ParkedItemFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(defaultFormValues, schema);
+    } = useForm(initialFilter ?? defaultFormValues, schema);
 
     const onResetFilters = useCallback(
         () => {
@@ -102,7 +105,7 @@ function ParkedItemFilter(props: ParkedItemFilterProps) {
         [onValueSet, onFilterChange],
     );
 
-    const handleSubmit = React.useCallback((finalValues: FormType) => {
+    const handleSubmit = useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
@@ -127,28 +130,30 @@ function ParkedItemFilter(props: ParkedItemFilterProps) {
                     onChange={onValueChange}
                     error={error?.fields?.title}
                 />
-                <UserMultiSelectInput
-                    className={styles.input}
-                    label="Assignee"
-                    options={assignedToOptions}
-                    name="assignedToIn"
-                    onOptionsChange={setAssignedToOptions}
-                    onChange={onValueChange}
-                    value={value.assignedToIn}
-                    error={error?.fields?.assignedToIn?.$internal}
-                />
-                <MultiSelectInput
-                    className={styles.input}
-                    label="Status"
-                    name="statusIn"
-                    options={statusOptions}
-                    value={value.statusIn}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    onChange={onValueChange}
-                    error={error?.fields?.statusIn?.$internal}
-                    disabled={parkedItemOptionsLoading || !!parkedItemOptionsError}
-                />
+                {!assignedUser && (
+                    <UserMultiSelectInput
+                        className={styles.input}
+                        label="Assignee"
+                        name="assignedToIn"
+                        onChange={onValueChange}
+                        value={value.assignedToIn}
+                        error={error?.fields?.assignedToIn?.$internal}
+                    />
+                )}
+                {!status && (
+                    <MultiSelectInput
+                        className={styles.input}
+                        label="Status"
+                        name="statusIn"
+                        options={statusOptions}
+                        value={value.statusIn}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        onChange={onValueChange}
+                        error={error?.fields?.statusIn?.$internal}
+                        disabled={parkedItemOptionsLoading || !!parkedItemOptionsError}
+                    />
+                )}
                 <div className={styles.formButtons}>
                     <Button
                         name={undefined}

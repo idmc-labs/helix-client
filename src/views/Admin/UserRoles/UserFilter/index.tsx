@@ -70,6 +70,7 @@ const isActiveOptions = [
 
 interface UsersFilterProps {
     className?: string;
+    initialFilter?: PartialForm<FormType>;
     onFilterChange: (value: PurgeNull<UserListQueryVariables>) => void;
 }
 
@@ -89,6 +90,7 @@ const labelSelector = (item: ActiveOption) => item.label;
 function UserFilter(props: UsersFilterProps) {
     const {
         className,
+        initialFilter,
         onFilterChange,
     } = props;
 
@@ -100,7 +102,7 @@ function UserFilter(props: UsersFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(defaultFormValues, schema);
+    } = useForm(initialFilter ?? defaultFormValues, schema);
 
     const {
         data: rolesOptions,

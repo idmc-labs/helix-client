@@ -35,12 +35,14 @@ const defaultFormValues: PartialForm<FormType> = {
 
 interface TagsFilterProps {
     className?: string;
+    initialFilter?: PartialForm<FormType>;
     onFilterChange: (value: PurgeNull<FigureTagListQueryVariables>) => void;
 }
 
 function TagsFilter(props: TagsFilterProps) {
     const {
         className,
+        initialFilter,
         onFilterChange,
     } = props;
 
@@ -52,7 +54,7 @@ function TagsFilter(props: TagsFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(defaultFormValues, schema);
+    } = useForm(initialFilter ?? defaultFormValues, schema);
 
     const onResetFilters = useCallback(
         () => {
@@ -62,7 +64,7 @@ function TagsFilter(props: TagsFilterProps) {
         [onValueSet, onFilterChange],
     );
 
-    const handleSubmit = React.useCallback((finalValues: FormType) => {
+    const handleSubmit = useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);

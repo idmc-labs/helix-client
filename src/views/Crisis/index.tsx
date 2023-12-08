@@ -173,7 +173,7 @@ function Crisis(props: CrisisProps) {
                         bounds={bounds as Bounds | undefined}
                         padding={50}
                     />
-                    {crisisData?.crisis?.countries?.map((country) => (
+                    {crisisData?.crisis?.countries?.map((country) => (!!country.geojsonUrl && (
                         <MapSource
                             key={country.id}
                             sourceKey={`country-${country.id}`}
@@ -197,7 +197,7 @@ function Crisis(props: CrisisProps) {
                                 }}
                             />
                         </MapSource>
-                    ))}
+                    )))}
                 </Map>
             </Container>
             <Container
@@ -210,9 +210,9 @@ function Crisis(props: CrisisProps) {
             </Container>
             <EventsEntriesFiguresTable
                 className={styles.largeContainer}
+                // FIXME: we should not use this
                 // NOTE: replacing with a placeholder crisis so that the id is always defined
                 crisis={crisisData?.crisis ?? { id: crisisId, name: '???' }}
-                crisisColumnHidden
             />
             {shouldShowAddCrisisModal && (
                 <Modal

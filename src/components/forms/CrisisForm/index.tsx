@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo, useCallback } from 'react';
+import React, { useContext, useMemo, useCallback } from 'react';
 import {
     TextInput,
     SelectInput,
@@ -25,8 +25,9 @@ import {
 import { IoCalculatorOutline } from 'react-icons/io5';
 
 import Row from '#components/Row';
+import useOptions from '#hooks/useOptions';
 import NonFieldError from '#components/NonFieldError';
-import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
+import CountryMultiSelectInput from '#components/selections/CountryMultiSelectInput';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 import MarkdownEditor from '#components/MarkdownEditor';
@@ -181,7 +182,7 @@ function CrisisForm(props: CrisisFormProps) {
         onCrisisFormCancel,
     } = props;
 
-    const [countries, setCountries] = useState<CountryOption[] | null | undefined>();
+    const [countries, setCountries] = useOptions('country');
 
     const {
         pristine,
@@ -311,7 +312,7 @@ function CrisisForm(props: CrisisFormProps) {
         },
     );
 
-    const handleSubmit = React.useCallback((finalValues: FormType) => {
+    const handleSubmit = useCallback((finalValues: FormType) => {
         if (finalValues.id) {
             updateCrisis({
                 variables: {
@@ -412,8 +413,6 @@ function CrisisForm(props: CrisisFormProps) {
                 disabled={disabled || crisisOptionsLoading || !!crisisOptionsError}
             />
             <CountryMultiSelectInput
-                options={countries}
-                onOptionsChange={setCountries}
                 label="Countries *"
                 name="countries"
                 value={value.countries}

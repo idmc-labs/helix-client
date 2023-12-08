@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useCallback } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
     TextInput,
@@ -25,10 +25,11 @@ import {
     useMutation,
 } from '@apollo/client';
 
+import useOptions from '#hooks/useOptions';
 import NonFieldError from '#components/NonFieldError';
-import CountrySelectInput, { CountryOption } from '#components/selections/CountrySelectInput';
+import CountrySelectInput from '#components/selections/CountrySelectInput';
 import NotificationContext from '#components/NotificationContext';
-import UserSelectInput, { UserOption } from '#components/selections/UserSelectInput';
+import UserSelectInput from '#components/selections/UserSelectInput';
 import Loading from '#components/Loading';
 
 import { transformToFormError } from '#utils/errorTransform';
@@ -176,15 +177,8 @@ function ParkedItemForm(props: ParkedItemFormProps) {
         onParkedItemFormCancel,
     } = props;
 
-    const [
-        countryOptions,
-        setCountryOptions,
-    ] = useState<CountryOption[] | null | undefined>();
-
-    const [
-        assignedToOptions,
-        setAssignedToOptions,
-    ] = useState<UserOption[] | null | undefined>();
+    const [, setCountryOptions] = useOptions('country');
+    const [, setAssignedToOptions] = useOptions('user');
 
     const defaultFormValues: PartialForm<FormType> = {
         status: 'TO_BE_REVIEWED',
@@ -343,7 +337,7 @@ function ParkedItemForm(props: ParkedItemFormProps) {
         [statusOptions],
     );
 
-    const handleSubmit = React.useCallback((finalValues: FormType) => {
+    const handleSubmit = useCallback((finalValues: FormType) => {
         if (finalValues.id) {
             updateParkedItem({
                 variables: {
@@ -393,9 +387,7 @@ function ParkedItemForm(props: ParkedItemFormProps) {
             />
             <CountrySelectInput
                 label="Country *"
-                options={countryOptions}
                 name="country"
-                onOptionsChange={setCountryOptions}
                 onChange={onValueChange}
                 value={value.country}
                 error={error?.fields?.country}
@@ -403,9 +395,7 @@ function ParkedItemForm(props: ParkedItemFormProps) {
             />
             <UserSelectInput
                 label="Assignee *"
-                options={assignedToOptions}
                 name="assignedTo"
-                onOptionsChange={setAssignedToOptions}
                 onChange={onValueChange}
                 value={value.assignedTo}
                 error={error?.fields?.assignedTo}

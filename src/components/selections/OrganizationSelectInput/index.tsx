@@ -9,6 +9,7 @@ import {
     SearchSelectInputProps,
 } from '@togglecorp/toggle-ui';
 
+import useOptions from '#hooks/useOptions';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { GetOrganizationQuery, GetOrganizationQueryVariables } from '#generated/types';
 
@@ -58,9 +59,9 @@ type SelectInputProps<
     K,
     OrganizationOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
 > & {
-    country?: string
+    country?: string | null
 };
 
 function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -98,6 +99,8 @@ function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
     const searchOptions = data?.organizationList?.results;
     const totalOptionsCount = data?.organizationList?.totalCount;
 
+    const [options, setOptions] = useOptions('organization');
+
     return (
         <SearchSelectInput
             {...otherProps}
@@ -109,6 +112,8 @@ function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
+            options={options}
+            onOptionsChange={setOptions}
         />
     );
 }

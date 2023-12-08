@@ -44,12 +44,14 @@ const defaultFormValues: PartialForm<FormType> = {
 
 interface ClientFilterProps {
     className?: string;
+    initialFilter?: PartialForm<FormType>;
     onFilterChange: (value: PurgeNull<ClientListQueryVariables>) => void;
 }
 
 function ClientRecordsFilter(props: ClientFilterProps) {
     const {
         className,
+        initialFilter,
         onFilterChange,
     } = props;
 
@@ -61,7 +63,7 @@ function ClientRecordsFilter(props: ClientFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(defaultFormValues, schema);
+    } = useForm(initialFilter ?? defaultFormValues, schema);
 
     const onResetFilters = useCallback(
         () => {

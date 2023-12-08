@@ -1,4 +1,4 @@
-import React, { useContext, useCallback, useState, useMemo } from 'react';
+import React, { useContext, useCallback, useMemo } from 'react';
 import { IoEllipse } from 'react-icons/io5';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -14,9 +14,9 @@ import {
     TableHeaderCellProps,
     TableColumn,
     Table,
-    useSortState,
 } from '@togglecorp/toggle-ui';
 
+import useFilterState from '#hooks/useFilterState';
 import {
     NotificationsQuery,
     NotificationsQueryVariables,
@@ -39,7 +39,6 @@ import Loading from '#components/Loading';
 import Message from '#components/Message';
 import PageHeader from '#components/PageHeader';
 import Container from '#components/Container';
-import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import NotificationContent, { Props as NotificationContentProps } from './NotificationContent';
 import ActionCell, { ActionProps } from './Action';
@@ -83,18 +82,20 @@ function ReadIndicator(props: ReadIndicatorProps) {
     );
 }
 
-interface ClickableItemProps<T> {
+interface ClickableItemProps<N, T> {
     children: React.ReactNode;
     className?: string;
-    name: T;
+    name: N;
+    value: T,
     selected?: boolean,
-    onClick?: (value: T) => void;
+    onClick?: (value: T, name: N) => void;
 }
 
-function ClickableItem<T>(props: ClickableItemProps<T>) {
+function ClickableItem<N, T>(props: ClickableItemProps<N, T>) {
     const {
         className,
         name,
+        value,
         children,
         onClick,
         selected,
@@ -104,10 +105,10 @@ function ClickableItem<T>(props: ClickableItemProps<T>) {
         (e: React.MouseEvent<HTMLAnchorElement>) => {
             e.preventDefault();
             if (onClick) {
-                onClick(name);
+                onClick(value, name);
             }
         },
-        [name, onClick],
+        [value, name, onClick],
     );
 
     return (
@@ -228,10 +229,6 @@ const importantCategories: NotificationTypeEnum[] = [
 type NotificationType = NonNullable<NonNullable<NotificationsQuery['notifications']>['results']>[number];
 
 const keySelector = (item: NotificationType) => item.id;
-const notificationDefaultSorting = {
-    name: 'created_at',
-    direction: 'dsc',
-};
 
 interface NotificationsProps {
     className?: string;
@@ -240,32 +237,46 @@ interface NotificationsProps {
 function Notifications(props: NotificationsProps) {
     const { className } = props;
 
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
+    interface Filter extends Record<string, unknown> {
+        readState: 'all' | 'unread',
+        createdAtFrom?: string,
+        createdAtTo?: string,
+        category: 'all' | 'important',
+    }
 
-    const [readState, setReadState] = useState<'all' | 'unread'>('unread');
-    const [createdAtFrom, setCreatedAtFrom] = useState<string | undefined>(undefined);
-    const [createdAtTo, setCreatedAtTo] = useState<string | undefined>(undefined);
+    const {
+        page,
+        rawPage,
+        setPage,
+
+        ordering,
+        // sortState,
+
+        filter,
+        rawFilter,
+        setFilterField,
+
+        rawPageSize,
+        pageSize,
+        setPageSize,
+    } = useFilterState<Filter>({
+        filter: {
+            readState: 'unread',
+            category: 'all',
+        },
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
+    });
 
     const {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
 
-    const [category, setCategory] = useState<'all' | 'important'>('all');
-
     const { user } = useContext(DomainContext);
     const userId = user?.id;
-
-    const debouncedPage = useDebouncedValue(page);
-    const sortState = useSortState();
-    const { sorting } = sortState;
-
-    const validNotificationSorting = sorting || notificationDefaultSorting;
-
-    const notificationOrdering = validNotificationSorting.direction === 'asc'
-        ? validNotificationSorting.name
-        : `-${validNotificationSorting.name}`;
 
     const notificationCountsVariables = useMemo(
         (): NotificationCountsQueryVariables | undefined => (
@@ -297,28 +308,25 @@ function Notifications(props: NotificationsProps) {
         (): NotificationsQueryVariables | undefined => (
             userId ? {
                 recipient: userId,
-                page: debouncedPage,
+                page,
                 pageSize,
-                isRead: readState === 'all'
+                ordering,
+                isRead: filter.readState === 'all'
                     ? undefined
-                    : (readState !== 'unread'),
-                createdAtAfter: createdAtFrom,
-                createdAtBefore: createdAtTo,
-                ordering: notificationOrdering,
-                types: category === 'important'
+                    : (filter.readState !== 'unread'),
+                createdAtAfter: filter.createdAtFrom,
+                createdAtBefore: filter.createdAtTo,
+                types: filter.category === 'important'
                     ? importantCategories
                     : undefined,
             } : undefined
         ),
         [
-            debouncedPage,
-            createdAtFrom,
-            createdAtTo,
+            page,
+            filter,
             pageSize,
-            readState,
+            ordering,
             userId,
-            notificationOrdering,
-            category,
         ],
     );
     const {
@@ -459,29 +467,6 @@ function Notifications(props: NotificationsProps) {
         [handleMarkRead, handleMarkUnread, toggleNotificationReadStatusPending],
     );
 
-    const handleReadStateChange = useCallback((value: 'all' | 'unread') => {
-        setReadState(value);
-        setPage(1);
-    }, []);
-
-    const handleCreatedAtFromChange = useCallback((value: string | undefined) => {
-        setCreatedAtFrom(value);
-        setPage(1);
-    }, []);
-
-    const handleCreatedAtToChange = useCallback((value: string | undefined) => {
-        setCreatedAtTo(value);
-        setPage(1);
-    }, []);
-
-    const handlePageSizeChange = useCallback(
-        (value: number) => {
-            setPageSize(value);
-            setPage(1);
-        },
-        [],
-    );
-
     const notifications = notificationsData?.notifications?.results;
     const totalNotificationsCount = notificationsData?.notifications?.totalCount ?? 0;
     const loading = loadingNotifications;
@@ -501,18 +486,20 @@ function Notifications(props: NotificationsProps) {
                 >
                     <div className={styles.itemRow}>
                         {/* FIXME: handle this */}
-                        <ClickableItem
-                            name="all"
-                            selected={category === 'all'}
-                            onClick={setCategory}
+                        <ClickableItem<'category', 'all' | 'important'>
+                            name="category"
+                            value="all"
+                            selected={rawFilter.category === 'all'}
+                            onClick={setFilterField}
                         >
                             All
                             {allNotificationsCount > 0 && ` (${allNotificationsCount})`}
                         </ClickableItem>
-                        <ClickableItem
-                            name="important"
-                            selected={category === 'important'}
-                            onClick={setCategory}
+                        <ClickableItem<'category', 'all' | 'important'>
+                            name="category"
+                            value="important"
+                            selected={rawFilter.category === 'important'}
+                            onClick={setFilterField}
                         >
                             Important
                             {importantNotificationsCount > 0 && ` (${importantNotificationsCount})`}
@@ -536,29 +523,29 @@ function Notifications(props: NotificationsProps) {
                                 listContainerClassName={styles.listContainer}
                                 label=""
                                 labelSelector={readStateLabelSelector}
-                                name="filterOption"
-                                onChange={handleReadStateChange}
+                                name="readState"
+                                onChange={setFilterField}
                                 options={filterOptions}
-                                value={readState}
+                                value={rawFilter.readState}
                             />
                             <DateRangeDualInput
                                 className={styles.input}
-                                fromName="date"
-                                toName="date"
-                                fromValue={createdAtFrom}
-                                toValue={createdAtTo}
-                                fromOnChange={handleCreatedAtFromChange}
-                                toOnChange={handleCreatedAtToChange}
+                                fromName="createdAtFrom"
+                                toName="createdAtTo"
+                                fromValue={rawFilter.createdAtFrom}
+                                toValue={rawFilter.createdAtTo}
+                                fromOnChange={setFilterField}
+                                toOnChange={setFilterField}
                             />
                         </div>
                     )}
                     footerContent={(
                         <Pager
-                            activePage={page}
+                            activePage={rawPage}
                             itemsCount={totalNotificationsCount}
-                            maxItemsPerPage={pageSize}
+                            maxItemsPerPage={rawPageSize}
                             onActivePageChange={setPage}
-                            onItemsPerPageChange={handlePageSizeChange}
+                            onItemsPerPageChange={setPageSize}
                         />
                     )}
                 >

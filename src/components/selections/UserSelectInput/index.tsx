@@ -9,6 +9,7 @@ import {
     SearchSelectInputProps,
 } from '@togglecorp/toggle-ui';
 
+import useOptions from '#hooks/useOptions';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import {
     GetUserQuery,
@@ -48,10 +49,10 @@ type SelectInputProps<
     K,
     UserOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
 > & {
     // permissions?: `${PermissionAction}_${PermissionEntity}`[];
-    permissions?: string[];
+    permissions?: string[] | null;
 };
 
 function UserSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -91,6 +92,8 @@ function UserSelectInput<K extends string>(props: SelectInputProps<K>) {
     const searchOptions = data?.users?.results;
     const totalOptionsCount = data?.users?.totalCount;
 
+    const [options, setOptions] = useOptions('user');
+
     return (
         <SearchSelectInput
             {...otherProps}
@@ -102,6 +105,8 @@ function UserSelectInput<K extends string>(props: SelectInputProps<K>) {
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
+            options={options}
+            onOptionsChange={setOptions}
         />
     );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useContext } from 'react';
+import React, { useCallback, useMemo, useContext } from 'react';
 import {
     TextInput,
     SelectInput,
@@ -35,8 +35,9 @@ import FormActions from '#components/FormActions';
 import NotificationContext from '#components/NotificationContext';
 import useBasicToggle from '#hooks/useBasicToggle';
 
+import useOptions from '#hooks/useOptions';
 import { WithId } from '#utils/common';
-import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
+import CountryMultiSelectInput from '#components/selections/CountryMultiSelectInput';
 
 import GroupForm from '../GroupForm';
 
@@ -158,9 +159,10 @@ const schema: FormSchema = {
 };
 interface ResourceFormProps {
     onResourceFormClose: () => void,
-    id: string | undefined,
     handleRefetchResource: MutationUpdaterFn<CreateResourceMutation>;
-    defaultCountryOption?: CountryOption | undefined | null;
+
+    id: string | undefined,
+    country?: string | undefined | null;
 }
 
 function ResourceForm(props: ResourceFormProps) {
@@ -168,7 +170,7 @@ function ResourceForm(props: ResourceFormProps) {
         onResourceFormClose,
         id,
         handleRefetchResource,
-        defaultCountryOption,
+        country,
     } = props;
 
     const [
@@ -183,16 +185,15 @@ function ResourceForm(props: ResourceFormProps) {
 
     const defaultFormValues: PartialForm<FormType> = useMemo(
         () => {
-            if (!defaultCountryOption) {
+            if (!country) {
                 return {};
             }
-            const country = defaultCountryOption.id;
             return {
                 countries: [country],
             };
         },
         [
-            defaultCountryOption,
+            country,
         ],
     );
 
@@ -212,12 +213,7 @@ function ResourceForm(props: ResourceFormProps) {
         notifyGQLError,
     } = useContext(NotificationContext);
 
-    const [
-        countryOptions,
-        setCountryOptions,
-    ] = useState<CountryOption[] | undefined | null>(
-        defaultCountryOption ? [defaultCountryOption] : undefined,
-    );
+    const [, setCountryOptions] = useOptions('country');
 
     const {
         previousData,
@@ -453,15 +449,13 @@ function ResourceForm(props: ResourceFormProps) {
                     disabled={disabled}
                 />
                 <CountryMultiSelectInput
-                    options={countryOptions}
-                    onOptionsChange={setCountryOptions}
                     label="Countries *"
                     name="countries"
                     value={value.countries}
                     onChange={onValueChange}
                     error={error?.fields?.countries?.$internal}
                     disabled={disabled}
-                    readOnly={!!defaultCountryOption}
+                    readOnly={!!country}
                 />
                 <FormActions className={styles.actions}>
                     <Button

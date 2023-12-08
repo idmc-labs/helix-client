@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     TabList,
@@ -19,13 +19,15 @@ import {
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { PurgeNull } from '#types';
 
-import useEntryTable from '#components/rawTables/EntriesTable';
+import useOptions from '#hooks/useOptions';
+import { expandObject } from '#utils/common';
+import useEntryTable from '#components/rawTables/useEntryTable';
 import { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
 import { CountryOption } from '#components/selections/CountrySelectInput';
-import useFigureTable from '#components/rawTables/FiguresTable';
-import EntriesFilter from '#components/rawTables/EntriesTable/EntriesFilter';
-import useEventTable from '#components/rawTables/EventsTable';
-import EventsFilter from '#components/rawTables/EventsTable/EventsFilter';
+import useFigureTable from '#components/rawTables/useFigureTable';
+import FiguresFilter from '#components/rawTables/useFigureTable/FiguresFilter';
+import useEventTable from '#components/rawTables/useEventTable';
+import EventsFilter from '#components/rawTables/useEventTable/EventsFilter';
 import styles from './styles.css';
 
 type Tabs = 'Entries' | 'Figures';
@@ -47,13 +49,11 @@ interface EventsEntriesFiguresTableProps {
     pagerPageControlDisabled?: boolean;
 
     className?: string;
-    eventColumnHidden?: boolean;
-    crisisColumnHidden?: boolean;
 
+    country?: CountryOption | null;
     crisis?: CrisisOption | null;
     eventId?: string;
     userId?: string;
-    country?: CountryOption | null;
 }
 
 function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
@@ -63,8 +63,6 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
         pagerDisabled,
         pagerPageControlDisabled,
         className,
-        eventColumnHidden,
-        crisisColumnHidden,
         userId,
         eventId,
         crisis,
@@ -124,7 +122,7 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
     const crisisId = crisis?.id;
     const countryId = country?.id;
 
-    const onFilterChange = React.useCallback(
+    const onFilterChange = useCallback(
         (value: PurgeNull<ExtractionEntryListFiltersQueryVariables>) => {
             if (selectedTab === 'Entries') {
                 setEntriesQueryFilters(value);
@@ -140,23 +138,16 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
     );
 
     const entriesVariables = useMemo(
-        (): ExtractionEntryListFiltersQueryVariables => ({
+        () => expandObject<ExtractionEntryListFiltersQueryVariables >({
             ordering: entriesOrdering,
             page: debouncedEntriesPage,
             pageSize: entriesPageSize,
             ...entriesQueryFilters,
-            filterFigureCrises: crisisId
-                ? [crisisId]
-                : entriesQueryFilters?.filterFigureCrises,
-            filterFigureEvents: eventId
-                ? [eventId]
-                : entriesQueryFilters?.filterFigureEvents,
-            filterCreatedBy: userId
-                ? [userId]
-                : entriesQueryFilters?.filterCreatedBy,
-            filterFigureCountries: countryId
-                ? [countryId]
-                : entriesQueryFilters?.filterFigureCountries,
+        }, {
+            filterFigureEvents: eventId ? [eventId] : undefined,
+            filterFigureCrises: crisisId ? [crisisId] : undefined,
+            filterFigureCreatedBy: userId ? [userId] : undefined,
+            filterFigureCountries: countryId ? [countryId] : undefined,
         }),
         [
             entriesOrdering,
@@ -171,23 +162,16 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
     );
 
     const figuresVariables = useMemo(
-        (): ExtractionEntryListFiltersQueryVariables => ({
+        () => expandObject<ExtractionEntryListFiltersQueryVariables>({
             ordering: figuresOrdering,
             page: debouncedFiguresPage,
             pageSize: figuresPageSize,
             ...figuresQueryFilters,
-            filterFigureEvents: eventId
-                ? [eventId]
-                : figuresQueryFilters?.filterFigureEvents,
-            filterFigureCrises: crisisId
-                ? [crisisId]
-                : figuresQueryFilters?.filterFigureCrises,
-            filterCreatedBy: userId
-                ? [userId]
-                : figuresQueryFilters?.filterCreatedBy,
-            filterFigureCountries: countryId
-                ? [countryId]
-                : figuresQueryFilters?.filterFigureCountries,
+        }, {
+            filterFigureEvents: eventId ? [eventId] : undefined,
+            filterFigureCrises: crisisId ? [crisisId] : undefined,
+            filterFigureCreatedBy: userId ? [userId] : undefined,
+            filterFigureCountries: countryId ? [countryId] : undefined,
         }),
         [
             figuresOrdering,
@@ -202,20 +186,15 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
     );
 
     const eventsVariables = useMemo(
-        (): EventListQueryVariables => ({
+        () => expandObject<EventListQueryVariables>({
             ordering: eventsOrdering,
             page: debouncedEventsPage,
             pageSize: eventsPageSize,
             ...eventsQueryFilters,
-            crisisByIds: crisisId
-                ? [crisisId]
-                : eventsQueryFilters?.crisisByIds,
-            countries: countryId
-                ? [countryId]
-                : eventsQueryFilters?.countries,
-            createdByIds: userId
-                ? [userId]
-                : eventsQueryFilters?.createdByIds,
+        }, {
+            crisisByIds: crisisId ? [crisisId] : undefined,
+            countries: countryId ? [countryId] : undefined,
+            createdByIds: userId ? [userId] : undefined,
         }),
         [
             eventsOrdering,
@@ -266,6 +245,45 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
         pagerPageControlDisabled,
     });
 
+    const [, setCountryOptions] = useOptions('country');
+    const [, setCrisisOptions] = useOptions('crisis');
+
+    const [
+        countryIds,
+        countryOptions,
+        crisisOptions,
+    ] = useMemo(
+        () => ([
+            countryId ? [countryId] : undefined,
+            country ? [country] : undefined,
+            crisis ? [crisis] : undefined,
+        ] as const),
+        [crisis, country, countryId],
+    );
+    useEffect(
+        () => {
+            setCountryOptions(countryOptions);
+        },
+        [setCountryOptions, countryOptions],
+    );
+    useEffect(
+        () => {
+            setCrisisOptions(crisisOptions);
+        },
+        [setCrisisOptions, crisisOptions],
+    );
+
+    const hiddenColumns = [
+        userId ? 'createdBy' as const : undefined,
+        crisisId ? 'crisis' as const : undefined,
+        countryId ? 'countries' as const : undefined,
+    ].filter(isDefined);
+
+    const disabledFields = [
+        crisisId ? 'crisis' as const : undefined,
+        countryId ? 'countries' as const : undefined,
+    ].filter(isDefined);
+
     const {
         table: eventsTable,
         exportButton: eventsExportButton,
@@ -273,15 +291,26 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
         pager: eventsPager,
     } = useEventTable({
         className: styles.table,
-        crisis,
-        country,
         filters: eventsVariables,
         page: eventsPage,
         pageSize: eventsPageSize,
         onPageChange: setEventsPage,
         onPageSizeChange: handleEventsPageSizeChange,
         pagerPageControlDisabled,
+
+        defaultFormValue: {
+            crisis: crisisId,
+            countries: countryIds,
+        },
+        disabledFields,
+        hiddenColumns,
     });
+
+    const figureHiddenColumns = [
+        eventId ? 'event' as const : undefined,
+        eventId || crisisId ? 'crisis' as const : undefined,
+        userId ? 'createdBy' as const : undefined,
+    ].filter(isDefined);
 
     const {
         table: figuresTable,
@@ -289,14 +318,14 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
         pager: figuresPager,
     } = useFigureTable({
         className: styles.table,
-        eventColumnHidden,
-        crisisColumnHidden,
         filters: figuresVariables,
         page: figuresPage,
         pageSize: figuresPageSize,
         onPageChange: setFiguresPage,
         onPageSizeChange: handleFiguresPageSizeChange,
         pagerPageControlDisabled,
+
+        hiddenColumns: figureHiddenColumns,
     });
 
     return (
@@ -344,37 +373,27 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
                         {selectedTab === 'Events' && (
                             <EventsFilter
                                 onFilterChange={onFilterChange}
-                                createdBySelectionDisabled={!!userId}
-                                countriesSelectionDisabled={!!countryId}
-                                reviewStatusSelectionDisabled={false}
-                                crisisSelectionDisabled={!!crisisId}
-                                defaultCountries={countryId ? [countryId] : undefined}
-                                defaultEvents={eventId ? [eventId] : undefined}
-                                defaultCrises={crisisId ? [crisisId] : undefined}
+                                countries={countryId ? [countryId] : undefined}
+                                crises={crisisId ? [crisisId] : undefined}
+                                hiddenFields={hiddenColumns}
                             />
                         )}
                         {selectedTab === 'Entries' && (
-                            <EntriesFilter
+                            <FiguresFilter
                                 onFilterChange={onFilterChange}
-                                reviewStatusHidden={false}
-                                defaultEvents={eventId ? [eventId] : undefined}
-                                defaultCountries={countryId ? [countryId] : undefined}
-                                eventsHidden={isDefined(eventId)}
-                                crisesHidden={isDefined(eventId) || isDefined(crisisId)}
-                                countriesHidden={isDefined(countryId)}
-                                defaultCrises={crisisId ? [crisisId] : undefined}
+                                hiddenFields={figureHiddenColumns}
+                                events={eventId ? [eventId] : undefined}
+                                countries={countryId ? [countryId] : undefined}
+                                crises={crisisId ? [crisisId] : undefined}
                             />
                         )}
                         {selectedTab === 'Figures' && (
-                            <EntriesFilter
+                            <FiguresFilter
                                 onFilterChange={onFilterChange}
-                                reviewStatusHidden={false}
-                                defaultEvents={eventId ? [eventId] : undefined}
-                                defaultCountries={countryId ? [countryId] : undefined}
-                                eventsHidden={isDefined(eventId)}
-                                crisesHidden={isDefined(eventId) || isDefined(crisisId)}
-                                countriesHidden={isDefined(countryId)}
-                                defaultCrises={crisisId ? [crisisId] : undefined}
+                                hiddenFields={figureHiddenColumns}
+                                events={eventId ? [eventId] : undefined}
+                                countries={countryId ? [countryId] : undefined}
+                                crises={crisisId ? [crisisId] : undefined}
                             />
                         )}
                     </>

@@ -51,9 +51,10 @@ import {
     IoOpenOutline,
 } from 'react-icons/io5';
 
+import useOptions from '#hooks/useOptions';
 import { EVENT_FRAGMENT } from '#components/forms/EntryForm/queries';
 import Status from '#components/tableHelpers/Status';
-import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
+import OrganizationMultiSelectInput from '#components/selections/OrganizationMultiSelectInput';
 import CollapsibleContent from '#components/CollapsibleContent';
 import MarkdownEditor from '#components/MarkdownEditor';
 import NotificationContext from '#components/NotificationContext';
@@ -66,9 +67,9 @@ import useModalState from '#hooks/useModalState';
 import EventForm from '#components/forms/EventForm';
 import DomainContext from '#components/DomainContext';
 import TrafficLightInput from '#components/TrafficLightInput';
-import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
+import FigureTagMultiSelectInput from '#components/selections/FigureTagMultiSelectInput';
 import EventListSelectInput, { EventListOption } from '#components/selections/EventListSelectInput';
-import ViolenceContextMultiSelectInput, { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
+import ViolenceContextMultiSelectInput from '#components/selections/ViolenceContextMultiSelectInput';
 import {
     enumKeySelector,
     enumLabelSelector,
@@ -118,7 +119,6 @@ import {
     FigureFormProps,
     AgeFormProps,
 
-    TagOptions,
     CauseOptions,
     AccuracyOptions,
     UnitOptions,
@@ -320,18 +320,11 @@ interface FigureInputProps {
     mode: 'view' | 'edit';
     trafficLightShown: boolean;
 
-    organizations: OrganizationOption[] | null | undefined;
-    setOrganizations: React.Dispatch<React.SetStateAction<OrganizationOption[] | null | undefined>>;
-
     selectedFigure?: string;
     setSelectedFigure: React.Dispatch<React.SetStateAction<string | undefined>>;
 
     events: EventListOption[] | null | undefined;
     setEvents: Dispatch<SetStateAction<EventListOption[] | null | undefined>>;
-    tagOptions: TagOptions;
-    setTagOptions: Dispatch<SetStateAction<FigureTagOption[] | null | undefined>>;
-    violenceContextOptions: ViolenceContextOption[] | null | undefined;
-    setViolenceContextOptions: Dispatch<SetStateAction<ViolenceContextOption[] | null | undefined>>;
     causeOptions: CauseOptions;
     optionsDisabled: boolean;
     accuracyOptions: AccuracyOptions;
@@ -390,10 +383,6 @@ function FigureInput(props: FigureInputProps) {
         setSelectedFigure,
 
         optionsDisabled: figureOptionsDisabled,
-        violenceContextOptions,
-        setViolenceContextOptions,
-        tagOptions,
-        setTagOptions,
         setEvents,
         accuracyOptions,
         identifierOptions,
@@ -407,9 +396,6 @@ function FigureInput(props: FigureInputProps) {
         displacementOptions,
         genderCategoryOptions,
         causeOptions,
-
-        organizations,
-        setOrganizations,
 
         disasterCategoryOptions,
         violenceCategoryOptions,
@@ -428,6 +414,8 @@ function FigureInput(props: FigureInputProps) {
         notifyGQLError,
     } = useContext(NotificationContext);
     const { user } = useContext(DomainContext);
+
+    const [, setViolenceContextOptions] = useOptions('contextOfViolence');
 
     const figurePermission = user?.permissions?.figure;
 
@@ -646,6 +634,8 @@ function FigureInput(props: FigureInputProps) {
     );
 
     const onValueChange = useFormObject(index, onChange, defaultValue);
+
+    const [organizations] = useOptions('organization');
 
     const selectedSources = useMemo(
         () => {
@@ -912,11 +902,7 @@ function FigureInput(props: FigureInputProps) {
                 otherSubType: safeOption.otherSubType?.id,
             };
         }, index);
-
-        setViolenceContextOptions((oldVal) => (unique(
-            [...(oldVal ?? []), ...safeOption.contextOfViolence],
-            (v) => v.id,
-        )));
+        setViolenceContextOptions(safeOption.contextOfViolence);
     }, [
         onChange,
         index,
@@ -1283,13 +1269,13 @@ function FigureInput(props: FigureInputProps) {
                 </NonFieldError>
                 <Row>
                     <EventListSelectInput
+                        options={events}
+                        onOptionsChange={setEvents}
                         error={error?.fields?.event}
                         label="Event *"
                         name="event"
-                        options={events}
                         value={value.event}
                         onChange={handleEventChange}
-                        onOptionsChange={setEvents}
                         disabled={disabled || figureOptionsDisabled}
                         readOnly={!editMode || !!value.country || figureAlreadySavedOnce}
                         actions={(
@@ -1416,12 +1402,10 @@ function FigureInput(props: FigureInputProps) {
                                 disabled={disabled || figureOptionsDisabled || eventNotChosen}
                             />
                             <ViolenceContextMultiSelectInput
-                                options={violenceContextOptions}
                                 label="Context of Violence"
                                 name="contextOfViolence"
                                 value={value.contextOfViolence}
                                 onChange={onValueChange}
-                                onOptionsChange={setViolenceContextOptions}
                                 error={error?.fields?.contextOfViolence?.$internal}
                                 readOnly={!editMode}
                                 disabled={disabled || figureOptionsDisabled || eventNotChosen}
@@ -1840,7 +1824,6 @@ function FigureInput(props: FigureInputProps) {
                         </div>
                     )}
                     <FigureTagMultiSelectInput
-                        options={tagOptions}
                         name="tags"
                         label="Tags"
                         onChange={onValueChange}
@@ -1848,7 +1831,6 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.tags?.$internal}
                         disabled={disabled || figureOptionsDisabled || eventNotChosen}
                         readOnly={!editMode}
-                        onOptionsChange={setTagOptions}
                     />
                 </Row>
                 <Row>
@@ -1860,8 +1842,6 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.sources?.$internal}
                         disabled={disabled || figureOptionsDisabled || eventNotChosen}
                         country={value.country}
-                        options={organizations}
-                        onOptionsChange={setOrganizations}
                         readOnly={!editMode}
                         icons={trafficLightShown && figureId && eventId && (
                             <TrafficLightInput

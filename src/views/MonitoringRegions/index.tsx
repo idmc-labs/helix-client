@@ -10,7 +10,6 @@ import {
     TableHeaderCell,
     TableHeaderCellProps,
     Modal,
-    useSortState,
     SortContext,
 } from '@togglecorp/toggle-ui';
 import {
@@ -18,6 +17,7 @@ import {
     createNumberColumn,
 } from '#components/tableHelpers';
 
+import useFilterState from '#hooks/useFilterState';
 import DomainContext from '#components/DomainContext';
 import Message from '#components/Message';
 import Container from '#components/Container';
@@ -61,11 +61,6 @@ const REGION_LIST = gql`
     }
 `;
 
-const defaultSorting = {
-    name: 'name',
-    direction: 'asc',
-};
-
 const keySelector = (item: RegionFields) => item.id;
 
 interface MonitoringRegionProps {
@@ -75,12 +70,16 @@ interface MonitoringRegionProps {
 function MonitoringRegions(props: MonitoringRegionProps) {
     const { className } = props;
 
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting || defaultSorting;
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
+    const {
+        ordering,
+        sortState,
+    } = useFilterState<MonitoringRegionsQueryVariables>({
+        filter: {},
+        ordering: {
+            name: 'name',
+            direction: 'asc',
+        },
+    });
 
     const [
         shouldShowRegionCoordinatorForm,

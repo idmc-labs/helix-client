@@ -9,6 +9,7 @@ import {
     SearchSelectInputProps,
 } from '@togglecorp/toggle-ui';
 
+import useOptions from '#hooks/useOptions';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { GetCrisisQuery, GetCrisisQueryVariables } from '#generated/types';
 
@@ -39,15 +40,15 @@ type SelectInputProps<
     K,
     CrisisOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
 > & {
-    defaultCountries?: string[],
+    countries?: string[] | null,
 };
 
 function CrisisSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
-        defaultCountries,
+        countries,
         ...otherProps
     } = props;
 
@@ -61,15 +62,15 @@ function CrisisSelectInput<K extends string>(props: SelectInputProps<K>) {
             if (!debouncedSearchText) {
                 return {
                     ordering: '-createdAt',
-                    countries: defaultCountries ?? undefined,
+                    countries: countries ?? undefined,
                 };
             }
             return {
                 search: debouncedSearchText,
-                countries: defaultCountries ?? undefined,
+                countries: countries ?? undefined,
             };
         },
-        [debouncedSearchText, defaultCountries],
+        [debouncedSearchText, countries],
     );
 
     const {
@@ -84,6 +85,8 @@ function CrisisSelectInput<K extends string>(props: SelectInputProps<K>) {
     const searchOptions = data?.crisisList?.results;
     const totalOptionsCount = data?.crisisList?.totalCount;
 
+    const [options, setOptions] = useOptions('crisis');
+
     return (
         <SearchSelectInput
             // eslint-disable-next-line react/jsx-props-no-spreading
@@ -96,6 +99,8 @@ function CrisisSelectInput<K extends string>(props: SelectInputProps<K>) {
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
+            options={options}
+            onOptionsChange={setOptions}
         />
     );
 }

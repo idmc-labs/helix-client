@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useState, useContext, useMemo, useCallback } from 'react';
 import {
     SelectInput,
     Button,
@@ -21,8 +21,9 @@ import {
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
-import UserSelectInput, { UserOption } from '#components/selections/UserSelectInput';
+import UserSelectInput from '#components/selections/UserSelectInput';
 
+import useOptions from '#hooks/useOptions';
 import { transformToFormError } from '#utils/errorTransform';
 import {
     basicEntityKeySelector,
@@ -120,10 +121,7 @@ function RegionalCoordinatorForm(props: Props) {
         notifyGQLError,
     } = useContext(NotificationContext);
 
-    const [
-        assignedToOptions,
-        setAssignedToOptions,
-    ] = useState<UserOption[] | null | undefined>();
+    const [, setAssignedToOptions] = useOptions('user');
 
     const [
         regionList,
@@ -199,7 +197,7 @@ function RegionalCoordinatorForm(props: Props) {
     const loading = updateCoordinatorLoading;
     const disabled = loading || loadingRegions;
 
-    const handleSubmit = React.useCallback(
+    const handleSubmit = useCallback(
         (finalValues: FormType) => {
             updateRegionalCoordinator({
                 variables: {
@@ -235,8 +233,6 @@ function RegionalCoordinatorForm(props: Props) {
                 onChange={onValueChange}
                 value={value.user}
                 disabled={disabled}
-                options={assignedToOptions}
-                onOptionsChange={setAssignedToOptions}
                 error={error?.fields?.user}
                 autoFocus
             />

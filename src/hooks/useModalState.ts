@@ -1,19 +1,26 @@
-import React from 'react';
+import { useCallback, useState } from 'react';
 
-function useModalState<T = string>(initialValue = false) {
-    const [visible, setVisibility] = React.useState(initialValue);
+function useModalState<T = string>(
+    initialValue = false,
+    options?: { onOpen: () => void },
+) {
+    const onOpen = options?.onOpen;
+    const [visible, setVisibility] = useState(initialValue);
 
-    const [modalId, setModalId] = React.useState<T | undefined>(undefined);
+    const [modalId, setModalId] = useState<T | undefined>(undefined);
 
-    const setVisible = React.useCallback(
+    const setVisible = useCallback(
         (id?: T) => {
             setVisibility(true);
             setModalId(id);
+            if (onOpen) {
+                onOpen();
+            }
         },
-        [],
+        [onOpen],
     );
 
-    const setHidden = React.useCallback(
+    const setHidden = useCallback(
         () => {
             setVisibility(false);
             setModalId(undefined);
@@ -21,7 +28,7 @@ function useModalState<T = string>(initialValue = false) {
         [],
     );
 
-    const toggle = React.useCallback(
+    const toggle = useCallback(
         () => {
             setVisibility((value) => !value);
             setModalId(undefined);

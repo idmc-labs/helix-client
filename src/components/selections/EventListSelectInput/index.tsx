@@ -54,18 +54,18 @@ type SelectInputProps<
     Def,
     'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
 > & {
-    defaultCountries?: string[];
-    defaultCrises?: string[];
+    countries?: string[] | null;
+    crises?: string[] | null;
 };
 
-function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
+function EventListSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
         value,
         options,
         disabled,
-        defaultCountries,
-        defaultCrises,
+        countries,
+        crises,
         ...otherProps
     } = props;
 
@@ -78,15 +78,15 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
         (): GetEventListQueryVariables => (
             debouncedSearchText ? {
                 search: debouncedSearchText,
-                countries: defaultCountries,
-                crises: defaultCrises,
+                countries,
+                crises,
             } : {
                 ordering: '-createdAt',
-                countries: defaultCountries,
-                crises: defaultCrises,
+                countries,
+                crises,
             }
         ),
-        [debouncedSearchText, defaultCountries, defaultCrises],
+        [debouncedSearchText, countries, crises],
     );
 
     const {
@@ -167,4 +167,4 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
     );
 }
 
-export default EventSelectInput;
+export default EventListSelectInput;

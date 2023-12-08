@@ -15,7 +15,8 @@ import {
 import { IoCalculatorOutline } from 'react-icons/io5';
 
 import NonFieldError from '#components/NonFieldError';
-import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
+import OrganizationMultiSelectInput from '#components/selections/OrganizationMultiSelectInput';
+import useOptions from '#hooks/useOptions';
 import Row from '#components/Row';
 
 import {
@@ -72,8 +73,6 @@ interface DetailsInputProps<K extends string> {
     onRemoveUrl: () => void;
     onRemoveAttachment: () => void;
     onAttachmentProcess: (value: File[]) => void;
-    organizations: OrganizationOption[] | null | undefined;
-    setOrganizations: React.Dispatch<React.SetStateAction<OrganizationOption[] | null | undefined>>;
     mode: 'view' | 'edit';
 }
 
@@ -95,10 +94,10 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         onUrlProcess,
         onAttachmentProcess,
         attachment,
-        organizations,
-        setOrganizations,
         mode,
     } = props;
+
+    const [organizations] = useOptions('organization');
 
     const editMode = mode === 'edit';
 
@@ -111,7 +110,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
 
     const disabled = disabledFromProps || !processed;
 
-    const handleProcessUrlButtonClick = React.useCallback(() => {
+    const handleProcessUrlButtonClick = useCallback(() => {
         if (value.url) {
             onUrlProcess(value.url);
         }
@@ -280,8 +279,6 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     value={value.publishers}
                     error={error?.fields?.publishers?.$internal}
                     disabled={disabled}
-                    options={organizations}
-                    onOptionsChange={setOrganizations}
                     readOnly={!editMode}
                     onOptionEdit={showAddOrganizationModal}
                     optionEditable={editMode}

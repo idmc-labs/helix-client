@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import {
     Button,
     MultiSelectInput,
@@ -15,7 +15,7 @@ import {
 import { gql, useQuery } from '@apollo/client';
 
 import NonFieldError from '#components/NonFieldError';
-import ClientMultiSelectInput, { ClientCodeOption } from '#components/selections/ClientMultiSelectInput';
+import ClientMultiSelectInput from '#components/selections/ClientMultiSelectInput';
 
 import {
     enumKeySelector,
@@ -62,12 +62,14 @@ const defaultFormValues: PartialForm<FormType> = {
 
 interface ApiFilterProps {
     className?: string;
+    initialFilter?: PartialForm<FormType>;
     onFilterChange: (value: PurgeNull<ClientTrackInformationListQueryVariables>) => void;
 }
 
 function ApiRecordsFilter(props: ApiFilterProps) {
     const {
         className,
+        initialFilter,
         onFilterChange,
     } = props;
 
@@ -79,12 +81,7 @@ function ApiRecordsFilter(props: ApiFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(defaultFormValues, schema);
-
-    const [
-        clientCodeOptions,
-        setClientCodeOptions,
-    ] = useState<ClientCodeOption[] | undefined | null>();
+    } = useForm(initialFilter ?? defaultFormValues, schema);
 
     const {
         data: apiTypeData,
@@ -100,7 +97,7 @@ function ApiRecordsFilter(props: ApiFilterProps) {
         [onValueSet, onFilterChange],
     );
 
-    const handleSubmit = React.useCallback((finalValues: FormType) => {
+    const handleSubmit = useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
@@ -134,8 +131,6 @@ function ApiRecordsFilter(props: ApiFilterProps) {
                     name="clientCodes"
                     value={value.clientCodes}
                     onChange={onValueChange}
-                    options={clientCodeOptions}
-                    onOptionsChange={setClientCodeOptions}
                     error={error?.fields?.clientCodes?.$internal}
                 />
                 <DateRangeDualInput

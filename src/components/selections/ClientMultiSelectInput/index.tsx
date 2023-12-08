@@ -8,6 +8,7 @@ import {
     SearchMultiSelectInputProps,
 } from '@togglecorp/toggle-ui';
 
+import useOptions from '#hooks/useOptions';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import {
     ApiClientListQuery,
@@ -40,7 +41,7 @@ type SelectInputProps<
     K,
     ClientCodeOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
 >;
 
 function ClientMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -75,6 +76,8 @@ function ClientMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const searchOptions = data?.clientList?.results;
     const totalOptionsCount = data?.clientList?.totalCount;
 
+    const [options, setOptions] = useOptions('client');
+
     return (
         <SearchMultiSelectInput
             {...otherProps}
@@ -86,6 +89,8 @@ function ClientMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
+            options={options}
+            onOptionsChange={setOptions}
         />
     );
 }

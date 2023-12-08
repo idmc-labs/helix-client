@@ -25,7 +25,6 @@ import NumberBlock from '#components/NumberBlock';
 import PageHeader from '#components/PageHeader';
 import EventForm from '#components/forms/EventForm';
 import useModalState from '#hooks/useModalState';
-import EntriesFiguresTable from '#components/tables/EntriesFiguresTable';
 import Status from '#components/tableHelpers/Status';
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import route from '#config/routes';
@@ -35,6 +34,7 @@ import {
     EventSummaryQueryVariables,
 } from '#generated/types';
 
+import CountriesEntriesFiguresTable from './CountriesEntriesFiguresTable';
 import styles from './styles.css';
 
 const EVENT = gql`
@@ -313,7 +313,7 @@ function Event(props: EventProps) {
                         bounds={bounds as Bounds | undefined}
                         padding={50}
                     />
-                    {eventData?.event?.countries?.map((country) => (
+                    {eventData?.event?.countries?.map((country) => (!!country.geojsonUrl && (
                         <MapSource
                             key={country.id}
                             sourceKey={`country-${country.id}`}
@@ -337,7 +337,7 @@ function Event(props: EventProps) {
                                 }}
                             />
                         </MapSource>
-                    ))}
+                    )))}
                 </Map>
             </Container>
             <Container
@@ -348,10 +348,8 @@ function Event(props: EventProps) {
                     markdown={eventData?.event?.eventNarrative ?? 'Narrative not available'}
                 />
             </Container>
-            <EntriesFiguresTable
+            <CountriesEntriesFiguresTable
                 className={styles.largeContainer}
-                eventColumnHidden
-                crisisColumnHidden
                 eventId={eventId}
             />
             {shouldShowAddEventModal && (

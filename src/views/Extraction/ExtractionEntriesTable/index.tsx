@@ -17,8 +17,8 @@ import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import Container from '#components/Container';
 
-import useEntryTable from '#components/rawTables/EntriesTable';
-import useFigureTable from '#components/rawTables/FiguresTable';
+import useEntryTable from '#components/rawTables/useEntryTable';
+import useFigureTable from '#components/rawTables/useFigureTable';
 import styles from './styles.css';
 
 type Tabs = 'Entries' | 'Figures';
@@ -71,6 +71,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         : `-${validFiguresSorting.name}`;
 
     // NOTE: reset current page when filter is changed
+    // We need a useLayoutEffect as the filters is passed from parent
     useLayoutEffect(
         () => {
             setEntriesPage(1);
@@ -147,6 +148,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         pageSize: figuresPageSize,
         onPageChange: setFiguresPage,
         onPageSizeChange: handleFiguresPageSizeChange,
+        hiddenColumns: undefined,
     });
 
     return (

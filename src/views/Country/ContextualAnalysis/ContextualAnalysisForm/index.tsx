@@ -1,4 +1,4 @@
-import React, { useMemo, useContext } from 'react';
+import React, { useMemo, useContext, useCallback } from 'react';
 import {
     Button,
     SelectInput,
@@ -175,7 +175,7 @@ function ContextualAnalysis(props:ContextualAnalysisProps) {
         },
     );
 
-    const handleSubmit = React.useCallback(
+    const handleSubmit = useCallback(
         (finalValues: PartialForm<FormType>) => {
             createContextualAnalysis({
                 variables: {

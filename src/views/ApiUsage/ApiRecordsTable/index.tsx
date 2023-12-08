@@ -1,7 +1,6 @@
 import React, {
     useMemo,
     useCallback,
-    useState,
     useContext,
 } from 'react';
 import { _cs } from '@togglecorp/fujs';
@@ -14,7 +13,6 @@ import { getOperationName } from 'apollo-link';
 import {
     Table,
     Pager,
-    useSortState,
     SortContext,
     ConfirmButton,
 } from '@togglecorp/toggle-ui';
@@ -26,10 +24,10 @@ import {
 } from '#components/tableHelpers';
 import Message from '#components/Message';
 import Loading from '#components/Loading';
-import useDebouncedValue from '#hooks/useDebouncedValue';
 import Container from '#components/Container';
 import NotificationContext from '#components/NotificationContext';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
+import useFilterState from '#hooks/useFilterState';
 
 import { PurgeNull } from '#types';
 
@@ -109,11 +107,6 @@ type ApiFields = NonNullable<NonNullable<ClientTrackInformationListQuery['client
 
 const keySelector = (item: ApiFields) => item.id;
 
-const defaultSorting = {
-    name: 'trackedDate',
-    direction: 'dsc',
-};
-
 interface ApiRecordProps {
     className?: string;
     tableClassName?: string;
@@ -131,55 +124,46 @@ function ApiRecordsTable(props: ApiRecordProps) {
         pagerPageControlDisabled,
     } = props;
 
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting || defaultSorting;
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-
-    const debouncedPage = useDebouncedValue(page);
-
     const {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
 
-    const [
-        apiQueryFilters,
-        setApiQueryFilters,
-    ] = useState<PurgeNull<ClientTrackInformationListQueryVariables>>();
+    const {
+        page,
+        rawPage,
+        setPage,
 
-    const handlePageSizeChange = useCallback(
-        (value: number) => {
-            setPageSize(value);
-            setPage(1);
-        },
-        [],
-    );
+        ordering,
+        sortState,
 
-    const onFilterChange = useCallback(
-        (value: PurgeNull<ClientTrackInformationListQueryVariables>) => {
-            setApiQueryFilters(value);
-            setPageSize(10);
+        // rawFilter,
+        filter,
+        setFilter,
+
+        pageSize,
+        rawPageSize,
+        setPageSize,
+    } = useFilterState<PurgeNull<ClientTrackInformationListQueryVariables>>({
+        filter: {},
+        ordering: {
+            name: 'tracked_date',
+            direction: 'dsc',
         },
-        [],
-    );
+    });
 
     const apiVariables = useMemo(
         (): ClientTrackInformationListQueryVariables => ({
             ordering,
-            page: debouncedPage,
+            page,
             pageSize,
-            ...apiQueryFilters,
+            ...filter,
         }),
         [
             ordering,
-            debouncedPage,
+            page,
             pageSize,
-            apiQueryFilters,
+            filter,
         ],
     );
 
@@ -226,12 +210,12 @@ function ApiRecordsTable(props: ApiRecordProps) {
     const handleExportTableData = useCallback(
         () => {
             exportApiRecords({
-                variables: apiQueryFilters,
+                variables: filter,
             });
         },
         [
             exportApiRecords,
-            apiQueryFilters,
+            filter,
         ],
     );
 
@@ -314,17 +298,17 @@ function ApiRecordsTable(props: ApiRecordProps) {
             )}
             footerContent={!pagerDisabled && (
                 <Pager
-                    activePage={page}
+                    activePage={rawPage}
                     itemsCount={totalApiCount}
-                    maxItemsPerPage={pageSize}
+                    maxItemsPerPage={rawPageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={handlePageSizeChange}
+                    onItemsPerPageChange={setPageSize}
                     itemsPerPageControlHidden={pagerPageControlDisabled}
                 />
             )}
             description={(
                 <ApiRecordsFilter
-                    onFilterChange={onFilterChange}
+                    onFilterChange={setFilter}
                 />
             )}
         >

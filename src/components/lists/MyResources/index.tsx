@@ -16,6 +16,7 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 
+import useOptions from '#hooks/useOptions';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
@@ -56,14 +57,16 @@ const GET_RESOURCES_LIST = gql`
 
 interface MyResourcesProps {
     className?: string;
-    defaultCountryOption?: CountryOption | undefined | null;
+    country?: CountryOption | undefined | null;
 }
 
 function MyResources(props: MyResourcesProps) {
     const {
         className,
-        defaultCountryOption,
+        country,
     } = props;
+
+    const [, setCountries] = useOptions('country');
 
     const [searchText, setSearchText] = useState<string | undefined>('');
 
@@ -90,15 +93,24 @@ function MyResources(props: MyResourcesProps) {
 
     const resourcesList = useMemo(
         () => {
-            if (!defaultCountryOption) {
+            if (!country) {
                 return unfilteredResourcesList;
             }
             return unfilteredResourcesList
                 ?.filter((item) => item.countries.some(
-                    (country) => country.id === defaultCountryOption.id,
+                    (c) => c.id === country.id,
                 ));
         },
-        [unfilteredResourcesList, defaultCountryOption],
+        [unfilteredResourcesList, country],
+    );
+
+    const handleOpen = useCallback(
+        () => {
+            if (country) {
+                setCountries([country]);
+            }
+        },
+        [country, setCountries],
     );
 
     const [
@@ -106,7 +118,7 @@ function MyResources(props: MyResourcesProps) {
         editableResourceId,
         handleResourceFormOpen,
         handleResourceFormClose,
-    ] = useModalState();
+    ] = useModalState(false, { onOpen: handleOpen });
 
     const resetSearchText = useCallback(
         () => {
@@ -210,8 +222,8 @@ function MyResources(props: MyResourcesProps) {
                     <ResourceForm
                         onResourceFormClose={handleResourceFormClose}
                         id={editableResourceId}
+                        country={country?.id}
                         handleRefetchResource={onHandleRefetchResource}
-                        defaultCountryOption={defaultCountryOption}
                     />
                 </Modal>
             )}

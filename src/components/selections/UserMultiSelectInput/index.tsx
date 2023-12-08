@@ -10,6 +10,7 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
+import useOptions from '#hooks/useOptions';
 import { GetUserQuery, GetUserQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
@@ -45,9 +46,9 @@ type MultiSelectInputProps<
     K,
     UserOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
 > & {
-    permissions?: string[];
+    permissions?: string[] | null;
 };
 
 function UserMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
@@ -87,6 +88,8 @@ function UserMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>)
     const searchOptions = data?.users?.results;
     const totalOptionsCount = data?.users?.totalCount;
 
+    const [options, setOptions] = useOptions('user');
+
     return (
         <SearchMultiSelectInput
             {...otherProps}
@@ -98,6 +101,8 @@ function UserMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>)
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
+            options={options}
+            onOptionsChange={setOptions}
         />
     );
 }

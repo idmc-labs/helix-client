@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useCallback } from 'react';
 import {
     Button,
 } from '@togglecorp/toggle-ui';
@@ -126,7 +126,7 @@ function EventCloneForm(props: EventCloneFormProps) {
     const loading = updateLoading;
     const disabled = loading;
 
-    const handleSubmit = React.useCallback(
+    const handleSubmit = useCallback(
         (finalValues: PartialForm<FormType>) => {
             cloneEvent({
                 variables: {

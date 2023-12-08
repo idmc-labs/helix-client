@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useMemo } from 'react';
+import React, { useState, useEffect, useContext, useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { gql, useLazyQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
@@ -43,7 +43,7 @@ function Entry(props: EntryProps) {
         className,
         mode,
     } = props;
-    const entryFormRef = React.useRef<HTMLDivElement>(null);
+    const entryFormRef = useRef<HTMLDivElement>(null);
 
     const {
         notify,

@@ -13,6 +13,7 @@ import {
 } from '@togglecorp/fujs';
 import { Button, Pager } from '@togglecorp/toggle-ui';
 
+import useOptions from '#hooks/useOptions';
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import Container from '#components/Container';
 import {
@@ -45,8 +46,6 @@ import {
 import EventForm from '#components/forms/EventForm';
 import PageHeader from '#components/PageHeader';
 import { EventListOption } from '#components/selections/EventListSelectInput';
-import { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
-import { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
 import { OrganizationOption } from '#components/selections/OrganizationSelectInput';
 import Preview from '#components/Preview';
 import FigureInput from '#components/forms/EntryForm/FigureInput';
@@ -138,18 +137,9 @@ function EventReview(props: Props) {
         events,
         setEvents,
     ] = useState<EventListOption[] | null | undefined>([]);
-    const [
-        tagOptions,
-        setTagOptions,
-    ] = useState<FigureTagOption[] | undefined | null>();
-    const [
-        violenceContextOptions,
-        setViolenceContextOptions,
-    ] = useState<ViolenceContextOption[] | null | undefined>();
-    const [
-        organizations,
-        setOrganizations,
-    ] = useState<OrganizationOption[] | null | undefined>([]);
+    const [, setTagOptions] = useOptions('tag');
+    const [, setViolenceContextOptions] = useOptions('contextOfViolence');
+    const [, setOrganizations] = useOptions('organization');
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
@@ -157,7 +147,7 @@ function EventReview(props: Props) {
 
     const figureListVariables = useMemo(
         (): FigureListQueryVariables => ({
-            eventId,
+            eventId: isDefined(eventId) ? [eventId] : undefined,
             page: debouncedPage,
             pageSize,
         }),
@@ -375,10 +365,6 @@ function EventReview(props: Props) {
                             disabled={getFiguresLoading}
                             mode={mode}
                             optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
-                            tagOptions={tagOptions}
-                            setTagOptions={setTagOptions}
-                            violenceContextOptions={violenceContextOptions}
-                            setViolenceContextOptions={setViolenceContextOptions}
                             events={events}
                             setEvents={setEvents}
                             // eslint-disable-next-line max-len
@@ -410,8 +396,7 @@ function EventReview(props: Props) {
                             // eslint-disable-next-line max-len
                             otherSubTypeOptions={figureOptionsData?.otherSubTypeList}
                             trafficLightShown={trafficLightShown}
-                            organizations={organizations}
-                            setOrganizations={setOrganizations}
+                            entryId={fig.entry.id}
                             reviewStatus={fig.reviewStatus}
                             fieldStatuses={fig.lastReviewCommentStatus}
                             isRecommended={fig.role === 'RECOMMENDED'}

@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import produce from 'immer';
 import { useParams, useHistory } from 'react-router-dom';
 import {
@@ -33,9 +33,9 @@ import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import MyResources from '#components/lists/MyResources';
 import EventsEntriesFiguresTable from '#components/tables/EventsEntriesFiguresTable';
-import ContactsTable from '#components/tables/ContactsTable';
-import CountrySelectInput, { CountryOption } from '#components/selections/CountrySelectInput';
+import CountrySelectInput from '#components/selections/CountrySelectInput';
 
+import useOptions from '#hooks/useOptions';
 import ContextualAnalysis from './ContextualAnalysis';
 import CountrySummary from './CountrySummary';
 import styles from './styles.css';
@@ -133,10 +133,9 @@ function Country(props: CountryProps) {
         handleSummaryFormClose,
     ] = useBasicToggle();
 
-    const [countryOptions, setCountryOptions] = useState<CountryOption[] | undefined | null>();
+    const [countryOptions, setCountryOptions] = useOptions('country');
 
-    // NOTE: Find used because defaultCountryOption is the selected country
-    const defaultCountryOption = countryOptions?.find((country) => country.id === countryId);
+    const currentCountryOption = countryOptions?.find((country) => country.id === countryId);
 
     const countryVariables = useMemo(
         (): CountryQueryVariables | undefined => ({ id: countryId }),
@@ -241,8 +240,6 @@ function Country(props: CountryProps) {
                         name="country"
                         value={countryId}
                         onChange={handleCountryChange}
-                        options={countryOptions}
-                        onOptionsChange={setCountryOptions}
                         placeholder="Select a country"
                         nonClearable
                     />
@@ -408,21 +405,18 @@ function Country(props: CountryProps) {
                     />
                     <MyResources
                         className={styles.container}
-                        defaultCountryOption={defaultCountryOption}
+                        country={currentCountryOption}
                     />
                 </div>
             </div>
             <div className={styles.fullWidth}>
                 <EventsEntriesFiguresTable
                     className={styles.largeContainer}
+                    // FIXME: we should not use this
                     country={(
                         countryData?.country
                         ?? { id: countryId, idmcShortName: '???' }
                     )}
-                />
-                <ContactsTable
-                    className={styles.largeContainer}
-                    defaultCountryOption={defaultCountryOption}
                 />
             </div>
         </div>

@@ -16,7 +16,7 @@ import route from '#config/routes';
 import { reverseRoute } from '#hooks/useRouteMatching';
 
 import ExtractionEntriesTable from './ExtractionEntriesTable';
-import AdvancedEntriesFilter from '#components/rawTables/EntriesTable/AdvancedEntriesFilter';
+import AdvancedFiguresFilter from '#components/rawTables/useFigureTable/AdvancedFiguresFilter';
 import SavedFiltersList, { GET_SAVED_QUERY_LIST } from './SavedFiltersList';
 
 import {
@@ -60,7 +60,7 @@ const CREATE_EXTRACTION = gql`
                 }
                 filterEntryArticleTitle
                 filterFigureCrisisTypes
-                filterCreatedBy {
+                filterFigureCreatedBy {
                     id
                     fullName
                 }
@@ -103,7 +103,7 @@ const UPDATE_EXTRACTION = gql`
                 }
                 filterEntryArticleTitle
                 filterFigureCrisisTypes
-                filterCreatedBy {
+                filterFigureCreatedBy {
                     id
                     fullName
                 }
@@ -381,7 +381,7 @@ function Extraction(props: ExtractionProps) {
                 <PageHeader
                     title={header}
                 />
-                <AdvancedEntriesFilter
+                <AdvancedFiguresFilter
                     className={styles.container}
                     id={queryId}
                     onFilterChange={setExtractionQueryFilters}

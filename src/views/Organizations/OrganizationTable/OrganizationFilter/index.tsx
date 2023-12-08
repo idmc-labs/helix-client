@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -15,7 +15,7 @@ import {
     IoSearchOutline,
 } from 'react-icons/io5';
 
-import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
+import CountryMultiSelectInput from '#components/selections/CountryMultiSelectInput';
 import NonFieldError from '#components/NonFieldError';
 
 import { PartialForm, PurgeNull } from '#types';
@@ -73,12 +73,14 @@ const defaultFormValues: PartialForm<FormType> = {
 
 interface OrganizationFilterProps {
     className?: string;
+    initialFilter?: PartialForm<FormType>;
     onFilterChange: (value: PurgeNull<OrganizationsListQueryVariables>) => void;
 }
 
 function OrganizationFilter(props: OrganizationFilterProps) {
     const {
         className,
+        initialFilter,
         onFilterChange,
     } = props;
 
@@ -90,12 +92,7 @@ function OrganizationFilter(props: OrganizationFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(defaultFormValues, schema);
-
-    const [
-        countries,
-        setCountries,
-    ] = useState<CountryOption[] | null | undefined>();
+    } = useForm(initialFilter ?? defaultFormValues, schema);
 
     const {
         data: organizationOptions,
@@ -114,7 +111,7 @@ function OrganizationFilter(props: OrganizationFilterProps) {
         [onValueSet, onFilterChange],
     );
 
-    const handleSubmit = React.useCallback((finalValues: FormType) => {
+    const handleSubmit = useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
@@ -143,8 +140,6 @@ function OrganizationFilter(props: OrganizationFilterProps) {
                     className={styles.input}
                     label="Countries"
                     name="countries"
-                    options={countries}
-                    onOptionsChange={setCountries}
                     value={value.countries}
                     onChange={onValueChange}
                     error={error?.fields?.countries?.$internal}

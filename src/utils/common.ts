@@ -259,3 +259,17 @@ export function formatElapsedTime(seconds: number, depth = 0): string {
     }
     return '';
 }
+
+export function expandObject<T extends Record<string, unknown>>(defaultValue: T, overrideValue: T) {
+    const newValue = {
+        ...defaultValue,
+    };
+    Object.keys(overrideValue).forEach((key) => {
+        const safeKey = key as keyof T;
+        const value = overrideValue[safeKey];
+        if (value !== undefined) {
+            newValue[safeKey] = value;
+        }
+    });
+    return newValue;
+}

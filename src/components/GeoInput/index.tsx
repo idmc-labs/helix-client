@@ -525,7 +525,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
     const [
         hoveredRegionProperties,
         setHoveredRegionProperties,
-    ] = React.useState<HoveredRegion | undefined>();
+    ] = useState<HoveredRegion | undefined>();
 
     const geoPoints = useMemo(
         () => convertToGeoPoints(value),
@@ -823,7 +823,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
         [],
     );
 
-    const handleMapRegionMouseEnter = React.useCallback(
+    const handleMapRegionMouseEnter = useCallback(
         (feature: mapboxgl.MapboxGeoJSONFeature, lngLat: mapboxgl.LngLat) => {
             setHoveredRegionProperties({
                 feature,
@@ -833,7 +833,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
         [setHoveredRegionProperties],
     );
 
-    const handleMapRegionMouseLeave = React.useCallback(
+    const handleMapRegionMouseLeave = useCallback(
         () => {
             setHoveredRegionProperties(undefined);
         },

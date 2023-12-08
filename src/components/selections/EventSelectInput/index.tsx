@@ -9,6 +9,7 @@ import {
     SearchSelectInputProps,
 } from '@togglecorp/toggle-ui';
 
+import useOptions from '#hooks/useOptions';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { GetEventQuery, GetEventQueryVariables } from '#generated/types';
 
@@ -49,17 +50,17 @@ type SelectInputProps<
     K,
     EventOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
 > & {
-    defaultCountries?: string[];
-    defaultCrises?: string[];
+    countries?: string[] | null;
+    crises?: string[] | null;
 };
 
 function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
-        defaultCountries,
-        defaultCrises,
+        countries,
+        crises,
         ...otherProps
     } = props;
 
@@ -72,15 +73,15 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
         (): GetEventQueryVariables => (
             debouncedSearchText ? {
                 search: debouncedSearchText,
-                countries: defaultCountries,
-                crises: defaultCrises,
+                countries,
+                crises,
             } : {
                 ordering: '-createdAt',
-                countries: defaultCountries,
-                crises: defaultCrises,
+                countries,
+                crises,
             }
         ),
-        [debouncedSearchText, defaultCountries, defaultCrises],
+        [debouncedSearchText, countries, crises],
     );
 
     const {
@@ -95,6 +96,8 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
     const searchOptions = data?.eventList?.results;
     const totalOptionsCount = data?.eventList?.totalCount;
 
+    const [options, setOptions] = useOptions('event');
+
     return (
         <SearchSelectInput
             // eslint-disable-next-line react/jsx-props-no-spreading
@@ -107,6 +110,8 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
+            options={options}
+            onOptionsChange={setOptions}
         />
     );
 }

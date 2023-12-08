@@ -52,7 +52,7 @@ function ActionCell(props: ActionProps) {
         onToggleReportingTeamStatus,
     } = props;
 
-    const handleToggleUserActiveStatus = React.useCallback(
+    const handleToggleUserActiveStatus = useCallback(
         () => {
             if (onToggleUserActiveStatus) {
                 onToggleUserActiveStatus(id, !activeStatus);

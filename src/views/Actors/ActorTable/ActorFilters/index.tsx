@@ -35,12 +35,14 @@ const defaultFormValues: PartialForm<FormType> = {
 
 interface ContextualFilterProps {
     className?: string;
+    initialFilter?: PartialForm<FormType>;
     onFilterChange: (value: PurgeNull<ActorsListQueryVariables>) => void;
 }
 
 function ContextualFilter(props: ContextualFilterProps) {
     const {
         className,
+        initialFilter,
         onFilterChange,
     } = props;
 
@@ -52,7 +54,7 @@ function ContextualFilter(props: ContextualFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(defaultFormValues, schema);
+    } = useForm(initialFilter ?? defaultFormValues, schema);
 
     const onResetFilters = useCallback(
         () => {
@@ -62,7 +64,7 @@ function ContextualFilter(props: ContextualFilterProps) {
         [onValueSet, onFilterChange],
     );
 
-    const handleSubmit = React.useCallback((finalValues: FormType) => {
+    const handleSubmit = useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);

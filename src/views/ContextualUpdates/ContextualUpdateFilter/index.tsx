@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { TextInput, Button } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -12,8 +12,8 @@ import {
     IoSearchOutline,
 } from 'react-icons/io5';
 import NonFieldError from '#components/NonFieldError';
-import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
-import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
+import CountryMultiSelectInput from '#components/selections/CountryMultiSelectInput';
+import OrganizationMultiSelectInput from '#components/selections/OrganizationMultiSelectInput';
 
 import { PartialForm, PurgeNull } from '#types';
 import { ContextualUpdatesQueryVariables } from '#generated/types';
@@ -44,12 +44,14 @@ const defaultFormValues: PartialForm<FormType> = {
 
 interface ContextualFilterProps {
     className?: string;
+    initialFilter?: PartialForm<FormType>;
     onFilterChange: (value: PurgeNull<ContextualUpdatesQueryVariables>) => void;
 }
 
 function ContextualFilter(props: ContextualFilterProps) {
     const {
         className,
+        initialFilter,
         onFilterChange,
     } = props;
 
@@ -61,22 +63,7 @@ function ContextualFilter(props: ContextualFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(defaultFormValues, schema);
-
-    const [
-        countries,
-        setCountries,
-    ] = useState<CountryOption[] | null | undefined>();
-
-    const [
-        sourceOptions,
-        setSources,
-    ] = useState<OrganizationOption[] | undefined | null>();
-
-    const [
-        publisherOptions,
-        setPublishers,
-    ] = useState<OrganizationOption[] | undefined | null>();
+    } = useForm(initialFilter ?? defaultFormValues, schema);
 
     const onResetFilters = useCallback(
         () => {
@@ -86,7 +73,7 @@ function ContextualFilter(props: ContextualFilterProps) {
         [onValueSet, onFilterChange],
     );
 
-    const handleSubmit = React.useCallback((finalValues: FormType) => {
+    const handleSubmit = useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
@@ -113,8 +100,6 @@ function ContextualFilter(props: ContextualFilterProps) {
                 />
                 <CountryMultiSelectInput
                     className={styles.input}
-                    options={countries}
-                    onOptionsChange={setCountries}
                     label="Countries"
                     name="countries"
                     value={value.countries}
@@ -124,9 +109,7 @@ function ContextualFilter(props: ContextualFilterProps) {
                 <OrganizationMultiSelectInput
                     className={styles.input}
                     label="Publishers"
-                    options={publisherOptions}
                     name="publishers"
-                    onOptionsChange={setPublishers}
                     onChange={onValueChange}
                     value={value.publishers}
                     error={error?.fields?.publishers?.$internal}
@@ -134,9 +117,7 @@ function ContextualFilter(props: ContextualFilterProps) {
                 <OrganizationMultiSelectInput
                     className={styles.input}
                     label="Sources"
-                    options={sourceOptions}
                     name="sources"
-                    onOptionsChange={setSources}
                     onChange={onValueChange}
                     value={value.sources}
                     error={error?.fields?.sources?.$internal}

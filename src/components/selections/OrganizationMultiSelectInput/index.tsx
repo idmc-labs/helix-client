@@ -10,6 +10,7 @@ import {
 import SearchMultiSelectInputWithChip from '#components/SearchMultiSelectInputWithChip';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
+import useOptions from '#hooks/useOptions';
 import DomainContext from '#components/DomainContext';
 import { GetOrganizationQuery } from '#generated/types';
 
@@ -38,12 +39,12 @@ type MultiSelectInputProps<
     K,
     OrganizationOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
 > & {
     chip?: boolean,
     optionEditable?: boolean,
     onOptionEdit?: (value: string) => void,
-    country?: string
+    country?: string | null
 };
 
 function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
@@ -82,6 +83,8 @@ function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputP
     const { user } = useContext(DomainContext);
     const orgPermissions = user?.permissions?.organization;
 
+    const [options, setOptions] = useOptions('organization');
+
     if (chip) {
         return (
             <SearchMultiSelectInputWithChip
@@ -96,6 +99,8 @@ function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputP
                 totalOptionsCount={totalOptionsCount ?? undefined}
                 optionEditable={optionEditable && orgPermissions?.change}
                 onOptionEdit={onOptionEdit}
+                options={options}
+                onOptionsChange={setOptions}
             />
         );
     }
@@ -111,6 +116,8 @@ function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputP
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
+            options={options}
+            onOptionsChange={setOptions}
         />
     );
 }

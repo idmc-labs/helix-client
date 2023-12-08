@@ -10,6 +10,7 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
+import useOptions from '#hooks/useOptions';
 import { GetEventQuery, GetEventQueryVariables } from '#generated/types';
 import SearchMultiSelectInputWithChip from '#components/SearchMultiSelectInputWithChip';
 
@@ -50,19 +51,19 @@ type MultiSelectInputProps<
     K,
     EventOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
 > & {
     chip?: boolean,
-    defaultCountries?: string[];
-    defaultCrises?: string[];
+    countries?: string[] | null;
+    crises?: string[] | null;
 };
 
 function EventMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
     const {
         className,
         chip,
-        defaultCountries,
-        defaultCrises,
+        countries,
+        crises,
         ...otherProps
     } = props;
 
@@ -75,15 +76,15 @@ function EventMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>
         (): GetEventQueryVariables => (
             debouncedSearchText ? {
                 search: debouncedSearchText,
-                countries: defaultCountries,
-                crises: defaultCrises,
+                countries,
+                crises,
             } : {
                 ordering: '-createdAt',
-                countries: defaultCountries,
-                crises: defaultCrises,
+                countries,
+                crises,
             }
         ),
-        [debouncedSearchText, defaultCountries, defaultCrises],
+        [debouncedSearchText, countries, crises],
     );
 
     const {
@@ -98,6 +99,8 @@ function EventMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>
     const searchOptions = data?.eventList?.results;
     const totalOptionsCount = data?.eventList?.totalCount;
 
+    const [options, setOptions] = useOptions('event');
+
     if (chip) {
         return (
             <SearchMultiSelectInputWithChip
@@ -111,6 +114,8 @@ function EventMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>
                 searchOptions={searchOptions}
                 optionsPending={loading}
                 totalOptionsCount={totalOptionsCount ?? undefined}
+                options={options}
+                onOptionsChange={setOptions}
             />
         );
     }
@@ -127,6 +132,8 @@ function EventMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
+            options={options}
+            onOptionsChange={setOptions}
         />
     );
 }
