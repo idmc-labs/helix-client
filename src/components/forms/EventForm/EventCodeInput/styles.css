@@ -1,0 +1,8 @@
+.event-code {
+    display: flex;
+
+    .input {
+        display: flex;
+        flex-grow: 1;
+    }
+}
