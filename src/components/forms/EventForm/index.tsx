@@ -1,5 +1,5 @@
-import React, { useContext, useCallback, useMemo } from 'react';
-import { _cs, isDefined } from '@togglecorp/fujs';
+import React, { useState, useContext, useCallback, useMemo } from 'react';
+import { _cs, isDefined, randomString, isNotDefined } from '@togglecorp/fujs';
 import {
     TextInput,
     SelectInput,
@@ -20,6 +20,7 @@ import {
     arrayCondition,
     PartialForm,
     PurgeNull,
+    useFormArray,
 } from '@togglecorp/toggle-form';
 import { IoCalculatorOutline, IoAddOutline } from 'react-icons/io5';
 import {
@@ -31,7 +32,6 @@ import {
 import useOptions from '#hooks/useOptions';
 import DomainContext from '#components/DomainContext';
 import Row from '#components/Row';
-import TagInput from '#components/TagInput';
 import NonFieldError from '#components/NonFieldError';
 import CrisisForm from '#components/forms/CrisisForm';
 import CountryMultiSelectInput from '#components/selections/CountryMultiSelectInput';
@@ -63,6 +63,7 @@ import {
     UpdateEventMutationVariables,
     Crisis_Type as CrisisType,
 } from '#generated/types';
+import EventCodeInput from './EventCodeInput';
 import styles from './styles.css';
 
 const EVENT_OPTIONS = gql`
@@ -403,6 +404,13 @@ const disasterGroupLabelSelector = (item: DisasterOption) => (
     `${item.disasterCategoryName} › ${item.disasterSubCategoryName} › ${item.disasterTypeName}`
 );
 
+interface EventCodeFields {
+    clientId: string;
+    country: string;
+    type: string;
+    code: string;
+}
+
 export interface EventFormProps {
     className?: string;
     onEventCreate?: (result: NonNullable<NonNullable<CreateEventMutation['createEvent']>['result']>) => void;
@@ -444,6 +452,10 @@ function EventForm(props: EventFormProps) {
     const [countries, setCountries] = useOptions('country');
     const [, setCrises] = useOptions('crisis');
     const [, setViolenceContextOptions] = useOptions('contextOfViolence');
+    const [
+        eventCode,
+        setEventCode,
+    ] = useState<PartialForm<EventCodeFields[] | undefined>>();
 
     const {
         pristine,
@@ -746,6 +758,26 @@ function EventForm(props: EventFormProps) {
         NonNullable<typeof value.startDateAccuracy>
     >;
 
+    const {
+        onValueChange: onEventCodeChange,
+        onValueRemove: onEventCodeRemove,
+    } = useFormArray<'eventCode', PartialForm<EventCodeFields>>('eventCode', setEventCode);
+
+    const handleEventCodeAddButtonClick = useCallback(
+        () => {
+            const newEventCodeItem : PartialForm<EventCodeFields> = {
+                clientId: randomString(),
+            };
+
+            setEventCode(
+                (oldValue: PartialForm<EventCodeFields[]> | undefined) => (
+                    [...(oldValue ?? []), newEventCodeItem]
+                ),
+                // 'eventCode' as const,
+            );
+        }, [],
+    );
+
     const children = (
         <>
             {loading && <Loading absolute />}
@@ -877,15 +909,6 @@ function EventForm(props: EventFormProps) {
                     readOnly={readOnly}
                 />
             )}
-            <TagInput
-                label="Event Codes"
-                name="glideNumbers"
-                value={value.glideNumbers}
-                onChange={onValueChange}
-                // error={error?.fields?.glideNumbers?.$internal}
-                disabled={disabled}
-                readOnly={readOnly}
-            />
             <CountryMultiSelectInput
                 label="Countries *"
                 name="countries"
@@ -895,6 +918,26 @@ function EventForm(props: EventFormProps) {
                 disabled={disabled}
                 readOnly={disabledFields.includes('countries') || readOnly}
             />
+            <Button
+                className={styles.action}
+                name="addEventCode"
+                onClick={handleEventCodeAddButtonClick}
+                compact
+            >
+                Add Event Code
+            </Button>
+            {eventCode?.map((code, index) => (
+                <EventCodeInput
+                    index={index}
+                    value={code}
+                    onChange={onEventCodeChange}
+                    onRemove={onEventCodeRemove}
+                    countryOptions={countries}
+                    setCountryOptions={setCountries}
+                    error={undefined}
+                    disabled={isNotDefined(value.countries)}
+                />
+            ))}
             <Row>
                 <DateInput
                     label="Start Date*"
