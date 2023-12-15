@@ -1,5 +1,5 @@
 import React, { useState, useContext, useCallback, useMemo } from 'react';
-import { _cs, isDefined, randomString, isNotDefined } from '@togglecorp/fujs';
+import { _cs, isDefined, randomString, isNotDefined, ReturnType } from '@togglecorp/fujs';
 import {
     TextInput,
     SelectInput,
@@ -21,6 +21,7 @@ import {
     PartialForm,
     PurgeNull,
     useFormArray,
+    ArraySchema,
 } from '@togglecorp/toggle-form';
 import { IoCalculatorOutline, IoAddOutline } from 'react-icons/io5';
 import {
@@ -40,6 +41,7 @@ import ViolenceContextMultiSelectInput, {
     ViolenceContextOption,
 } from '#components/selections/ViolenceContextMultiSelectInput';
 import Loading from '#components/Loading';
+import Section from '#components/Section';
 import ActorSelectInput, { ActorOption } from '#components/selections/ActorSelectInput';
 import MarkdownEditor from '#components/MarkdownEditor';
 import useModalState from '#hooks/useModalState';
@@ -326,11 +328,28 @@ const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
 const other: CrisisType = 'OTHER';
 
+type EventCode = {
+    clientId: string;
+    country: string;
+    eventCodeType: string;
+    eventCode: string;
+}
+
 type EventFormFields = CreateEventMutationVariables['event'];
-type FormType = PurgeNull<PartialForm<WithId<EventFormFields>>>;
+interface EventFormFieldsWithEventCode extends EventFormFields {
+    eventCodes: EventCode[];
+}
+
+type FormType = PurgeNull<PartialForm<WithId<EventFormFieldsWithEventCode>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
+
+type EventCodeSchema = ObjectSchema<PartialForm<EventCode>>;
+type EventCodeSchemaFields = ReturnType<EventCodeSchema['fields']>;
+
+type EventCodesSchema = ArraySchema<PartialForm<EventCode>>;
+type EventCodesSchemaMember = ReturnType<EventCodesSchema['member']>;
 
 const schema: FormSchema = {
     fields: (value): FormSchemaFields => {
@@ -353,6 +372,17 @@ const schema: FormSchema = {
             osvSubType: [nullCondition],
             actor: [nullCondition],
             otherSubType: [nullCondition],
+            eventCodes: {
+                keySelector: (c: PartialForm<EventCode>) => c.clientId as string,
+                member: (): EventCodesSchemaMember => ({
+                    fields: (): EventCodeSchemaFields => ({
+                        clientId: [],
+                        country: [requiredCondition],
+                        eventCodeType: [requiredCondition],
+                        eventCode: [requiredCondition],
+                    }),
+                }),
+            },
         };
         if (value?.eventType === conflict) {
             return {
@@ -404,13 +434,6 @@ const disasterGroupKeySelector = (item: DisasterOption) => (
 const disasterGroupLabelSelector = (item: DisasterOption) => (
     `${item.disasterCategoryName} › ${item.disasterSubCategoryName} › ${item.disasterTypeName}`
 );
-
-interface EventCodeFields {
-    clientId: string;
-    country: string;
-    type: string;
-    code: string;
-}
 
 interface EventFormProps {
     className?: string;
@@ -466,11 +489,6 @@ function EventForm(props: EventFormProps) {
         violenceContextOptions,
         setViolenceContextOptions,
     ] = useState<ViolenceContextOption[] | null | undefined>();
-
-    const [
-        eventCode,
-        setEventCode,
-    ] = useState<PartialForm<EventCodeFields[] | undefined>>();
 
     const defaultFormValues: PartialForm<FormType> = {
         crisis: defaultCrisis?.id,
@@ -780,21 +798,21 @@ function EventForm(props: EventFormProps) {
     const {
         onValueChange: onEventCodeChange,
         onValueRemove: onEventCodeRemove,
-    } = useFormArray<'eventCode', PartialForm<EventCodeFields>>('eventCode', setEventCode);
+    } = useFormArray<'eventCodes', PartialForm<EventCode>>('eventCodes', onValueChange);
 
     const handleEventCodeAddButtonClick = useCallback(
         () => {
-            const newEventCodeItem : PartialForm<EventCodeFields> = {
+            const newEventCodeItem : PartialForm<EventCode> = {
                 clientId: randomString(),
             };
 
-            setEventCode(
-                (oldValue: PartialForm<EventCodeFields[]> | undefined) => (
+            onValueChange(
+                (oldValue: PartialForm<EventCode[]> | undefined) => (
                     [...(oldValue ?? []), newEventCodeItem]
                 ),
-                // 'eventCode' as const,
+                'eventCodes' as const,
             );
-        }, [],
+        }, [onValueChange],
     );
 
     const children = (
@@ -943,26 +961,35 @@ function EventForm(props: EventFormProps) {
                 disabled={disabled}
                 readOnly={readOnly}
             />
-            <Button
-                className={styles.action}
-                name="addEventCode"
-                onClick={handleEventCodeAddButtonClick}
-                compact
+            <Section
+                subSection
+                heading="Event Code"
+                actions={(
+                    <Button
+                        className={styles.action}
+                        name="addEventCode"
+                        onClick={handleEventCodeAddButtonClick}
+                        disabled={isNotDefined(value.countries)}
+                        compact
+                    >
+                        Add Event Code
+                    </Button>
+                )}
             >
-                Add Event Code
-            </Button>
-            {eventCode?.map((code, index) => (
-                <EventCodeInput
-                    index={index}
-                    value={code}
-                    onChange={onEventCodeChange}
-                    onRemove={onEventCodeRemove}
-                    countryOptions={countries}
-                    setCountryOptions={setCountries}
-                    error={undefined}
-                    disabled={isNotDefined(value.countries)}
-                />
-            ))}
+                {value.eventCodes?.map((code, index) => (
+                    <EventCodeInput
+                        index={index}
+                        value={code}
+                        onChange={onEventCodeChange}
+                        onRemove={onEventCodeRemove}
+                        countryOptions={countries}
+                        setCountryOptions={setCountries}
+                        countryIds={value.countries}
+                        error={undefined}
+                        disabled={isNotDefined(value.countries)}
+                    />
+                ))}
+            </Section>
             <Row>
                 <DateInput
                     label="Start Date*"

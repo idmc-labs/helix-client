@@ -1,5 +1,5 @@
 import React from 'react';
-import { noOp, randomString, _cs } from '@togglecorp/fujs';
+import { isDefined, noOp, randomString, _cs } from '@togglecorp/fujs';
 import { Button, SelectInput, TextInput } from '@togglecorp/toggle-ui';
 import {
     PartialForm,
@@ -15,19 +15,19 @@ import { basicEntityKeySelector, basicEntityLabelSelector } from '#utils/common'
 
 import styles from './styles.css';
 
-interface EventCodeFields {
+type EventCode = {
     clientId: string;
     country: string;
-    type: string;
-    code: string;
+    eventCodeType: string;
+    eventCode: string;
 }
 
-type EventCode = PartialForm<EventCodeFields>;
+type EventCodeSchema = PartialForm<EventCode>;
 
 const keySelector = (d: CountryOption) => d.id;
 const labelSelector = (d: CountryOption) => d.idmcShortName;
 
-const defaultValue: EventCode = {
+const defaultValue: EventCodeSchema = {
     clientId: randomString(),
 };
 
@@ -35,11 +35,12 @@ interface Props {
     className?: string;
     index: number;
     value: EventCode;
-    error: Error<EventCodeFields> | undefined;
-    onChange: (value: StateArg<EventCode>, index: number) => void;
+    error: Error<EventCodeSchema> | undefined;
+    onChange: (value: StateArg<EventCodeSchema>, index: number) => void;
     onRemove: (index: number) => void;
     countryOptions: CountryOption[] | undefined | null;
     setCountryOptions: React.Dispatch<React.SetStateAction<CountryOption[] | undefined | null>>;
+    countryIds: string[] | undefined;
     disabled?: boolean;
     readOnly?: boolean;
 }
@@ -53,11 +54,17 @@ function EventCodeInput(props: Props) {
         onRemove,
         countryOptions,
         setCountryOptions,
+        countryIds,
         error,
         disabled,
         readOnly,
     } = props;
     const onValueChange = useFormObject(index, onChange, defaultValue);
+    const options = countryIds?.map(
+        (countryId) => countryOptions?.find(
+            (country) => country.id === countryId,
+        ),
+    ).filter(isDefined);
 
     return (
         <Row
@@ -68,7 +75,7 @@ function EventCodeInput(props: Props) {
                 <SelectInput
                     label="Country *"
                     name="country"
-                    options={countryOptions}
+                    options={options}
                     value={value.country}
                     keySelector={keySelector}
                     labelSelector={labelSelector}
@@ -92,10 +99,10 @@ function EventCodeInput(props: Props) {
                 />
                 <TextInput
                     label="Code *"
-                    name="code"
-                    value={value.code}
+                    name="eventCode"
+                    value={value.eventCode}
                     onChange={onValueChange}
-                    error={error?.fields?.code}
+                    error={error?.fields?.eventCode}
                     disabled={disabled}
                     readOnly={readOnly}
                 />
