@@ -1,5 +1,5 @@
 import React from 'react';
-import { isDefined, noOp, randomString, _cs } from '@togglecorp/fujs';
+import { isDefined, randomString, _cs } from '@togglecorp/fujs';
 import { Button, SelectInput, TextInput } from '@togglecorp/toggle-ui';
 import {
     PartialForm,
@@ -11,7 +11,6 @@ import { IoTrash } from 'react-icons/io5';
 
 import Row from '#components/Row';
 import { CountryOption } from '#components/selections/CountrySelectInput';
-import { basicEntityKeySelector, basicEntityLabelSelector } from '#utils/common';
 
 import styles from './styles.css';
 
@@ -31,16 +30,26 @@ const defaultValue: EventCodeSchema = {
     clientId: randomString(),
 };
 
+// TODO: remove once it's implemented on the server.
+type EventCodeType = {
+    label: string;
+    value: string;
+}
+
+const keySelectorEventType = (event: EventCodeType) => event.value;
+const labelSelectorEventType = (event: EventCodeType) => event.label;
+
 interface Props {
     className?: string;
     index: number;
-    value: EventCode;
+    value: EventCodeSchema;
     error: Error<EventCodeSchema> | undefined;
     onChange: (value: StateArg<EventCodeSchema>, index: number) => void;
     onRemove: (index: number) => void;
     countryOptions: CountryOption[] | undefined | null;
     setCountryOptions: React.Dispatch<React.SetStateAction<CountryOption[] | undefined | null>>;
     countryIds: string[] | undefined;
+    eventCodeTypeOptions: EventCodeType[];
     disabled?: boolean;
     readOnly?: boolean;
 }
@@ -55,6 +64,7 @@ function EventCodeInput(props: Props) {
         countryOptions,
         setCountryOptions,
         countryIds,
+        eventCodeTypeOptions,
         error,
         disabled,
         readOnly,
@@ -85,15 +95,17 @@ function EventCodeInput(props: Props) {
                     disabled={disabled}
                     readOnly={readOnly}
                 />
+                {/* NOTE: We should define the options on the paren
+                and pass it to this component. */}
                 <SelectInput
                     label="Type *"
-                    name=""
-                    options={[]}
-                    value={undefined}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    onChange={noOp}
-                    error={undefined}
+                    name="eventCodeType"
+                    options={eventCodeTypeOptions}
+                    value={value.eventCodeType}
+                    keySelector={keySelectorEventType}
+                    labelSelector={labelSelectorEventType}
+                    onChange={onValueChange}
+                    error={error?.fields?.eventCodeType}
                     disabled={disabled}
                     readOnly={readOnly}
                 />

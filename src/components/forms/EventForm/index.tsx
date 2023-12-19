@@ -42,6 +42,7 @@ import ViolenceContextMultiSelectInput from '#components/selections/ViolenceCont
 import Loading from '#components/Loading';
 import ActorSelectInput from '#components/selections/ActorSelectInput';
 import Section from '#components/Section';
+import Message from '#components/Message';
 import MarkdownEditor from '#components/MarkdownEditor';
 import useModalState from '#hooks/useModalState';
 import { transformToFormError } from '#utils/errorTransform';
@@ -327,6 +328,7 @@ const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
 const other: CrisisType = 'OTHER';
 
+// TODO: we need to remove this once it's implemented on the server.
 type EventCode = {
     clientId: string;
     country: string;
@@ -378,7 +380,7 @@ const schema: FormSchema = {
                         clientId: [],
                         country: [requiredCondition],
                         eventCodeType: [requiredCondition],
-                        eventCode: [requiredCondition],
+                        eventCode: [requiredStringCondition],
                     }),
                 }),
             },
@@ -407,6 +409,23 @@ const schema: FormSchema = {
         return basicFields;
     },
 };
+
+// TODO: we need to remove this once it's implemented on the server.
+type EventCodeType = {
+    label: string;
+    value: string;
+}
+
+const eventCodeTypeOptions: EventCodeType[] = [
+    {
+        label: 'GLIDE',
+        value: 'GLIDE',
+    },
+    {
+        label: 'Government',
+        value: 'GOVERNMENT',
+    },
+];
 
 interface ViolenceOption {
     violenceTypeId: string;
@@ -942,7 +961,6 @@ function EventForm(props: EventFormProps) {
                 heading="Event Code"
                 actions={(
                     <Button
-                        className={styles.action}
                         name="addEventCode"
                         onClick={handleEventCodeAddButtonClick}
                         disabled={isNotDefined(value.countries)}
@@ -954,6 +972,7 @@ function EventForm(props: EventFormProps) {
             >
                 {value.eventCodes?.map((code, index) => (
                     <EventCodeInput
+                        key={code.clientId}
                         index={index}
                         value={code}
                         onChange={onEventCodeChange}
@@ -961,10 +980,16 @@ function EventForm(props: EventFormProps) {
                         countryOptions={countries}
                         setCountryOptions={setCountries}
                         countryIds={value.countries}
-                        error={undefined}
-                        disabled={isNotDefined(value.countries)}
+                        eventCodeTypeOptions={eventCodeTypeOptions}
+                        error={error?.fields?.eventCodes}
+                        disabled={isNotDefined(value.countries) || value.countries?.length === 0}
                     />
                 ))}
+                {(isNotDefined(value.eventCodes) || (value.eventCodes?.length === 0)) && (
+                    <Message
+                        message="No event code found"
+                    />
+                )}
             </Section>
             <Row>
                 <DateInput
