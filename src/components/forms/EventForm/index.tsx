@@ -34,7 +34,6 @@ import useOptions from '#hooks/useOptions';
 import DomainContext from '#components/DomainContext';
 import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
-import NonFieldWarning from '#components/NonFieldWarning';
 import CrisisForm from '#components/forms/CrisisForm';
 import CountryMultiSelectInput from '#components/selections/CountryMultiSelectInput';
 import NotificationContext from '#components/NotificationContext';
@@ -342,7 +341,7 @@ interface EventFormFieldsWithEventCode extends EventFormFields {
     eventCodes: EventCode[];
 }
 
-type FormType = PurgeNull<PartialForm<WithId<EventFormFieldsWithEventCode>>>;
+export type FormType = PurgeNull<PartialForm<WithId<EventFormFieldsWithEventCode>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -384,6 +383,12 @@ const schema: FormSchema = {
                         eventCode: [requiredStringCondition],
                     }),
                 }),
+                validation: (val) => {
+                    if (isDefined(val) && val.length > 50) {
+                        return 'Cannot add more than 50 event codes.';
+                    }
+                    return undefined;
+                },
             },
         };
         if (value?.eventType === conflict) {
@@ -817,9 +822,25 @@ function EventForm(props: EventFormProps) {
         }, [onValueChange],
     );
 
-    const eventCodeLimitExceed = useMemo(
-        () => isDefined(value.eventCodes) && value.eventCodes.length > 50,
-        [value.eventCodes],
+    const handleCountryChange = useCallback(
+        (countryIds: PartialForm<FormType['countries']>) => {
+            onValueChange(() => ([...(countryIds ?? [])]), 'countries' as const);
+            onValueChange(
+                (oldValue: PartialForm<EventCode[]>| undefined) => {
+                    const filterEventCodeByCountry = oldValue?.filter(
+                        // eslint-disable-next-line
+                        (c) => isDefined(c.country) && countryIds?.includes(c.country),
+                    );
+                    return filterEventCodeByCountry;
+                },
+                'eventCodes' as const,
+            );
+        },
+        [onValueChange],
+    );
+    const eventCodeCountryOptions = useMemo(
+        () => countries?.filter((country) => value.countries?.includes(country.id)),
+        [countries, value.countries],
     );
 
     const children = (
@@ -827,6 +848,9 @@ function EventForm(props: EventFormProps) {
             {loading && <Loading absolute />}
             <NonFieldError>
                 {error?.$internal}
+            </NonFieldError>
+            <NonFieldError>
+                {error?.fields?.eventCodes?.$internal}
             </NonFieldError>
             {(!readOnly || !eventHiddenWhileReadonly) && (
                 <TextInput
@@ -957,7 +981,7 @@ function EventForm(props: EventFormProps) {
                 label="Countries *"
                 name="countries"
                 value={value.countries}
-                onChange={onValueChange}
+                onChange={handleCountryChange}
                 error={error?.fields?.countries?.$internal}
                 disabled={disabled}
                 readOnly={disabledFields.includes('countries') || readOnly}
@@ -969,18 +993,16 @@ function EventForm(props: EventFormProps) {
                     <Button
                         name="addEventCode"
                         onClick={handleEventCodeAddButtonClick}
-                        disabled={isNotDefined(value.countries) || eventCodeLimitExceed}
+                        disabled={isNotDefined(value.countries)
+                        || (value?.eventCodes?.length ?? 0) > 50
+                        || readOnly
+                        || disabled}
                         compact
                     >
                         Add Event Code
                     </Button>
                 )}
             >
-                {eventCodeLimitExceed && (
-                    <NonFieldWarning>
-                        Cannot add more than 50 event codes
-                    </NonFieldWarning>
-                )}
                 {(isNotDefined(value.eventCodes) || (value.eventCodes?.length === 0)) ? (
                     <Message
                         message="No event code found."
@@ -992,9 +1014,7 @@ function EventForm(props: EventFormProps) {
                         value={code}
                         onChange={onEventCodeChange}
                         onRemove={onEventCodeRemove}
-                        countryOptions={countries}
-                        setCountryOptions={setCountries}
-                        countryIds={value.countries}
+                        countryOptions={eventCodeCountryOptions}
                         eventCodeTypeOptions={eventCodeTypeOptions}
                         error={error?.fields?.eventCodes?.members?.[code.uuid]}
                         disabled={isNotDefined(value.countries) || value.countries?.length === 0}

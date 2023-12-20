@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { isDefined, randomString, _cs } from '@togglecorp/fujs';
+import { randomString, _cs } from '@togglecorp/fujs';
 import { Button, SelectInput, TextInput } from '@togglecorp/toggle-ui';
 import { IoTrash } from 'react-icons/io5';
 import {
@@ -15,6 +15,7 @@ import { CountryOption } from '#components/selections/CountrySelectInput';
 
 import styles from './styles.css';
 
+// TODO: remove once it's implemented on the server.
 type EventCode = {
     uuid: string;
     country: string;
@@ -22,14 +23,10 @@ type EventCode = {
     eventCode: string;
 }
 
-type EventCodeSchema = PartialForm<EventCode>;
+type PartialEventCode = PartialForm<EventCode>;
 
 const keySelector = (d: CountryOption) => d.id;
 const labelSelector = (d: CountryOption) => d.idmcShortName;
-
-const defaultValue: EventCodeSchema = {
-    uuid: randomString(),
-};
 
 // TODO: remove once it's implemented on the server.
 type EventCodeType = {
@@ -43,13 +40,11 @@ const labelSelectorEventType = (event: EventCodeType) => event.label;
 interface Props {
     className?: string;
     index: number;
-    value: EventCodeSchema;
+    value: PartialEventCode;
     error: Error<EventCode> | undefined;
-    onChange: (value: StateArg<EventCodeSchema>, index: number) => void;
+    onChange: (value: StateArg<PartialEventCode>, index: number) => void;
     onRemove: (index: number) => void;
     countryOptions: CountryOption[] | undefined | null;
-    setCountryOptions: React.Dispatch<React.SetStateAction<CountryOption[] | undefined | null>>;
-    countryIds: string[] | undefined;
     eventCodeTypeOptions: EventCodeType[];
     disabled?: boolean;
     readOnly?: boolean;
@@ -63,19 +58,13 @@ function EventCodeInput(props: Props) {
         onChange,
         onRemove,
         countryOptions,
-        setCountryOptions,
-        countryIds,
         eventCodeTypeOptions,
         error,
-        disabled,
-        readOnly,
+        disabled, readOnly,
     } = props;
-    const onValueChange = useFormObject(index, onChange, defaultValue);
 
-    const options = useMemo(
-        () => countryOptions?.filter((country) => countryIds?.includes(country.id)),
-        [countryIds, countryOptions],
-    );
+    const defaultValue = useMemo(() => ({ uuid: randomString() }), []);
+    const onValueChange = useFormObject(index, onChange, defaultValue);
 
     return (
         <Row
@@ -89,12 +78,11 @@ function EventCodeInput(props: Props) {
                 <SelectInput
                     label="Country *"
                     name="country"
-                    options={options}
+                    options={countryOptions}
                     value={value.country}
                     keySelector={keySelector}
                     labelSelector={labelSelector}
                     onChange={onValueChange}
-                    onOptionsChange={setCountryOptions}
                     error={error?.fields?.country}
                     disabled={disabled}
                     readOnly={readOnly}
@@ -124,6 +112,7 @@ function EventCodeInput(props: Props) {
                 />
             </Row>
             <Button
+                title="Remove"
                 name={index}
                 onClick={onRemove}
                 compact
