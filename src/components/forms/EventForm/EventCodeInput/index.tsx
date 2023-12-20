@@ -1,21 +1,22 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { isDefined, randomString, _cs } from '@togglecorp/fujs';
 import { Button, SelectInput, TextInput } from '@togglecorp/toggle-ui';
+import { IoTrash } from 'react-icons/io5';
 import {
     PartialForm,
     Error,
     StateArg,
     useFormObject,
 } from '@togglecorp/toggle-form';
-import { IoTrash } from 'react-icons/io5';
 
 import Row from '#components/Row';
+import NonFieldError from '#components/NonFieldError';
 import { CountryOption } from '#components/selections/CountrySelectInput';
 
 import styles from './styles.css';
 
 type EventCode = {
-    clientId: string;
+    uuid: string;
     country: string;
     eventCodeType: string;
     eventCode: string;
@@ -27,7 +28,7 @@ const keySelector = (d: CountryOption) => d.id;
 const labelSelector = (d: CountryOption) => d.idmcShortName;
 
 const defaultValue: EventCodeSchema = {
-    clientId: randomString(),
+    uuid: randomString(),
 };
 
 // TODO: remove once it's implemented on the server.
@@ -43,7 +44,7 @@ interface Props {
     className?: string;
     index: number;
     value: EventCodeSchema;
-    error: Error<EventCodeSchema> | undefined;
+    error: Error<EventCode> | undefined;
     onChange: (value: StateArg<EventCodeSchema>, index: number) => void;
     onRemove: (index: number) => void;
     countryOptions: CountryOption[] | undefined | null;
@@ -70,17 +71,20 @@ function EventCodeInput(props: Props) {
         readOnly,
     } = props;
     const onValueChange = useFormObject(index, onChange, defaultValue);
-    const options = countryIds?.map(
-        (countryId) => countryOptions?.find(
-            (country) => country.id === countryId,
-        ),
-    ).filter(isDefined);
+
+    const options = useMemo(
+        () => countryOptions?.filter((country) => countryIds?.includes(country.id)),
+        [countryIds, countryOptions],
+    );
 
     return (
         <Row
             singleColumnNoGrow
             className={_cs(className, styles.eventCode)}
         >
+            <NonFieldError>
+                {error?.$internal}
+            </NonFieldError>
             <Row className={styles.input}>
                 <SelectInput
                     label="Country *"
@@ -91,11 +95,11 @@ function EventCodeInput(props: Props) {
                     labelSelector={labelSelector}
                     onChange={onValueChange}
                     onOptionsChange={setCountryOptions}
-                    error={undefined}
+                    error={error?.fields?.country}
                     disabled={disabled}
                     readOnly={readOnly}
                 />
-                {/* NOTE: We should define the options on the paren
+                {/* NOTE: We should define the options on the parent
                 and pass it to this component. */}
                 <SelectInput
                     label="Type *"
@@ -124,6 +128,8 @@ function EventCodeInput(props: Props) {
                 onClick={onRemove}
                 compact
                 transparent
+                disabled={disabled}
+                readOnly={readOnly}
             >
                 <IoTrash />
             </Button>

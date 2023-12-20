@@ -18,10 +18,10 @@ import {
     idCondition,
     nullCondition,
     arrayCondition,
-    PartialForm,
     PurgeNull,
     useFormArray,
     ArraySchema,
+    PartialForm,
 } from '@togglecorp/toggle-form';
 import { IoCalculatorOutline, IoAddOutline } from 'react-icons/io5';
 import {
@@ -34,6 +34,7 @@ import useOptions from '#hooks/useOptions';
 import DomainContext from '#components/DomainContext';
 import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
+import NonFieldWarning from '#components/NonFieldWarning';
 import CrisisForm from '#components/forms/CrisisForm';
 import CountryMultiSelectInput from '#components/selections/CountryMultiSelectInput';
 import NotificationContext from '#components/NotificationContext';
@@ -330,7 +331,7 @@ const other: CrisisType = 'OTHER';
 
 // TODO: we need to remove this once it's implemented on the server.
 type EventCode = {
-    clientId: string;
+    uuid: string;
     country: string;
     eventCodeType: string;
     eventCode: string;
@@ -347,7 +348,7 @@ type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 type EventCodeSchema = ObjectSchema<PartialForm<EventCode>>;
-type EventCodeSchemaFields = ReturnType<EventCodeSchema['fields']>;
+type EventCodeSchemaField = ReturnType<EventCodeSchema['fields']>;
 
 type EventCodesSchema = ArraySchema<PartialForm<EventCode>>;
 type EventCodesSchemaMember = ReturnType<EventCodesSchema['member']>;
@@ -374,10 +375,10 @@ const schema: FormSchema = {
             actor: [nullCondition],
             otherSubType: [nullCondition],
             eventCodes: {
-                keySelector: (c: PartialForm<EventCode>) => c.clientId as string,
+                keySelector: (c) => c.uuid,
                 member: (): EventCodesSchemaMember => ({
-                    fields: (): EventCodeSchemaFields => ({
-                        clientId: [],
+                    fields: (): EventCodeSchemaField => ({
+                        uuid: [],
                         country: [requiredCondition],
                         eventCodeType: [requiredCondition],
                         eventCode: [requiredStringCondition],
@@ -804,7 +805,7 @@ function EventForm(props: EventFormProps) {
     const handleEventCodeAddButtonClick = useCallback(
         () => {
             const newEventCodeItem : PartialForm<EventCode> = {
-                clientId: randomString(),
+                uuid: randomString(),
             };
 
             onValueChange(
@@ -814,6 +815,11 @@ function EventForm(props: EventFormProps) {
                 'eventCodes' as const,
             );
         }, [onValueChange],
+    );
+
+    const eventCodeLimitExceed = useMemo(
+        () => isDefined(value.eventCodes) && value.eventCodes.length > 50,
+        [value.eventCodes],
     );
 
     const children = (
@@ -963,16 +969,25 @@ function EventForm(props: EventFormProps) {
                     <Button
                         name="addEventCode"
                         onClick={handleEventCodeAddButtonClick}
-                        disabled={isNotDefined(value.countries)}
+                        disabled={isNotDefined(value.countries) || eventCodeLimitExceed}
                         compact
                     >
                         Add Event Code
                     </Button>
                 )}
             >
-                {value.eventCodes?.map((code, index) => (
+                {eventCodeLimitExceed && (
+                    <NonFieldWarning>
+                        Cannot add more than 50 event codes
+                    </NonFieldWarning>
+                )}
+                {(isNotDefined(value.eventCodes) || (value.eventCodes?.length === 0)) ? (
+                    <Message
+                        message="No event code found."
+                    />
+                ) : value.eventCodes?.map((code, index) => (
                     <EventCodeInput
-                        key={code.clientId}
+                        key={code.uuid}
                         index={index}
                         value={code}
                         onChange={onEventCodeChange}
@@ -981,15 +996,10 @@ function EventForm(props: EventFormProps) {
                         setCountryOptions={setCountries}
                         countryIds={value.countries}
                         eventCodeTypeOptions={eventCodeTypeOptions}
-                        error={error?.fields?.eventCodes}
+                        error={error?.fields?.eventCodes?.members?.[code.uuid]}
                         disabled={isNotDefined(value.countries) || value.countries?.length === 0}
                     />
                 ))}
-                {(isNotDefined(value.eventCodes) || (value.eventCodes?.length === 0)) && (
-                    <Message
-                        message="No event code found"
-                    />
-                )}
             </Section>
             <Row>
                 <DateInput
