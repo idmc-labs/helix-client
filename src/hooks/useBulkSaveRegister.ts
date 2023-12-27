@@ -5,8 +5,8 @@ function useBulkSaveRegister<
     ErrorResponse,
     SaveResponse,
     DeleteResponse,
-    Key,
-    Entry,
+    DeleteRequest,
+    SaveRequest,
 >(batchSize = 2) {
     const [pending, setPending] = useState(false);
 
@@ -17,13 +17,13 @@ function useBulkSaveRegister<
         deleteResponses: DeleteResponse[],
 
         // Store the input
-        deleteRequests: Key[],
-        saveRequests: Entry[],
+        deleteRequests: DeleteRequest[],
+        saveRequests: SaveRequest[],
 
         // State
         state: {
-            deleteRequests: Key[],
-            saveRequests: Entry[],
+            deleteRequests: DeleteRequest[],
+            saveRequests: SaveRequest[],
         },
     }
 
@@ -48,8 +48,8 @@ function useBulkSaveRegister<
 
     const start = useCallback(
         (args: {
-            deleteRequests: Key[],
-            saveRequests: Entry[],
+            deleteRequests: DeleteRequest[],
+            saveRequests: SaveRequest[],
         }) => {
             entriesRef.current = {
                 ...defaultState,
@@ -108,9 +108,9 @@ function useBulkSaveRegister<
 
     const updateResponses = useCallback(
         (args: {
-            errorResponses?: ErrorResponse[],
-            saveResponses?: SaveResponse[],
-            deleteResponses?: DeleteResponse[],
+            errorResponses?: ErrorResponse[] | null,
+            saveResponses?: SaveResponse[] | null,
+            deleteResponses?: DeleteResponse[] | null,
         }) => {
             entriesRef.current = {
                 ...entriesRef.current,
