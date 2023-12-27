@@ -133,11 +133,11 @@ function getValuesFromEntry(entry: Omit<NonNullable<EntryQuery['entry']>, 'figur
     };
 }
 
-function getValuesFromFigures(figures: NonNullable<EntryQuery['entry']>['figures']) {
+function getValuesFromFigures(figures: (NonNullable<NonNullable<EntryQuery['entry']>['figures']>[number] | null | undefined)[]) {
     const organizationsFromEntry: OrganizationOption[] = [];
     organizationsFromEntry.push(
         ...(figures
-            ?.flatMap((item) => item.sources?.results)
+            ?.flatMap((item) => item?.sources?.results)
             .filter(isDefined) ?? []),
     );
     const organizationsForState = unique(
@@ -147,39 +147,44 @@ function getValuesFromFigures(figures: NonNullable<EntryQuery['entry']>['figures
 
     // FIXME: server should always pass event
     const eventsForState = figures
-        ?.map((item) => item.event)
+        ?.map((item) => item?.event)
         .filter(isDefined);
     const tagOptionsForState = figures
-        ?.flatMap((item) => item.tags)
+        ?.flatMap((item) => item?.tags)
         .filter(isDefined);
 
     const violenceContextOptionsForState = figures
-        ?.flatMap((item) => item.contextOfViolence)
+        ?.flatMap((item) => item?.contextOfViolence)
         .filter(isDefined);
 
     const figuresForState = removeNull(
-        figures?.map((figure) => ({
-            ...figure,
-            entry: figure.entry?.id,
-            event: figure.event?.id,
-            country: figure.country?.id,
-            geoLocations: figure.geoLocations?.results,
-            category: figure.category,
-            term: figure.term,
-            tags: figure.tags?.map((tag) => tag.id),
-            sources: figure.sources?.results?.map((item) => item.id),
-            disaggregationAge: figure.disaggregationAge?.results?.map((item) => ({
-                ...item,
-            })),
+        figures?.map((figure) => {
+            if (!figure) {
+                return figure;
+            }
+            return ({
+                ...figure,
+                entry: figure.entry?.id,
+                event: figure.event?.id,
+                country: figure.country?.id,
+                geoLocations: figure.geoLocations?.results,
+                category: figure.category,
+                term: figure.term,
+                tags: figure.tags?.map((tag) => tag.id),
+                sources: figure.sources?.results?.map((item) => item.id),
+                disaggregationAge: figure.disaggregationAge?.results?.map((item) => ({
+                    ...item,
+                })),
 
-            figureCause: figure.figureCause,
+                figureCause: figure.figureCause,
 
-            disasterSubType: figure.disasterSubType?.id,
-            violenceSubType: figure.violenceSubType?.id,
-            osvSubType: figure.osvSubType?.id,
-            otherSubType: figure.otherSubType?.id,
-            contextOfViolence: figure.contextOfViolence?.map((c) => c.id),
-        })).sort((foo, bar) => compareStringAsNumber(foo.id, bar.id)),
+                disasterSubType: figure.disasterSubType?.id,
+                violenceSubType: figure.violenceSubType?.id,
+                osvSubType: figure.osvSubType?.id,
+                otherSubType: figure.otherSubType?.id,
+                contextOfViolence: figure.contextOfViolence?.map((c) => c.id),
+            });
+        }),
     );
 
     return {
@@ -237,9 +242,8 @@ function EntryForm(props: EntryFormProps) {
     } = useBulkSaveRegister<
         NonNullable<NonNullable<UpdateFiguresMutation['bulkUpdateFigures']>['errors']>[number],
         NonNullable<NonNullable<UpdateFiguresMutation['bulkUpdateFigures']>['result']>[number],
-        // TODO: get this type from the server
-        string[],
         string,
+        { id: string, uuid: string },
         NonNullable<UpdateFiguresMutationVariables['figures']>[number]
     >();
 
@@ -489,65 +493,118 @@ function EntryForm(props: EntryFormProps) {
                 return;
             }
 
+            // NOTE: getValuesFromFigures should not filter or sort the figures
             const {
                 organizationsForState,
                 eventsForState,
                 tagOptionsForState,
                 violenceContextOptionsForState,
                 figuresForState,
-            } = getValuesFromFigures(saveResponses.filter(isDefined) ?? []);
+            } = getValuesFromFigures(saveResponses ?? []);
 
             const savedFigures = figuresForState?.map((item, index) => {
                 if (!item) {
                     return undefined;
                 }
+                // NOTE: We can improve this by using uuid instead of an index
+                const request = saveRequests[index];
+                if (!request) {
+                    return undefined;
+                }
+                const key = request.uuid;
+                return { key, value: item, new: !request.id };
+            }).filter(isDefined);
+            const savedFiguresMapping = listToMap(
+                savedFigures,
+                (item) => item.key,
+                (item) => item,
+            );
+
+            // TODO: Remove deleted figures
+            const deletedFigures = deleteResponses?.map((item) => {
+                if (!item) {
+                    return undefined;
+                }
+                // NOTE: we can improve performance here using a hashmap
+                const key = deleteRequests.find((request) => request.id === item)?.uuid;
+                if (!key) {
+                    return undefined;
+                }
+                return { key };
+            }).filter(isDefined);
+            const deletedFiguresMapping = listToMap(
+                deletedFigures,
+                (item) => item.key,
+                () => true,
+            );
+
+            const erroredFigures = errorResponses?.map((item, index) => {
+                if (!item) {
+                    return undefined;
+                }
+                // NOTE: We can improve this by using uuid instead of an index
                 const key = saveRequests[index]?.uuid;
                 if (!key) {
                     return undefined;
                 }
                 return { key, value: item };
             }).filter(isDefined);
-
-            const deletedFigures = deleteResponses?.map((item, index) => {
-                if (!item) {
-                    return undefined;
-                }
-                const key = deleteRequests[index];
-                if (!key) {
-                    return undefined;
-                }
-                return { key };
-            }).filter(isDefined);
-
-            const erroredFigures = errorResponses?.map((item, index) => {
-                if (!item) {
-                    return undefined;
-                }
-                if (index >= deleteRequests.length) {
-                    const key = saveRequests[index - deleteRequests.length]?.uuid;
-                    if (!key) {
-                        return undefined;
-                    }
-                    return { key, value: item };
-                }
-                const key = deleteRequests[index];
-                if (!key) {
-                    return undefined;
-                }
-                return { key, value: item };
-            }).filter(isDefined);
-
-            const e = listToMap(
+            const erroredFiguresMapping = listToMap(
+                erroredFigures,
+                (item) => item.key,
+                () => true,
+            );
+            const errors = listToMap(
                 erroredFigures,
                 (err) => err.key,
                 (err) => transformToFormError(removeNull(err.value)),
+            );
+
+            // NOTE:
+            // Figures that are not present in saveResponses but in saveRequests
+            // and that are not present in errorResponses
+            const skippedSaveFigures = saveRequests.filter(isDefined).filter((item) => {
+                const skipped = (
+                    !savedFiguresMapping[item.uuid]
+                    && !erroredFiguresMapping[item.uuid]
+                );
+                return skipped;
+            }).map((item) => item.uuid);
+            const skippedSaveFiguresErrors = listToMap(
+                skippedSaveFigures,
+                (key) => key,
+                () => ({
+                    $internal: 'Could not save figure',
+                }),
+            );
+
+            // NOTE:
+            // Figures that are not present in deleteResponses but in deleteRequests
+            // and that are not present in errorResponses
+            const skippedDeleteFigures = deleteRequests.filter(isDefined).filter((item) => {
+                const skipped = (
+                    !deletedFiguresMapping[item.uuid]
+                    && !erroredFiguresMapping[item.uuid]
+                );
+                return skipped;
+            }).map((item) => item.uuid);
+            const skippedDeleteFiguresErrors = listToMap(
+                skippedDeleteFigures,
+                (key) => key,
+                () => ({
+                    $internal: 'Could not delete figure',
+                }),
             );
 
             onErrorSet({
                 fields: {
                     figures: {
                         $internal: undefined,
-                        members: e,
+                        members: {
+                            ...skippedDeleteFiguresErrors,
+                            ...skippedSaveFiguresErrors,
+                            ...errors,
+                        },
                     },
                 },
             });
@@ -569,29 +626,32 @@ function EntryForm(props: EntryFormProps) {
                 (item) => item.id,
             ));
 
-            const savedFiguresMapping = listToMap(
-                savedFigures,
-                (item) => item.key,
-                (item) => item.value,
-            );
-            const deletedFiguresMapping = listToMap(
-                deletedFigures,
-                (item) => item.key,
-                () => true,
-            );
             // NOTE: Not updating the figures yet
-            onValueSet((oldValue) => ({
-                ...oldValue,
-                figures: oldValue?.figures?.map((figure) => {
+            onValueSet((oldValue) => {
+                const updatedFigures = oldValue?.figures?.map((figure) => {
                     if (deletedFiguresMapping[figure.uuid]) {
                         return undefined;
                     }
+                    // NOTE: We do no need to change the stale field
                     if (savedFiguresMapping[figure.uuid]) {
-                        return savedFiguresMapping[figure.uuid];
+                        return savedFiguresMapping[figure.uuid].value;
                     }
                     return figure;
-                }).filter(isDefined),
-            }));
+                }).filter(isDefined) ?? [];
+
+                const newFigures = savedFigures
+                    .filter((item) => item.new)
+                    .map((item) => item.value)
+                    .sort((foo, bar) => compareStringAsNumber(foo.id, bar.id));
+
+                return ({
+                    ...oldValue,
+                    figures: [
+                        ...updatedFigures,
+                        ...newFigures,
+                    ],
+                });
+            });
 
             onPristineSet(true);
 
@@ -643,10 +703,14 @@ function EntryForm(props: EntryFormProps) {
                 }
 
                 const { errors, result, deletedResult } = bulkUpdateFiguresRes;
+                // NOTE: We do not need to make sure that the no. of items in
+                // deleteIds is equal to deleteResponses
+                // TODO: We need to make sure that the no. of items in
+                // errorResponses and deleteResponses is equal to figures
                 updateResponses({
-                    errorResponses: errors ?? undefined,
-                    saveResponses: result ?? undefined,
-                    deleteResponses: deletedResult ?? undefined,
+                    errorResponses: errors,
+                    saveResponses: result,
+                    deleteResponses: deletedResult,
                 });
                 const {
                     deleteRequests: nextDeleteRequests,
@@ -658,7 +722,7 @@ function EntryForm(props: EntryFormProps) {
                     updateFigures({
                         variables: {
                             figures: nextSaveRequests,
-                            deleteIds: nextDeleteRequests,
+                            deleteIds: nextDeleteRequests.map((item) => item.id),
                         },
                     });
                     return;
@@ -733,7 +797,7 @@ function EntryForm(props: EntryFormProps) {
                         updateFigures({
                             variables: {
                                 figures: nextSaveRequests,
-                                deleteIds: nextDeleteRequests,
+                                deleteIds: nextDeleteRequests.map((item) => item.id),
                             },
                         });
                     }
@@ -784,7 +848,7 @@ function EntryForm(props: EntryFormProps) {
                 figuresForState,
                 tagOptionsForState,
                 violenceContextOptionsForState,
-            } = getValuesFromFigures(entry.figures);
+            } = getValuesFromFigures(entry.figures ?? []);
 
             setSourcePreview(entry.preview);
             setAttachment(entry.document);
@@ -800,7 +864,9 @@ function EntryForm(props: EntryFormProps) {
 
             onValueSet({
                 ...entryForState,
-                figures: figuresForState,
+                figures: figuresForState
+                    .filter(isDefined)
+                    .sort((foo, bar) => compareStringAsNumber(foo.id, bar.id)),
             });
 
             const mainFigure = entry.figures?.find((element) => (
@@ -841,9 +907,21 @@ function EntryForm(props: EntryFormProps) {
     );
 
     const handleSubmit = useCallback((finalValue: PartialFormValues) => {
-        const figuresToDelete = finalValue?.figures?.filter(
-            (item) => item.deleted,
-        ).map((item) => item.id).filter(isDefined);
+        const figuresToDelete = finalValue?.figures
+            ?.map((item) => {
+                if (!item.deleted) {
+                    return undefined;
+                }
+                if (!item.id) {
+                    return undefined;
+                }
+
+                return {
+                    id: item.id,
+                    uuid: item.uuid,
+                };
+            })
+            .filter(isDefined);
         const figuresToCreateOrUpdate = finalValue?.figures?.filter(
             (item) => !item.deleted && item.stale,
         ).map((item) => {
