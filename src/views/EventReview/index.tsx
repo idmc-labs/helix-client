@@ -88,6 +88,10 @@ const trafficLightShown = mode === 'view';
 function transform(figures: NonNullable<FigureListQuery['figureList']>['results']) {
     const transformedFigures = figures?.map((figure) => ({
         ...figure,
+
+        entryObject: figure.entry,
+
+        entry: figure.entry?.id,
         event: figure.event?.id,
         country: figure.country?.id,
         geoLocations: figure.geoLocations?.results,
@@ -278,8 +282,8 @@ function EventReview(props: Props) {
                 (v) => v.uuid === selectedFigure,
             );
             return {
-                preview: selectedFigureEntry?.entry?.preview,
-                attachment: selectedFigureEntry?.entry?.document,
+                preview: selectedFigureEntry?.entryObject?.preview,
+                attachment: selectedFigureEntry?.entryObject?.document,
             };
         },
         [
@@ -408,7 +412,6 @@ function EventReview(props: Props) {
                             trafficLightShown={trafficLightShown}
                             organizations={organizations}
                             setOrganizations={setOrganizations}
-                            entryId={fig.entry.id}
                             reviewStatus={fig.reviewStatus}
                             fieldStatuses={fig.lastReviewCommentStatus}
                             isRecommended={fig.role === 'RECOMMENDED'}

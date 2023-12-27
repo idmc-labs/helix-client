@@ -356,7 +356,7 @@ const schema: FormSchema = {
         if (value?.eventType === conflict) {
             return {
                 ...basicFields,
-                violenceSubType: [requiredCondition],
+                violenceSubType: [],
                 osvSubType: [],
                 actor: [],
                 contextOfViolence: [arrayCondition],

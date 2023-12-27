@@ -1,5 +1,6 @@
 import {
     CreateEntryMutationVariables,
+    UpdateFiguresMutationVariables,
     CreateAttachmentMutation,
     CreateSourcePreviewMutation,
     FigureOptionsForEntryFormQuery,
@@ -12,7 +13,8 @@ import { PurgeNull } from '#types';
 // NOTE: change info for FormType
 export type FormType = CreateEntryMutationVariables['entry'];
 
-type RawFigure = NonNullable<NonNullable<FormType['figures']>[number]>;
+// FIXME: need to update this
+type RawFigure = NonNullable<NonNullable<UpdateFiguresMutationVariables['figures']>[number]>;
 // FIXME: use WithID
 export type FigureFormProps = PurgeNull<RawFigure> & {
     id: string,

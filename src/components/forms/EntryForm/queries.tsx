@@ -46,6 +46,9 @@ export const EVENT_FRAGMENT = gql`
 export const FIGURE_FRAGMENT = gql`
     ${EVENT_FRAGMENT}
     fragment FigureResponse on FigureType {
+        entry {
+            id
+        }
         country {
             id
             idmcShortName
@@ -183,7 +186,6 @@ export const FIGURE_FRAGMENT = gql`
 `;
 
 export const ENTRY_FRAGMENT = gql`
-    ${FIGURE_FRAGMENT}
     fragment EntryResponse on EntryType {
         associatedParkedItem {
             id
@@ -227,6 +229,7 @@ export const ENTRY_FRAGMENT = gql`
 
 export const ENTRY = gql`
     ${ENTRY_FRAGMENT}
+    ${FIGURE_FRAGMENT}
     query Entry($id: ID!) {
         entry(id: $id) {
             ...EntryResponse
@@ -257,6 +260,22 @@ export const UPDATE_ENTRY = gql`
                 ...EntryResponse
             }
             errors
+        }
+    }
+`;
+
+export const UPDATE_FIGURES = gql`
+    ${FIGURE_FRAGMENT}
+    mutation UpdateFigures(
+        $figures: [FigureUpdateInputType],
+        $deleteIds: [ID!],
+    ) {
+        bulkUpdateFigures(data: $figures, deleteIds: $deleteIds) {
+            errors
+            ok
+            result {
+                ...FigureResponse
+            }
         }
     }
 `;
