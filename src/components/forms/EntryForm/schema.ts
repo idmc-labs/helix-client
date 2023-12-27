@@ -166,15 +166,18 @@ type FigureField = ReturnType<Figure['fields']>;
 const figure: Figure = {
     fields: (value): FigureField => {
         if (!value?.stale) {
+            // NOTE: we do not validate nor update any figure that is not stale
+            // or deleted
             return {
                 stale: [],
                 deleted: [],
                 uuid: [],
+                id: [idCondition],
             };
         }
 
         let basicFields: FigureField = {
-            // FIXME: We do not send this to the server
+            // NOTE: We do not send this to the server
             stale: [],
             deleted: [],
 
@@ -197,6 +200,7 @@ const figure: Figure = {
             unit: [requiredCondition],
             figureCause: [requiredCondition],
             event: [requiredCondition],
+            entry: [requiredCondition],
             sources: [requiredListCondition, arrayCondition],
             geoLocations,
 

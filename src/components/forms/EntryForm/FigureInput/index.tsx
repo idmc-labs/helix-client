@@ -18,6 +18,7 @@ import {
     Button,
     ConfirmButton,
     Modal,
+    Chip,
 } from '@togglecorp/toggle-ui';
 import {
     isDefined,
@@ -350,7 +351,6 @@ interface FigureInputProps {
     osvSubTypeOptions: OsvSubTypeOptions | null | undefined,
     onFigureClone?: (item: FigureInputValue) => void;
 
-    entryId?: string;
     reviewStatus?: FigureReviewStatus | null | undefined;
     fieldStatuses?: FigureLastReviewCommentStatusType[] | null | undefined;
     isRecommended?: boolean;
@@ -418,7 +418,6 @@ function FigureInput(props: FigureInputProps) {
         onFigureClone,
 
         reviewStatus,
-        entryId,
 
         fieldStatuses,
         isRecommended,
@@ -1169,10 +1168,10 @@ function FigureInput(props: FigureInputProps) {
             )}
             {figureId && reviewMode && (
                 <>
-                    {entryId && (
+                    {value.entry && (
                         <ButtonLikeLink
                             route={route.entryEdit}
-                            attrs={{ entryId }}
+                            attrs={{ entryId: value.entry }}
                             hash="/figures-and-analysis"
                             search={`id=${figureId}`}
                         >
@@ -1240,6 +1239,11 @@ function FigureInput(props: FigureInputProps) {
                 <Status
                     status={reviewStatus}
                 />
+            )}
+            actions={value.stale && (
+                <Chip>
+                    Unsaved
+                </Chip>
             )}
             contentClassName={styles.content}
         >
