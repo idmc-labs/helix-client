@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useContext, useRef, useMemo } from 'react';
+import React, { useCallback, useState, useContext, useRef, useMemo, useEffect } from 'react';
 import { Prompt, Redirect, useLocation } from 'react-router-dom';
 import {
     _cs,
@@ -102,6 +102,62 @@ import {
 
 import styles from './styles.css';
 
+// FIXME: move this to utils
+function useWatchDog(
+    stop: boolean,
+    watchdogTimer: number,
+    callback: () => void,
+) {
+    const [run, setRun] = useState(0);
+
+    const watchdogTimerRef = useRef(watchdogTimer);
+    useEffect(
+        () => {
+            watchdogTimerRef.current = watchdogTimer;
+        },
+        [watchdogTimer],
+    );
+
+    const callbackRef = useRef(callback);
+    useEffect(
+        () => {
+            callbackRef.current = callback;
+        },
+        [callback],
+    );
+
+    useEffect(
+        () => {
+            if (stop) {
+                return undefined;
+            }
+            // FIXME: check if still mounted
+            const t = setTimeout(
+                () => {
+                    callbackRef.current();
+
+                    setRun((item) => item + 1);
+                },
+                watchdogTimerRef.current,
+            );
+
+            return () => {
+                clearTimeout(t);
+            };
+        },
+        [stop, run],
+    );
+
+    const reset = useCallback(
+        () => {
+            setRun((item) => item + 1);
+        },
+        [],
+    );
+
+    return reset;
+}
+
 type EntryFormFields = CreateEntryMutationVariables['entry'];
 
 type PartialFormValues = PartialForm<FormValues>;
@@ -157,35 +213,35 @@ function getValuesFromFigures(figures: (NonNullable<NonNullable<EntryQuery['entr
         ?.flatMap((item) => item?.contextOfViolence)
         .filter(isDefined);
 
-    const figuresForState = removeNull(
-        figures?.map((figure) => {
-            if (!figure) {
-                return figure;
-            }
-            return ({
-                ...figure,
-                entry: figure.entry?.id,
-                event: figure.event?.id,
-                country: figure.country?.id,
-                geoLocations: figure.geoLocations?.results,
-                category: figure.category,
-                term: figure.term,
-                tags: figure.tags?.map((tag) => tag.id),
-                sources: figure.sources?.results?.map((item) => item.id),
-                disaggregationAge: figure.disaggregationAge?.results?.map((item) => ({
-                    ...item,
-                })),
+    const figuresForState = figures?.map((figure) => {
+        if (!figure) {
+            return figure;
+        }
+        // FIXME: removeNull will delete 'null' from the list instead of
+        // setting it to undefined
+        return removeNull({
+            ...figure,
+            entry: figure.entry?.id,
+            event: figure.event?.id,
+            country: figure.country?.id,
+            geoLocations: figure.geoLocations?.results,
+            category: figure.category,
+            term: figure.term,
+            tags: figure.tags?.map((tag) => tag.id),
+            sources: figure.sources?.results?.map((item) => item.id),
+            disaggregationAge: figure.disaggregationAge?.results?.map((item) => ({
+                ...item,
+            })),
 
-                figureCause: figure.figureCause,
+            figureCause: figure.figureCause,
 
-                disasterSubType: figure.disasterSubType?.id,
-                violenceSubType: figure.violenceSubType?.id,
-                osvSubType: figure.osvSubType?.id,
-                otherSubType: figure.otherSubType?.id,
-                contextOfViolence: figure.contextOfViolence?.map((c) => c.id),
-            });
-        }),
-    );
+            disasterSubType: figure.disasterSubType?.id,
+            violenceSubType: figure.violenceSubType?.id,
+            osvSubType: figure.osvSubType?.id,
+            otherSubType: figure.otherSubType?.id,
+            contextOfViolence: figure.contextOfViolence?.map((c) => c.id),
+        });
+    });
 
     return {
         organizationsForState,
@@ -242,7 +298,7 @@ function EntryForm(props: EntryFormProps) {
     } = useBulkSaveRegister<
         NonNullable<NonNullable<UpdateFiguresMutation['bulkUpdateFigures']>['errors']>[number],
         NonNullable<NonNullable<UpdateFiguresMutation['bulkUpdateFigures']>['result']>[number],
-        string,
+        { id: string },
         { id: string, uuid: string },
         NonNullable<UpdateFiguresMutationVariables['figures']>[number]
     >();
@@ -302,7 +358,7 @@ function EntryForm(props: EntryFormProps) {
         pristine,
         value,
         error,
-        onValueChange,
+        onValueChange: onValueChangeFromForm,
         onValueSet,
         onErrorSet,
         validate,
@@ -441,8 +497,8 @@ function EntryForm(props: EntryFormProps) {
                 }
                 if (result) {
                     // NOTE: we do not need to set state as we are re-directing to next page
-
                     onPristineSet(true);
+
                     notify({
                         children: 'New entry created successfully!',
                         variant: 'success',
@@ -467,7 +523,7 @@ function EntryForm(props: EntryFormProps) {
         ({ entrySaved, noFigures }: { entrySaved: boolean, noFigures: boolean }) => {
             if (entrySaved) {
                 notify({
-                    children: 'Entry updated successfully!',
+                    children: 'Entry saved successfully!',
                     variant: 'success',
                 });
                 if (noFigures) {
@@ -526,7 +582,7 @@ function EntryForm(props: EntryFormProps) {
                     return undefined;
                 }
                 // NOTE: we can improve performance here using a hashmap
-                const key = deleteRequests.find((request) => request.id === item)?.uuid;
+                const key = deleteRequests.find((request) => request.id === item.id)?.uuid;
                 if (!key) {
                     return undefined;
                 }
@@ -596,19 +652,6 @@ function EntryForm(props: EntryFormProps) {
                 }),
             );
 
-            onErrorSet({
-                fields: {
-                    figures: {
-                        $internal: undefined,
-                        members: {
-                            ...skippedDeleteFiguresErrors,
-                            ...skippedSaveFiguresErrors,
-                            ...errors,
-                        },
-                    },
-                },
-            });
-
             setOrganizations((oldOrganizations) => unique(
                 [...organizationsForState, ...(oldOrganizations ?? [])],
                 (item) => item.id,
@@ -653,6 +696,21 @@ function EntryForm(props: EntryFormProps) {
                 });
             });
 
+            // NOTE: onValueSet clears errors so setting this later
+            onErrorSet({
+                fields: {
+                    figures: {
+                        $internal: undefined,
+                        members: {
+                            ...skippedDeleteFiguresErrors,
+                            ...skippedSaveFiguresErrors,
+                            ...errors,
+                        },
+                    },
+                },
+            });
+
+            // NOTE: Not sure if onValueSet also sets pristine value
             onPristineSet(true);
 
             const saveCount = savedFigures.length;
@@ -904,6 +962,25 @@ function EntryForm(props: EntryFormProps) {
         || createAttachmentLoading
         || parkedItemDataLoading
         || createSourcePreviewLoading
+    );
+
+    const resetWatchdog = useWatchDog(
+        pending || pristine,
+        30 * 1000,
+        () => {
+            notify({
+                children: 'You have some unsaved changes. Make sure to save your progress!',
+                variant: 'default',
+            });
+        },
+    );
+
+    const onValueChange: typeof onValueChangeFromForm = useCallback(
+        (...args) => {
+            onValueChangeFromForm(...args);
+            resetWatchdog();
+        },
+        [onValueChangeFromForm, resetWatchdog],
     );
 
     const handleSubmit = useCallback((finalValue: PartialFormValues) => {

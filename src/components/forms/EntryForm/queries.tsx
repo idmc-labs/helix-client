@@ -267,14 +267,16 @@ export const UPDATE_ENTRY = gql`
 export const UPDATE_FIGURES = gql`
     ${FIGURE_FRAGMENT}
     mutation UpdateFigures(
-        $figures: [FigureUpdateInputType],
+        $figures: [FigureUpdateInputType!],
         $deleteIds: [ID!],
     ) {
-        bulkUpdateFigures(data: $figures, deleteIds: $deleteIds) {
+        bulkUpdateFigures(items: $figures, deleteIds: $deleteIds) {
             errors
-            ok
             result {
                 ...FigureResponse
+            }
+            deletedResult {
+                id
             }
         }
     }
