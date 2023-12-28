@@ -1,5 +1,5 @@
 import React, { useContext, useCallback, useMemo } from 'react';
-import { _cs, isDefined, randomString, isNotDefined, ReturnType } from '@togglecorp/fujs';
+import { _cs, isDefined, isNotDefined, ReturnType } from '@togglecorp/fujs';
 import {
     TextInput,
     SelectInput,
@@ -29,6 +29,7 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
+import { v4 as uuidv4 } from 'uuid';
 
 import useOptions from '#hooks/useOptions';
 import DomainContext from '#components/DomainContext';
@@ -71,6 +72,12 @@ import styles from './styles.css';
 
 const EVENT_OPTIONS = gql`
     query EventOptions {
+        eventCodeType: __type(name: "EVENT_CODE_TYPE") {
+            enumValues {
+                name
+                description
+            }
+        }
         eventType: __type(name: "CRISIS_TYPE") {
             enumValues {
                 name
@@ -164,7 +171,6 @@ const EVENT = gql`
             endDateAccuracy
             eventNarrative
             eventType
-            glideNumbers
             id
             name
             startDate
@@ -186,6 +192,21 @@ const EVENT = gql`
                 name
             }
             includeTriangulationInQa
+            eventCodes {
+                uuid
+                id
+                eventCodeType
+                eventCodeDisplay
+                eventCode
+                country {
+                    id
+                    idmcShortName
+                    idmcFullName
+                    iso3
+                    iso2
+                    name
+                }
+            }
         }
     }
 `;
@@ -214,7 +235,6 @@ const CREATE_EVENT = gql`
                 endDateAccuracy
                 eventNarrative
                 eventType
-                glideNumbers
                 id
                 name
                 startDate
@@ -236,6 +256,21 @@ const CREATE_EVENT = gql`
                     name
                 }
                 includeTriangulationInQa
+                eventCodes {
+                    uuid
+                    id
+                    eventCodeType
+                    eventCodeDisplay
+                    eventCode
+                    country {
+                        id
+                        idmcShortName
+                        idmcFullName
+                        iso3
+                        iso2
+                        name
+                    }
+                }
             }
             errors
         }
@@ -266,7 +301,6 @@ const UPDATE_EVENT = gql`
                 endDateAccuracy
                 eventNarrative
                 eventType
-                glideNumbers
                 id
                 name
                 startDate
@@ -288,6 +322,21 @@ const UPDATE_EVENT = gql`
                     name
                 }
                 includeTriangulationInQa
+                eventCodes {
+                    uuid
+                    id
+                    eventCodeType
+                    eventCodeDisplay
+                    eventCode
+                    country {
+                        id
+                        idmcShortName
+                        idmcFullName
+                        iso3
+                        iso2
+                        name
+                    }
+                }
             }
             errors
         }
@@ -329,23 +378,14 @@ const disaster: CrisisType = 'DISASTER';
 const other: CrisisType = 'OTHER';
 const MAX_EVENT_CODES = 50;
 
-// TODO: we need to remove this once it's implemented on the server.
-type EventCode = {
-    uuid: string;
-    country: string;
-    eventCodeType: string;
-    eventCode: string;
-}
-
 type EventFormFields = CreateEventMutationVariables['event'];
-interface EventFormFieldsWithEventCode extends EventFormFields {
-    eventCodes: EventCode[];
-}
 
-export type FormType = PurgeNull<PartialForm<WithId<EventFormFieldsWithEventCode>>>;
+export type FormType = PurgeNull<PartialForm<WithId<EventFormFields>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
+
+type EventCode = NonNullable<NonNullable<FormType['eventCodes']>[number]>;
 
 type EventCodeSchema = ObjectSchema<PartialForm<EventCode>>;
 type EventCodeSchemaField = ReturnType<EventCodeSchema['fields']>;
@@ -353,6 +393,10 @@ type EventCodeSchemaField = ReturnType<EventCodeSchema['fields']>;
 type EventCodesSchema = ArraySchema<PartialForm<EventCode>>;
 type EventCodesSchemaMember = ReturnType<EventCodesSchema['member']>;
 
+type EventCodeTypeOptions = GetEnumOptions<
+    NonNullable<EventOptionsQuery['eventCodeType']>['enumValues'],
+    NonNullable<EventCode['eventCodeType']>
+>;
 const schema: FormSchema = {
     fields: (value): FormSchemaFields => {
         const basicFields: FormSchemaFields = {
@@ -363,7 +407,6 @@ const schema: FormSchema = {
             startDateAccuracy: [],
             endDateAccuracy: [],
             eventType: [requiredStringCondition],
-            glideNumbers: [arrayCondition],
             name: [requiredStringCondition],
             crisis: [],
             eventNarrative: [requiredStringCondition],
@@ -416,23 +459,6 @@ const schema: FormSchema = {
         return basicFields;
     },
 };
-
-// TODO: we need to remove this once it's implemented on the server.
-type EventCodeType = {
-    label: string;
-    value: string;
-}
-
-const eventCodeTypeOptions: EventCodeType[] = [
-    {
-        label: 'GLIDE',
-        value: 'GLIDE',
-    },
-    {
-        label: 'Government',
-        value: 'GOVERNMENT',
-    },
-];
 
 interface ViolenceOption {
     violenceTypeId: string;
@@ -569,6 +595,12 @@ function EventForm(props: EventFormProps) {
                     contextOfViolence: event.contextOfViolence?.map((item) => item.id),
                     id: undefined,
                     name: undefined,
+                    eventCodes: event.eventCodes?.map(
+                        (eventCode) => ({
+                            ...eventCode,
+                            country: eventCode.country.id,
+                        }),
+                    ),
                 } : {
                     ...event,
                     countries: event.countries?.map((item) => item.id),
@@ -579,6 +611,12 @@ function EventForm(props: EventFormProps) {
                     otherSubType: event.otherSubType?.id,
                     disasterSubType: event.disasterSubType?.id,
                     contextOfViolence: event.contextOfViolence?.map((item) => item.id),
+                    eventCodes: event.eventCodes?.map(
+                        (eventCode) => ({
+                            ...eventCode,
+                            country: eventCode.country.id,
+                        }),
+                    ),
                 };
                 onValueSet(removeNull(sanitizedValue));
             },
@@ -811,7 +849,7 @@ function EventForm(props: EventFormProps) {
     const handleEventCodeAddButtonClick = useCallback(
         () => {
             const newEventCodeItem : PartialForm<EventCode> = {
-                uuid: randomString(),
+                uuid: uuidv4(),
             };
 
             onValueChange(
@@ -985,7 +1023,7 @@ function EventForm(props: EventFormProps) {
             />
             <Section
                 subSection
-                heading="Event Code"
+                heading="Event Codes"
                 actions={(
                     <Button
                         name="addEventCode"
@@ -1015,9 +1053,13 @@ function EventForm(props: EventFormProps) {
                         onChange={onEventCodeChange}
                         onRemove={onEventCodeRemove}
                         countryOptions={eventCodeCountryOptions}
-                        eventCodeTypeOptions={eventCodeTypeOptions}
+                        // eslint-disable-next-line max-len
+                        eventCodeTypeOptions={data?.eventCodeType?.enumValues as EventCodeTypeOptions}
                         error={error?.fields?.eventCodes?.members?.[code.uuid]}
-                        disabled={isNotDefined(value.countries) || value.countries?.length === 0}
+                        disabled={isNotDefined(value.countries)
+                        || value.countries?.length === 0
+                        || disabled}
+                        readOnly={readOnly}
                     />
                 ))}
             </Section>
