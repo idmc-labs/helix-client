@@ -327,6 +327,7 @@ function generateDisasterEventName(
 const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
 const other: CrisisType = 'OTHER';
+const MAX_EVENT_CODES = 50;
 
 // TODO: we need to remove this once it's implemented on the server.
 type EventCode = {
@@ -384,8 +385,8 @@ const schema: FormSchema = {
                     }),
                 }),
                 validation: (val) => {
-                    if (isDefined(val) && val.length > 50) {
-                        return 'Cannot add more than 50 event codes.';
+                    if (isDefined(val) && val.length > MAX_EVENT_CODES) {
+                        return `Cannot add more than ${MAX_EVENT_CODES} event codes.`;
                     }
                     return undefined;
                 },
@@ -824,11 +825,10 @@ function EventForm(props: EventFormProps) {
 
     const handleCountryChange = useCallback(
         (countryIds: PartialForm<FormType['countries']>) => {
-            onValueChange(() => ([...(countryIds ?? [])]), 'countries' as const);
+            onValueChange(countryIds ?? [], 'countries' as const);
             onValueChange(
                 (oldValue: PartialForm<EventCode[]>| undefined) => {
                     const filterEventCodeByCountry = oldValue?.filter(
-                        // eslint-disable-next-line
                         (c) => isDefined(c.country) && countryIds?.includes(c.country),
                     );
                     return filterEventCodeByCountry;
@@ -848,9 +848,6 @@ function EventForm(props: EventFormProps) {
             {loading && <Loading absolute />}
             <NonFieldError>
                 {error?.$internal}
-            </NonFieldError>
-            <NonFieldError>
-                {error?.fields?.eventCodes?.$internal}
             </NonFieldError>
             {(!readOnly || !eventHiddenWhileReadonly) && (
                 <TextInput
@@ -994,7 +991,7 @@ function EventForm(props: EventFormProps) {
                         name="addEventCode"
                         onClick={handleEventCodeAddButtonClick}
                         disabled={isNotDefined(value.countries)
-                        || (value?.eventCodes?.length ?? 0) > 50
+                        || (value?.eventCodes?.length ?? 0) > MAX_EVENT_CODES
                         || readOnly
                         || disabled}
                         compact
@@ -1003,6 +1000,9 @@ function EventForm(props: EventFormProps) {
                     </Button>
                 )}
             >
+                <NonFieldError>
+                    {error?.fields?.eventCodes?.$internal}
+                </NonFieldError>
                 {(isNotDefined(value.eventCodes) || (value.eventCodes?.length === 0)) ? (
                     <Message
                         message="No event code found."
