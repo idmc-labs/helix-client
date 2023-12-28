@@ -31,6 +31,7 @@ import {
     EventListQueryVariables,
     EventOptionsForFiltersQuery,
     Crisis_Type as CrisisType,
+    Event_Review_Status as EventReviewStatus,
 } from '#generated/types';
 
 import styles from './styles.css';
@@ -307,6 +308,11 @@ function EventsFilter(props: EventsFilterProps) {
         ))
     )).filter(isDefined);
 
+    const ApprovedButChanged: EventReviewStatus = 'APPROVED_BUT_CHANGED';
+    const SignedoffButChanged: EventReviewStatus = 'SIGNED_OFF_BUT_CHANGED';
+    const eventReviewStatusOptions = data?.eventReviewStatus?.enumValues
+        ?.filter((item) => item.name !== ApprovedButChanged && item.name !== SignedoffButChanged);
+
     const filterChanged = defaultFormValues !== value;
 
     const conflictType = value.eventTypes?.includes(conflict);
@@ -369,7 +375,7 @@ function EventsFilter(props: EventsFilterProps) {
                 {!reviewStatusSelectionDisabled && (
                     <MultiSelectInput
                         className={styles.input}
-                        options={data?.eventReviewStatus?.enumValues}
+                        options={eventReviewStatusOptions}
                         label="Review Status"
                         name="reviewStatus"
                         value={value.reviewStatus}
