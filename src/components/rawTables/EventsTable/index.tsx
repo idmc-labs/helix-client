@@ -75,7 +75,6 @@ export const EVENT_LIST = gql`
         $disasterSubTypes: [ID!],
         $contextOfViolences: [ID!],
         $osvSubTypeByIds: [ID!],
-        $glideNumbers: [String!],
         $createdByIds: [ID!],
         $startDate_Gte: Date,
         $endDate_Lte: Date,
@@ -101,7 +100,6 @@ export const EVENT_LIST = gql`
             qaRule: $qaRule,
             ignoreQa: $ignoreQa,
             osvSubTypeByIds: $osvSubTypeByIds,
-            glideNumbers: $glideNumbers,
             reviewStatus: $reviewStatus,
             assignees: $assignees,
         ) {
@@ -157,39 +155,9 @@ export const EVENT_LIST = gql`
 const EVENT_EXPORT = gql`
     mutation ExportEvents(
         $name: String,
-        $eventTypes:[String!],
-        $crisisByIds: [ID!],
-        $countries:[ID!],
-        $violenceSubTypes: [ID!],
-        $disasterSubTypes: [ID!],
-        $contextOfViolences: [ID!],
-        $osvSubTypeByIds: [ID!],
-        $glideNumbers: [String!],
-        $createdByIds: [ID!],
-        $startDate_Gte: Date,
-        $endDate_Lte: Date,
-        $qaRule: String,
-        $ignoreQa: Boolean,
-        $reviewStatus: [String!],
-        $assignees: [ID!],
     ) {
         exportEvents(
-            contextOfViolences: $contextOfViolences,
             name: $name,
-            eventTypes:$eventTypes,
-            crisisByIds: $crisisByIds,
-            countries: $countries,
-            violenceSubTypes: $violenceSubTypes,
-            disasterSubTypes: $disasterSubTypes,
-            createdByIds: $createdByIds,
-            startDate_Gte: $startDate_Gte,
-            endDate_Lte: $endDate_Lte,
-            qaRule: $qaRule,
-            ignoreQa: $ignoreQa,
-            osvSubTypeByIds: $osvSubTypeByIds,
-            glideNumbers: $glideNumbers,
-            reviewStatus: $reviewStatus,
-            assignees: $assignees,
         ) {
             errors
             ok

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { randomString, _cs } from '@togglecorp/fujs';
+import { _cs } from '@togglecorp/fujs';
 import { Button, SelectInput, TextInput } from '@togglecorp/toggle-ui';
 import { IoTrash } from 'react-icons/io5';
 import {
@@ -8,44 +8,36 @@ import {
     StateArg,
     useFormObject,
 } from '@togglecorp/toggle-form';
+import { v4 as uuidv4 } from 'uuid';
 
 import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import { CountryOption } from '#components/selections/CountrySelectInput';
+import { enumKeySelector, enumLabelSelector, GetEnumOptions } from '#utils/common';
+import { EventOptionsQuery } from '#generated/types';
 
+import { FormType } from '..';
 import styles from './styles.css';
 
-// TODO: remove once it's implemented on the server.
-type EventCode = {
-    uuid: string;
-    country: string;
-    eventCodeType: string;
-    eventCode: string;
-}
-
+type EventCode = NonNullable<NonNullable<FormType['eventCodes']>[number]>;
 type PartialEventCode = PartialForm<EventCode>;
+type EventCodeTypeOptions = GetEnumOptions<
+    NonNullable<EventOptionsQuery['eventCodeType']>['enumValues'],
+    NonNullable<EventCode['eventCodeType']>
+>;
 
 const keySelector = (d: CountryOption) => d.id;
 const labelSelector = (d: CountryOption) => d.idmcShortName;
-
-// TODO: remove once it's implemented on the server.
-type EventCodeType = {
-    label: string;
-    value: string;
-}
-
-const keySelectorEventType = (event: EventCodeType) => event.value;
-const labelSelectorEventType = (event: EventCodeType) => event.label;
 
 interface Props {
     className?: string;
     index: number;
     value: PartialEventCode;
-    error: Error<EventCode> | undefined;
+    error: Error<PartialEventCode> | undefined;
     onChange: (value: StateArg<PartialEventCode>, index: number) => void;
     onRemove: (index: number) => void;
     countryOptions: CountryOption[] | undefined | null;
-    eventCodeTypeOptions: EventCodeType[];
+    eventCodeTypeOptions: EventCodeTypeOptions;
     disabled?: boolean;
     readOnly?: boolean;
 }
@@ -60,10 +52,11 @@ function EventCodeInput(props: Props) {
         countryOptions,
         eventCodeTypeOptions,
         error,
-        disabled, readOnly,
+        disabled,
+        readOnly,
     } = props;
 
-    const defaultValue = useMemo(() => ({ uuid: randomString() }), []);
+    const defaultValue = useMemo(() => ({ uuid: uuidv4() }), []);
     const onValueChange = useFormObject(index, onChange, defaultValue);
 
     return (
@@ -87,15 +80,13 @@ function EventCodeInput(props: Props) {
                     disabled={disabled}
                     readOnly={readOnly}
                 />
-                {/* NOTE: We should define the options on the parent
-                and pass it to this component. */}
                 <SelectInput
                     label="Type *"
                     name="eventCodeType"
                     options={eventCodeTypeOptions}
                     value={value.eventCodeType}
-                    keySelector={keySelectorEventType}
-                    labelSelector={labelSelectorEventType}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
                     onChange={onValueChange}
                     error={error?.fields?.eventCodeType}
                     disabled={disabled}
@@ -117,8 +108,7 @@ function EventCodeInput(props: Props) {
                 onClick={onRemove}
                 compact
                 transparent
-                disabled={disabled}
-                readOnly={readOnly}
+                disabled={disabled || readOnly}
             >
                 <IoTrash />
             </Button>

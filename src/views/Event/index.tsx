@@ -55,7 +55,6 @@ const EVENT = gql`
                 id
                 idmcShortName
             }
-            glideNumbers
             eventNarrative
             violence {
                 id
@@ -80,6 +79,21 @@ const EVENT = gql`
             assignee {
                 id
                 username
+            }
+            eventCodes {
+                uuid
+                id
+                eventCodeType
+                eventCodeDisplay
+                eventCode
+                country {
+                    id
+                    idmcShortName
+                    idmcFullName
+                    iso3
+                    iso2
+                    name
+                }
             }
         }
     }
@@ -223,8 +237,8 @@ function Event(props: EventProps) {
                                 value={eventData?.event?.totalStockIdpFigures}
                             />
                             <TextBlock
-                                label="Event Codes"
-                                value={eventData?.event?.glideNumbers?.map((glideID) => glideID).join(', ')}
+                                label="Event codes"
+                                value={eventData?.event?.eventCodes?.map((code) => code?.eventCode).join(', ')}
                             />
                             <TextBlock
                                 label="Start Date"
