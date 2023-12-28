@@ -1247,6 +1247,16 @@ function FigureInput(props: FigureInputProps) {
             )}
             contentClassName={styles.content}
         >
+            {selectedEvent?.reviewStatus === 'APPROVED_BUT_CHANGED' && (
+                <div className={styles.info}>
+                    The event previously was approved!
+                </div>
+            )}
+            {selectedEvent?.reviewStatus === 'SIGNED_OFF_BUT_CHANGED' && (
+                <div className={styles.info}>
+                    The event previously was signed off!
+                </div>
+            )}
             {selectedEvent?.reviewStatus === 'APPROVED' && (
                 <div className={styles.info}>
                     The event has already been approved!

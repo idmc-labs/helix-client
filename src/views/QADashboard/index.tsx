@@ -164,7 +164,7 @@ function QADashboard(props: QAProps) {
                         <EventsTable
                             className={styles.container}
                             title="Assigned events"
-                            reviewStatus={['REVIEW_IN_PROGRESS', 'REVIEW_NOT_STARTED']}
+                            reviewStatus={['REVIEW_IN_PROGRESS', 'REVIEW_NOT_STARTED', 'APPROVED_BUT_CHANGED', 'SIGNED_OFF_BUT_CHANGED']}
                             assignee={user?.id}
                         />
                     </TabPanel>

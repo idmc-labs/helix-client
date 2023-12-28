@@ -44,7 +44,6 @@ export function transformErrorForEntry(
     const newError = {
         $internal: formError.$internal,
         fields: {
-            // figures: formError?.fields?.figures,
             details: detailsError,
             analysis: analysisError,
         },

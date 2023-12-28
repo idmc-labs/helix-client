@@ -58,7 +58,7 @@ function Status(props: StatusProps) {
         );
     }
 
-    if (status === 'REVIEW_IN_PROGRESS') {
+    if (status === 'REVIEW_IN_PROGRESS' || status === 'APPROVED_BUT_CHANGED' || status === 'SIGNED_OFF_BUT_CHANGED') {
         return (
             <span className={_cs(className, styles.status)}>
                 <IoSquare

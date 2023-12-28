@@ -13,7 +13,6 @@ import { PurgeNull } from '#types';
 // NOTE: change info for FormType
 export type FormType = CreateEntryMutationVariables['entry'];
 
-// FIXME: need to update this
 type RawFigure = NonNullable<NonNullable<UpdateFiguresMutationVariables['figures']>[number]>;
 // FIXME: use WithID
 export type FigureFormProps = PurgeNull<RawFigure> & {
