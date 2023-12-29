@@ -13,6 +13,7 @@ import {
     isDefined,
     isNotDefined,
 } from '@togglecorp/fujs';
+import { v4 as uuidv4 } from 'uuid';
 import {
     BasicEntity,
     EnumEntity,
@@ -255,4 +256,13 @@ export function formatElapsedTime(seconds: number, depth = 0): string {
         return `${seconds}s`;
     }
     return '';
+}
+
+// Remove id and generate new uuid
+export function ghost<T extends { id?: string; uuid: string }>(value: T): T {
+    return {
+        ...value,
+        id: undefined,
+        uuid: uuidv4(),
+    };
 }

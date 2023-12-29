@@ -56,6 +56,7 @@ import {
     WithId,
     formatDateYmd,
     GetEnumOptions,
+    ghost,
 } from '#utils/common';
 
 import {
@@ -201,11 +202,6 @@ const EVENT = gql`
                 eventCode
                 country {
                     id
-                    idmcShortName
-                    idmcFullName
-                    iso3
-                    iso2
-                    name
                 }
             }
         }
@@ -265,11 +261,6 @@ const CREATE_EVENT = gql`
                     eventCode
                     country {
                         id
-                        idmcShortName
-                        idmcFullName
-                        iso3
-                        iso2
-                        name
                     }
                 }
             }
@@ -331,11 +322,6 @@ const UPDATE_EVENT = gql`
                     eventCode
                     country {
                         id
-                        idmcShortName
-                        idmcFullName
-                        iso3
-                        iso2
-                        name
                     }
                 }
             }
@@ -615,8 +601,7 @@ function EventForm(props: EventFormProps) {
                     name: undefined,
                     eventCodes: event.eventCodes?.map(
                         (eventCode) => ({
-                            ...eventCode,
-                            uuid: uuidv4(),
+                            ...ghost(eventCode),
                             country: eventCode.country.id,
                         }),
                     ),

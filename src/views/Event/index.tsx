@@ -81,14 +81,8 @@ const EVENT = gql`
                 username
             }
             eventCodes {
-                uuid
                 id
-                eventCodeType
-                eventCodeDisplay
                 eventCode
-                country {
-                    id
-                }
             }
         }
     }
