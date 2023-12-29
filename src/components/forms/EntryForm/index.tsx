@@ -39,7 +39,7 @@ import { OrganizationOption } from '#components/selections/OrganizationSelectInp
 import Section from '#components/Section';
 import route from '#config/routes';
 import { reverseRoute } from '#hooks/useRouteMatching';
-import { WithId } from '#utils/common';
+import { WithId, ghost } from '#utils/common';
 
 import {
     CreateEntryMutation,
@@ -76,10 +76,7 @@ import FigureInput from './FigureInput';
 import DetailsInput from './DetailsInput';
 import AnalysisInput from './AnalysisInput';
 import { schema, initialFormValues } from './schema';
-import {
-    transformErrorForEntry,
-    ghost,
-} from './utils';
+import { transformErrorForEntry } from './utils';
 import {
     Attachment,
     FigureFormProps,
