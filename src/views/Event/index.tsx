@@ -88,11 +88,6 @@ const EVENT = gql`
                 eventCode
                 country {
                     id
-                    idmcShortName
-                    idmcFullName
-                    iso3
-                    iso2
-                    name
                 }
             }
         }
@@ -237,8 +232,8 @@ function Event(props: EventProps) {
                                 value={eventData?.event?.totalStockIdpFigures}
                             />
                             <TextBlock
-                                label="Event codes"
-                                value={eventData?.event?.eventCodes?.map((code) => code?.eventCode).join(', ')}
+                                label="Event Codes"
+                                value={eventData?.event?.eventCodes?.map((code) => code.eventCode).join(', ')}
                             />
                             <TextBlock
                                 label="Start Date"
