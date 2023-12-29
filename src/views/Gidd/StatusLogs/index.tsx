@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import {
     Pager,
@@ -9,16 +9,13 @@ import {
     StatusLogsQuery,
     StatusLogsQueryVariables,
 } from '#generated/types';
-import useDebouncedValue from '#hooks/useDebouncedValue';
 
-import StatusLogItem from './StatusLogItem';
+import useFilterState from '#hooks/useFilterState';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 
+import StatusLogItem from './StatusLogItem';
 import styles from './styles.css';
-
-const pageSize = 10;
-const ordering = '-triggeredAt';
 
 export const STATUS_LOGS = gql`
     query StatusLogs($ordering: String, $page: Int, $pageSize: Int) {
@@ -46,16 +43,24 @@ interface StatusLogsProps {
 function StatusLogs(props: StatusLogsProps) {
     const { className } = props;
 
-    const [page, setPage] = useState(1);
-    const debouncedPage = useDebouncedValue(page);
+    const {
+        page,
+        rawPage,
+        setPage,
+
+        rawPageSize,
+        pageSize,
+    } = useFilterState({
+        filter: {},
+    });
 
     const statusLogVariables = useMemo(
         (): StatusLogsQueryVariables => ({
-            ordering,
-            page: debouncedPage,
+            ordering: '-triggered_at',
+            page,
             pageSize,
         }),
-        [debouncedPage],
+        [page, pageSize],
     );
 
     const {
@@ -88,9 +93,9 @@ function StatusLogs(props: StatusLogsProps) {
                 />
             )}
             <Pager
-                activePage={page}
+                activePage={rawPage}
                 itemsCount={totalStatusLogsCount}
-                maxItemsPerPage={pageSize}
+                maxItemsPerPage={rawPageSize}
                 onActivePageChange={setPage}
                 itemsPerPageControlHidden
             />

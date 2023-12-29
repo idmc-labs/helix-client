@@ -79,7 +79,7 @@ function EventMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>
                 countries,
                 crises,
             } : {
-                ordering: '-createdAt',
+                ordering: '-created_at',
                 countries,
                 crises,
             }

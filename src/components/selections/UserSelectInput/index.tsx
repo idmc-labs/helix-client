@@ -73,7 +73,7 @@ function UserSelectInput<K extends string>(props: SelectInputProps<K>) {
                 search: debouncedSearchText,
                 permissions,
             } : {
-                ordering: 'fullName',
+                ordering: 'full_name',
                 permissions,
             }
         ),

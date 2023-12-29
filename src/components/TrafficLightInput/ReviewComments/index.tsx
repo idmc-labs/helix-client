@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Pager } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
@@ -9,9 +9,9 @@ import {
     Review_Field_Type as ReviewFieldType,
 } from '#generated/types';
 
+import useFilterState from '#hooks/useFilterState';
 import DomainContext from '#components/DomainContext';
 import Message from '#components/Message';
-import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
@@ -76,9 +76,15 @@ export default function ReviewComments(props: ReportCommentsProps) {
         reviewDisabled,
     } = props;
 
-    const [page, setPage] = useState(1);
-    const [pageSize] = useState(50);
-    const debouncedPage = useDebouncedValue(page);
+    const {
+        page,
+        rawPage,
+        setPage,
+        pageSize,
+        rawPageSize,
+    } = useFilterState({
+        filter: {},
+    });
 
     const { user } = useContext(DomainContext);
 
@@ -88,8 +94,8 @@ export default function ReviewComments(props: ReportCommentsProps) {
     const variables = useMemo(
         () => ({
             pageSize,
-            ordering: '-createdAt',
-            page: debouncedPage,
+            ordering: '-created_at',
+            page,
 
             events: eventId ? [eventId] : undefined,
             figures: figureId ? [figureId] : undefined,
@@ -99,7 +105,7 @@ export default function ReviewComments(props: ReportCommentsProps) {
             eventId,
             figureId,
             name,
-            debouncedPage,
+            page,
             pageSize,
         ],
     );
@@ -150,9 +156,9 @@ export default function ReviewComments(props: ReportCommentsProps) {
                 />
             )}
             <Pager
-                activePage={page}
+                activePage={rawPage}
                 itemsCount={totalCommentCount}
-                maxItemsPerPage={pageSize}
+                maxItemsPerPage={rawPageSize}
                 onActivePageChange={setPage}
                 itemsPerPageControlHidden
             />

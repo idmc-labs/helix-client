@@ -69,7 +69,7 @@ function UserMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>)
                 search: debouncedSearchText,
                 permissions,
             } : {
-                ordering: 'fullName',
+                ordering: 'full_name',
                 permissions,
             }
         ),

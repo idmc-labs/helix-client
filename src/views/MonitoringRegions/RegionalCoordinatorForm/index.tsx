@@ -123,6 +123,7 @@ function RegionalCoordinatorForm(props: Props) {
 
     const [, setAssignedToOptions] = useOptions('user');
 
+    // NOTE: We do not use useOptions as this is filtered options
     const [
         regionList,
         setRegionList,

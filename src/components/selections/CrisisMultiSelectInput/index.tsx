@@ -61,7 +61,7 @@ function CrisisMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
         (): GetCrisesQueryVariables => {
             if (!debouncedSearchText) {
                 return {
-                    ordering: '-createdAt',
+                    ordering: '-created_at',
                     countries: countries ?? undefined,
                 };
             }

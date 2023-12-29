@@ -79,7 +79,7 @@ function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
         (): GetCountryQueryVariables => {
             if (!debouncedSearchText) {
                 return {
-                    ordering: 'idmcShortName',
+                    ordering: 'idmc_short_name',
                     regions: regions ?? undefined,
                     events,
                     crises,

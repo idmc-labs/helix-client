@@ -26,7 +26,7 @@ import styles from './styles.css';
 // NOTE: exporting this so that other requests can refetch this request
 export const PENDING_STATUS_LOGS = gql`
     query PendingGiddLogs {
-        giddLogs(ordering: "-triggeredAt", page: 1) {
+        giddLogs(ordering: "-triggered_at", page: 1) {
             results {
                 id
                 completedAt

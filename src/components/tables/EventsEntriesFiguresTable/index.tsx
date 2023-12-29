@@ -69,6 +69,8 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
         country,
     } = props;
 
+    // TODO: use useFilterState here
+
     const [selectedTab, setSelectedTab] = useState<'Entries' | 'Figures' | 'Events' | undefined>('Figures');
 
     const [entriesPage, setEntriesPage] = useState(pageFromProps ?? 1);

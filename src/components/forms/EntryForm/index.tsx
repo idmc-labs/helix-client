@@ -643,22 +643,10 @@ function EntryForm(props: EntryFormProps) {
                 }),
             );
 
-            setOrganizations((oldOrganizations) => unique(
-                [...organizationsForState, ...(oldOrganizations ?? [])],
-                (item) => item.id,
-            ));
-            setEvents((oldEvents) => unique(
-                [...(eventsForState ?? []), ...(oldEvents ?? [])],
-                (item) => item.id,
-            ));
-            setTagOptions((oldTagOptions) => unique(
-                [...(tagOptionsForState ?? []), ...(oldTagOptions ?? [])],
-                (item) => item.id,
-            ));
-            setViolenceContextOptions((oldViolenceContextOptions) => unique(
-                [...(violenceContextOptionsForState ?? []), ...(oldViolenceContextOptions ?? [])],
-                (item) => item.id,
-            ));
+            setOrganizations(organizationsForState);
+            setEvents(eventsForState);
+            setTagOptions(tagOptionsForState);
+            setViolenceContextOptions(violenceContextOptionsForState);
 
             // NOTE: Not updating the figures yet
             onValueSet((oldValue) => {
@@ -819,10 +807,7 @@ function EntryForm(props: EntryFormProps) {
                         entryForState,
                     } = getValuesFromEntry(result);
 
-                    setOrganizations((oldOrganizations) => unique(
-                        [...organizationsForState, ...(oldOrganizations ?? [])],
-                        (item) => item.id,
-                    ));
+                    setOrganizations(organizationsForState);
                     setSourcePreview(result.preview ?? undefined);
                     setAttachment(result.document ?? undefined);
 
@@ -906,10 +891,8 @@ function EntryForm(props: EntryFormProps) {
             setTagOptions(tagOptionsForState);
             setViolenceContextOptions(violenceContextOptionsForState);
 
-            setOrganizations(unique([
-                ...organizationsForState,
-                ...organizationsForState2,
-            ], (item) => item.id));
+            setOrganizations(organizationsForState);
+            setOrganizations(organizationsForState2);
 
             onValueSet({
                 ...entryForState,

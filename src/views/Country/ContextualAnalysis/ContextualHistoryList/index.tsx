@@ -1,8 +1,8 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import { gql, useQuery } from '@apollo/client';
-
 import { Pager, DateTime } from '@togglecorp/toggle-ui';
 
+import useFilterState from '#hooks/useFilterState';
 import Container from '#components/Container';
 import Message from '#components/Message';
 import { MarkdownPreview } from '#components/MarkdownEditor';
@@ -12,7 +12,6 @@ import {
     ContextualHistoryQuery,
     ContextualHistoryQueryVariables,
 } from '#generated/types';
-import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import styles from './styles.css';
 
@@ -20,7 +19,7 @@ const GET_CONTEXTUAL_HISTORY = gql`
     query ContextualHistory($id: ID!, $page: Int, $pageSize: Int) {
         country(id: $id) {
             id
-            contextualAnalyses(ordering: "-createdAt", page: $page, pageSize: $pageSize) {
+            contextualAnalyses(ordering: "-created_at", page: $page, pageSize: $pageSize) {
                 page
                 pageSize
                 totalCount
@@ -48,29 +47,29 @@ function ContextualHistoryList(props: ContextualHistoryProps) {
         country,
     } = props;
 
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-    const debouncedPage = useDebouncedValue(page);
+    const {
+        page,
+        rawPage,
+        setPage,
+
+        rawPageSize,
+        pageSize,
+        setPageSize,
+    } = useFilterState({
+        filter: {},
+    });
 
     const variables = useMemo(
         (): ContextualHistoryQueryVariables => ({
-            page: debouncedPage,
+            page,
             pageSize,
             id: country,
         }),
         [
-            debouncedPage,
+            page,
             pageSize,
             country,
         ],
-    );
-
-    const handlePageSizeChange = useCallback(
-        (value: number) => {
-            setPageSize(value);
-            setPage(1);
-        },
-        [],
     );
 
     const {
@@ -90,13 +89,13 @@ function ContextualHistoryList(props: ContextualHistoryProps) {
             borderless
             footerContent={(
                 <Pager
-                    activePage={page}
+                    activePage={rawPage}
                     itemsCount={
                         contextualAnalyses?.country?.contextualAnalyses?.totalCount ?? 0
                     }
-                    maxItemsPerPage={pageSize}
+                    maxItemsPerPage={rawPageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={handlePageSizeChange}
+                    onItemsPerPageChange={setPageSize}
                 />
             )}
         >

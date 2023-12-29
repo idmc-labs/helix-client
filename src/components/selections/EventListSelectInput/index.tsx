@@ -81,7 +81,7 @@ function EventListSelectInput<K extends string>(props: SelectInputProps<K>) {
                 countries,
                 crises,
             } : {
-                ordering: '-createdAt',
+                ordering: '-created_at',
                 countries,
                 crises,
             }

@@ -48,6 +48,8 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
 
     const [selectedTab, setSelectedTab] = useState<'Entries' | 'Figures' | undefined>('Figures');
 
+    // TODO: use useFilterState here
+
     const [entriesPage, setEntriesPage] = useState(1);
     const [entriesPageSize, setEntriesPageSize] = useState(10);
     const debouncedEntriesPage = useDebouncedValue(entriesPage);

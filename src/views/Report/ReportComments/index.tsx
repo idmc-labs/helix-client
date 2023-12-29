@@ -11,7 +11,7 @@ import {
 import DomainContext from '#components/DomainContext';
 import Message from '#components/Message';
 import useBasicToggle from '#hooks/useBasicToggle';
-import useDebouncedValue from '#hooks/useDebouncedValue';
+import useFilterState from '#hooks/useFilterState';
 
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
@@ -49,9 +49,16 @@ export default function ReportComments(props: ReportCommentsProps) {
         reportId,
     } = props;
 
-    const [page, setPage] = useState(1);
-    const [pageSize] = useState(50);
-    const debouncedPage = useDebouncedValue(page);
+    const {
+        page,
+        rawPage,
+        setPage,
+
+        pageSize,
+        rawPageSize,
+    } = useFilterState({
+        filter: {},
+    });
 
     const [commentIdOnEdit, setCommentIdOnEdit] = useState<string | undefined>();
 
@@ -61,13 +68,13 @@ export default function ReportComments(props: ReportCommentsProps) {
     const variables = useMemo(
         () => ({
             pageSize,
-            ordering: '-createdAt',
-            page: debouncedPage,
+            ordering: '-created_at',
+            page,
             id: reportId,
         }),
         [
             reportId,
-            debouncedPage,
+            page,
             pageSize,
         ],
     );
@@ -146,9 +153,9 @@ export default function ReportComments(props: ReportCommentsProps) {
                 />
             )}
             <Pager
-                activePage={page}
+                activePage={rawPage}
                 itemsCount={totalCommentCount}
-                maxItemsPerPage={pageSize}
+                maxItemsPerPage={rawPageSize}
                 onActivePageChange={setPage}
                 itemsPerPageControlHidden
             />

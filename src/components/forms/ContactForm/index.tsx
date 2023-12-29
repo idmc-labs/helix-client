@@ -256,13 +256,10 @@ function ContactForm(props: ContactFormProps) {
                     country: countryOfContact,
                 } = contact;
 
-                const countriesArray = [...countriesOfOperation];
+                setCountryOptions(countriesOfOperation);
                 if (countryOfContact) {
-                    countriesArray.push(countryOfContact);
+                    setCountryOptions([countryOfContact]);
                 }
-                const uniqueCountries = unique(countriesArray, (c) => c.id);
-
-                setCountryOptions(uniqueCountries);
 
                 if (contact?.organization) {
                     setOrganizationOptions([contact.organization]);

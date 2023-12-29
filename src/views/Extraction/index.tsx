@@ -142,13 +142,14 @@ function Extraction(props: ExtractionProps) {
         setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
     }>(null);
 
+    // NOTE: We might need to use useFilterState
     const [
         queryListFilters,
         setQueryListFilters,
     ] = useState<ExtractionQueryListQueryVariables>({
         page: 1,
         pageSize: 10,
-        ordering: '-createdAt',
+        ordering: '-created_at',
     });
 
     const [

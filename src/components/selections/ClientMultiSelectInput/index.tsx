@@ -59,7 +59,7 @@ function ClientMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
         (): ApiClientListQueryVariables => (
             debouncedSearchText
                 ? { search: debouncedSearchText }
-                : { ordering: '-createdAt' }
+                : { ordering: '-created_at' }
         ),
         [debouncedSearchText],
     );

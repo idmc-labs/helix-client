@@ -53,7 +53,7 @@ function ReportSelectInput<K extends string>(props: SelectInputProps<K>) {
 
     const searchVariable = useMemo(
         (): GetReportQueryVariables => (
-            debouncedSearchText ? { search: debouncedSearchText } : { ordering: '-createdAt' }
+            debouncedSearchText ? { search: debouncedSearchText } : { ordering: '-created_at' }
         ),
         [debouncedSearchText],
     );
