@@ -380,7 +380,7 @@ const MAX_EVENT_CODES = 50;
 
 type EventFormFields = CreateEventMutationVariables['event'];
 
-export type FormType = PurgeNull<PartialForm<WithId<EventFormFields>>>;
+type FormType = PurgeNull<PartialForm<WithId<EventFormFields>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -598,6 +598,7 @@ function EventForm(props: EventFormProps) {
                     eventCodes: event.eventCodes?.map(
                         (eventCode) => ({
                             ...eventCode,
+                            uuid: uuidv4(),
                             country: eventCode.country.id,
                         }),
                     ),

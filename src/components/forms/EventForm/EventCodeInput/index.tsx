@@ -7,6 +7,7 @@ import {
     Error,
     StateArg,
     useFormObject,
+    PurgeNull,
 } from '@togglecorp/toggle-form';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -14,11 +15,11 @@ import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import { CountryOption } from '#components/selections/CountrySelectInput';
 import { enumKeySelector, enumLabelSelector, GetEnumOptions } from '#utils/common';
-import { EventOptionsQuery } from '#generated/types';
+import { CreateEventMutationVariables, EventOptionsQuery } from '#generated/types';
 
-import { FormType } from '..';
 import styles from './styles.css';
 
+type FormType = PurgeNull<PartialForm<CreateEventMutationVariables['event']>>;
 type EventCode = NonNullable<NonNullable<FormType['eventCodes']>[number]>;
 type PartialEventCode = PartialForm<EventCode>;
 type EventCodeTypeOptions = GetEnumOptions<
