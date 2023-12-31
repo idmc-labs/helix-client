@@ -32,8 +32,7 @@ import {
     enumLabelSelector,
 } from '#utils/common';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type CrisesFilterFields = Omit<CrisesQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type CrisesFilterFields = NonNullable<CrisesQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<CrisesFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -73,7 +72,7 @@ const defaultFormValues: PartialForm<FormType> = {
 interface CrisesFilterProps {
     className?: string;
     initialFilter?: PartialForm<FormType>;
-    onFilterChange: (value: PurgeNull<CrisesQueryVariables>) => void;
+    onFilterChange: (value: PurgeNull<CrisesFilterFields>) => void;
 }
 
 function CrisesFilter(props: CrisesFilterProps) {

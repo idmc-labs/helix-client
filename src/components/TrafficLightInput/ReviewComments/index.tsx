@@ -20,20 +20,16 @@ import styles from './styles.css';
 
 const REVIEW_COMMENTS = gql`
     query ReviewComments(
-        $fields: [String!],
-        $events: [ID!],
-        $figures: [ID!],
         $page: Int,
         $pageSize: Int,
         $ordering: String,
+        $filters: UnifiedReviewCommentFilterDataInputType,
     ) {
         reviewComments(
-            events: $events,
-            fields: $fields,
-            figures: $figures,
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
+            filters: $filters,
         ) {
             totalCount
             results {
@@ -92,14 +88,16 @@ export default function ReviewComments(props: ReportCommentsProps) {
     const commentPermission = user?.permissions?.reviewcomment;
 
     const variables = useMemo(
-        () => ({
+        (): ReviewCommentsQueryVariables => ({
             pageSize,
             ordering: '-created_at',
             page,
 
-            events: eventId ? [eventId] : undefined,
-            figures: figureId ? [figureId] : undefined,
-            fields: [name],
+            filters: {
+                events: eventId ? [eventId] : undefined,
+                figures: figureId ? [figureId] : undefined,
+                fields: [name],
+            },
         }),
         [
             eventId,

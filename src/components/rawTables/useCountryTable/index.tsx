@@ -36,21 +36,15 @@ export const COUNTRY_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $countryName: String,
-        $geoGroupsByIds: [String!],
-        $regionByIds: [String!],
-        $report: String,
-        $year: Float,
+        $filters: CountryFilterDataInputType,
     ) {
         countryList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            countryName: $countryName,
-            geoGroupByIds: $geoGroupsByIds,
-            regionByIds: $regionByIds,
-            reportId: $report,
-            year: $year,
+            filters: $filters,
+            # TODO: Check geoGroupByIds: $geoGroupsByIds,
+            # TODO: Check reportId: $report,
         ) {
             totalCount
             pageSize

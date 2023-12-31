@@ -48,8 +48,7 @@ const GET_ORGANIZATION_OPTIONS = gql`
     }
 `;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type OrganizationFilterFields = Omit<OrganizationsListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type OrganizationFilterFields = NonNullable<OrganizationsListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<OrganizationFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -57,7 +56,7 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        name: [],
+        name_Unaccent_Icontains: [],
         countries: [arrayCondition],
         organizationKinds: [arrayCondition],
         categories: [arrayCondition],
@@ -65,7 +64,7 @@ const schema: FormSchema = {
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    name: undefined,
+    name_Unaccent_Icontains: undefined,
     countries: [],
     organizationKinds: [],
     categories: [],
@@ -74,7 +73,7 @@ const defaultFormValues: PartialForm<FormType> = {
 interface OrganizationFilterProps {
     className?: string;
     initialFilter?: PartialForm<FormType>;
-    onFilterChange: (value: PurgeNull<OrganizationsListQueryVariables>) => void;
+    onFilterChange: (value: PurgeNull<OrganizationFilterFields>) => void;
 }
 
 function OrganizationFilter(props: OrganizationFilterProps) {
@@ -131,10 +130,10 @@ function OrganizationFilter(props: OrganizationFilterProps) {
                     className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Search"
-                    name="name"
-                    value={value.name}
+                    name="name_Unaccent_Icontains"
+                    value={value.name_Unaccent_Icontains}
                     onChange={onValueChange}
-                    error={error?.fields?.name}
+                    error={error?.fields?.name_Unaccent_Icontains}
                 />
                 <CountryMultiSelectInput
                     className={styles.input}

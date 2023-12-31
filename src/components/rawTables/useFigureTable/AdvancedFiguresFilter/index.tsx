@@ -276,7 +276,7 @@ const figureCategoryHideOptionFilter = (item: DisplacementTypeOption) => (
     isVisibleCategory(item.name as FigureCategoryTypes)
 );
 
-type AdvancedFigureFiltersFields = Omit<ExtractionEntryListFiltersQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type AdvancedFigureFiltersFields = NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<
     AdvancedFigureFiltersFields
 >>;
@@ -350,7 +350,7 @@ interface AdvancedFigureFiltersProps {
     id?: string;
     className?: string;
     onFilterChange: React.Dispatch<React.SetStateAction<
-        ExtractionEntryListFiltersQueryVariables | undefined
+        AdvancedFigureFiltersFields | undefined
     >>;
     onFilterMetaChange: React.Dispatch<React.SetStateAction<
         { name?: string, id?: string }

@@ -723,7 +723,16 @@ function EntryForm(props: EntryFormProps) {
                 });
             }
         },
-        [end, notify, onPristineSet, onErrorSet, onValueSet],
+        [
+            end,
+            notify,
+            onPristineSet,
+            onErrorSet,
+            onValueSet,
+            setOrganizations,
+            setTagOptions,
+            setViolenceContextOptions,
+        ],
     );
 
     const [

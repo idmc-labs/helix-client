@@ -35,8 +35,20 @@ import CommunicationFilter from './CommunicationFilter/index';
 import styles from './styles.css';
 
 const GET_COMMUNICATIONS_LIST = gql`
-    query CommunicationList($ordering: String, $page: Int, $pageSize: Int, $contact: ID, $subject: String, $country: ID) {
-        communicationList(ordering: $ordering, page: $page, pageSize: $pageSize, contact: $contact, subjectContains: $subject, country: $country) {
+    query CommunicationList(
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+        $filters: CommunicationFilterDataInputType,
+    ) {
+        communicationList(
+            ordering: $ordering,
+            page: $page,
+            pageSize: $pageSize,
+
+            filters: $filters,
+            # FIXME: check subjectContains: $subject,
+        ) {
             results {
                 id
                 content
@@ -106,7 +118,7 @@ function CommunicationTable(props: CommunicationListProps) {
 
         rawPageSize,
         pageSize,
-    } = useFilterState<PurgeNull<CommunicationListQueryVariables>>({
+    } = useFilterState<PurgeNull<NonNullable<CommunicationListQueryVariables['filters']>>>({
         filter: {},
         ordering: {
             name: 'created_at',
@@ -127,13 +139,16 @@ function CommunicationTable(props: CommunicationListProps) {
     ] = useModalState();
 
     const communicationsVariables = useMemo(
-        () => expandObject<CommunicationListQueryVariables>({
+        () => ({
             ordering,
             page,
             pageSize,
-            ...filter,
-        }, {
-            contact,
+            filters: expandObject<NonNullable<CommunicationListQueryVariables['filters']>>(
+                filter,
+                {
+                    contact,
+                },
+            ),
         }),
         [
             ordering,

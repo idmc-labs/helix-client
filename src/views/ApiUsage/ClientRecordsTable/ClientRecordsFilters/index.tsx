@@ -23,8 +23,7 @@ import {
 } from '#generated/types';
 import styles from './styles.css';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type ClientFilterFields = Omit<ClientListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type ClientFilterFields = NonNullable<ClientListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<ClientFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -45,7 +44,7 @@ const defaultFormValues: PartialForm<FormType> = {
 interface ClientFilterProps {
     className?: string;
     initialFilter?: PartialForm<FormType>;
-    onFilterChange: (value: PurgeNull<ClientListQueryVariables>) => void;
+    onFilterChange: (value: PurgeNull<ClientFilterFields>) => void;
 }
 
 function ClientRecordsFilter(props: ClientFilterProps) {

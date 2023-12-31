@@ -16,8 +16,7 @@ import { PartialForm, PurgeNull } from '#types';
 import { ContextOfViolenceListQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type ViolenceContextFilterFields = Omit<ContextOfViolenceListQueryVariables, 'ordering'>;
+type ViolenceContextFilterFields = NonNullable<ContextOfViolenceListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<ViolenceContextFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -36,7 +35,7 @@ const defaultFormValues: PartialForm<FormType> = {
 interface ViolenceContextFilterProps {
     className?: string;
     initialFilter?: PartialForm<FormType>;
-    onFilterChange: (value: PurgeNull<ContextOfViolenceListQueryVariables>) => void;
+    onFilterChange: (value: PurgeNull<ViolenceContextFilterFields>) => void;
 }
 
 function ViolenceContextFilter(props: ViolenceContextFilterProps) {

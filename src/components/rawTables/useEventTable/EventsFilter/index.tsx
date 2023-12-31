@@ -47,7 +47,7 @@ import {
 const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
 
-type EventFilterFields = Omit<EventListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type EventFilterFields = NonNullable<EventListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<EventFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -189,7 +189,7 @@ const disasterGroupLabelSelector = (item: DisasterOption) => (
 interface EventsFilterProps {
     className?: string;
     initialFilter?: PartialForm<FormType>;
-    onFilterChange: (value: PurgeNull<EventListQueryVariables>) => void;
+    onFilterChange: (value: PurgeNull<EventFilterFields>) => void;
 
     hiddenFields?: ('createdBy' | 'crisis' | 'countries' | 'reviewStatus')[];
     // We use these props to filter out other options
@@ -324,7 +324,7 @@ function EventsFilter(props: EventsFilterProps) {
                     error={error?.fields?.eventTypes?.$internal}
                     disabled={eventOptionsLoading || !!eventOptionsError}
                 />
-                {!reviewStatusSelectionDisabled && (
+                {!hiddenFields.includes('reviewStatus') && (
                     <MultiSelectInput
                         className={styles.input}
                         options={eventReviewStatusOptions}

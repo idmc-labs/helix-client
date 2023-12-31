@@ -16,8 +16,7 @@ import { PartialForm, PurgeNull } from '#types';
 import { ActorsListQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type ActorsFilterFields = Omit<ActorsListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type ActorsFilterFields = NonNullable<ActorsListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<ActorsFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -25,18 +24,18 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        name: [],
+        name_Unaccent_Icontains: [],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    name: undefined,
+    name_Unaccent_Icontains: undefined,
 };
 
 interface ContextualFilterProps {
     className?: string;
     initialFilter?: PartialForm<FormType>;
-    onFilterChange: (value: PurgeNull<ActorsListQueryVariables>) => void;
+    onFilterChange: (value: PurgeNull<ActorsFilterFields>) => void;
 }
 
 function ContextualFilter(props: ContextualFilterProps) {
@@ -84,10 +83,10 @@ function ContextualFilter(props: ContextualFilterProps) {
                     className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Search"
-                    name="name"
-                    value={value.name}
+                    name="name_Unaccent_Icontains"
+                    value={value.name_Unaccent_Icontains}
                     onChange={onValueChange}
-                    error={error?.fields?.name}
+                    error={error?.fields?.name_Unaccent_Icontains}
                 />
                 <div className={styles.formButtons}>
                     <Button

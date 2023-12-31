@@ -467,8 +467,10 @@ export const FIGURE_LIST = gql`
             page: $page,
             pageSize: $pageSize,
             ordering: "role,created_at",
-            filterFigureEvents: $eventId,
-            filterFigureIsToBeReviewed: true,
+            filters: {
+                filterFigureEvents: $eventId,
+                filterFigureIsToBeReviewed: true,
+            },
         ) {
             results {
                 ...FigureResponse

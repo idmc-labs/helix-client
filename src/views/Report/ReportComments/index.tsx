@@ -19,8 +19,8 @@ import CommentForm from './CommentForm';
 import styles from './styles.css';
 
 const REPORT_COMMENTS = gql`
-    query ReportComments($id: ID!, $page: Int, $pageSize: Int, $ordering: String) {
-        report(id: $id) {
+    query ReportComments($reportId: ID!, $page: Int, $pageSize: Int, $ordering: String) {
+        report(id: $reportId) {
             id
             comments(ordering: $ordering, page: $page, pageSize: $pageSize) {
                 totalCount
@@ -70,7 +70,7 @@ export default function ReportComments(props: ReportCommentsProps) {
             pageSize,
             ordering: '-created_at',
             page,
-            id: reportId,
+            reportId,
         }),
         [
             reportId,

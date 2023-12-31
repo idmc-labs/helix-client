@@ -43,8 +43,18 @@ import styles from './styles.css';
 type FigureTagFields = NonNullable<NonNullable<FigureTagListQuery['figureTagList']>['results']>[number];
 
 const FIGURE_TAG_LIST = gql`
-    query FigureTagList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
-        figureTagList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Unaccent_Icontains: $name) {
+    query FigureTagList(
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+        $filters: FigureTagFilterDataInputType,
+    ) {
+        figureTagList(
+            ordering: $ordering,
+            page: $page,
+            pageSize: $pageSize,
+            filters: $filters,
+        ) {
             totalCount
             page
             pageSize
@@ -98,7 +108,7 @@ function FigureTagsTable(props: FigureTagsProps) {
         rawPageSize,
         pageSize,
         setPageSize,
-    } = useFilterState<PurgeNull<FigureTagListQueryVariables>>({
+    } = useFilterState<PurgeNull<NonNullable<FigureTagListQueryVariables['filters']>>>({
         filter: {},
         ordering: {
             name: 'created_at',
@@ -119,11 +129,11 @@ function FigureTagsTable(props: FigureTagsProps) {
     ] = useModalState();
 
     const variables = useMemo(
-        () => ({
+        (): FigureTagListQueryVariables => ({
             ordering,
             page,
             pageSize,
-            ...filter,
+            filters: filter,
         }),
         [
             ordering,

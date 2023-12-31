@@ -17,7 +17,7 @@ import { CommunicationListQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-type CommunicationFilterFields = Omit<CommunicationListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type CommunicationFilterFields = NonNullable<CommunicationListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<CommunicationFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -25,18 +25,18 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        subject: [],
+        subjectContains: [],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    subject: undefined,
+    subjectContains: undefined,
 };
 
 interface ContactsFilterProps {
     className?: string;
     initialFilter?: PartialForm<FormType>,
-    onFilterChange: (value: PurgeNull<CommunicationListQueryVariables>) => void;
+    onFilterChange: (value: PurgeNull<CommunicationFilterFields>) => void;
 }
 
 function ContactsFilter(props: ContactsFilterProps) {
@@ -84,10 +84,10 @@ function ContactsFilter(props: ContactsFilterProps) {
                     className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Subject"
-                    name="subject"
-                    value={value.subject}
+                    name="subjectContains"
+                    value={value.subjectContains}
                     onChange={onValueChange}
-                    error={error?.fields?.subject}
+                    error={error?.fields?.subjectContains}
                 />
                 <div className={styles.formButtons}>
                     <Button

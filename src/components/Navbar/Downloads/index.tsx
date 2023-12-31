@@ -26,8 +26,16 @@ import DownloadedItem from './DownloadedItem';
 import styles from './styles.css';
 
 const DOWNLOADS = gql`
-    query ExcelExports($ordering: String, $page: Int, $pageSize: Int) {
-        excelExports(pageSize: $pageSize, page: $page, ordering: $ordering) {
+    query ExcelExports(
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+    ) {
+        excelExports(
+            pageSize: $pageSize,
+            page: $page,
+            ordering: $ordering,
+        ) {
             totalCount
             results {
                 id
@@ -40,7 +48,9 @@ const DOWNLOADS = gql`
                 fileSize
             }
         }
-        excelRemainingExports: excelExports(statusList: ["PENDING", "IN_PROGRESS"]) {
+        excelRemainingExports: excelExports(
+            filters: { statusList: ["PENDING", "IN_PROGRESS"] },
+        ) {
             totalCount
         }
     }
@@ -49,7 +59,9 @@ const DOWNLOADS = gql`
 // NOTE: exporting this so that other requests can refetch this request
 export const DOWNLOADS_COUNT = gql`
     query ExcelExportsCount {
-      excelExports(statusList: ["PENDING", "IN_PROGRESS"]) {
+      excelExports(
+        filters: { statusList: ["PENDING", "IN_PROGRESS"] },
+    ) {
         totalCount
       }
     }

@@ -15,8 +15,8 @@ import {
 import styles from './styles.css';
 
 const GET_SUMMARY_HISTORY = gql`
-    query SummaryHistory($id: ID!, $page: Int, $pageSize: Int) {
-        country(id: $id) {
+    query SummaryHistory($country: ID!, $page: Int, $pageSize: Int) {
+        country(id: $country) {
             id
             summaries(ordering: "-created_at", page: $page, pageSize: $pageSize) {
                 page
@@ -58,7 +58,7 @@ function SummaryHistoryList(props: SummaryHistoryProps) {
         (): SummaryHistoryQueryVariables => ({
             page,
             pageSize,
-            id: country,
+            country,
         }),
         [
             page,

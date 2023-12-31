@@ -17,18 +17,12 @@ import styles from './styles.css';
 
 const COUNTRY = gql`
     query GetCountry(
-        $search: String,
-        $regions: [String!],
-        $events: [ID!],
-        $crises: [ID!],
         $ordering: String,
+        $filters: CountryFilterDataInputType,
     ) {
         countryList(
-            countryName: $search,
-            regionByIds: $regions,
             ordering: $ordering,
-            events: $events,
-            crises: $crises,
+            filters: $filters,
         ) {
             totalCount
             results {
@@ -80,16 +74,20 @@ function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
             if (!debouncedSearchText) {
                 return {
                     ordering: 'idmc_short_name',
-                    regions: regions ?? undefined,
-                    events,
-                    crises,
+                    filters: {
+                        regionByIds: regions ?? undefined,
+                        events,
+                        crises,
+                    },
                 };
             }
             return {
-                search: debouncedSearchText,
-                regions: regions ?? undefined,
-                events,
-                crises,
+                filters: {
+                    countryName: debouncedSearchText,
+                    regionByIds: regions ?? undefined,
+                    events,
+                    crises,
+                },
             };
         },
         [debouncedSearchText, regions, events, crises],

@@ -13,8 +13,16 @@ import useDebouncedValue from '#hooks/useDebouncedValue';
 import { GetReportQuery, GetReportQueryVariables } from '#generated/types';
 
 const REPORT = gql`
-    query GetReport($search: String, $ordering: String) {
-        reportList(name_Unaccent_Icontains: $search, ordering: $ordering) {
+    query GetReport(
+        $search: String,
+        $ordering: String,
+    ) {
+        reportList(
+            filters: {
+                name_Unaccent_Icontains: $search,
+            },
+            ordering: $ordering,
+        ) {
             totalCount
             results {
                 id

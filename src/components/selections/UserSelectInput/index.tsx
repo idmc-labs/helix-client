@@ -19,8 +19,14 @@ import {
 import styles from './styles.css';
 
 const USER = gql`
-    query GetUser($search: String, $ordering: String, $permissions: [String!]) {
-        users(fullName: $search, ordering: $ordering, permissions: $permissions) {
+    query GetUser(
+        $ordering: String,
+        $filters: UserFilterDataInputType,
+    ) {
+        users(
+            ordering: $ordering,
+            filters: $filters,
+        ) {
             totalCount
             results {
                 id
@@ -70,11 +76,15 @@ function UserSelectInput<K extends string>(props: SelectInputProps<K>) {
     const searchVariable = useMemo(
         (): GetUserQueryVariables => (
             debouncedSearchText ? {
-                search: debouncedSearchText,
-                permissions,
+                filters: {
+                    fullName: debouncedSearchText,
+                    permissions,
+                },
             } : {
                 ordering: 'full_name',
-                permissions,
+                filters: {
+                    permissions,
+                },
             }
         ),
         [debouncedSearchText, permissions],

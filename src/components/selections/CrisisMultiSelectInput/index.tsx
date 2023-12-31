@@ -16,8 +16,14 @@ import { GetCrisesQuery, GetCrisesQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
 const CRISES = gql`
-    query GetCrises($search: String, $countries: [String!], $ordering: String) {
-        crisisList(name: $search, countries: $countries, ordering: $ordering) {
+    query GetCrises(
+        $filters: CrisisFilterDataInputType,
+        $ordering: String,
+    ) {
+        crisisList(
+            ordering: $ordering,
+            filters: $filters,
+        ) {
             totalCount
             results {
                 id
@@ -62,12 +68,16 @@ function CrisisMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
             if (!debouncedSearchText) {
                 return {
                     ordering: '-created_at',
-                    countries: countries ?? undefined,
+                    filters: {
+                        countries: countries ?? undefined,
+                    },
                 };
             }
             return {
-                search: debouncedSearchText,
-                countries: countries ?? undefined,
+                filters: {
+                    name: debouncedSearchText,
+                    countries: countries ?? undefined,
+                },
             };
         },
         [debouncedSearchText, countries],

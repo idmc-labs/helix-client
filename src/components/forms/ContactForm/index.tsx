@@ -20,7 +20,6 @@ import {
     PartialForm,
     PurgeNull,
 } from '@togglecorp/toggle-form';
-import { unique } from '@togglecorp/fujs';
 
 import {
     gql,

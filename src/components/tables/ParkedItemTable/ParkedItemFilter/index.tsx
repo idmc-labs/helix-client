@@ -39,8 +39,7 @@ const PARKING_LOT_OPTIONS = gql`
     }
 `;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type ParkedItemFilterFields = Omit<ParkedItemListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type ParkedItemFilterFields = NonNullable<ParkedItemListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<ParkedItemFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -48,14 +47,14 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        title: [],
+        title_Unaccent_Icontains: [],
         statusIn: [],
         assignedToIn: [],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    title: undefined,
+    title_Unaccent_Icontains: undefined,
     statusIn: undefined,
     assignedToIn: undefined,
 };
@@ -63,7 +62,7 @@ const defaultFormValues: PartialForm<FormType> = {
 interface ParkedItemFilterProps {
     className?: string;
     initialFilter?: PartialForm<FormType>;
-    onFilterChange: (value: PurgeNull<ParkedItemListQueryVariables>) => void;
+    onFilterChange: (value: PurgeNull<ParkedItemFilterFields>) => void;
 
     assignedUser?: string;
     status?: string;
@@ -125,10 +124,10 @@ function ParkedItemFilter(props: ParkedItemFilterProps) {
                     className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Search"
-                    name="title"
-                    value={value.title}
+                    name="title_Unaccent_Icontains"
+                    value={value.title_Unaccent_Icontains}
                     onChange={onValueChange}
-                    error={error?.fields?.title}
+                    error={error?.fields?.title_Unaccent_Icontains}
                 />
                 {!assignedUser && (
                     <UserMultiSelectInput

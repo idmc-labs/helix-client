@@ -8,7 +8,6 @@ import {
 import { removeNull } from '@togglecorp/toggle-form';
 import {
     isDefined,
-    unique,
     _cs,
 } from '@togglecorp/fujs';
 import { Button, Pager } from '@togglecorp/toggle-ui';
@@ -47,7 +46,6 @@ import {
 import EventForm from '#components/forms/EventForm';
 import PageHeader from '#components/PageHeader';
 import { EventListOption } from '#components/selections/EventListSelectInput';
-import { OrganizationOption } from '#components/selections/OrganizationSelectInput';
 import Preview from '#components/Preview';
 import FigureInput from '#components/forms/EntryForm/FigureInput';
 import NotificationContext from '#components/NotificationContext';
@@ -389,7 +387,6 @@ function EventReview(props: Props) {
                             // eslint-disable-next-line max-len
                             otherSubTypeOptions={figureOptionsData?.otherSubTypeList}
                             trafficLightShown={trafficLightShown}
-                            entryId={fig.entry.id}
                             reviewStatus={fig.reviewStatus}
                             fieldStatuses={fig.lastReviewCommentStatus}
                             isRecommended={fig.role === 'RECOMMENDED'}

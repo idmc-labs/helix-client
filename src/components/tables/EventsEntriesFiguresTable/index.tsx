@@ -109,23 +109,23 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
     const [
         entriesQueryFilters,
         setEntriesQueryFilters,
-    ] = useState<PurgeNull<ExtractionEntryListFiltersQueryVariables>>();
+    ] = useState<PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>>();
 
     const [
         figuresQueryFilters,
         setFiguresQueryFilters,
-    ] = useState<PurgeNull<ExtractionFigureListQueryVariables>>();
+    ] = useState<PurgeNull<NonNullable<ExtractionFigureListQueryVariables['filters']>>>();
 
     const [
         eventsQueryFilters,
         setEventsQueryFilters,
-    ] = useState<PurgeNull<EventListQueryVariables>>();
+    ] = useState<PurgeNull<NonNullable<EventListQueryVariables['filters']>>>();
 
     const crisisId = crisis?.id;
     const countryId = country?.id;
 
     const onFilterChange = useCallback(
-        (value: PurgeNull<ExtractionEntryListFiltersQueryVariables>) => {
+        (value: PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>) => {
             if (selectedTab === 'Entries') {
                 setEntriesQueryFilters(value);
             } else if (selectedTab === 'Figures') {
@@ -140,16 +140,19 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
     );
 
     const entriesVariables = useMemo(
-        () => expandObject<ExtractionEntryListFiltersQueryVariables >({
+        (): ExtractionEntryListFiltersQueryVariables => ({
             ordering: entriesOrdering,
             page: debouncedEntriesPage,
             pageSize: entriesPageSize,
-            ...entriesQueryFilters,
-        }, {
-            filterFigureEvents: eventId ? [eventId] : undefined,
-            filterFigureCrises: crisisId ? [crisisId] : undefined,
-            filterFigureCreatedBy: userId ? [userId] : undefined,
-            filterFigureCountries: countryId ? [countryId] : undefined,
+            filters: expandObject<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>(
+                entriesQueryFilters,
+                {
+                    filterFigureEvents: eventId ? [eventId] : undefined,
+                    filterFigureCrises: crisisId ? [crisisId] : undefined,
+                    filterFigureCreatedBy: userId ? [userId] : undefined,
+                    filterFigureCountries: countryId ? [countryId] : undefined,
+                },
+            ),
         }),
         [
             entriesOrdering,
@@ -164,16 +167,19 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
     );
 
     const figuresVariables = useMemo(
-        () => expandObject<ExtractionEntryListFiltersQueryVariables>({
+        () => ({
             ordering: figuresOrdering,
             page: debouncedFiguresPage,
             pageSize: figuresPageSize,
-            ...figuresQueryFilters,
-        }, {
-            filterFigureEvents: eventId ? [eventId] : undefined,
-            filterFigureCrises: crisisId ? [crisisId] : undefined,
-            filterFigureCreatedBy: userId ? [userId] : undefined,
-            filterFigureCountries: countryId ? [countryId] : undefined,
+            filters: expandObject<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>(
+                figuresQueryFilters,
+                {
+                    filterFigureEvents: eventId ? [eventId] : undefined,
+                    filterFigureCrises: crisisId ? [crisisId] : undefined,
+                    filterFigureCreatedBy: userId ? [userId] : undefined,
+                    filterFigureCountries: countryId ? [countryId] : undefined,
+                },
+            ),
         }),
         [
             figuresOrdering,
@@ -188,15 +194,18 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
     );
 
     const eventsVariables = useMemo(
-        () => expandObject<EventListQueryVariables>({
+        () => ({
             ordering: eventsOrdering,
             page: debouncedEventsPage,
             pageSize: eventsPageSize,
-            ...eventsQueryFilters,
-        }, {
-            crisisByIds: crisisId ? [crisisId] : undefined,
-            countries: countryId ? [countryId] : undefined,
-            createdByIds: userId ? [userId] : undefined,
+            filters: expandObject<NonNullable<EventListQueryVariables['filters']>>(
+                eventsQueryFilters,
+                {
+                    crisisByIds: crisisId ? [crisisId] : undefined,
+                    countries: countryId ? [countryId] : undefined,
+                    createdByIds: userId ? [userId] : undefined,
+                },
+            ),
         }),
         [
             eventsOrdering,

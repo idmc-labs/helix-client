@@ -47,8 +47,19 @@ import styles from './styles.css';
 type ParkedItemFields = NonNullable<NonNullable<ParkedItemListQuery['parkedItemList']>['results']>[number];
 
 const PARKING_LOT_LIST = gql`
-    query ParkedItemList($ordering: String, $page: Int, $pageSize: Int, $title: String, $statusIn: [String!], $assignedToIn: [String!]) {
-        parkedItemList(ordering: $ordering, page: $page, pageSize: $pageSize, title_Unaccent_Icontains: $title, statusIn: $statusIn, assignedToIn: $assignedToIn) {
+    query ParkedItemList(
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+        $filters: ParkingLotFilterDataInputType,
+    ) {
+        parkedItemList(
+            ordering: $ordering,
+            page: $page,
+            pageSize: $pageSize,
+            filters: $filters,
+            # check title_Unaccent_Icontains: $title,
+        ) {
             totalCount
             page
             pageSize
@@ -122,7 +133,7 @@ function ParkedItemTable(props: ParkedItemProps) {
         rawPageSize,
         pageSize,
         setPageSize,
-    } = useFilterState<PurgeNull<ParkedItemListQueryVariables>>({
+    } = useFilterState<PurgeNull<NonNullable<ParkedItemListQueryVariables['filters']>>>({
         filter: {},
         ordering: {
             name: 'created_at',
@@ -143,14 +154,17 @@ function ParkedItemTable(props: ParkedItemProps) {
     ] = useModalState();
 
     const variables = useMemo(
-        () => expandObject<ParkedItemListQueryVariables>({
+        () => ({
             ordering,
             page,
             pageSize,
-            ...filter,
-        }, {
-            statusIn: status ? [status] : undefined,
-            assignedToIn: assignedUser ? [assignedUser] : undefined,
+            filters: expandObject<NonNullable<ParkedItemListQueryVariables['filters']>>(
+                filter,
+                {
+                    statusIn: status ? [status] : undefined,
+                    assignedToIn: assignedUser ? [assignedUser] : undefined,
+                },
+            ),
         }),
         [
             ordering,

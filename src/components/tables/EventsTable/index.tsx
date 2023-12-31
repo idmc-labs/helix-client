@@ -126,7 +126,7 @@ function EventsTable(props: EventsProps) {
         pageSize,
         rawPageSize,
         setPageSize,
-    } = useFilterState<PurgeNull<EventListQueryVariables>>({
+    } = useFilterState<PurgeNull<NonNullable<EventListQueryVariables['filters']>>>({
         filter: {
             createdByIds,
             countries: regionalCoordinatorCountryIds,
@@ -138,16 +138,19 @@ function EventsTable(props: EventsProps) {
     });
 
     const eventsVariables = useMemo(
-        () => expandObject<EventListQueryVariables >({
+        () => ({
             ordering,
             page,
             pageSize,
-            ...filter,
-        }, {
-            qaRule,
-            ignoreQa,
-            reviewStatus,
-            assignees: assignee ? [assignee] : undefined,
+            filters: expandObject<NonNullable<EventListQueryVariables['filters']>>(
+                filter,
+                {
+                    qaRule,
+                    ignoreQa,
+                    reviewStatus,
+                    assignees: assignee ? [assignee] : undefined,
+                },
+            ),
         }),
         [
             ordering,

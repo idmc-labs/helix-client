@@ -29,6 +29,7 @@ import {
     ToggleUserReportingTeamStatusMutationVariables,
 } from '#generated/types';
 import useModalState from '#hooks/useModalState';
+import { expandObject } from '#utils/common';
 
 import Message from '#components/Message';
 import NotificationContext from '#components/NotificationContext';
@@ -45,18 +46,13 @@ const GET_USERS_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $fullName: String,
-        $roleIn: [String!],
-        $isActive: Boolean,
+        $filters: UserFilterDataInputType,
     ) {
         users(
-            includeInactive: true,
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            fullName: $fullName,
-            roleIn: $roleIn,
-            isActive: $isActive,
+            filters: $filters,
         ) {
             results {
                 dateJoined
@@ -161,7 +157,7 @@ function UserRoles(props: UserRolesProps) {
         pageSize,
         rawPageSize,
         setPageSize,
-    } = useFilterState<PurgeNull<UserListQueryVariables>>({
+    } = useFilterState<PurgeNull<NonNullable<UserListQueryVariables['filters']>>>({
         filter: {},
         ordering: {
             name: 'date_joined',
@@ -181,7 +177,10 @@ function UserRoles(props: UserRolesProps) {
             ordering,
             page,
             pageSize,
-            ...filter,
+            filters: expandObject<NonNullable<UserListQueryVariables['filters']>>(
+                filter,
+                { includeInactive: true },
+            ),
         }),
         [
             ordering,

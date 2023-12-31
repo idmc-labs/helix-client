@@ -52,16 +52,13 @@ const GET_CONTACTS_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-
-        $name: String,
-        $countriesOfOperation: [String!],
+        $filters: ContactFilterDataInputType,
     ) {
         contactList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            nameContains: $name,
-            countriesOfOperation: $countriesOfOperation,
+            filters: $filters,
         ) {
             results {
                 id
@@ -144,7 +141,7 @@ function ContactsTable(props: ContactsTableProps) {
 
         pageSize,
         setPageSize,
-    } = useFilterState<PurgeNull<ContactListQueryVariables>>({
+    } = useFilterState<PurgeNull<NonNullable<ContactListQueryVariables['filters']>>>({
         filter: {},
         ordering: {
             name: 'created_at',
@@ -184,12 +181,15 @@ function ContactsTable(props: ContactsTableProps) {
     );
 
     const contactsVariables = useMemo(
-        () => expandObject<PurgeNull<ContactListQueryVariables>>({
+        (): ContactListQueryVariables => ({
             ordering,
             page,
             pageSize,
-            ...filter,
-        }, {}),
+            filters: expandObject<NonNullable<ContactListQueryVariables['filters']>>(
+                filter,
+                {},
+            ),
+        }),
         [
             ordering,
             page,

@@ -36,7 +36,7 @@ const defaultSorting: TableSortParameter = {
 interface ExtractionEntriesTableProps {
     headingActions?: React.ReactNode;
     className?: string;
-    filters?: ExtractionEntryListFiltersQueryVariables;
+    filters?: NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>;
 }
 
 function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
@@ -87,7 +87,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
             ordering: entriesOrdering,
             page: debouncedEntriesPage,
             pageSize: entriesPageSize,
-            ...filters,
+            filters,
         }),
         [
             entriesOrdering,
@@ -102,7 +102,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
             ordering: figuresOrdering,
             page: debouncedFiguresPage,
             pageSize: figuresPageSize,
-            ...filters,
+            filters,
         }),
         [
             figuresOrdering,

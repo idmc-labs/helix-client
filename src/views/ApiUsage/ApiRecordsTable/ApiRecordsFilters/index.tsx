@@ -38,7 +38,7 @@ const API_TYPE_OPTIONS = gql`
     }
 `;
 
-type ApiFilterFields = Omit<ClientTrackInformationListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type ApiFilterFields = NonNullable<ClientTrackInformationListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<ApiFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -63,7 +63,7 @@ const defaultFormValues: PartialForm<FormType> = {
 interface ApiFilterProps {
     className?: string;
     initialFilter?: PartialForm<FormType>;
-    onFilterChange: (value: PurgeNull<ClientTrackInformationListQueryVariables>) => void;
+    onFilterChange: (value: PurgeNull<ApiFilterFields>) => void;
 }
 
 function ApiRecordsFilter(props: ApiFilterProps) {

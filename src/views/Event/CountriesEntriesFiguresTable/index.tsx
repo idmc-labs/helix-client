@@ -54,7 +54,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
         pageSize: countriesPageSize,
         rawPageSize: rawCountriesPageSize,
         setPageSize: setCountriesPageSize,
-    } = useFilterState<PurgeNull<CountriesQueryVariables>>({
+    } = useFilterState<PurgeNull<NonNullable<CountriesQueryVariables['filters']>>>({
         filter: {},
         ordering: {
             name: 'idmc_short_name',
@@ -63,13 +63,15 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
     });
 
     const countriesVariables = useMemo(
-        () => expandObject<CountriesQueryVariables>({
+        (): CountriesQueryVariables => ({
             ordering: countriesOrdering,
             page: countriesPage,
             pageSize: countriesPageSize,
-            ...countriesFilter,
-        }, {
-            // FIXME: use entries filter here
+            filters: expandObject<NonNullable<CountriesQueryVariables['filters']>>(
+                countriesFilter,
+                // FIXME: use entries filter here
+                {},
+            ),
         }),
         [
             countriesOrdering,
@@ -107,7 +109,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
         pageSize: entriesPageSize,
         rawPageSize: rawEntriesPageSize,
         setPageSize: setEntriesPageSize,
-    } = useFilterState<PurgeNull<ExtractionEntryListFiltersQueryVariables>>({
+    } = useFilterState<PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>>({
         filter: {},
         ordering: {
             name: 'created_at',
@@ -130,7 +132,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
         pageSize: figuresPageSize,
         rawPageSize: rawFiguresPageSize,
         setPageSize: setFiguresPageSize,
-    } = useFilterState<PurgeNull<ExtractionEntryListFiltersQueryVariables>>({
+    } = useFilterState<PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>>({
         filter: {},
         ordering: {
             name: 'created_at',
@@ -139,13 +141,16 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
     });
 
     const entriesVariables = useMemo(
-        () => expandObject<ExtractionEntryListFiltersQueryVariables >({
+        (): ExtractionEntryListFiltersQueryVariables => ({
             ordering: entriesOrdering,
             page: entriesPage,
             pageSize: entriesPageSize,
-            ...entriesFilter,
-        }, {
-            filterFigureEvents: eventId ? [eventId] : undefined,
+            filters: expandObject<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>(
+                entriesFilter,
+                {
+                    filterFigureEvents: eventId ? [eventId] : undefined,
+                },
+            ),
         }),
         [
             entriesOrdering,
@@ -157,13 +162,16 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
     );
 
     const figuresVariables = useMemo(
-        () => expandObject<ExtractionFigureListQueryVariables>({
+        (): ExtractionFigureListQueryVariables => ({
             ordering: figuresOrdering,
             page: figuresPage,
             pageSize: figuresPageSize,
-            ...figuresFilter,
-        }, {
-            filterFigureEvents: eventId ? [eventId] : undefined,
+            filters: expandObject<NonNullable<ExtractionFigureListQueryVariables['filters']>>(
+                figuresFilter,
+                {
+                    filterFigureEvents: eventId ? [eventId] : undefined,
+                },
+            ),
         }),
         [
             figuresOrdering,

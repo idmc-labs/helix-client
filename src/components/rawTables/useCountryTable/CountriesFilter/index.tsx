@@ -23,8 +23,7 @@ import NonFieldError from '#components/NonFieldError';
 import { CountriesQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type CountriesFilterFields = Omit<CountriesQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type CountriesFilterFields = NonNullable<CountriesQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<CountriesFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -34,7 +33,7 @@ const createSchema = (yearFilterHidden: boolean | undefined): FormSchema => ({
     fields: (): FormSchemaFields => {
         let basicFields: FormSchemaFields = {
             regionByIds: [arrayCondition],
-            geoGroupsByIds: [arrayCondition],
+            geoGroupByIds: [arrayCondition],
             countryName: [],
         };
         if (!yearFilterHidden) {
@@ -49,7 +48,7 @@ const createSchema = (yearFilterHidden: boolean | undefined): FormSchema => ({
 
 const defaultFormValues: PartialForm<FormType> = {
     regionByIds: [],
-    geoGroupsByIds: [],
+    geoGroupByIds: [],
     countryName: undefined,
     year: new Date().getFullYear(),
 };
@@ -57,7 +56,7 @@ const defaultFormValues: PartialForm<FormType> = {
 interface CountriesFiltersProps {
     className?: string;
     initialFilter?: PartialForm<FormType>;
-    onFilterChange: (value: PurgeNull<CountriesQueryVariables>) => void;
+    onFilterChange: (value: PurgeNull<CountriesFilterFields>) => void;
 
     hiddenFields?: ('year')[];
 }
@@ -132,10 +131,10 @@ function CountriesFilter(props: CountriesFiltersProps) {
                 <GeographicMultiSelectInput
                     className={styles.input}
                     label="Geographical Groups"
-                    name="geoGroupsByIds"
-                    value={value.geoGroupsByIds}
+                    name="geoGroupByIds"
+                    value={value.geoGroupByIds}
                     onChange={onValueChange}
-                    error={error?.fields?.geoGroupsByIds?.$internal}
+                    error={error?.fields?.geoGroupByIds?.$internal}
                 />
                 {!yearFilterHidden && (
                     <NumberInput

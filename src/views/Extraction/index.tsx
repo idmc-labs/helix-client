@@ -155,7 +155,7 @@ function Extraction(props: ExtractionProps) {
     const [
         extractionQueryFilters,
         setExtractionQueryFilters,
-    ] = useState<ExtractionEntryListFiltersQueryVariables>();
+    ] = useState<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>();
 
     const [
         extractionQueryFiltersMeta,

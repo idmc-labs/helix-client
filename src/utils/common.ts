@@ -260,7 +260,13 @@ export function formatElapsedTime(seconds: number, depth = 0): string {
     return '';
 }
 
-export function expandObject<T extends Record<string, unknown>>(defaultValue: T, overrideValue: T) {
+export function expandObject<T extends Record<string, unknown>>(
+    defaultValue: T | null | undefined,
+    overrideValue: T,
+) {
+    if (!defaultValue) {
+        return overrideValue;
+    }
     const newValue = {
         ...defaultValue,
     };

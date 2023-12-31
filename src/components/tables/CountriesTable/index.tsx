@@ -40,7 +40,7 @@ function CountriesTable(props: CountriesProps) {
         pageSize,
         rawPageSize,
         setPageSize,
-    } = useFilterState<CountriesQueryVariables>({
+    } = useFilterState<NonNullable<CountriesQueryVariables['filters']>>({
         filter: {},
         ordering: {
             name: 'idmc_short_name',
@@ -49,12 +49,15 @@ function CountriesTable(props: CountriesProps) {
     });
 
     const countriesVariables = useMemo(
-        () => expandObject<CountriesQueryVariables>({
+        () => ({
             ordering,
             page,
             pageSize,
-            ...filter,
-        }, {}),
+            filters: expandObject<NonNullable<CountriesQueryVariables['filters']>>(
+                filter,
+                {},
+            ),
+        }),
         [
             ordering,
             page,

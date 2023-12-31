@@ -29,8 +29,7 @@ import styles from './styles.css';
 const regionalCoordinator: UserRole = 'REGIONAL_COORDINATOR';
 const monitoringExpert: UserRole = 'MONITORING_EXPERT';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type UserFilterFields = Omit<UserListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type UserFilterFields = NonNullable<UserListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<UserFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -71,7 +70,7 @@ const isActiveOptions = [
 interface UsersFilterProps {
     className?: string;
     initialFilter?: PartialForm<FormType>;
-    onFilterChange: (value: PurgeNull<UserListQueryVariables>) => void;
+    onFilterChange: (value: PurgeNull<UserFilterFields>) => void;
 }
 
 /*

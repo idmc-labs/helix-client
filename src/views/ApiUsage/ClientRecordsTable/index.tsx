@@ -44,15 +44,13 @@ const CLIENT_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $isActive: Boolean,
-        $name: String,
+        $filters: ClientFilterDataInputType,
     ) {
         clientList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            name: $name,
-            isActive: $isActive,
+            filters: $filters,
         ) {
             page
             pageSize
@@ -107,7 +105,7 @@ function ClientRecordsTable(props: ClientRecordProps) {
         pageSize,
         rawPageSize,
         setPageSize,
-    } = useFilterState<PurgeNull<ClientListQueryVariables>>({
+    } = useFilterState<PurgeNull<NonNullable<ClientListQueryVariables['filters']>>>({
         filter: {},
         ordering: {
             name: 'name',
@@ -130,7 +128,7 @@ function ClientRecordsTable(props: ClientRecordProps) {
             ordering,
             page,
             pageSize,
-            ...filter,
+            filters: filter,
         }),
         [
             ordering,

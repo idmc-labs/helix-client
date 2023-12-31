@@ -16,10 +16,14 @@ import {
 import styles from './styles.css';
 
 const GET_CONTEXTUAL_HISTORY = gql`
-    query ContextualHistory($id: ID!, $page: Int, $pageSize: Int) {
-        country(id: $id) {
+    query ContextualHistory($country: ID!, $page: Int, $pageSize: Int) {
+        country(id: $country) {
             id
-            contextualAnalyses(ordering: "-created_at", page: $page, pageSize: $pageSize) {
+            contextualAnalyses(
+                ordering: "-created_at",
+                page: $page,
+                pageSize: $pageSize,
+            ) {
                 page
                 pageSize
                 totalCount
@@ -63,7 +67,7 @@ function ContextualHistoryList(props: ContextualHistoryProps) {
         (): ContextualHistoryQueryVariables => ({
             page,
             pageSize,
-            id: country,
+            country,
         }),
         [
             page,

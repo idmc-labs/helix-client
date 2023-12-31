@@ -16,8 +16,14 @@ import {
 } from '#generated/types';
 
 const GET_CLIENT_CODE_OPTIONS = gql`
-    query ApiClientList($search: String, $ordering: String) {
-        clientList (name: $search, ordering: $ordering) {
+    query ApiClientList(
+        $search: String,
+        $ordering: String,
+    ) {
+        clientList(
+            ordering: $ordering,
+            filters: { name: $search },
+        ) {
             totalCount
             results {
                 id

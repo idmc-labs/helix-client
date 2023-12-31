@@ -40,7 +40,7 @@ function CrisesTable(props: CrisesProps) {
         pageSize,
         rawPageSize,
         setPageSize,
-    } = useFilterState<CrisesQueryVariables>({
+    } = useFilterState<NonNullable<CrisesQueryVariables['filters']>>({
         filter: {},
         ordering: {
             name: 'created_at',
@@ -49,12 +49,15 @@ function CrisesTable(props: CrisesProps) {
     });
 
     const crisesVariables = useMemo(
-        () => expandObject<CrisesQueryVariables>({
+        () => ({
             ordering,
             page,
             pageSize,
-            ...filter,
-        }, {}),
+            filters: expandObject<NonNullable<CrisesQueryVariables['filters']>>(
+                filter,
+                {},
+            ),
+        }),
         [
             ordering,
             page,

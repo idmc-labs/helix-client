@@ -44,20 +44,14 @@ const CONTEXTUAL_UPDATE_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $name: String,
-        $countries: [String!],
-        $publishers: [String!],
-        $sources: [String!],
-        ) {
+        $filters: ContextualUpdateFilterDataInputType,
+    ) {
         contextualUpdateList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            articleTitle: $name,
-            countries: $countries,
-            publishers: $publishers,
-            sources: $sources,
-            ) {
+            filters: $filters,
+        ) {
             totalCount
             pageSize
             page
@@ -128,7 +122,7 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
         rawPageSize,
         pageSize,
         setPageSize,
-    } = useFilterState<PurgeNull<ContextualUpdatesQueryVariables>>({
+    } = useFilterState<PurgeNull<NonNullable<ContextualUpdatesQueryVariables['filters']>>>({
         filter: {},
         ordering: {
             name: 'created_at',
@@ -146,7 +140,7 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
             ordering,
             page,
             pageSize,
-            ...filter,
+            filters: filter,
         }),
         [
             ordering,

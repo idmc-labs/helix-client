@@ -154,8 +154,7 @@ const figureCategoryHideOptionFilter = (item: DisplacementTypeOption) => (
     isVisibleCategory(item.name)
 );
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type FiguresFilterFields = Omit<ExtractionEntryListFiltersQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type FiguresFilterFields = NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<FiguresFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -230,8 +229,8 @@ const defaultFormValues: PartialForm<FormType> = {};
 
 interface FiguresFilterProps {
     className?: string;
-    initialFilter?: PurgeNull<ExtractionEntryListFiltersQueryVariables> | null | undefined;
-    onFilterChange: (value: PurgeNull<ExtractionEntryListFiltersQueryVariables>) => void;
+    initialFilter?: PurgeNull<FiguresFilterFields> | null | undefined;
+    onFilterChange: (value: PurgeNull<FiguresFilterFields>) => void;
     disabled?: boolean;
 
     // NOTE: We have not implemented createdBy

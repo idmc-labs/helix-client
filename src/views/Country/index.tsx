@@ -60,16 +60,16 @@ const COUNTRY = gql`
                 summary
             }
             boundingBox
-            eventsConflict: events(eventTypes: ["CONFLICT"]) {
+            eventsConflict: events(filters: { eventTypes: ["CONFLICT"] }) {
                 totalCount
             }
-            eventsDisaster: events(eventTypes: ["DISASTER"]) {
+            eventsDisaster: events(filters: { eventTypes: ["DISASTER"] }) {
                 totalCount
             }
-            crisesConflict: crises(crisisTypes: ["CONFLICT"]) {
+            crisesConflict: crises(filters: { crisisTypes: ["CONFLICT"] }) {
                 totalCount
             }
-            crisesDisaster: crises(crisisTypes: ["DISASTER"]) {
+            crisesDisaster: crises(filters: { crisisTypes: ["DISASTER"] }) {
                 totalCount
             }
             entries {

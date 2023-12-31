@@ -48,19 +48,13 @@ const GET_ORGANIZATIONS_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $name: String,
-        $categories: [String!],
-        $countries: [ID!],
-        $organizationKinds: [ID!],
+        $filters: OrganizationFilterDataInputType,
     ) {
         organizationList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            name_Unaccent_Icontains: $name,
-            categories: $categories,
-            organizationKinds: $organizationKinds,
-            countries: $countries,
+            filters: $filters,
         ) {
             results {
                 id
@@ -144,7 +138,7 @@ function OrganizationTable(props: OrganizationProps) {
         rawPageSize,
         pageSize,
         setPageSize,
-    } = useFilterState<PurgeNull<OrganizationsListQueryVariables>>({
+    } = useFilterState<PurgeNull<NonNullable<OrganizationsListQueryVariables['filters']>>>({
         filter: {},
         ordering: {
             name: 'created_at',
@@ -172,7 +166,7 @@ function OrganizationTable(props: OrganizationProps) {
             ordering,
             page,
             pageSize,
-            ...filter,
+            filters: filter,
         }),
         [
             ordering,

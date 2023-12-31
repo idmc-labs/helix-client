@@ -55,7 +55,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
         pageSize: entriesPageSize,
         rawPageSize: rawEntriesPageSize,
         setPageSize: setEntriesPageSize,
-    } = useFilterState<PurgeNull<ExtractionEntryListFiltersQueryVariables>>({
+    } = useFilterState<PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>>({
         filter: {},
         ordering: {
             name: 'created_at',
@@ -78,7 +78,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
         pageSize: figuresPageSize,
         rawPageSize: rawFiguresPageSize,
         setPageSize: setFiguresPageSize,
-    } = useFilterState<PurgeNull<ExtractionEntryListFiltersQueryVariables>>({
+    } = useFilterState<PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>>({
         filter: {},
         ordering: {
             name: 'created_at',
@@ -87,18 +87,21 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
     });
 
     const entriesVariables = useMemo(
-        () => expandObject<ExtractionEntryListFiltersQueryVariables >({
+        () => ({
             ordering: entriesOrdering,
             page: entriesPage,
             pageSize: entriesPageSize,
-            ...entriesFilter,
-        }, {
-            filterFigureCreatedBy: figureCreatedBy
-                ? [figureCreatedBy]
-                : undefined,
-            filterFigureReviewStatus: figureReviewStatus
-                ? [figureReviewStatus]
-                : undefined,
+            filters: expandObject<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>(
+                entriesFilter,
+                {
+                    filterFigureCreatedBy: figureCreatedBy
+                        ? [figureCreatedBy]
+                        : undefined,
+                    filterFigureReviewStatus: figureReviewStatus
+                        ? [figureReviewStatus]
+                        : undefined,
+                },
+            ),
         }),
         [
             entriesOrdering,
@@ -111,18 +114,21 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
     );
 
     const figuresVariables = useMemo(
-        () => expandObject<ExtractionFigureListQueryVariables>({
+        () => ({
             ordering: figuresOrdering,
             page: figuresPage,
             pageSize: figuresPageSize,
-            ...figuresFilter,
-        }, {
-            filterFigureCreatedBy: figureCreatedBy
-                ? [figureCreatedBy]
-                : undefined,
-            filterFigureReviewStatus: figureReviewStatus
-                ? [figureReviewStatus]
-                : undefined,
+            filters: expandObject<NonNullable<ExtractionFigureListQueryVariables['filters']>>(
+                figuresFilter,
+                {
+                    filterFigureCreatedBy: figureCreatedBy
+                        ? [figureCreatedBy]
+                        : undefined,
+                    filterFigureReviewStatus: figureReviewStatus
+                        ? [figureReviewStatus]
+                        : undefined,
+                },
+            ),
         }),
         [
             figuresOrdering,

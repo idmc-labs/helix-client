@@ -50,15 +50,12 @@ const NOTIFICATION_COUNTS = gql`
         $types: [String!],
     ) {
         allNotifications: notifications(
-            recipient: $recipient,
-            isRead: false,
+            filters: { recipient: $recipient, isRead: false },
         ) {
             totalCount
         }
         importantNotifications: notifications(
-            recipient: $recipient,
-            types: $types,
-            isRead: false,
+            filters: { recipient: $recipient, types: $types, isRead: false },
         ) {
             totalCount
         }
@@ -144,24 +141,16 @@ const TOGGLE_NOTIFICATION_READ_STATUS = gql`
 
 const NOTIFICATIONS = gql`
     query Notifications(
-        $recipient: ID!,
-        $types: [String!],
         $page: Int,
         $pageSize: Int,
-        $isRead: Boolean,
-        $createdAtBefore: Date,
-        $createdAtAfter: Date,
         $ordering: String,
+        $filters: NotificationFilterDataInputType,
     ) {
         notifications(
-            recipient: $recipient,
-            types: $types,
             page: $page,
             pageSize: $pageSize,
-            isRead: $isRead,
-            createdAtBefore: $createdAtBefore,
-            createdAtAfter: $createdAtAfter,
             ordering: $ordering,
+            filters: $filters,
         ) {
             totalCount
             results {
@@ -307,18 +296,20 @@ function Notifications(props: NotificationsProps) {
     const notificationsVariables = useMemo(
         (): NotificationsQueryVariables | undefined => (
             userId ? {
-                recipient: userId,
                 page,
                 pageSize,
                 ordering,
-                isRead: filter.readState === 'all'
-                    ? undefined
-                    : (filter.readState !== 'unread'),
-                createdAtAfter: filter.createdAtFrom,
-                createdAtBefore: filter.createdAtTo,
-                types: filter.category === 'important'
-                    ? importantCategories
-                    : undefined,
+                filters: {
+                    recipient: userId,
+                    isRead: filter.readState === 'all'
+                        ? undefined
+                        : (filter.readState !== 'unread'),
+                    createdAtAfter: filter.createdAtFrom,
+                    createdAtBefore: filter.createdAtTo,
+                    types: filter.category === 'important'
+                        ? importantCategories
+                        : undefined,
+                },
             } : undefined
         ),
         [

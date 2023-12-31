@@ -81,8 +81,8 @@ const GET_ORGANIZATIONS_LIST = gql`
         $pageSize: Int,
     ) {
         organizationList(
-            name_Unaccent_Icontains: $name,
             pageSize: $pageSize,
+            filters: { name_Unaccent_Icontains: $name },
         ) {
             results {
                 id

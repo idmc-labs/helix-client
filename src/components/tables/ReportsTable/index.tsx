@@ -58,27 +58,13 @@ const REPORT_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $name: String,
-        $filterFigureCountries: [ID!],
-        $reviewStatus: [String!],
-        $startDateAfter: Date,
-        $endDateBefore: Date,
-        $isPublic: Boolean,
-        $isPfaVisibleInGidd: Boolean,
-        $isGiddReport: Boolean,
+        $filters: ReportFilterDataInputType,
     ) {
         reportList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            name_Unaccent_Icontains: $name,
-            filterFigureCountries: $filterFigureCountries,
-            reviewStatus: $reviewStatus,
-            startDateAfter: $startDateAfter,
-            endDateBefore: $endDateBefore,
-            isPublic: $isPublic,
-            isPfaVisibleInGidd: $isPfaVisibleInGidd,
-            isGiddReport: $isGiddReport,
+            filters: $filters,
         ) {
             totalCount
             pageSize
@@ -194,7 +180,7 @@ function ReportsTable(props: ReportsProps) {
         rawPageSize,
         pageSize,
         setPageSize,
-    } = useFilterState<PurgeNull<ReportsQueryVariables>>({
+    } = useFilterState<PurgeNull<NonNullable<ReportsQueryVariables['filters']>>>({
         filter: {},
         ordering: {
             name: 'created_at',
@@ -203,14 +189,17 @@ function ReportsTable(props: ReportsProps) {
     });
 
     const reportsVariables = useMemo(
-        () => expandObject<ReportsQueryVariables >({
+        (): ReportsQueryVariables => ({
             ordering,
             page,
             pageSize,
-            ...filter,
-        }, {
-            isGiddReport: isGiddReport ? true : undefined,
-            isPfaVisibleInGidd: isPfaVisibleInGidd ? true : undefined,
+            filters: expandObject<NonNullable<ReportsQueryVariables['filters']>>(
+                filter,
+                {
+                    isGiddReport: isGiddReport ? true : undefined,
+                    isPfaVisibleInGidd: isPfaVisibleInGidd ? true : undefined,
+                },
+            ),
         }),
         [
             ordering,

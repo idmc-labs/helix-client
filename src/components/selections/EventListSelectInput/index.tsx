@@ -20,16 +20,12 @@ import styles from './styles.css';
 const EVENT_LIST = gql`
     ${EVENT_FRAGMENT}
     query GetEventList(
-        $search: String,
-        $crises: [ID!],
-        $countries: [ID!],
+        $filters: EventFilterDataInputType,
         $ordering: String,
     ) {
         eventList(
-            name: $search,
             ordering: $ordering,
-            crisisByIds: $crises,
-            countries: $countries,
+            filters: $filters,
         ) {
             totalCount
             results {
@@ -77,13 +73,17 @@ function EventListSelectInput<K extends string>(props: SelectInputProps<K>) {
     const searchVariable = useMemo(
         (): GetEventListQueryVariables => (
             debouncedSearchText ? {
-                search: debouncedSearchText,
-                countries,
-                crises,
+                filters: {
+                    name: debouncedSearchText,
+                    countries,
+                    crisisByIds: crises,
+                },
             } : {
                 ordering: '-created_at',
-                countries,
-                crises,
+                filters: {
+                    countries,
+                    crisisByIds: crises,
+                },
             }
         ),
         [debouncedSearchText, countries, crises],

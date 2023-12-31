@@ -17,8 +17,14 @@ import SearchMultiSelectInputWithChip from '#components/SearchMultiSelectInputWi
 import styles from './styles.css';
 
 const VIOLENCE_CONTEXT = gql`
-    query GetViolenceContext($name_Icontains: String, $ordering: String) {
-        contextOfViolenceList(name_Icontains: $name_Icontains, ordering: $ordering) {
+    query GetViolenceContext(
+        $name_Icontains: String,
+        $ordering: String,
+    ) {
+        contextOfViolenceList(
+            ordering: $ordering,
+            filters: { name_Icontains: $name_Icontains },
+        ) {
             totalCount
             results {
                 id

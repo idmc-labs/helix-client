@@ -16,8 +16,14 @@ import { GetRegionQuery, GetRegionQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
 const COUNTRY_REGION = gql`
-    query GetRegion($search: String, $ordering: String) {
-        countryRegionList(name: $search, ordering: $ordering) {
+    query GetRegion(
+        $search: String,
+        $ordering: String,
+    ) {
+        countryRegionList(
+            ordering: $ordering,
+            filters: { name: $search },
+        ) {
             totalCount
             results {
                 id

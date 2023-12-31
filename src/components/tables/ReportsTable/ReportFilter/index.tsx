@@ -30,8 +30,7 @@ import {
 import { enumKeySelector, enumLabelSelector } from '#utils/common';
 import styles from './styles.css';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type ReportsFilterFields = Omit<ReportsQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type ReportsFilterFields = NonNullable<ReportsQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<ReportsFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -40,7 +39,7 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         filterFigureCountries: [arrayCondition],
-        name: [],
+        name_Unaccent_Icontains: [],
         reviewStatus: [arrayCondition],
         startDateAfter: [],
         endDateBefore: [],
@@ -50,7 +49,7 @@ const schema: FormSchema = {
 
 const defaultFormValues: PartialForm<FormType> = {
     filterFigureCountries: [],
-    name: undefined,
+    name_Unaccent_Icontains: undefined,
     reviewStatus: [],
     isPublic: undefined,
     startDateAfter: undefined,
@@ -72,7 +71,7 @@ const STATUS_OPTIONS = gql`
 interface ReportFilterProps {
     className?: string;
     initialFilter?: PartialForm<FormType>;
-    onFilterChange: (value: PurgeNull<ReportsQueryVariables>) => void;
+    onFilterChange: (value: PurgeNull<ReportsFilterFields>) => void;
 }
 
 function ReportFilter(props: ReportFilterProps) {
@@ -126,8 +125,8 @@ function ReportFilter(props: ReportFilterProps) {
                     className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Name"
-                    name="name"
-                    value={value.name}
+                    name="name_Unaccent_Icontains"
+                    value={value.name_Unaccent_Icontains}
                     onChange={onValueChange}
                     placeholder="Search"
                 />

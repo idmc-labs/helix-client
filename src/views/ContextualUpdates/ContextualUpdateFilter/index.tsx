@@ -19,8 +19,7 @@ import { PartialForm, PurgeNull } from '#types';
 import { ContextualUpdatesQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type ContextualFilterFields = Omit<ContextualUpdatesQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type ContextualFilterFields = NonNullable<ContextualUpdatesQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<ContextualFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -28,7 +27,7 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        name: [],
+        articleTitle: [],
         countries: [arrayCondition],
         publishers: [arrayCondition],
         sources: [arrayCondition],
@@ -36,7 +35,7 @@ const schema: FormSchema = {
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    name: undefined,
+    articleTitle: undefined,
     countries: [],
     publishers: [],
     sources: [],
@@ -45,7 +44,7 @@ const defaultFormValues: PartialForm<FormType> = {
 interface ContextualFilterProps {
     className?: string;
     initialFilter?: PartialForm<FormType>;
-    onFilterChange: (value: PurgeNull<ContextualUpdatesQueryVariables>) => void;
+    onFilterChange: (value: PurgeNull<ContextualFilterFields>) => void;
 }
 
 function ContextualFilter(props: ContextualFilterProps) {
@@ -93,10 +92,10 @@ function ContextualFilter(props: ContextualFilterProps) {
                     className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Search"
-                    name="name"
-                    value={value.name}
+                    name="articleTitle"
+                    value={value.articleTitle}
                     onChange={onValueChange}
-                    error={error?.fields?.name}
+                    error={error?.fields?.articleTitle}
                 />
                 <CountryMultiSelectInput
                     className={styles.input}

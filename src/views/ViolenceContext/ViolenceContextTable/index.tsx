@@ -44,11 +44,11 @@ type ViolenceContextFields = NonNullable<NonNullable<ContextOfViolenceListQuery[
 const CONTEXT_OF_VIOLENCE_LIST = gql`
     query ContextOfViolenceList(
         $ordering: String,
-        $name_Icontains: String,
+        $filters: ContextOfViolenceFilterDataInputType,
     ) {
         contextOfViolenceList(
-            name_Icontains: $name_Icontains,
             ordering: $ordering,
+            filters: $filters,
         ) {
             page
             pageSize
@@ -95,7 +95,7 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
         // rawFilter,
         filter,
         setFilter,
-    } = useFilterState<PurgeNull<ContextOfViolenceListQueryVariables>>({
+    } = useFilterState<PurgeNull<NonNullable<ContextOfViolenceListQueryVariables['filters']>>>({
         filter: {},
         ordering: {
             name: 'created_at',
@@ -115,10 +115,10 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
         hideViolenceContextModal,
     ] = useModalState();
 
-    const variables = useMemo(
+    const variables: ContextOfViolenceListQueryVariables = useMemo(
         () => ({
             ordering,
-            ...filter,
+            filters: filter,
         }),
         [
             ordering,

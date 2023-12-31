@@ -16,8 +16,14 @@ import { GetOrganizationQuery, GetOrganizationQueryVariables } from '#generated/
 import styles from './styles.css';
 
 export const ORGANIZATION = gql`
-    query GetOrganization($search: String, $ordering: String, $countries: [ID!]) {
-        organizationList(name_Unaccent_Icontains: $search, ordering: $ordering, orderCountryFirst: $countries) {
+    query GetOrganization(
+        $ordering: String,
+        $filters: OrganizationFilterDataInputType,
+    ) {
+        organizationList(
+        ordering: $ordering,
+        filters: $filters,
+    ) {
             totalCount
             results {
                 id
@@ -78,11 +84,13 @@ function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
 
     const searchVariable = useMemo(
         (): GetOrganizationQueryVariables => ({
-            search: debouncedSearchText,
             ordering: debouncedSearchText || country
                 ? undefined
                 : 'name',
-            countries: country ? [country] : undefined,
+            filters: {
+                name_Unaccent_Icontains: debouncedSearchText,
+                orderCountryFirst: country ? [country] : undefined,
+            },
         }),
         [debouncedSearchText, country],
     );

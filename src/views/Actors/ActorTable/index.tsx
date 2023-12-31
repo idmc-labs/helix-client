@@ -48,13 +48,13 @@ const GET_ACTORS_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $name: String,
+        $filters: ActorFilterDataInputType,
     ) {
         actorList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            name_Unaccent_Icontains: $name,
+            filters: $filters,
         ) {
             results {
                 id
@@ -124,7 +124,7 @@ function ActorTable(props: ActorProps) {
         rawPageSize,
         pageSize,
         setPageSize,
-    } = useFilterState<PurgeNull<ActorsListQueryVariables>>({
+    } = useFilterState<PurgeNull<NonNullable<ActorsListQueryVariables['filters']>>>({
         filter: {},
         ordering: {
             name: 'created_at',
@@ -152,7 +152,7 @@ function ActorTable(props: ActorProps) {
             ordering,
             page,
             pageSize,
-            ...filter,
+            filters: filter,
         }),
         [
             ordering,

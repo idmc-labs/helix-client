@@ -48,19 +48,13 @@ const CLIENT_TRACK_INFORMATION_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $apiType: [String!],
-        $clientCodes: [String!],
-        $endTrackDate: Date,
-        $startTrackDate: Date,
+        $filters: ClientTrackInfoFilterDataInputType,
     ) {
         clientTrackInformationList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            apiType: $apiType,
-            clientCodes: $clientCodes,
-            endTrackDate: $endTrackDate,
-            startTrackDate: $startTrackDate,
+            filters: $filters,
         ) {
             page
             pageSize
@@ -144,7 +138,7 @@ function ApiRecordsTable(props: ApiRecordProps) {
         pageSize,
         rawPageSize,
         setPageSize,
-    } = useFilterState<PurgeNull<ClientTrackInformationListQueryVariables>>({
+    } = useFilterState<PurgeNull<NonNullable<ClientTrackInformationListQueryVariables['filters']>>>({
         filter: {},
         ordering: {
             name: 'tracked_date',
@@ -157,7 +151,7 @@ function ApiRecordsTable(props: ApiRecordProps) {
             ordering,
             page,
             pageSize,
-            ...filter,
+            filters: filter,
         }),
         [
             ordering,

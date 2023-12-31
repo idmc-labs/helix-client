@@ -38,8 +38,14 @@ import styles from './styles.css';
 type RegionFields = NonNullable<NonNullable<MonitoringRegionsQuery['monitoringSubRegionList']>['results']>[number];
 
 const REGION_LIST = gql`
-    query monitoringRegions($name: String, $ordering: String) {
-        monitoringSubRegionList(name: $name, ordering: $ordering) {
+    query monitoringRegions(
+        $name: String,
+        $ordering: String,
+    ) {
+        monitoringSubRegionList(
+            ordering: $ordering,
+            filters: { name: $name },
+        ) {
             pageSize
             page
             totalCount

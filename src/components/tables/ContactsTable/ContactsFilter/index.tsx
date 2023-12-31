@@ -17,8 +17,7 @@ import { PartialForm, PurgeNull } from '#types';
 import { ContactListQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type ContactsFilterFields = Omit<ContactListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type ContactsFilterFields = NonNullable<ContactListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<ContactsFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -26,20 +25,20 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        name: [],
+        nameContains: [],
         countriesOfOperation: [],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    name: undefined,
+    nameContains: undefined,
     countriesOfOperation: [],
 };
 
 interface ContactsFilterProps {
     className?: string;
     initialFilter?: PartialForm<FormType>;
-    onFilterChange: (value: PurgeNull<ContactListQueryVariables>) => void;
+    onFilterChange: (value: PurgeNull<ContactsFilterFields>) => void;
 }
 
 function ContactsFilter(props: ContactsFilterProps) {
@@ -87,10 +86,10 @@ function ContactsFilter(props: ContactsFilterProps) {
                     className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Search"
-                    name="name"
-                    value={value.name}
+                    name="nameContains"
+                    value={value.nameContains}
                     onChange={onValueChange}
-                    error={error?.fields?.name}
+                    error={error?.fields?.nameContains}
                 />
                 <CountryMultiSelectInput
                     className={styles.input}

@@ -16,8 +16,7 @@ import { PartialForm, PurgeNull } from '#types';
 import { FigureTagListQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type TagsFilterFields = Omit<FigureTagListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type TagsFilterFields = NonNullable<FigureTagListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<TagsFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -25,18 +24,18 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        name: [],
+        name_Unaccent_Icontains: [],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    name: undefined,
+    name_Unaccent_Icontains: undefined,
 };
 
 interface TagsFilterProps {
     className?: string;
     initialFilter?: PartialForm<FormType>;
-    onFilterChange: (value: PurgeNull<FigureTagListQueryVariables>) => void;
+    onFilterChange: (value: PurgeNull<TagsFilterFields>) => void;
 }
 
 function TagsFilter(props: TagsFilterProps) {
@@ -84,10 +83,10 @@ function TagsFilter(props: TagsFilterProps) {
                     className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Search"
-                    name="name"
-                    value={value.name}
+                    name="name_Unaccent_Icontains"
+                    value={value.name_Unaccent_Icontains}
                     onChange={onValueChange}
-                    error={error?.fields?.name}
+                    error={error?.fields?.name_Unaccent_Icontains}
                 />
                 <div className={styles.formButtons}>
                     <Button

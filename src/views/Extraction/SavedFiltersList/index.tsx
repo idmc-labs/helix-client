@@ -23,8 +23,18 @@ import FilterItem from './FilterItem';
 import styles from './styles.css';
 
 export const GET_SAVED_QUERY_LIST = gql`
-    query ExtractionQueryList($search: String, $ordering: String, $page: Int, $pageSize: Int) {
-        extractionQueryList(name_Unaccent_Icontains: $search, ordering: $ordering, page: $page, pageSize: $pageSize) {
+    query ExtractionQueryList(
+        $search: String,
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+    ) {
+        extractionQueryList(
+            filters: { name_Unaccent_Icontains: $search },
+            ordering: $ordering,
+            page: $page,
+            pageSize: $pageSize,
+        ) {
             results {
                 id
                 name
