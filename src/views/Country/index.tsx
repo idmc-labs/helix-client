@@ -133,9 +133,7 @@ function Country(props: CountryProps) {
         handleSummaryFormClose,
     ] = useBasicToggle();
 
-    const [countryOptions, setCountryOptions] = useOptions('country');
-
-    const currentCountryOption = countryOptions?.find((country) => country.id === countryId);
+    const [, setCountryOptions] = useOptions('country');
 
     const countryVariables = useMemo(
         (): CountryQueryVariables | undefined => ({ id: countryId }),
@@ -405,7 +403,7 @@ function Country(props: CountryProps) {
                     />
                     <MyResources
                         className={styles.container}
-                        country={currentCountryOption}
+                        country={countryId}
                     />
                 </div>
             </div>

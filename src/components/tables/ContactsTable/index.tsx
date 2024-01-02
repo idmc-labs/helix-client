@@ -139,6 +139,7 @@ function ContactsTable(props: ContactsTableProps) {
         filter,
         setFilter,
 
+        rawPageSize,
         pageSize,
         setPageSize,
     } = useFilterState<PurgeNull<NonNullable<ContactListQueryVariables['filters']>>>({
@@ -398,7 +399,7 @@ function ContactsTable(props: ContactsTableProps) {
                 <Pager
                     activePage={rawPage}
                     itemsCount={totalContactsCount}
-                    maxItemsPerPage={pageSize}
+                    maxItemsPerPage={rawPageSize}
                     onActivePageChange={setPage}
                     onItemsPerPageChange={setPageSize}
                 />

@@ -57,7 +57,7 @@ const GET_RESOURCES_LIST = gql`
 
 interface MyResourcesProps {
     className?: string;
-    country?: CountryOption | undefined | null;
+    country?: string | undefined | null;
 }
 
 function MyResources(props: MyResourcesProps) {
@@ -65,8 +65,6 @@ function MyResources(props: MyResourcesProps) {
         className,
         country,
     } = props;
-
-    const [, setCountries] = useOptions('country');
 
     const [searchText, setSearchText] = useState<string | undefined>('');
 
@@ -98,19 +96,10 @@ function MyResources(props: MyResourcesProps) {
             }
             return unfilteredResourcesList
                 ?.filter((item) => item.countries.some(
-                    (c) => c.id === country.id,
+                    (c) => c.id === country,
                 ));
         },
         [unfilteredResourcesList, country],
-    );
-
-    const handleOpen = useCallback(
-        () => {
-            if (country) {
-                setCountries([country]);
-            }
-        },
-        [country, setCountries],
     );
 
     const [
@@ -118,7 +107,7 @@ function MyResources(props: MyResourcesProps) {
         editableResourceId,
         handleResourceFormOpen,
         handleResourceFormClose,
-    ] = useModalState(false, { onOpen: handleOpen });
+    ] = useModalState(false);
 
     const resetSearchText = useCallback(
         () => {
@@ -222,7 +211,7 @@ function MyResources(props: MyResourcesProps) {
                     <ResourceForm
                         onResourceFormClose={handleResourceFormClose}
                         id={editableResourceId}
-                        country={country?.id}
+                        country={country}
                         handleRefetchResource={onHandleRefetchResource}
                     />
                 </Modal>
