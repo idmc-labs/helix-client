@@ -48,7 +48,7 @@ function pastDateCondition(value: string | null | undefined) {
     return 'Date should not be in the future';
 }
 
-// FIXME: the comparison should be type-safe but
+// NOTE: the comparison should be type-safe but
 // we are currently downcasting string literals to string
 const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
@@ -152,7 +152,6 @@ type GeoLocationsField = ReturnType<GeoLocations['member']>;
 const geoLocations: GeoLocations = {
     keySelector: (a) => a.uuid,
     member: (): GeoLocationsField => geoLocation,
-    // FIXME: the typings is not correct. need to update library
     validation: (value) => {
         if ((value?.length ?? 0) <= 0) {
             return 'At least one location should be added.';

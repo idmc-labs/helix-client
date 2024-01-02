@@ -43,8 +43,6 @@ export const COUNTRY_LIST = gql`
             page: $page,
             pageSize: $pageSize,
             filters: $filters,
-            # TODO: Check geoGroupByIds: $geoGroupsByIds,
-            # TODO: Check reportId: $report,
         ) {
             totalCount
             pageSize

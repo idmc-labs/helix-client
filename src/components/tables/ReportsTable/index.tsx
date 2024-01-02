@@ -329,7 +329,7 @@ function ReportsTable(props: ReportsProps) {
                 (item) => ({
                     title: item.name,
                     attrs: { reportId: item.id },
-                    // FIXME: get this from server directly
+                    // TODO: get this from server directly
                     status: (
                         (item.lastGeneration?.isApproved && 'APPROVED')
                         || (item.lastGeneration?.isSignedOff && 'SIGNED_OFF')

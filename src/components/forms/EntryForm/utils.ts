@@ -15,7 +15,6 @@ import {
 
 type PartialFormValues = PartialForm<FormValues>;
 
-// FIXME: check all error transformations
 export function transformErrorForEntry(
     errors: NonNullable<CreateEntryMutation['createEntry']>['errors'],
 ) {
@@ -59,7 +58,6 @@ const AGE_KEY = 'age';
 const GEOLOCATION_KEY = 'geoLocation';
 
 // [...'ram:12;shyam:14,kiran:12'.matchAll(/(\w+):([\d\w-]+)/g)]
-
 function getReviewInputName({
     figure,
     age,

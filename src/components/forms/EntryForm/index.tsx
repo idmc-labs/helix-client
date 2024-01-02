@@ -101,7 +101,7 @@ import {
 
 import styles from './styles.css';
 
-// FIXME: move this to utils
+// TODO: move this to utils
 function useWatchDog(
     stop: boolean,
     watchdogTimer: number,
@@ -200,7 +200,6 @@ function getValuesFromFigures(figures: (NonNullable<NonNullable<EntryQuery['entr
         (o) => o.id,
     );
 
-    // FIXME: server should always pass event
     const eventsForState = figures
         ?.map((item) => item?.event)
         .filter(isDefined);
@@ -567,7 +566,6 @@ function EntryForm(props: EntryFormProps) {
                 (item) => item,
             );
 
-            // TODO: Remove deleted figures
             const deletedFigures = deleteResponses?.map((item) => {
                 if (!item) {
                     return undefined;
@@ -751,7 +749,7 @@ function EntryForm(props: EntryFormProps) {
                 const { errors, result, deletedResult } = bulkUpdateFiguresRes;
                 // NOTE: We do not need to make sure that the no. of items in
                 // deleteIds is equal to deleteResponses
-                // TODO: We need to make sure that the no. of items in
+                // NOTE: We need to make sure that the no. of items in
                 // errorResponses and deleteResponses is equal to figures
                 updateResponses({
                     errorResponses: errors,
@@ -1320,7 +1318,7 @@ function EntryForm(props: EntryFormProps) {
                         className={styles.analysisAndFigures}
                         name="figures-and-analysis"
                     >
-                        {/* FIXME: Trends and patterns input element
+                        {/* NOTE: Trends and patterns input element
                             temporarily hidden until further notice */}
                         <Section
                             className={styles.hidden}

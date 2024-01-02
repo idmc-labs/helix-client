@@ -76,7 +76,7 @@ import {
 
 import styles from './styles.css';
 
-// FIXME: the comparison should be type-safe but
+// NOTE: the comparison should be type-safe but
 // we are currently downcasting string literals to string
 const disaster: CrisisType = 'DISASTER';
 const conflict: CrisisType = 'CONFLICT';

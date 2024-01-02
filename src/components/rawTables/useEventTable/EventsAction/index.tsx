@@ -191,11 +191,10 @@ function EventsActionCell(props: ActionProps) {
                 </QuickActionButton>
             )}
             {onQaTriangulationSettingChange && (
-                // FIXME: change title and icons for this icon
                 <QuickActionButton
                     name={id}
                     onClick={onQaTriangulationSettingChange}
-                    title={`Qa Settings: ${includeTriangulationInQa ? 'Triangulation figures are included.' : 'Triangulation figures are not included.'}`}
+                    title={`QA Settings: ${includeTriangulationInQa ? 'Triangulation figures are included.' : 'Triangulation figures are not included.'}`}
                     disabled={disabled || !onQaTriangulationSettingChange}
                     variant={includeTriangulationInQa ? 'warning' : 'default'}
                     transparent

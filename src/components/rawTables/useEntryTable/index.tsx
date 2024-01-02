@@ -38,7 +38,6 @@ import route from '#config/routes';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
-// FIXME: add more filters for date aggregates
 export const EXTRACTION_ENTRY_LIST = gql`
     query ExtractionEntryListFilters(
         $ordering: String,

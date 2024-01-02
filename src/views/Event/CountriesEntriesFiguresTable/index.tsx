@@ -69,7 +69,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
             pageSize: countriesPageSize,
             filters: expandObject<NonNullable<CountriesQueryVariables['filters']>>(
                 countriesFilter,
-                // FIXME: use entries filter here
+                // TODO: use countries filter here
                 {},
             ),
         }),

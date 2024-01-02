@@ -192,7 +192,6 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                                 className={styles.fileName}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                            // TODO: get filename instead of url
                             >
                                 {getNameFromUrl(attachment.attachment)}
                             </a>

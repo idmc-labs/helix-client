@@ -25,7 +25,7 @@ interface TabReduxProps {
     name: string;
 }
 
-// FIXME: move this to components
+// TODO: move this to components
 function TabRedux(props: TabReduxProps) {
     const {
         className,

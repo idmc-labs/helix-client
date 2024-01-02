@@ -180,7 +180,8 @@ function ResourceForm(props: ResourceFormProps) {
     ] = useBasicToggle();
 
     const { user } = useContext(DomainContext);
-    // FIXME: add permission for group and use it
+
+    // TODO: add permission for group and use it
     const addResourcePermission = user?.permissions?.resource?.add;
 
     const defaultFormValues: PartialForm<FormType> = useMemo(

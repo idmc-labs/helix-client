@@ -460,7 +460,6 @@ function useFigureTable(props: NudeFigureTableProps) {
                         'Event',
                         (item) => ({
                             title: item.event?.name,
-                            // FIXME: this may be wrong
                             attrs: { eventId: item.event?.id },
                             ext: item.event?.oldId
                                 ? `/events/${item.event.oldId}`

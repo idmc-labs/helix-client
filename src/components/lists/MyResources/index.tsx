@@ -72,7 +72,7 @@ function MyResources(props: MyResourcesProps) {
         previousData,
         data: resources = previousData,
         refetch: refetchResource,
-        // FIXME:
+        // TODO: handle loading and error
         // loading: resourcesLoading,
         // error: errorResourceLoading,
     } = useQuery<ResourcesQuery>(GET_RESOURCES_LIST);

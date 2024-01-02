@@ -47,7 +47,6 @@ const GET_COMMUNICATIONS_LIST = gql`
             pageSize: $pageSize,
 
             filters: $filters,
-            # FIXME: check subjectContains: $subject,
         ) {
             results {
                 id

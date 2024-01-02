@@ -118,7 +118,7 @@ function QaSettingsForm(props: Props) {
     return (
         <Switch
             label="Include triangulation figures in QA"
-            // FIXME: Switch does not support name=undefined
+            // TODO: Switch does not support name=undefined
             name=""
             onChange={handleChange}
             value={eventResponse?.event?.includeTriangulationInQa}

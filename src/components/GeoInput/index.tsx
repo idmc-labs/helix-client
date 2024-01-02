@@ -641,9 +641,6 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             displayName: properties.display_name,
                             lon: movedPoint.point[0],
                             lat: movedPoint.point[1],
-                            // TODO: also save these values as well
-                            // lon: properties.lon,
-                            // lat: properties.lat,
                             state: properties.state,
                             boundingBox: properties.boundingbox,
                             type: properties.type,

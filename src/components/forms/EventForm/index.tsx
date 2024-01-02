@@ -318,7 +318,7 @@ function generateDisasterEventName(
     return `${countryField}: ${violenceBox} - ${adminField} - ${startDateField}`;
 }
 
-// FIXME: the comparison should be type-safe but
+// NOTE: the comparison should be type-safe but
 // we are currently downcasting string literals to string
 const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
@@ -502,7 +502,6 @@ function EventForm(props: EventFormProps) {
 
                 const sanitizedValue = clone ? {
                     ...event,
-                    // FIXME: the typing error should be fixed on the server
                     countries: event.countries?.map((item) => item.id),
                     actor: event.actor?.id,
                     crisis: event.crisis?.id,
@@ -515,7 +514,6 @@ function EventForm(props: EventFormProps) {
                     name: undefined,
                 } : {
                     ...event,
-                    // FIXME: the typing error should be fixed on the server
                     countries: event.countries?.map((item) => item.id),
                     actor: event.actor?.id,
                     crisis: event.crisis?.id,
@@ -666,8 +664,9 @@ function EventForm(props: EventFormProps) {
         ),
         [value.violenceSubType, violenceSubTypeOptions],
     );
-    // FIXME: don't use comparison with string
-    // FIXME: pass this data to schema as well
+
+    // FIXME: do not directly use enum labels
+    // TODO: pass this data to schema as well
     const osvMode = selectedViolenceSubTypeOption
         && selectedViolenceSubTypeOption?.violenceTypeName.toLocaleLowerCase() === 'other situations of violence (osv)';
 
@@ -706,8 +705,8 @@ function EventForm(props: EventFormProps) {
         const adminName = undefined;
         const startDateInfo = formatDateYmd(value.startDate);
 
-        // FIXME: do not directly use enum values
         if (value.eventType === 'CONFLICT') {
+            // FIXME: do not directly use enum labels
             const violenceName = violenceSubTypeOptions
                 ?.find((v) => v.id === value.violenceSubType)?.name;
             const conflictText = generateConflictEventName(
@@ -715,7 +714,7 @@ function EventForm(props: EventFormProps) {
             );
             onValueChange(conflictText, 'name' as const);
         } else if (value.eventType === 'DISASTER') {
-            // FIXME: do not directly use enum values
+            // FIXME: do not directly use enum labels
             const disasterName = disasterSubTypeOptions
                 ?.find((d) => d.id === value.disasterSubType)?.name;
             const disasterText = generateDisasterEventName(

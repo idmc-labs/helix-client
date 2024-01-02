@@ -120,7 +120,6 @@ function Multiplexer(props: Props) {
         className,
     } = props;
 
-    // TODO: need to sync authentication status between tabs
     const [user, setUser] = useState<PurgeNull<MeQuery['me']> | undefined>();
     const [options, setOptions] = useState<Options>({});
     const [waiting, setWaiting] = useState(true);

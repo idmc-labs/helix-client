@@ -66,9 +66,9 @@ function Navbar(props: Props) {
                 if (data.logout?.ok) {
                     setUser(undefined);
                 }
-                // TODO: handle what to do if not okay?
+                // TODO: handle error
             },
-            // TODO: handle onError
+            // TODO: handle error
         },
     );
 

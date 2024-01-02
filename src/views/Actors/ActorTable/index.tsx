@@ -167,7 +167,6 @@ function ActorTable(props: ActorProps) {
         data: actors = previousData,
         loading: actorsLoading,
         refetch: refetchActorList,
-        // TODO: handle error
     } = useQuery<ActorsListQuery>(GET_ACTORS_LIST, { variables });
 
     const handleRefetch = useCallback(

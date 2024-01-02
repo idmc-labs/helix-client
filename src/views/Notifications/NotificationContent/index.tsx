@@ -97,7 +97,7 @@ function NotificationContent(props: Props) {
         );
     }
 
-    // FIXME: we should make separate enum for assignee and others
+    // TODO: we should make separate enum for assignee and others
     // EVENT_ASSIGNEE_CLEARED
     // EVENT_ASSIGNEE_SELF_CLEARED
     // or, we introduce concept of actor and patient

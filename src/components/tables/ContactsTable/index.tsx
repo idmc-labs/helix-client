@@ -304,7 +304,7 @@ function ContactsTable(props: ContactsTableProps) {
                 'expand-button',
                 '',
                 handleRowExpand,
-                // FIXME: should pass this using context
+                // TODO: should pass this using context
                 expandedRow,
             ),
             createDateColumn<ContactFields, string>(

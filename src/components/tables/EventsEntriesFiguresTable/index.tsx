@@ -69,18 +69,19 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
         country,
     } = props;
 
-    // TODO: use useFilterState here
-
     const [selectedTab, setSelectedTab] = useState<'Entries' | 'Figures' | 'Events' | undefined>('Figures');
 
+    // TODO: use useFilterState here
     const [entriesPage, setEntriesPage] = useState(pageFromProps ?? 1);
     const [entriesPageSize, setEntriesPageSize] = useState(pageSizeFromProps ?? 10);
     const debouncedEntriesPage = useDebouncedValue(entriesPage);
 
+    // TODO: use useFilterState here
     const [figuresPage, setFiguresPage] = useState(pageFromProps ?? 1);
     const [figuresPageSize, setFiguresPageSize] = useState(pageSizeFromProps ?? 10);
     const debouncedFiguresPage = useDebouncedValue(figuresPage);
 
+    // TODO: use useFilterState here
     const [eventsPage, setEventsPage] = useState(pageFromProps ?? 1);
     const [eventsPageSize, setEventsPageSize] = useState(pageSizeFromProps ?? 10);
     const debouncedEventsPage = useDebouncedValue(eventsPage);

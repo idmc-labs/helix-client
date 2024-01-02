@@ -108,7 +108,6 @@ function CountrySummary(props: CountrySummaryProps) {
                     message="No summary found."
                 />
             )}
-            {/* TODO: fix variable column width in table */}
             {summaryHistoryOpened && (
                 <Modal
                     heading="Summary Update History"
@@ -116,7 +115,6 @@ function CountrySummary(props: CountrySummaryProps) {
                     size="medium"
                     freeHeight
                 >
-                    {/* FIXME: view SummaryHistoryList causes cache set to null */}
                     <SummaryHistoryList
                         country={countryId}
                     />

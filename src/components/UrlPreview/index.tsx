@@ -34,13 +34,13 @@ export function prepareUrlParams(params: UrlParams) {
         .join('&');
 }
 
-// FIXME: this is a hack
+// TODO: add a better check
 function isPdf(url: string) {
     const sanitizedUrl = url.trim().toLowerCase();
     return sanitizedUrl.endsWith('.pdf');
 }
 
-// FIXME: this is a hack
+// TODO: add a better check
 function isOfficeCompatible(url: string) {
     const sanitizedUrl = url.trim().toLowerCase();
     return sanitizedUrl.endsWith('.ppt')

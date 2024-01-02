@@ -142,7 +142,7 @@ function Extraction(props: ExtractionProps) {
         setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
     }>(null);
 
-    // NOTE: We might need to use useFilterState
+    // TODO: We need to use useFilterState
     const [
         queryListFilters,
         setQueryListFilters,

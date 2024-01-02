@@ -137,7 +137,7 @@ import {
 } from '../types';
 import styles from './styles.css';
 
-// FIXME: the comparison should be type-safe but
+// NOTE: the comparison should be type-safe but
 // we are currently downcasting string literals to string
 const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
@@ -660,7 +660,6 @@ function FigureInput(props: FigureInputProps) {
     );
     const isUserAssignee = eventAssignee === user?.id;
 
-    // FIXME: The type of value should have be FigureInputValueWithId instead.
     const { id: figureId, event: eventId } = value;
 
     const isFigureToReview = useMemo(
@@ -671,7 +670,6 @@ function FigureInput(props: FigureInputProps) {
         [selectedEvent, isRecommended],
     );
 
-    // FIXME: The value "countries" of selectedEvent needs to be handled from server.
     const currentCountry = useMemo(
         () => selectedEvent?.countries.find((item) => item.id === value.country),
         [selectedEvent, value.country],
@@ -1814,7 +1812,6 @@ function FigureInput(props: FigureInputProps) {
                             <Switch
                                 label="Housing destruction (recommended estimate for this entry)"
                                 name="isHousingDestruction"
-                                // FIXME: typings of toggle-ui
                                 value={value.isHousingDestruction}
                                 onChange={onValueChange}
                                 // error={error?.fields?.isHousingDestruction}
@@ -1899,7 +1896,6 @@ function FigureInput(props: FigureInputProps) {
                     <Switch
                         label="Disaggregated Data"
                         name="isDisaggregated"
-                        // FIXME: typings of toggle-ui
                         value={value.isDisaggregated}
                         onChange={onValueChange}
                         // error={error?.fields?.isDisaggregated}

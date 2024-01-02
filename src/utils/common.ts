@@ -122,8 +122,7 @@ export function mergeBbox(bboxes: GeoJSON.BBox[] | undefined) {
     return maxBounds as Bounds;
 }
 
-// FIXME: use NonNullableRec
-// FIXME: move this to types/index.tsx
+// TODO: move this to types/index.tsx
 // NOTE: converts enum to string
 type Check<T> = T extends string[] ? string[] : T extends string ? string : undefined;
 

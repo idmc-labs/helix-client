@@ -476,8 +476,7 @@ function Notifications(props: NotificationsProps) {
                     heading="Categories"
                 >
                     <div className={styles.itemRow}>
-                        {/* FIXME: handle this */}
-                        <ClickableItem<'category', 'all' | 'important'>
+                        <ClickableItem
                             name="category"
                             value="all"
                             selected={rawFilter.category === 'all'}
@@ -486,7 +485,7 @@ function Notifications(props: NotificationsProps) {
                             All
                             {allNotificationsCount > 0 && ` (${allNotificationsCount})`}
                         </ClickableItem>
-                        <ClickableItem<'category', 'all' | 'important'>
+                        <ClickableItem
                             name="category"
                             value="important"
                             selected={rawFilter.category === 'important'}

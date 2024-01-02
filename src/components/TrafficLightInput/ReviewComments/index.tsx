@@ -84,7 +84,6 @@ export default function ReviewComments(props: ReportCommentsProps) {
 
     const { user } = useContext(DomainContext);
 
-    // FIXME: this is a different permission
     const commentPermission = user?.permissions?.reviewcomment;
 
     const variables = useMemo(

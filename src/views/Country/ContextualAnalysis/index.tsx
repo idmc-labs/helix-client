@@ -136,7 +136,6 @@ function ContextualAnalysis(props: CountryContextualAnalysisProps) {
                     message="No contextual analyses found."
                 />
             )}
-            {/* TODO: fix variable column width in table */}
             {contextualHistoryOpened && (
                 <Modal
                     heading="Contextual Analysis History"
@@ -144,7 +143,6 @@ function ContextualAnalysis(props: CountryContextualAnalysisProps) {
                     size="large"
                     freeHeight
                 >
-                    {/* FIXME: view ContextualHistoryList sets cache to null */}
                     <ContextualHistoryList
                         country={countryId}
                     />
