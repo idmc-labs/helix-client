@@ -86,9 +86,11 @@ const DELETE_ACTOR = gql`
 `;
 
 const ACTORS_DOWNLOAD = gql`
-    mutation ExportActors($name: String) {
+    mutation ExportActors(
+        $filters: ActorFilterDataInputType!,
+    ) {
         exportActors(
-            name_Unaccent_Icontains: $name,
+            filters: $filters,
         ) {
             errors
             ok
@@ -248,10 +250,12 @@ function ActorTable(props: ActorProps) {
     const handleExportTableData = useCallback(
         () => {
             exportActors({
-                variables: filter,
+                variables: {
+                    filters: variables?.filters ?? {},
+                },
             });
         },
-        [exportActors, filter],
+        [exportActors, variables],
     );
 
     const loading = actorsLoading || deleteActorLoading;

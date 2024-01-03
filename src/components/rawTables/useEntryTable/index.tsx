@@ -43,7 +43,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $filters: EntryExtractionSetFilterDataInputType,
+        $filters: EntryExtractionFilterDataInputType,
     ) {
         entryList(
             ordering: $ordering,
@@ -77,58 +77,12 @@ export const EXTRACTION_ENTRY_LIST = gql`
 
 const ENTRIES_EXPORT = gql`
     mutation ExportEntries(
-        $filterFigureContextOfViolence: [ID!],
-        $filterFigureCreatedBy: [ID!],
-        $filterEntryArticleTitle: String,
-        $filterEntryPublishers: [ID!],
-        $filterFigureCategories: [String!],
-        $filterFigureCategoryTypes: [String!],
-        $filterFigureCountries: [ID!],
-        $filterFigureCrises: [ID!],
-        $filterFigureCrisisTypes: [String!],
-        $filterFigureDisasterSubTypes: [ID!],
-        $filterFigureEndBefore: Date,
-        $filterFigureEvents: [ID!],
-        $filterFigureGeographicalGroups: [ID!],
-        $filterFigureHasDisaggregatedData: Boolean,
-        $filterFigureHasExcerptIdu: Boolean,
-        $filterFigureHasHousingDestruction: Boolean,
-        $filterFigureRegions: [ID!],
-        $filterFigureReviewStatus: [String!],
-        $filterFigureRoles: [String!],
-        $filterFigureSources: [ID!],
-        $filterFigureStartAfter: Date,
-        $filterFigureTags: [ID!],
-        $filterFigureTerms: [ID!],
-        $filterFigureViolenceSubTypes: [ID!],
+        $filters: EntryExtractionFilterDataInputType!,
     ) {
-       exportEntries(
-            filterFigureContextOfViolence: $filterFigureContextOfViolence,
-            filterFigureCreatedBy: $filterFigureCreatedBy,
-            filterEntryArticleTitle: $filterEntryArticleTitle,
-            filterEntryPublishers: $filterEntryPublishers,
-            filterFigureCategories: $filterFigureCategories,
-            filterFigureCategoryTypes: $filterFigureCategoryTypes,
-            filterFigureCountries: $filterFigureCountries,
-            filterFigureCrises: $filterFigureCrises,
-            filterFigureCrisisTypes: $filterFigureCrisisTypes,
-            filterFigureDisasterSubTypes: $filterFigureDisasterSubTypes,
-            filterFigureEndBefore: $filterFigureEndBefore,
-            filterFigureEvents: $filterFigureEvents,
-            filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
-            filterFigureHasDisaggregatedData: $filterFigureHasDisaggregatedData,
-            filterFigureHasExcerptIdu: $filterFigureHasExcerptIdu,
-            filterFigureHasHousingDestruction: $filterFigureHasHousingDestruction,
-            filterFigureRegions: $filterFigureRegions,
-            filterFigureReviewStatus: $filterFigureReviewStatus,
-            filterFigureRoles: $filterFigureRoles,
-            filterFigureSources: $filterFigureSources,
-            filterFigureStartAfter: $filterFigureStartAfter,
-            filterFigureTags: $filterFigureTags,
-            filterFigureTerms: $filterFigureTerms,
-            filterFigureViolenceSubTypes: $filterFigureViolenceSubTypes,
+        exportEntries(
+            filters: $filters,
         ) {
-           errors
+            errors
             ok
         }
     }
@@ -251,7 +205,9 @@ function useEntryTable(props: Props) {
     const handleExportTableData = useCallback(
         () => {
             exportEntries({
-                variables: filters,
+                variables: {
+                    filters: filters?.filters ?? {},
+                },
             });
         },
         [exportEntries, filters],

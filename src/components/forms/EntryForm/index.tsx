@@ -1130,6 +1130,7 @@ function EntryForm(props: EntryFormProps) {
                 endDateAccuracy: dayAccuracy,
                 displacementOccurred: unknownDisplacement,
                 sources: [],
+                entry: entryId,
             };
             handleSelectedFigureChange(newFigure.uuid);
             onValueChange(
@@ -1141,7 +1142,7 @@ function EntryForm(props: EntryFormProps) {
                 variant: 'default',
             });
         },
-        [onValueChange, value, notify, handleSelectedFigureChange],
+        [onValueChange, value, notify, handleSelectedFigureChange, entryId],
     );
 
     const handleFigureClone = useCallback(

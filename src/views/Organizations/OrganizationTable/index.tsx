@@ -93,16 +93,10 @@ const DELETE_ORGANIZATION = gql`
 
 const ORGANIZATION_DOWNLOAD = gql`
     mutation ExportOrganizations(
-        $name: String,
-        $categories: [String!],
-        $countries: [ID!],
-        $organizationKinds: [ID!],
+        $filters: OrganizationFilterDataInputType!,
     ) {
         exportOrganizations(
-            name_Unaccent_Icontains: $name,
-            categories: $categories,
-            organizationKinds: $organizationKinds,
-            countries: $countries,
+            filters: $filters,
         ) {
                 errors
                 ok
@@ -265,7 +259,9 @@ function OrganizationTable(props: OrganizationProps) {
     const handleExportTableData = useCallback(
         () => {
             exportOrganizations({
-                variables: organizationVariables,
+                variables: {
+                    filters: organizationVariables?.filters ?? {},
+                },
             });
         },
         [exportOrganizations, organizationVariables],

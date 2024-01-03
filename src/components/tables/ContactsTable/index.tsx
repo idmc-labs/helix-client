@@ -101,12 +101,10 @@ const DELETE_CONTACT = gql`
 
 const CONTACTS_DOWNLOAD = gql`
     mutation ExportContacts(
-        $name: String,
-        $countriesOfOperation: [String!],
+        $filters: ContactFilterDataInputType!,
     ) {
         exportContacts(
-            nameContains: $name,
-            countriesOfOperation: $countriesOfOperation,
+            filters: $filters,
         ) {
             errors
             ok
@@ -287,7 +285,9 @@ function ContactsTable(props: ContactsTableProps) {
     const handleExportTableData = useCallback(
         () => {
             exportContacts({
-                variables: contactsVariables,
+                variables: {
+                    filters: contactsVariables?.filters ?? {},
+                },
             });
         },
         [exportContacts, contactsVariables],

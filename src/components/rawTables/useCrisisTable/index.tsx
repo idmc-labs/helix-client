@@ -93,20 +93,10 @@ export const CRISIS_LIST = gql`
 
 const CRISIS_DOWNLOAD = gql`
     mutation ExportCrises(
-        $name: String,
-        $crisisTypes: [String!],
-        $createdByIds: [ID!],
-        $events: [ID!],
-        $startDate_Gte: Date,
-        $endDate_Lte: Date,
+        $filters: CrisisFilterDataInputType!,
     ) {
         exportCrises(
-            name: $name,
-            crisisTypes: $crisisTypes,
-            createdByIds: $createdByIds,
-            events: $events
-            startDate_Gte: $startDate_Gte,
-            endDate_Lte: $endDate_Lte,
+            filters: $filters,
         ) {
             errors
             ok
@@ -259,7 +249,9 @@ function useCrisisTable(props: Props) {
     const handleExportTableData = useCallback(
         () => {
             exportCrises({
-                variables: filters,
+                variables: {
+                    filters: filters?.filters ?? {},
+                },
             });
         },
         [exportCrises, filters],

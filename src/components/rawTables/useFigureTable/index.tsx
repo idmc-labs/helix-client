@@ -114,56 +114,10 @@ export const FIGURE_LIST = gql`
 
 const FIGURES_DOWNLOAD = gql`
     mutation ExportFigures(
-        $filterFigureContextOfViolence: [ID!],
-        $filterFigureCreatedBy: [ID!],
-        $filterEntryArticleTitle: String,
-        $filterEntryPublishers: [ID!],
-        $filterFigureCategories: [String!],
-        $filterFigureCategoryTypes: [String!],
-        $filterFigureCountries: [ID!],
-        $filterFigureCrises: [ID!],
-        $filterFigureCrisisTypes: [String!],
-        $filterFigureDisasterSubTypes: [ID!],
-        $filterFigureEndBefore: Date,
-        $filterFigureEvents: [ID!],
-        $filterFigureGeographicalGroups: [ID!],
-        $filterFigureHasDisaggregatedData: Boolean,
-        $filterFigureHasExcerptIdu: Boolean,
-        $filterFigureHasHousingDestruction: Boolean,
-        $filterFigureRegions: [ID!],
-        $filterFigureReviewStatus: [String!],
-        $filterFigureRoles: [String!],
-        $filterFigureSources: [ID!],
-        $filterFigureStartAfter: Date,
-        $filterFigureTags: [ID!],
-        $filterFigureTerms: [ID!],
-        $filterFigureViolenceSubTypes: [ID!],
+        $filters: FigureExtractionFilterDataInputType!,
     ) {
        exportFigures(
-            filterFigureContextOfViolence: $filterFigureContextOfViolence,
-            filterFigureCreatedBy: $filterFigureCreatedBy,
-            filterEntryArticleTitle: $filterEntryArticleTitle,
-            filterEntryPublishers: $filterEntryPublishers,
-            filterFigureCategories: $filterFigureCategories,
-            filterFigureCategoryTypes: $filterFigureCategoryTypes,
-            filterFigureCountries: $filterFigureCountries,
-            filterFigureCrises: $filterFigureCrises,
-            filterFigureCrisisTypes: $filterFigureCrisisTypes,
-            filterFigureDisasterSubTypes: $filterFigureDisasterSubTypes,
-            filterFigureEndBefore: $filterFigureEndBefore,
-            filterFigureEvents: $filterFigureEvents,
-            filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
-            filterFigureHasDisaggregatedData: $filterFigureHasDisaggregatedData,
-            filterFigureHasExcerptIdu: $filterFigureHasExcerptIdu,
-            filterFigureHasHousingDestruction: $filterFigureHasHousingDestruction,
-            filterFigureRegions: $filterFigureRegions,
-            filterFigureReviewStatus: $filterFigureReviewStatus,
-            filterFigureRoles: $filterFigureRoles,
-            filterFigureSources: $filterFigureSources,
-            filterFigureStartAfter: $filterFigureStartAfter,
-            filterFigureTags: $filterFigureTags,
-            filterFigureTerms: $filterFigureTerms,
-            filterFigureViolenceSubTypes: $filterFigureViolenceSubTypes,
+            filters: $filters,
         ) {
            errors
             ok
@@ -301,7 +255,9 @@ function useFigureTable(props: NudeFigureTableProps) {
     const handleExportTableData = useCallback(
         () => {
             exportFigures({
-                variables: filters,
+                variables: {
+                    filters: filters?.filters ?? {},
+                },
             });
         },
         [exportFigures, filters],

@@ -70,18 +70,10 @@ export const COUNTRY_LIST = gql`
 
 const COUNTRY_DOWNLOAD = gql`
     mutation ExportCountries(
-        $countryName: String,
-        $geoGroupsByIds: [String!],
-        $regionByIds: [String!],
-        $report: String,
-        $year: Float,
+        $filters: CountryFilterDataInputType!,
     ) {
         exportCountries(
-            countryName: $countryName,
-            geoGroupByIds: $geoGroupsByIds,
-            regionByIds: $regionByIds,
-            reportId: $report,
-            year: $year,
+            filters: $filters,
         ) {
             errors
             ok
@@ -161,7 +153,9 @@ function useCountryTable(props: Props) {
     const handleExportTableData = useCallback(
         () => {
             exportCountries({
-                variables: filters,
+                variables: {
+                    filters: filters?.filters ?? {},
+                },
             });
         },
         [exportCountries, filters],

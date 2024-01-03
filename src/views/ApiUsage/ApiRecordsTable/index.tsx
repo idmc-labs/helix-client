@@ -80,16 +80,10 @@ const CLIENT_TRACK_INFORMATION_LIST = gql`
 
 const API_LIST_EXPORT = gql`
     mutation ExportTrackingData(
-        $clientCodes: [String!],
-        $apiType: [String!],
-        $startTrackDate: Date,
-        $endTrackDate: Date,
+        $filters: ClientTrackInfoFilterDataInputType!,
     ) {
         exportTrackingData(
-            clientCodes: $clientCodes,
-            apiType: $apiType,
-            startTrackDate: $startTrackDate,
-            endTrackDate: $endTrackDate,
+            filters: $filters,
         ) {
             errors
             ok
@@ -204,12 +198,14 @@ function ApiRecordsTable(props: ApiRecordProps) {
     const handleExportTableData = useCallback(
         () => {
             exportApiRecords({
-                variables: filter,
+                variables: {
+                    filters: apiVariables?.filters ?? {},
+                },
             });
         },
         [
             exportApiRecords,
-            filter,
+            apiVariables,
         ],
     );
 

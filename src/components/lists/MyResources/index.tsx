@@ -16,11 +16,9 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 
-import useOptions from '#hooks/useOptions';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
-import { CountryOption } from '#components/selections/CountryMultiSelectInput';
 
 import useBasicToggle from '#hooks/useBasicToggle';
 import DomainContext from '#components/DomainContext';

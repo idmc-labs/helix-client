@@ -110,24 +110,10 @@ const REPORT_DELETE = gql`
 
 const REPORT_DOWNLOAD = gql`
     mutation ExportReports(
-        $name: String,
-        $filterFigureCountries: [ID!],
-        $reviewStatus: [String!],
-        $startDateAfter: Date,
-        $endDateBefore: Date,
-        $isPublic: Boolean,
-        $isPfaVisibleInGidd: Boolean,
-        $isGiddReport: Boolean,
+        $filters: ReportFilterDataInputType!,
     ) {
         exportReports(
-            name_Unaccent_Icontains: $name,
-            filterFigureCountries: $filterFigureCountries,
-            reviewStatus: $reviewStatus,
-            startDateAfter: $startDateAfter,
-            endDateBefore: $endDateBefore,
-            isPublic: $isPublic,
-            isPfaVisibleInGidd: $isPfaVisibleInGidd,
-            isGiddReport: $isGiddReport,
+            filters: $filters,
         ) {
             errors
             ok
@@ -300,10 +286,12 @@ function ReportsTable(props: ReportsProps) {
     const handleExportTableData = useCallback(
         () => {
             exportReports({
-                variables: filter,
+                variables: {
+                    filters: reportsVariables?.filters ?? {},
+                },
             });
         },
-        [exportReports, filter],
+        [exportReports, reportsVariables],
     );
 
     const { user } = useContext(DomainContext);
