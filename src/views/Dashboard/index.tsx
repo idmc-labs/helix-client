@@ -6,8 +6,8 @@ import PageHeader from '#components/PageHeader';
 import MyResources from '#components/lists/MyResources';
 import ParkedItemTable from '#components/tables/ParkedItemTable';
 
+import CrisesEventsEntriesFiguresTable from './CrisesEventsEntriesFiguresTable';
 import styles from './styles.css';
-import EventsEntriesFiguresTable from '#components/tables/EventsEntriesFiguresTable';
 
 interface DashboardProps {
     className?: string;
@@ -43,13 +43,14 @@ function Dashboard(props: DashboardProps) {
                             status="TO_BE_REVIEWED"
                         />
                     </div>
-                    <div className={styles.bottom}>
-                        <EventsEntriesFiguresTable
-                            className={styles.largeContainer}
-                            pageSize={5}
-                            userId={user?.id}
-                        />
-                    </div>
+                    {user && (
+                        <div className={styles.bottom}>
+                            <CrisesEventsEntriesFiguresTable
+                                className={styles.largeContainer}
+                                userId={user.id}
+                            />
+                        </div>
+                    )}
                 </div>
                 <div className={styles.sideContent}>
                     <MyResources

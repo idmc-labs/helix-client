@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
     TextInput,
     Button,
@@ -225,11 +225,9 @@ const disasterGroupLabelSelector = (item: DisasterOption) => (
     `${item.disasterCategoryName} › ${item.disasterSubCategoryName} › ${item.disasterTypeName}`
 );
 
-const defaultFormValues: PartialForm<FormType> = {};
-
 interface FiguresFilterProps {
     className?: string;
-    initialFilter?: PurgeNull<FiguresFilterFields> | null | undefined;
+    initialFilter: PurgeNull<FiguresFilterFields>;
     onFilterChange: (value: PurgeNull<FiguresFilterFields>) => void;
     disabled?: boolean;
 
@@ -268,14 +266,22 @@ function FiguresFilter(props: FiguresFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(initialFilter ?? defaultFormValues, schema);
+    } = useForm(initialFilter, schema);
+    // NOTE: Set the form value when initialFilter is changed on parent
+    useEffect(
+        () => {
+            onValueSet(initialFilter);
+        },
+        [initialFilter, onValueSet],
+    );
 
     const onResetFilters = useCallback(
         () => {
-            onValueSet(defaultFormValues);
-            onFilterChange(defaultFormValues);
+            onValueSet(initialFilter);
+            onFilterChange(initialFilter);
         },
         [
+            initialFilter,
             onValueSet,
             onFilterChange,
         ],
@@ -311,7 +317,7 @@ function FiguresFilter(props: FiguresFilterProps) {
         ))
     )).filter(isDefined);
 
-    const filterChanged = defaultFormValues !== value;
+    const filterChanged = initialFilter !== value;
 
     const conflictType = value.filterFigureCrisisTypes?.includes(conflict);
     const disasterType = value.filterFigureCrisisTypes?.includes(disaster);

@@ -7,7 +7,7 @@
         "jsx": "react",
         "module": "esnext",
         "noEmit": true,
-        "rootDir": "./src",
+        "rootDir": ".",
         "target": "esnext",
 
         "strict": true,

@@ -98,7 +98,7 @@ function ClientRecordsTable(props: ClientRecordProps) {
         ordering,
         sortState,
 
-        // rawFilter,
+        initialFilter,
         filter,
         setFilter,
 
@@ -238,6 +238,7 @@ function ClientRecordsTable(props: ClientRecordProps) {
             )}
             description={(
                 <ClientRecordsFilter
+                    initialFilter={initialFilter}
                     onFilterChange={setFilter}
                 />
             )}

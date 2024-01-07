@@ -16,7 +16,7 @@ function useOptions<K extends keyof Options>(key: K) {
                 // NOTE: we should always have the newValues
                 // before oldValues so that we can update
                 // the option values
-                const concatenatedValueForKey = [
+                const concatenatedValueForKey: Options[K] = [
                     ...(newValueForKey ?? []),
                     ...(oldValueForKey ?? []),
                 ];

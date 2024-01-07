@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
     TextInput,
     Button,
@@ -60,19 +60,11 @@ const schema: FormSchema = {
     }),
 };
 
-const defaultFormValues: PartialForm<FormType> = {
-    crisisTypes: [],
-    events: [],
-    name: undefined,
-    createdByIds: [],
-    startDate_Gte: undefined,
-    endDate_Lte: undefined,
-};
-
 interface CrisesFilterProps {
     className?: string;
-    initialFilter?: PartialForm<FormType>;
-    onFilterChange: (value: PurgeNull<CrisesFilterFields>) => void;
+    initialFilter: PartialForm<FormType>;
+    onFilterChange: (value: PartialForm<FormType>) => void;
+    hiddenFields?: ('createdBy')[];
 }
 
 function CrisesFilter(props: CrisesFilterProps) {
@@ -80,6 +72,7 @@ function CrisesFilter(props: CrisesFilterProps) {
         className,
         initialFilter,
         onFilterChange,
+        hiddenFields = [],
     } = props;
 
     const {
@@ -90,14 +83,21 @@ function CrisesFilter(props: CrisesFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(initialFilter ?? defaultFormValues, schema);
+    } = useForm(initialFilter, schema);
+    // NOTE: Set the form value when initialFilter is changed on parent
+    useEffect(
+        () => {
+            onValueSet(initialFilter);
+        },
+        [initialFilter, onValueSet],
+    );
 
     const onResetFilters = useCallback(
         () => {
-            onValueSet(defaultFormValues);
-            onFilterChange(defaultFormValues);
+            onValueSet(initialFilter);
+            onFilterChange(initialFilter);
         },
-        [onValueSet, onFilterChange],
+        [onValueSet, onFilterChange, initialFilter],
     );
 
     const handleSubmit = useCallback((finalValues: FormType) => {
@@ -111,7 +111,7 @@ function CrisesFilter(props: CrisesFilterProps) {
         error: crisisOptionsError,
     } = useQuery<CrisisOptionsForFilterQuery>(CRISIS_OPTIONS);
 
-    const filterChanged = defaultFormValues !== value;
+    const filterChanged = initialFilter !== value;
 
     return (
         <form
@@ -131,14 +131,16 @@ function CrisesFilter(props: CrisesFilterProps) {
                     onChange={onValueChange}
                     placeholder="Search by name/event name"
                 />
-                <UserMultiSelectInput
-                    className={styles.input}
-                    label="Created By"
-                    name="createdByIds"
-                    value={value.createdByIds}
-                    onChange={onValueChange}
-                    error={error?.fields?.createdByIds?.$internal}
-                />
+                {!hiddenFields.includes('createdBy') && (
+                    <UserMultiSelectInput
+                        className={styles.input}
+                        label="Created By"
+                        name="createdByIds"
+                        value={value.createdByIds}
+                        onChange={onValueChange}
+                        error={error?.fields?.createdByIds?.$internal}
+                    />
+                )}
                 <DateRangeDualInput
                     className={styles.input}
                     label="Date Range"

@@ -159,7 +159,7 @@ function ReportsTable(props: ReportsProps) {
         ordering,
         sortState,
 
-        // rawFilter,
+        initialFilter,
         filter,
         setFilter,
 
@@ -439,6 +439,7 @@ function ReportsTable(props: ReportsProps) {
             )}
             description={(
                 <ReportFilter
+                    initialFilter={initialFilter}
                     onFilterChange={setFilter}
                 />
             )}

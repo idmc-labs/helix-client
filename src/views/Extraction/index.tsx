@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect, useContext, useRef, useCallback } from 'react';
+import React, { useState, useLayoutEffect, useContext, useRef, useCallback, useMemo } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -6,30 +6,120 @@ import {
     PopupButton,
     TextInput,
 } from '@togglecorp/toggle-ui';
-import { gql, useMutation } from '@apollo/client';
+import { removeNull } from '@togglecorp/toggle-form';
+import { getOperationName } from 'apollo-link';
+import { gql, useQuery, useMutation } from '@apollo/client';
 
+import useFilterState from '#hooks/useFilterState';
 import FormActions from '#components/FormActions';
 import NotificationContext from '#components/NotificationContext';
 import PageHeader from '#components/PageHeader';
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import route from '#config/routes';
 import { reverseRoute } from '#hooks/useRouteMatching';
+import { PurgeNull } from '#types';
+import useOptions from '#hooks/useOptions';
 
 import ExtractionEntriesTable from './ExtractionEntriesTable';
 import AdvancedFiguresFilter from '#components/rawTables/useFigureTable/AdvancedFiguresFilter';
 import SavedFiltersList, { GET_SAVED_QUERY_LIST } from './SavedFiltersList';
 
 import {
+    ExtractionForFormQuery,
+    ExtractionForFormQueryVariables,
     CreateExtractionMutation,
     CreateExtractionMutationVariables,
     ExtractionEntryListFiltersQueryVariables,
-    ExtractionQueryListQueryVariables,
     UpdateExtractionMutation,
     UpdateExtractionMutationVariables,
 } from '#generated/types';
 import { WithId } from '#utils/common';
 
 import styles from './styles.css';
+
+const getSavedQueryListQueryName = getOperationName(GET_SAVED_QUERY_LIST);
+
+const EXTRACTION_FILTER = gql`
+    query ExtractionForForm($id: ID!) {
+        extractionQuery(id: $id) {
+            filterFigureCountries {
+                id
+                idmcShortName
+            }
+            filterFigureCrises {
+                id
+                name
+            }
+            filterFigureStartAfter
+            filterFigureEndBefore
+            filterFigureCategories
+            filterFigureTags {
+                id
+                name
+            }
+            filterFigureRoles
+            id
+            name
+            filterFigureRegions {
+                id
+                name
+            }
+            filterFigureGeographicalGroups {
+                id
+                name
+            }
+            filterFigureSources {
+                id
+                name
+                countries {
+                    id
+                    idmcShortName
+                }
+            }
+            filterEntryPublishers {
+                id
+                name
+                countries {
+                    id
+                    idmcShortName
+                }
+            }
+            filterEntryArticleTitle
+            filterFigureCrisisTypes
+            filterFigureHasDisaggregatedData
+            filterFigureEvents {
+                id
+                name
+            }
+            filterFigureCreatedBy {
+                id
+                fullName
+                isActive
+            }
+            filterFigureTerms
+            createdAt
+            createdBy {
+                fullName
+                id
+            }
+            filterFigureReviewStatus
+            filterFigureHasExcerptIdu
+            filterFigureHasHousingDestruction
+            filterFigureContextOfViolence {
+                id
+                name
+            }
+            filterFigureDisasterSubTypes {
+                id
+                name
+            }
+            filterFigureViolenceSubTypes {
+                id
+                name
+            }
+        }
+    }
+`;
 
 const CREATE_EXTRACTION = gql`
     mutation CreateExtraction($extraction: CreateExtractInputType!) {
@@ -131,8 +221,10 @@ interface ExtractionProps {
 function Extraction(props: ExtractionProps) {
     const { className } = props;
     const { queryId } = useParams<{ queryId: string }>();
-    const { replace: historyReplace, push: historyPush } = useHistory();
-
+    const {
+        replace: historyReplace,
+        push: historyPush,
+    } = useHistory();
     const {
         notify,
         notifyGQLError,
@@ -142,32 +234,60 @@ function Extraction(props: ExtractionProps) {
         setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
     }>(null);
 
-    // TODO: We need to use useFilterState
-    const [
-        queryListFilters,
-        setQueryListFilters,
-    ] = useState<ExtractionQueryListQueryVariables>({
-        page: 1,
-        pageSize: 10,
-        ordering: '-created_at',
+    const [, setCountries] = useOptions('country');
+    const [, setCreatedByOptions] = useOptions('user');
+    const [, setRegions] = useOptions('region');
+    const [, setGeographicGroups] = useOptions('geographicGroup');
+    const [, setCrises] = useOptions('crisis');
+    const [, setTags] = useOptions('tag');
+    const [, setOrganizations] = useOptions('organization');
+    const [, setEventOptions] = useOptions('event');
+    const [, setViolenceContextOptions] = useOptions('contextOfViolence');
+
+    const figuresFilterState = useFilterState<PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>>({
+        filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
+    });
+    const entriesFilterState = useFilterState<PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>>({
+        filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
     });
 
-    const [
-        extractionQueryFilters,
-        setExtractionQueryFilters,
-    ] = useState<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>();
+    const {
+        setFilter: setFiguresFilter,
+        rawFilter: rawFiguresFilter,
+        initialFilter: initialFiguresFilter,
+    } = figuresFilterState;
+    const {
+        setFilter: setEntriesFilter,
+    } = entriesFilterState;
+
+    const setFilter: typeof setFiguresFilter = useCallback(
+        (...args) => {
+            setFiguresFilter(...args);
+            setEntriesFilter(...args);
+        },
+        [setFiguresFilter, setEntriesFilter],
+    );
 
     const [
         extractionQueryFiltersMeta,
         setExtractionQueryFiltersMeta,
     ] = useState<ExtractionFiltersMetaProps>({});
 
+    // NOTE: Do we need to reset this here instead of onCompleted of the query?
     useLayoutEffect(
         () => {
-            setExtractionQueryFilters(undefined);
+            setFilter({}, true);
             setExtractionQueryFiltersMeta({});
         },
-        [queryId],
+        [queryId, setFilter],
     );
 
     let header = queryId ? 'Edit Query' : 'New Query';
@@ -177,27 +297,103 @@ function Extraction(props: ExtractionProps) {
 
     const queryName = extractionQueryFiltersMeta?.name;
 
-    const setQueryName = useCallback(
-        (value: string | undefined) => {
-            setExtractionQueryFiltersMeta((val) => ({
-                ...val,
-                name: value,
-            }));
-        },
-        [],
+    const extractionVariables = useMemo(
+        (): ExtractionForFormQueryVariables | undefined => (
+            queryId ? { id: queryId } : undefined
+        ),
+        [queryId],
     );
 
-    const handleDelete = useCallback(
-        (deleteId: string) => {
-            if (deleteId !== queryId) {
-                return;
-            }
+    const {
+        loading: extractionQueryLoading,
+        error: extractionDataError,
+    } = useQuery<ExtractionForFormQuery, ExtractionForFormQueryVariables>(
+        EXTRACTION_FILTER,
+        {
+            skip: !extractionVariables,
+            variables: extractionVariables,
+            onCompleted: (response) => {
+                const { extractionQuery: extraction } = response;
+                if (!extraction) {
+                    return;
+                }
+                const {
+                    id: extractionId,
+                    name: extractionName,
+                    ...otherAttrs
+                } = extraction;
 
-            const editRoute = reverseRoute(route.extractions.path);
-            historyReplace(editRoute);
+                if (otherAttrs.filterFigureRegions) {
+                    setRegions(otherAttrs.filterFigureRegions);
+                }
+                if (otherAttrs.filterFigureGeographicalGroups) {
+                    setGeographicGroups(otherAttrs.filterFigureGeographicalGroups);
+                }
+                if (otherAttrs.filterFigureCountries) {
+                    setCountries(otherAttrs.filterFigureCountries);
+                }
+                if (otherAttrs.filterFigureCrises) {
+                    setCrises(otherAttrs.filterFigureCrises);
+                }
+                if (otherAttrs.filterFigureTags) {
+                    setTags(otherAttrs.filterFigureTags);
+                }
+                if (otherAttrs.filterFigureSources) {
+                    setOrganizations(otherAttrs.filterFigureSources);
+                }
+                if (otherAttrs.filterEntryPublishers) {
+                    setOrganizations(otherAttrs.filterEntryPublishers);
+                }
+                if (otherAttrs.filterFigureEvents) {
+                    setEventOptions(otherAttrs.filterFigureEvents);
+                }
+                if (otherAttrs.filterFigureCreatedBy) {
+                    setCreatedByOptions(otherAttrs.filterFigureCreatedBy);
+                }
+                if (otherAttrs.filterFigureContextOfViolence) {
+                    setViolenceContextOptions(otherAttrs.filterFigureContextOfViolence);
+                }
+                const formValue = removeNull({
+                    filterFigureRegions: otherAttrs.filterFigureRegions?.map((r) => r.id),
+                    filterFigureGeographicalGroups: otherAttrs.filterFigureGeographicalGroups
+                        ?.map((r) => r.id),
+                    filterFigureCreatedBy: otherAttrs.filterFigureCreatedBy?.map((u) => u.id),
+                    filterFigureCountries: otherAttrs.filterFigureCountries?.map((c) => c.id),
+                    filterFigureCrises: otherAttrs.filterFigureCrises?.map((cr) => cr.id),
+                    filterFigureCategories: otherAttrs.filterFigureCategories,
+                    filterFigureCategoryTypes: otherAttrs.filterFigureCategories,
+                    filterFigureTags: otherAttrs.filterFigureTags?.map((ft) => ft.id),
+                    filterFigureTerms: otherAttrs.filterFigureTerms,
+                    filterFigureRoles: otherAttrs.filterFigureRoles,
+                    filterFigureStartAfter: otherAttrs.filterFigureStartAfter,
+                    filterFigureEndBefore: otherAttrs.filterFigureEndBefore,
+                    filterEntryArticleTitle: otherAttrs.filterEntryArticleTitle,
+                    filterFigureCrisisTypes: otherAttrs.filterFigureCrisisTypes,
+                    filterEntryPublishers: otherAttrs.filterEntryPublishers?.map((fp) => fp.id),
+                    filterFigureSources: otherAttrs.filterFigureSources?.map((fp) => fp.id),
+                    filterFigureEvents: otherAttrs.filterFigureEvents?.map((e) => e.id),
+                    filterFigureReviewStatus: otherAttrs.filterFigureReviewStatus,
+                    filterFigureHasDisaggregatedData: otherAttrs.filterFigureHasDisaggregatedData,
+                    filterFigureHasHousingDestruction: otherAttrs.filterFigureHasHousingDestruction,
+                    filterFigureHasExcerptIdu: otherAttrs.filterFigureHasExcerptIdu,
+                    // eslint-disable-next-line max-len
+                    filterFigureContextOfViolence: otherAttrs.filterFigureContextOfViolence?.map((e) => e.id),
+                    // eslint-disable-next-line max-len
+                    filterFigureDisasterSubTypes: otherAttrs.filterFigureDisasterSubTypes?.map((e) => e.id),
+                    // eslint-disable-next-line max-len
+                    filterFigureViolenceSubTypes: otherAttrs.filterFigureViolenceSubTypes?.map((e) => e.id),
+                });
+
+                setFilter(formValue, true);
+
+                setExtractionQueryFiltersMeta({
+                    id: extractionId,
+                    name: extractionName,
+                });
+            },
         },
-        [queryId, historyReplace],
     );
+    const filterDisabled = extractionQueryLoading || !!extractionDataError;
 
     const [
         createExtraction,
@@ -205,9 +401,7 @@ function Extraction(props: ExtractionProps) {
     ] = useMutation<CreateExtractionMutation, CreateExtractionMutationVariables>(
         CREATE_EXTRACTION,
         {
-            refetchQueries: [
-                { query: GET_SAVED_QUERY_LIST, variables: queryListFilters },
-            ],
+            refetchQueries: getSavedQueryListQueryName ? [getSavedQueryListQueryName] : undefined,
             onCompleted: (response) => {
                 const { createExtraction: createExtractionRes } = response;
                 if (!createExtractionRes) {
@@ -283,7 +477,6 @@ function Extraction(props: ExtractionProps) {
                 const { errors, result } = updateExtractionRes;
                 if (errors) {
                     notifyGQLError(errors);
-
                     /*
                     const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
@@ -330,13 +523,35 @@ function Extraction(props: ExtractionProps) {
         },
     );
 
+    const handleQueryNameChange = useCallback(
+        (value: string | undefined) => {
+            setExtractionQueryFiltersMeta((val) => ({
+                ...val,
+                name: value,
+            }));
+        },
+        [],
+    );
+
+    const handleDelete = useCallback(
+        (deleteId: string) => {
+            if (deleteId !== queryId) {
+                return;
+            }
+
+            const editRoute = reverseRoute(route.extractions.path);
+            historyReplace(editRoute);
+        },
+        [queryId, historyReplace],
+    );
+
     const handleSubmit = useCallback(
         () => {
             if (extractionQueryFiltersMeta.id) {
                 updateExtraction({
                     variables: {
                         extraction: {
-                            ...extractionQueryFilters,
+                            ...rawFiguresFilter,
                             ...extractionQueryFiltersMeta,
                         } as WithId<ExtractionFiltersFields>,
                     },
@@ -345,7 +560,7 @@ function Extraction(props: ExtractionProps) {
                 createExtraction({
                     variables: {
                         extraction: {
-                            ...extractionQueryFilters,
+                            ...rawFiguresFilter,
                             ...extractionQueryFiltersMeta,
                         } as ExtractionFiltersFields,
                     },
@@ -353,8 +568,10 @@ function Extraction(props: ExtractionProps) {
             }
         },
         [
-            createExtraction, updateExtraction,
-            extractionQueryFiltersMeta, extractionQueryFilters,
+            createExtraction,
+            updateExtraction,
+            extractionQueryFiltersMeta,
+            rawFiguresFilter,
         ],
     );
 
@@ -373,8 +590,6 @@ function Extraction(props: ExtractionProps) {
                 <SavedFiltersList
                     className={styles.stickyContainer}
                     selectedQueryId={queryId}
-                    queryListFilters={queryListFilters}
-                    setQueryListFilters={setQueryListFilters}
                     onDelete={handleDelete}
                 />
             </div>
@@ -384,13 +599,14 @@ function Extraction(props: ExtractionProps) {
                 />
                 <AdvancedFiguresFilter
                     className={styles.container}
-                    id={queryId}
-                    onFilterChange={setExtractionQueryFilters}
-                    onFilterMetaChange={setExtractionQueryFiltersMeta}
+                    initialFilter={initialFiguresFilter}
+                    disabled={filterDisabled}
+                    onFilterChange={setFilter}
                 />
                 <ExtractionEntriesTable
                     className={styles.largeContainer}
-                    filters={extractionQueryFilters}
+                    entriesFilterState={entriesFilterState}
+                    figuresFilterState={figuresFilterState}
                     headingActions={(
                         <PopupButton
                             componentRef={popupElementRef}
@@ -405,7 +621,7 @@ function Extraction(props: ExtractionProps) {
                             <TextInput
                                 label="Name"
                                 name="name"
-                                onChange={setQueryName}
+                                onChange={handleQueryNameChange}
                                 value={queryName}
                                 disabled={updateLoading || createLoading}
                             />

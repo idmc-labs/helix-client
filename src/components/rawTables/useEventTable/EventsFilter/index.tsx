@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
     TextInput,
     Button,
@@ -151,15 +151,6 @@ const schema: FormSchema = {
     },
 };
 
-const defaultFormValues: PartialForm<FormType> = {
-    crisisByIds: [],
-    eventTypes: [],
-    reviewStatus: [],
-    name: undefined,
-    violenceSubTypes: [],
-    contextOfViolences: [],
-    disasterSubTypes: [],
-};
 interface ViolenceOption {
     violenceTypeId: string;
     violenceTypeName: string;
@@ -188,8 +179,8 @@ const disasterGroupLabelSelector = (item: DisasterOption) => (
 
 interface EventsFilterProps {
     className?: string;
-    initialFilter?: PartialForm<FormType>;
-    onFilterChange: (value: PurgeNull<EventFilterFields>) => void;
+    initialFilter: PartialForm<FormType>;
+    onFilterChange: (value: PartialForm<FormType>) => void;
 
     hiddenFields?: ('createdBy' | 'crisis' | 'countries' | 'reviewStatus')[];
     // We use these props to filter out other options
@@ -216,14 +207,21 @@ function EventsFilter(props: EventsFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(initialFilter ?? defaultFormValues, schema);
+    } = useForm(initialFilter, schema);
+    // NOTE: Set the form value when initialFilter is changed on parent
+    useEffect(
+        () => {
+            onValueSet(initialFilter);
+        },
+        [initialFilter, onValueSet],
+    );
 
     const onResetFilters = useCallback(
         () => {
-            onValueSet(defaultFormValues);
-            onFilterChange(defaultFormValues);
+            onValueSet(initialFilter);
+            onFilterChange(initialFilter);
         },
-        [onValueSet, onFilterChange],
+        [onValueSet, onFilterChange, initialFilter],
     );
 
     const handleSubmit = useCallback((finalValues: FormType) => {
@@ -267,7 +265,7 @@ function EventsFilter(props: EventsFilterProps) {
     const eventReviewStatusOptions = data?.eventReviewStatus?.enumValues
         ?.filter((item) => item.name !== ApprovedButChanged && item.name !== SignedoffButChanged);
 
-    const filterChanged = defaultFormValues !== value;
+    const filterChanged = initialFilter !== value;
 
     const conflictType = value.eventTypes?.includes(conflict);
     const disasterType = value.eventTypes?.includes(disaster);

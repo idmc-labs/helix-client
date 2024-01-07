@@ -1,4 +1,4 @@
-import React, { useState, useContext, useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
     DateRangeDualInput,
     TextInput,
@@ -14,7 +14,6 @@ import {
     useForm,
     ObjectSchema,
     createSubmitHandler,
-    removeNull,
 } from '@togglecorp/toggle-form';
 import { IoSearchOutline } from 'react-icons/io5';
 import { gql, useQuery } from '@apollo/client';
@@ -28,12 +27,9 @@ import FigureTagMultiSelectInput from '#components/selections/FigureTagMultiSele
 import UserMultiSelectInput from '#components/selections/UserMultiSelectInput';
 import EventMultiSelectInput from '#components/selections/EventMultiSelectInput';
 import ViolenceContextMultiSelectInput from '#components/selections/ViolenceContextMultiSelectInput';
-import useOptions from '#hooks/useOptions';
 
 import Container from '#components/Container';
 import NonFieldError from '#components/NonFieldError';
-import NotificationContext from '#components/NotificationContext';
-import Loading from '#components/Loading';
 import Row from '#components/Row';
 
 import {
@@ -51,8 +47,6 @@ import {
 import useBooleanState from '#utils/useBooleanState';
 import {
     ExtractionFormOptionsQuery,
-    ExtractionForFormQuery,
-    ExtractionForFormQueryVariables,
     ExtractionEntryListFiltersQueryVariables,
     Figure_Category_Types as FigureCategoryTypes,
     Crisis_Type as CrisisType,
@@ -142,87 +136,6 @@ const FORM_OPTIONS = gql`
                         }
                     }
                 }
-            }
-        }
-    }
-`;
-const EXTRACTION_FILTER = gql`
-    query ExtractionForForm($id: ID!) {
-        extractionQuery(id: $id) {
-            filterFigureCountries {
-                id
-                idmcShortName
-            }
-            filterFigureCrises {
-                id
-                name
-            }
-            filterFigureStartAfter
-            filterFigureEndBefore
-            filterFigureCategories
-            filterFigureTags {
-                id
-                name
-            }
-            filterFigureRoles
-            id
-            name
-            filterFigureRegions {
-                id
-                name
-            }
-            filterFigureGeographicalGroups {
-                id
-                name
-            }
-            filterFigureSources {
-                id
-                name
-                countries {
-                    id
-                    idmcShortName
-                }
-            }
-            filterEntryPublishers {
-                id
-                name
-                countries {
-                    id
-                    idmcShortName
-                }
-            }
-            filterEntryArticleTitle
-            filterFigureCrisisTypes
-            filterFigureHasDisaggregatedData
-            filterFigureEvents {
-                id
-                name
-            }
-            filterFigureCreatedBy {
-                id
-                fullName
-                isActive
-            }
-            filterFigureTerms
-            createdAt
-            createdBy {
-                fullName
-                id
-            }
-            filterFigureReviewStatus
-            filterFigureHasExcerptIdu
-            filterFigureHasHousingDestruction
-            filterFigureContextOfViolence {
-                id
-                name
-            }
-            filterFigureDisasterSubTypes {
-                id
-                name
-            }
-            filterFigureViolenceSubTypes {
-                id
-                name
             }
         }
     }
@@ -326,63 +239,27 @@ const schema: FormSchema = {
     },
 };
 
-const defaultFormValues: PartialForm<FormType> = {
-    filterFigureRegions: [],
-    filterFigureCountries: [],
-    filterFigureCrises: [],
-    filterFigureCategories: [],
-    filterFigureCategoryTypes: undefined,
-    filterFigureTags: [],
-    filterFigureRoles: [],
-    filterFigureGeographicalGroups: [],
-    filterEntryPublishers: [],
-    filterFigureSources: [],
-    filterFigureTerms: [],
-    filterFigureCreatedBy: [],
-    filterFigureEvents: [],
-    filterFigureReviewStatus: [],
-    filterFigureHasExcerptIdu: undefined,
-    filterFigureHasHousingDestruction: undefined,
-};
-
 // TODO: move fetching extraction query outside this component
 interface AdvancedFigureFiltersProps {
-    id?: string;
     className?: string;
-    onFilterChange: React.Dispatch<React.SetStateAction<
-        AdvancedFigureFiltersFields | undefined
-    >>;
-    onFilterMetaChange: React.Dispatch<React.SetStateAction<
-        { name?: string, id?: string }
-    >>;
+    disabled: boolean;
+
+    initialFilter: PartialForm<FormType>,
+    onFilterChange: (value: PartialForm<FormType>) => void;
 }
 
 function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
     const {
-        id,
+        disabled,
         className,
+        initialFilter,
         onFilterChange,
-        onFilterMetaChange,
     } = props;
-
-    const [, setCountries] = useOptions('country');
-    const [, setCreatedByOptions] = useOptions('user');
-    const [, setRegions] = useOptions('region');
-    const [, setGeographicGroups] = useOptions('geographicGroup');
-    const [, setCrises] = useOptions('crisis');
-    const [, setTags] = useOptions('tag');
-    const [, setOrganizations] = useOptions('organization');
-    const [, setEventOptions] = useOptions('event');
-    const [, setViolenceContextOptions] = useOptions('contextOfViolence');
 
     const [
         filtersExpanded, , , ,
         toggleFiltersExpansion,
     ] = useBooleanState(false);
-
-    const [initialFormValues, setInitialFormValues] = useState<FormType>(
-        defaultFormValues,
-    );
 
     const {
         pristine,
@@ -393,126 +270,21 @@ function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
         onErrorSet,
         onValueSet,
         onPristineSet,
-    } = useForm(defaultFormValues, schema);
-
-    const { notify } = useContext(NotificationContext);
-
-    const onFormValueSet = useCallback(
-        (formValue: FormType) => {
-            onValueSet(formValue);
-            setInitialFormValues(formValue);
+    } = useForm(initialFilter, schema);
+    // NOTE: Set the form value when initialFilter is changed on parent
+    useEffect(
+        () => {
+            onValueSet(initialFilter);
         },
-        [onValueSet, setInitialFormValues],
-    );
-
-    const extractionVariables = useMemo(
-        (): ExtractionForFormQueryVariables | undefined => (
-            id ? { id } : undefined
-        ),
-        [id],
-    );
-
-    const {
-        loading: extractionQueryLoading,
-        error: extractionDataError,
-    } = useQuery<ExtractionForFormQuery, ExtractionForFormQueryVariables>(
-        EXTRACTION_FILTER,
-        {
-            skip: !extractionVariables,
-            variables: extractionVariables,
-            onCompleted: (response) => {
-                const { extractionQuery: extraction } = response;
-                if (!extraction) {
-                    return;
-                }
-                const {
-                    id: extractionId,
-                    name: extractionName,
-                    ...otherAttrs
-                } = extraction;
-
-                if (otherAttrs.filterFigureRegions) {
-                    setRegions(otherAttrs.filterFigureRegions);
-                }
-                if (otherAttrs.filterFigureGeographicalGroups) {
-                    setGeographicGroups(otherAttrs.filterFigureGeographicalGroups);
-                }
-                if (otherAttrs.filterFigureCountries) {
-                    setCountries(otherAttrs.filterFigureCountries);
-                }
-                if (otherAttrs.filterFigureCrises) {
-                    setCrises(otherAttrs.filterFigureCrises);
-                }
-                if (otherAttrs.filterFigureTags) {
-                    setTags(otherAttrs.filterFigureTags);
-                }
-                if (otherAttrs.filterFigureSources) {
-                    setOrganizations(otherAttrs.filterFigureSources);
-                }
-                if (otherAttrs.filterEntryPublishers) {
-                    setOrganizations(otherAttrs.filterEntryPublishers);
-                }
-                if (otherAttrs.filterFigureEvents) {
-                    setEventOptions(otherAttrs.filterFigureEvents);
-                }
-                if (otherAttrs.filterFigureCreatedBy) {
-                    setCreatedByOptions(otherAttrs.filterFigureCreatedBy);
-                }
-                if (otherAttrs.filterFigureContextOfViolence) {
-                    setViolenceContextOptions(otherAttrs.filterFigureContextOfViolence);
-                }
-                const formValue = removeNull({
-                    filterFigureRegions: otherAttrs.filterFigureRegions?.map((r) => r.id),
-                    filterFigureGeographicalGroups: otherAttrs.filterFigureGeographicalGroups
-                        ?.map((r) => r.id),
-                    filterFigureCreatedBy: otherAttrs.filterFigureCreatedBy?.map((u) => u.id),
-                    filterFigureCountries: otherAttrs.filterFigureCountries?.map((c) => c.id),
-                    filterFigureCrises: otherAttrs.filterFigureCrises?.map((cr) => cr.id),
-                    filterFigureCategories: otherAttrs.filterFigureCategories,
-                    filterFigureCategoryTypes: otherAttrs.filterFigureCategories,
-                    filterFigureTags: otherAttrs.filterFigureTags?.map((ft) => ft.id),
-                    filterFigureTerms: otherAttrs.filterFigureTerms,
-                    filterFigureRoles: otherAttrs.filterFigureRoles,
-                    filterFigureStartAfter: otherAttrs.filterFigureStartAfter,
-                    filterFigureEndBefore: otherAttrs.filterFigureEndBefore,
-                    filterEntryArticleTitle: otherAttrs.filterEntryArticleTitle,
-                    filterFigureCrisisTypes: otherAttrs.filterFigureCrisisTypes,
-                    filterEntryPublishers: otherAttrs.filterEntryPublishers?.map((fp) => fp.id),
-                    filterFigureSources: otherAttrs.filterFigureSources?.map((fp) => fp.id),
-                    filterFigureEvents: otherAttrs.filterFigureEvents?.map((e) => e.id),
-                    filterFigureReviewStatus: otherAttrs.filterFigureReviewStatus,
-                    filterFigureHasDisaggregatedData: otherAttrs.filterFigureHasDisaggregatedData,
-                    filterFigureHasHousingDestruction: otherAttrs.filterFigureHasHousingDestruction,
-                    filterFigureHasExcerptIdu: otherAttrs.filterFigureHasExcerptIdu,
-                    // eslint-disable-next-line max-len
-                    filterFigureContextOfViolence: otherAttrs.filterFigureContextOfViolence?.map((e) => e.id),
-                    // eslint-disable-next-line max-len
-                    filterFigureDisasterSubTypes: otherAttrs.filterFigureDisasterSubTypes?.map((e) => e.id),
-                    // eslint-disable-next-line max-len
-                    filterFigureViolenceSubTypes: otherAttrs.filterFigureViolenceSubTypes?.map((e) => e.id),
-                });
-                onFormValueSet(formValue);
-                onFilterChange(formValue);
-                onFilterMetaChange({
-                    id: extractionId,
-                    name: extractionName,
-                });
-            },
-        },
+        [initialFilter, onValueSet],
     );
 
     const onResetFilters = useCallback(
         () => {
-            onValueSet(initialFormValues);
-            onFilterChange(initialFormValues);
-            notify({
-                children: id
-                    ? 'Filters reset successfully'
-                    : 'Filters cleared successfully.',
-                variant: 'success',
-            });
+            onValueSet(initialFilter);
+            onFilterChange(initialFilter);
         },
-        [onValueSet, notify, id, initialFormValues, onFilterChange],
+        [onValueSet, onFilterChange, initialFilter],
     );
 
     const {
@@ -583,11 +355,7 @@ function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
         ))
     )).filter(isDefined);
 
-    const loading = extractionQueryLoading;
-    const errored = !!extractionDataError;
-    const disabled = loading || errored;
-
-    const filterChanged = initialFormValues !== value;
+    const filterChanged = initialFilter !== value;
 
     const conflictType = value.filterFigureCrisisTypes?.includes(conflict);
     const disasterType = value.filterFigureCrisisTypes?.includes(disaster);
@@ -620,7 +388,6 @@ function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
                     </>
                 )}
             >
-                {loading && <Loading absolute />}
                 <NonFieldError>
                     {error?.$internal}
                 </NonFieldError>

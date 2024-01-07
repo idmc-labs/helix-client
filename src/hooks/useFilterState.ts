@@ -11,7 +11,7 @@ import useDebouncedValue from '#hooks/useDebouncedValue';
 import { hasNoData } from '#utils/common';
 
 type SortDirection = 'asc' | 'dsc';
-interface SortParameter {
+export interface SortParameter {
     name: string;
     direction: SortDirection;
 }

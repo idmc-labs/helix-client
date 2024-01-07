@@ -119,7 +119,7 @@ function EventsTable(props: EventsProps) {
         ordering,
         sortState,
 
-        rawFilter,
+        initialFilter,
         filter,
         setFilter,
 
@@ -198,7 +198,7 @@ function EventsTable(props: EventsProps) {
             footerContent={eventsPager}
             description={(
                 <EventsFilter
-                    initialFilter={rawFilter}
+                    initialFilter={initialFilter}
                     onFilterChange={setFilter}
                     hiddenFields={hiddenFields}
                 />

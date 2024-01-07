@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useEffect } from 'react';
 import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import { gql, useQuery } from '@apollo/client';
@@ -54,12 +54,6 @@ const schema: FormSchema = {
     }),
 };
 
-const defaultFormValues: PartialForm<FormType> = {
-    fullName: undefined,
-    roleIn: undefined,
-    // isActive: undefined,
-};
-
 /*
 const isActiveOptions = [
     { id: 'true', name: 'Yes' },
@@ -69,8 +63,8 @@ const isActiveOptions = [
 
 interface UsersFilterProps {
     className?: string;
-    initialFilter?: PartialForm<FormType>;
-    onFilterChange: (value: PurgeNull<UserFilterFields>) => void;
+    initialFilter: PartialForm<FormType>;
+    onFilterChange: (value: PartialForm<FormType>) => void;
 }
 
 /*
@@ -101,7 +95,14 @@ function UserFilter(props: UsersFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(initialFilter ?? defaultFormValues, schema);
+    } = useForm(initialFilter, schema);
+    // NOTE: Set the form value when initialFilter is changed on parent
+    useEffect(
+        () => {
+            onValueSet(initialFilter);
+        },
+        [initialFilter, onValueSet],
+    );
 
     const {
         data: rolesOptions,
@@ -111,10 +112,10 @@ function UserFilter(props: UsersFilterProps) {
 
     const onResetFilters = useCallback(
         () => {
-            onValueSet(defaultFormValues);
-            onFilterChange(defaultFormValues);
+            onValueSet(initialFilter);
+            onFilterChange(initialFilter);
         },
-        [onValueSet, onFilterChange],
+        [onValueSet, onFilterChange, initialFilter],
     );
 
     const handleSubmit = useCallback((finalValues: FormType) => {
@@ -122,7 +123,7 @@ function UserFilter(props: UsersFilterProps) {
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
 
-    const filterChanged = defaultFormValues !== value;
+    const filterChanged = initialFilter !== value;
 
     const roleOptionsForPortfolio = useMemo(
         () => rolesOptions

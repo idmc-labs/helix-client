@@ -11,6 +11,7 @@ import {
 } from '#generated/types';
 import useFilterState from '#hooks/useFilterState';
 import { expandObject } from '#utils/common';
+import { PurgeNull } from '#types';
 
 import styles from './styles.css';
 
@@ -33,14 +34,14 @@ function CrisesTable(props: CrisesProps) {
         ordering,
         sortState,
 
-        // rawFilter,
+        initialFilter,
         filter,
         setFilter,
 
         pageSize,
         rawPageSize,
         setPageSize,
-    } = useFilterState<NonNullable<CrisesQueryVariables['filters']>>({
+    } = useFilterState<NonNullable<PurgeNull<CrisesQueryVariables['filters']>>>({
         filter: {},
         ordering: {
             name: 'created_at',
@@ -95,6 +96,7 @@ function CrisesTable(props: CrisesProps) {
             footerContent={crisesPager}
             description={(
                 <CrisesFilter
+                    initialFilter={initialFilter}
                     onFilterChange={setFilter}
                 />
             )}

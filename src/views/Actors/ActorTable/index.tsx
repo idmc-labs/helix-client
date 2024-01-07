@@ -119,7 +119,7 @@ function ActorTable(props: ActorProps) {
         ordering,
         sortState,
 
-        // rawFilter,
+        initialFilter,
         filter,
         setFilter,
 
@@ -338,6 +338,7 @@ function ActorTable(props: ActorProps) {
             )}
             description={(
                 <ActorsFilter
+                    initialFilter={initialFilter}
                     onFilterChange={setFilter}
                 />
             )}

@@ -150,7 +150,7 @@ function UserRoles(props: UserRolesProps) {
         ordering,
         sortState,
 
-        // rawFilter,
+        initialFilter,
         filter,
         setFilter,
 
@@ -481,6 +481,7 @@ function UserRoles(props: UserRolesProps) {
             )}
             description={(
                 <UserFilter
+                    initialFilter={initialFilter}
                     onFilterChange={setFilter}
                 />
             )}

@@ -48,7 +48,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
         ordering: entriesOrdering,
         sortState: entriesSortState,
 
-        rawFilter: rawEntriesFilter,
+        initialFilter: initialEntriesFilter,
         filter: entriesFilter,
         setFilter: setEntriesFilter,
 
@@ -71,7 +71,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
         ordering: figuresOrdering,
         sortState: figuresSortState,
 
-        rawFilter: rawFiguresFilter,
+        initialFilter: initialFiguresFilter,
         filter: figuresFilter,
         setFilter: setFiguresFilter,
 
@@ -198,14 +198,14 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
                     <>
                         {selectedTab === 'Entries' && (
                             <FiguresFilter
-                                initialFilter={rawEntriesFilter}
+                                initialFilter={initialEntriesFilter}
                                 onFilterChange={setEntriesFilter}
                                 hiddenFields={figureHiddenColumns}
                             />
                         )}
                         {selectedTab === 'Figures' && (
                             <FiguresFilter
-                                initialFilter={rawFiguresFilter}
+                                initialFilter={initialFiguresFilter}
                                 onFilterChange={setFiguresFilter}
                                 hiddenFields={figureHiddenColumns}
                             />

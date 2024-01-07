@@ -101,7 +101,7 @@ function FigureTagsTable(props: FigureTagsProps) {
         ordering,
         sortState,
 
-        // rawFilter,
+        initialFilter,
         filter,
         setFilter,
 
@@ -260,6 +260,7 @@ function FigureTagsTable(props: FigureTagsProps) {
             )}
             description={(
                 <TagsFilter
+                    initialFilter={initialFilter}
                     onFilterChange={setFilter}
                 />
             )}

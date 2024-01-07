@@ -125,7 +125,7 @@ function OrganizationTable(props: OrganizationProps) {
         ordering,
         sortState,
 
-        // rawFilter,
+        initialFilter,
         filter,
         setFilter,
 
@@ -361,6 +361,7 @@ function OrganizationTable(props: OrganizationProps) {
             )}
             description={(
                 <OrganizationFilter
+                    initialFilter={initialFilter}
                     onFilterChange={setFilter}
                 />
             )}

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
     TextInput,
     Button,
@@ -47,15 +47,6 @@ const schema: FormSchema = {
     }),
 };
 
-const defaultFormValues: PartialForm<FormType> = {
-    filterFigureCountries: [],
-    name_Unaccent_Icontains: undefined,
-    reviewStatus: [],
-    isPublic: undefined,
-    startDateAfter: undefined,
-    endDateBefore: undefined,
-};
-
 const STATUS_OPTIONS = gql`
     query ReportFilterOptions {
         reportReviewFilter: __type(name: "REPORT_REVIEW_FILTER") {
@@ -70,8 +61,8 @@ const STATUS_OPTIONS = gql`
 
 interface ReportFilterProps {
     className?: string;
-    initialFilter?: PartialForm<FormType>;
-    onFilterChange: (value: PurgeNull<ReportsFilterFields>) => void;
+    initialFilter: PartialForm<FormType>;
+    onFilterChange: (value: PartialForm<FormType>) => void;
 }
 
 function ReportFilter(props: ReportFilterProps) {
@@ -89,7 +80,14 @@ function ReportFilter(props: ReportFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(initialFilter ?? defaultFormValues, schema);
+    } = useForm(initialFilter, schema);
+    // NOTE: Set the form value when initialFilter is changed on parent
+    useEffect(
+        () => {
+            onValueSet(initialFilter);
+        },
+        [initialFilter, onValueSet],
+    );
 
     const {
         data: statusOptions,
@@ -99,10 +97,10 @@ function ReportFilter(props: ReportFilterProps) {
 
     const onResetFilters = useCallback(
         () => {
-            onValueSet(defaultFormValues);
-            onFilterChange(defaultFormValues);
+            onValueSet(initialFilter);
+            onFilterChange(initialFilter);
         },
-        [onValueSet, onFilterChange],
+        [onValueSet, onFilterChange, initialFilter],
     );
 
     const handleSubmit = useCallback((finalValues: FormType) => {
@@ -110,7 +108,7 @@ function ReportFilter(props: ReportFilterProps) {
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
 
-    const filterChanged = defaultFormValues !== value;
+    const filterChanged = initialFilter !== value;
 
     return (
         <form

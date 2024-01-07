@@ -122,7 +122,7 @@ interface Props {
     className?: string;
     filters: CrisesQueryVariables | undefined;
 
-    hiddenColumns?: ('countries')[];
+    hiddenColumns?: ('countries' | 'createdBy')[];
     disabledFields?: ('countries')[];
     defaultFormValue?: CrisisFormProps['defaultFormValue'];
 
@@ -292,12 +292,14 @@ function useCrisisTable(props: Props) {
                     (item) => item.createdAt,
                     { sortable: true },
                 ),
-                createTextColumn<CrisisFields, string>(
-                    'created_by__full_name',
-                    'Created by',
-                    (item) => item.createdBy?.fullName,
-                    { sortable: true },
-                ),
+                hiddenColumns.includes('createdBy')
+                    ? undefined
+                    : createTextColumn<CrisisFields, string>(
+                        'created_by__full_name',
+                        'Created by',
+                        (item) => item.createdBy?.fullName,
+                        { sortable: true },
+                    ),
                 createLinkColumn<CrisisFields, string>(
                     'name',
                     'Name',

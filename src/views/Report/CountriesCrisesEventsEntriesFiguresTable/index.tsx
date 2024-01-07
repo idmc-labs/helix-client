@@ -78,7 +78,7 @@ function CountriesCrisesEventsEntriesFiguresTable(
         ordering: crisesOrdering,
         sortState: crisesSortState,
 
-        rawFilter: rawCrisesFilter,
+        initialFilter: initialCrisesFilter,
         filter: crisesFilter,
         setFilter: setCrisesFilter,
 
@@ -101,7 +101,7 @@ function CountriesCrisesEventsEntriesFiguresTable(
         ordering: eventsOrdering,
         sortState: eventsSortState,
 
-        rawFilter: rawEventsFilter,
+        initialFilter: initialEventsFilter,
         filter: eventsFilter,
         setFilter: setEventsFilter,
 
@@ -124,7 +124,7 @@ function CountriesCrisesEventsEntriesFiguresTable(
         ordering: entriesOrdering,
         sortState: entriesSortState,
 
-        rawFilter: rawEntriesFilter,
+        initialFilter: initialEntriesFilter,
         filter: entriesFilter,
         setFilter: setEntriesFilter,
 
@@ -147,7 +147,7 @@ function CountriesCrisesEventsEntriesFiguresTable(
         ordering: figuresOrdering,
         sortState: figuresSortState,
 
-        rawFilter: rawFiguresFilter,
+        initialFilter: initialFiguresFilter,
         filter: figuresFilter,
         setFilter: setFiguresFilter,
 
@@ -410,25 +410,25 @@ function CountriesCrisesEventsEntriesFiguresTable(
                         )}
                         {selectedTab === 'Crises' && (
                             <CrisesFilter
-                                initialFilter={rawCrisesFilter}
+                                initialFilter={initialCrisesFilter}
                                 onFilterChange={setCrisesFilter}
                             />
                         )}
                         {selectedTab === 'Events' && (
                             <EventsFilter
-                                initialFilter={rawEventsFilter}
+                                initialFilter={initialEventsFilter}
                                 onFilterChange={setEventsFilter}
                             />
                         )}
                         {selectedTab === 'Entries' && (
                             <FiguresFilter
-                                initialFilter={rawEntriesFilter}
+                                initialFilter={initialEntriesFilter}
                                 onFilterChange={setEntriesFilter}
                             />
                         )}
                         {selectedTab === 'Figures' && (
                             <FiguresFilter
-                                initialFilter={rawFiguresFilter}
+                                initialFilter={initialFiguresFilter}
                                 onFilterChange={setFiguresFilter}
                             />
                         )}

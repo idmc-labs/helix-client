@@ -92,7 +92,7 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
         ordering,
         sortState,
 
-        // rawFilter,
+        initialFilter,
         filter,
         setFilter,
     } = useFilterState<PurgeNull<NonNullable<ContextOfViolenceListQueryVariables['filters']>>>({
@@ -253,6 +253,7 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
             )}
             description={(
                 <ViolenceContextFilter
+                    initialFilter={initialFilter}
                     onFilterChange={setFilter}
                 />
             )}

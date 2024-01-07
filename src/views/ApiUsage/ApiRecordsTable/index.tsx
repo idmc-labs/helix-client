@@ -125,7 +125,7 @@ function ApiRecordsTable(props: ApiRecordProps) {
         ordering,
         sortState,
 
-        // rawFilter,
+        initialFilter,
         filter,
         setFilter,
 
@@ -298,6 +298,7 @@ function ApiRecordsTable(props: ApiRecordProps) {
             )}
             description={(
                 <ApiRecordsFilter
+                    initialFilter={initialFilter}
                     onFilterChange={setFilter}
                 />
             )}

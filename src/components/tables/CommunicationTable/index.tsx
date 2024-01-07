@@ -111,7 +111,7 @@ function CommunicationTable(props: CommunicationListProps) {
         ordering,
         sortState,
 
-        // rawFilter,
+        initialFilter,
         filter,
         setFilter,
 
@@ -294,6 +294,7 @@ function CommunicationTable(props: CommunicationListProps) {
             )}
             description={!compact && (
                 <CommunicationFilter
+                    initialFilter={initialFilter}
                     onFilterChange={setFilter}
                 />
             )}

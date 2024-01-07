@@ -126,7 +126,7 @@ function ParkedItemTable(props: ParkedItemProps) {
         ordering,
         sortState,
 
-        // rawFilter,
+        initialFilter,
         filter,
         setFilter,
 
@@ -340,6 +340,7 @@ function ParkedItemTable(props: ParkedItemProps) {
             )}
             description={(
                 <ParkedItemFilter
+                    initialFilter={initialFilter}
                     onFilterChange={setFilter}
                     status={status}
                     assignedUser={assignedUser}
