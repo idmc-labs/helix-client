@@ -32,6 +32,7 @@ interface ResetFilterAction {
 interface SetFilterAction<FILTER extends Record<string, unknown>> {
     type: 'set-filter';
     value: SetStateAction<FILTER>;
+    updateInitialFilter?: boolean;
 }
 
 interface SetPageAction {
@@ -59,6 +60,7 @@ type FilterActions<FILTER extends Record<string, unknown>> = (
 
 interface FilterState<FILTER> {
     filter: FILTER,
+    initialFilter: FILTER,
     ordering: SortParameter | undefined,
     page: number,
     pageSize: number,
@@ -93,18 +95,21 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
         (prevState, action) => {
             if (action.type === 'reset-filter') {
                 return {
-                    filter,
-                    ordering,
-                    page,
-                    pageSize,
+                    ...prevState,
+                    filter: prevState.initialFilter,
+                    page: 1,
                 };
             }
             if (action.type === 'set-filter') {
+                const filterValue = typeof action.value === 'function'
+                    ? action.value(prevState.filter)
+                    : action.value;
                 return {
                     ...prevState,
-                    filter: typeof action.value === 'function'
-                        ? action.value(prevState.filter)
-                        : action.value,
+                    filter: filterValue,
+                    initialFilter: action.updateInitialFilter
+                        ? filterValue
+                        : prevState.initialFilter,
                     page: 1,
                 };
             }
@@ -134,6 +139,7 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
         },
         {
             filter,
+            initialFilter: filter,
             ordering,
             page,
             pageSize,
@@ -141,10 +147,11 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
     );
 
     const setFilter = useCallback(
-        (value: SetStateAction<FILTER>) => {
+        (value: SetStateAction<FILTER>, updateInitialFilter?: boolean) => {
             dispatch({
                 type: 'set-filter',
                 value,
+                updateInitialFilter,
             });
         },
         [],
@@ -191,6 +198,14 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
         },
         [],
     );
+    const resetFilter = useCallback(
+        () => {
+            dispatch({
+                type: 'reset-filter',
+            });
+        },
+        [],
+    );
 
     const debouncedState = useDebouncedValue(state, debounceTime);
 
@@ -210,8 +225,10 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
     return {
         rawFilter: state.filter,
         filter: debouncedState.filter,
+        filterChanged: state.filter !== state.initialFilter,
         filtered,
         setFilter,
+        resetFilter,
         setFilterField,
 
         rawPage: state.page,
