@@ -6,6 +6,7 @@ import {
 import CountriesFilter, { CountriesFilterFields } from '#components/rawTables/useCountryTable/CountriesFilter';
 import useCountryTable from '#components/rawTables/useCountryTable';
 import Container from '#components/Container';
+import { PurgeNull } from '#types';
 import {
     CountriesQueryVariables,
 } from '#generated/types';
@@ -13,6 +14,10 @@ import useFilterState from '#hooks/useFilterState';
 import { expandObject } from '#utils/common';
 
 import styles from './styles.css';
+
+const defaultFilter: PurgeNull<CountriesFilterFields> = {
+    year: new Date().getFullYear(),
+};
 
 interface CountriesProps {
     className?: string;
@@ -33,15 +38,15 @@ function CountriesTable(props: CountriesProps) {
         ordering,
         sortState,
 
-        // rawFilter,
+        initialFilter,
         filter,
         setFilter,
 
         pageSize,
         rawPageSize,
         setPageSize,
-    } = useFilterState<CountriesFilterFields>({
-        filter: {},
+    } = useFilterState<PurgeNull<CountriesFilterFields>>({
+        filter: defaultFilter,
         ordering: {
             name: 'idmc_short_name',
             direction: 'asc',
@@ -103,6 +108,7 @@ function CountriesTable(props: CountriesProps) {
             footerContent={countriesPager}
             description={(
                 <CountriesFilter
+                    initialFilter={initialFilter}
                     onFilterChange={setFilter}
                 />
             )}

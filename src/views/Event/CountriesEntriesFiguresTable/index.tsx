@@ -39,7 +39,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
         eventYear,
     } = props;
 
-    const [selectedTab, setSelectedTab] = useState<'Countries' | 'Entries' | 'Figures' | undefined>('Figures');
+    const [selectedTab, setSelectedTab] = useState<'Countries' | 'Entries' | 'Figures' | undefined>('Countries');
 
     const {
         page: countriesPage,
@@ -49,7 +49,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
         ordering: countriesOrdering,
         sortState: countriesSortState,
 
-        rawFilter: rawCountriesFilter,
+        initialFilter: initialCountriesFilter,
         filter: countriesFilter,
         setFilter: setCountriesFilter,
 
@@ -228,7 +228,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
 
     useEffect(
         () => {
-            setCountriesFilter((item) => ({ ...item, year: eventYear }));
+            setCountriesFilter(() => ({ year: eventYear }), true);
         },
         [eventYear, setCountriesFilter],
     );
@@ -265,7 +265,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
                     <>
                         {selectedTab === 'Countries' && (
                             <CountriesFilter
-                                initialFilter={rawCountriesFilter}
+                                initialFilter={initialCountriesFilter}
                                 onFilterChange={setCountriesFilter}
                                 // hiddenFields={countriesHiddenColumns}
                                 // events={eventId ? [eventId] : undefined}

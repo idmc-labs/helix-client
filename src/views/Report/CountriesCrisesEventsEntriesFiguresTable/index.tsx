@@ -55,7 +55,7 @@ function CountriesCrisesEventsEntriesFiguresTable(
         ordering: countriesOrdering,
         sortState: countriesSortState,
 
-        rawFilter: rawCountriesFilter,
+        initialFilter: initialCountriesFilter,
         filter: countriesFilter,
         setFilter: setCountriesFilter,
 
@@ -403,7 +403,7 @@ function CountriesCrisesEventsEntriesFiguresTable(
                     <>
                         {selectedTab === 'Countries' && (
                             <CountriesFilter
-                                initialFilter={rawCountriesFilter}
+                                initialFilter={initialCountriesFilter}
                                 onFilterChange={setCountriesFilter}
                                 hiddenFields={countriesHiddenColumns}
                             />

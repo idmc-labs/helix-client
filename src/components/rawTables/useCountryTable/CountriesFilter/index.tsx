@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useEffect } from 'react';
 import { TextInput, NumberInput, Button } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -48,17 +48,10 @@ const createSchema = (yearFilterHidden: boolean | undefined): FormSchema => ({
     },
 });
 
-const defaultFormValues: PartialForm<FormType> = {
-    regionByIds: [],
-    geoGroupByIds: [],
-    countryName: undefined,
-    year: new Date().getFullYear(),
-};
-
 interface CountriesFiltersProps {
     className?: string;
-    initialFilter?: PartialForm<FormType>;
-    onFilterChange: (value: PurgeNull<CountriesFilterFields>) => void;
+    initialFilter: PartialForm<FormType>;
+    onFilterChange: (value: PartialForm<FormType>) => void;
 
     hiddenFields?: ('year')[];
 }
@@ -86,14 +79,21 @@ function CountriesFilter(props: CountriesFiltersProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(initialFilter ?? defaultFormValues, schema);
+    } = useForm(initialFilter, schema);
+    // NOTE: Set the form value when initialFilter is changed on parent
+    useEffect(
+        () => {
+            onValueSet(initialFilter);
+        },
+        [initialFilter, onValueSet],
+    );
 
     const onResetFilters = useCallback(
         () => {
-            onValueSet(defaultFormValues);
-            onFilterChange(defaultFormValues);
+            onValueSet(initialFilter);
+            onFilterChange(initialFilter);
         },
-        [onValueSet, onFilterChange],
+        [onValueSet, onFilterChange, initialFilter],
     );
 
     const handleSubmit = useCallback((finalValues: FormType) => {
@@ -101,7 +101,7 @@ function CountriesFilter(props: CountriesFiltersProps) {
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
 
-    const filterChanged = defaultFormValues !== value;
+    const filterChanged = initialFilter !== value;
 
     return (
         <form

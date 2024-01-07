@@ -224,6 +224,7 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
 
     return {
         rawFilter: state.filter,
+        initialFilter: state.initialFilter,
         filter: debouncedState.filter,
         filterChanged: state.filter !== state.initialFilter,
         filtered,

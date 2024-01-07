@@ -52,7 +52,7 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
         ordering: countriesOrdering,
         sortState: countriesSortState,
 
-        rawFilter: rawCountriesFilter,
+        initialFilter: initialCountriesFilter,
         filter: countriesFilter,
         setFilter: setCountriesFilter,
 
@@ -300,7 +300,9 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
 
     useEffect(
         () => {
-            setCountriesFilter((item) => ({ ...item, year: crisisYear }));
+            if (crisisYear) {
+                setCountriesFilter(() => ({ year: crisisYear }), true);
+            }
         },
         [crisisYear, setCountriesFilter],
     );
@@ -342,7 +344,7 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
                     <>
                         {selectedTab === 'Countries' && (
                             <CountriesFilter
-                                initialFilter={rawCountriesFilter}
+                                initialFilter={initialCountriesFilter}
                                 onFilterChange={setCountriesFilter}
                                 // hiddenFields={countriesHiddenColumns}
                                 // crises={crisisId ? [crisisId] : undefined}
