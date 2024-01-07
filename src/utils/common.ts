@@ -12,11 +12,66 @@ import {
     isNaN,
     isDefined,
     isNotDefined,
+    isTruthyString,
+    sum,
 } from '@togglecorp/fujs';
 import {
     BasicEntity,
     EnumEntity,
 } from '#types';
+
+export type UnsafeNumberList = Maybe<Maybe<number>[]>;
+
+function getNumberListSafe(list: UnsafeNumberList) {
+    if (isNotDefined(list)) {
+        return undefined;
+    }
+
+    const safeList = list.filter(isDefined);
+
+    if (safeList.length === 0) {
+        return undefined;
+    }
+
+    return safeList;
+}
+
+export function sumSafe(list: UnsafeNumberList) {
+    const safeList = getNumberListSafe(list);
+    if (isNotDefined(safeList)) {
+        return undefined;
+    }
+
+    return sum(safeList);
+}
+
+export function maxSafe(list: UnsafeNumberList) {
+    const safeList = getNumberListSafe(list);
+    if (isNotDefined(safeList)) {
+        return undefined;
+    }
+
+    return Math.max(...safeList);
+}
+
+export function minSafe(list: UnsafeNumberList) {
+    const safeList = getNumberListSafe(list);
+    if (isNotDefined(safeList)) {
+        return undefined;
+    }
+
+    return Math.min(...safeList);
+}
+
+export function avgSafe(list: UnsafeNumberList) {
+    const safeList = getNumberListSafe(list);
+    if (isNotDefined(safeList)) {
+        return undefined;
+    }
+
+    const listSum = sum(safeList);
+    return listSum / safeList.length;
+}
 
 // NOTE: we need to append T00:00:00 to get date on current user's timezone
 export function ymdToDate(value: string) {
@@ -277,4 +332,104 @@ export function expandObject<T extends Record<string, unknown>>(
         }
     });
     return newValue;
+}
+
+interface FormatNumberOptions {
+    currency?: boolean;
+    unit?: Intl.NumberFormatOptions['unit'];
+    maximumFractionDigits?: Intl.NumberFormatOptions['maximumFractionDigits'];
+    compact?: boolean;
+    separatorHidden?: boolean,
+    language?: string,
+}
+
+export function formatNumber(
+    value: null | undefined,
+    options?: FormatNumberOptions,
+): undefined
+export function formatNumber(
+    value: number | null | undefined,
+    options?: FormatNumberOptions,
+): undefined
+export function formatNumber(
+    value: number,
+    options?: FormatNumberOptions,
+): string
+export function formatNumber(
+    value: number | null | undefined,
+    options?: FormatNumberOptions,
+) {
+    if (isNotDefined(value)) {
+        return undefined;
+    }
+
+    const formattingOptions: Intl.NumberFormatOptions = {};
+
+    if (isNotDefined(options)) {
+        formattingOptions.maximumFractionDigits = Math.abs(value) >= 1000 ? 0 : 2;
+        return new Intl.NumberFormat(undefined, formattingOptions).format(value);
+    }
+
+    const {
+        currency,
+        unit,
+        maximumFractionDigits,
+        compact,
+        separatorHidden,
+        language,
+    } = options;
+
+    if (isTruthyString(unit)) {
+        formattingOptions.unit = unit;
+        formattingOptions.unitDisplay = 'short';
+    }
+    if (currency) {
+        formattingOptions.currencyDisplay = 'narrowSymbol';
+        formattingOptions.style = 'currency';
+    }
+    if (compact) {
+        formattingOptions.notation = 'compact';
+        formattingOptions.compactDisplay = 'short';
+    }
+
+    formattingOptions.useGrouping = !separatorHidden;
+
+    if (isDefined(maximumFractionDigits)) {
+        formattingOptions.maximumFractionDigits = maximumFractionDigits;
+    } else {
+        formattingOptions.maximumFractionDigits = Math.abs(value) >= 1000 ? 0 : 2;
+    }
+
+    const newValue = new Intl.NumberFormat(language, formattingOptions)
+        .format(value);
+
+    return newValue;
+}
+
+export function splitList<X, Y>(
+    list: (X | Y)[],
+    splitPointSelector: (item: X | Y, i: number) => item is X,
+): Y[][] {
+    const breakpointIndices = list.map(
+        (item, i) => (splitPointSelector(item, i) ? i : undefined),
+    ).filter(isDefined);
+
+    if (breakpointIndices.length === 0) {
+        return [list as Y[]];
+    }
+
+    return [...breakpointIndices, list.length].map(
+        (breakpointIndex, i) => {
+            const prevIndex = i === 0
+                ? 0
+                : breakpointIndices[i - 1] + 1;
+
+            if (prevIndex === breakpointIndex) {
+                return undefined;
+            }
+
+            const newList = list.slice(prevIndex, breakpointIndex);
+            return newList as Y[];
+        },
+    ).filter(isDefined);
 }

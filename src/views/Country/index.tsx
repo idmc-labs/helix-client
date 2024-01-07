@@ -31,7 +31,6 @@ import useBasicToggle from '#hooks/useBasicToggle';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import route from '#config/routes';
 
-import NumberBlock from '#components/NumberBlock';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import MyResources from '#components/lists/MyResources';
@@ -43,6 +42,7 @@ import ContextualAnalysis from './ContextualAnalysis';
 import CountrySummary from './CountrySummary';
 import styles from './styles.css';
 import useSidebarLayout from '#hooks/useSidebarLayout';
+import NdChart from './NdChart';
 
 type Bounds = [number, number, number, number];
 
@@ -360,89 +360,11 @@ function Country(props: CountryProps) {
                         )}
                     </Map>
                     <div className={styles.stats}>
-                        <NumberBlock
-                            label={(
-                                <>
-                                    Internal Displacements
-                                    <br />
-                                    {`(Conflict ${year})`}
-                                </>
-                            )}
-                            value={countryData?.country?.totalFlowConflict}
-                        />
-                        <NumberBlock
-                            label={(
-                                <>
-                                    Internal Displacements
-                                    <br />
-                                    {`(Disaster ${year})`}
-                                </>
-                            )}
-                            value={countryData?.country?.totalFlowDisaster}
-                        />
-                        <NumberBlock
-                            label={(
-                                <>
-                                    No. of IDPs
-                                    <br />
-                                    {`(Conflict ${year})`}
-                                </>
-                            )}
-                            value={countryData?.country?.totalStockConflict}
-                        />
-                        <NumberBlock
-                            label={(
-                                <>
-                                    No. of IDPs
-                                    <br />
-                                    {`(Disaster ${year})`}
-                                </>
-                            )}
-                            value={countryData?.country?.totalStockDisaster}
-                        />
-                        <NumberBlock
-                            label={(
-                                <>
-                                    No. of Crises
-                                    <br />
-                                    (Conflict)
-                                </>
-                            )}
-                            value={countryData?.country?.crisesConflict?.totalCount}
-                        />
-                        <NumberBlock
-                            label={(
-                                <>
-                                    No. of Crises
-                                    <br />
-                                    (Disaster)
-                                </>
-                            )}
-                            value={countryData?.country?.crisesDisaster?.totalCount}
-                        />
-                        <NumberBlock
-                            label={(
-                                <>
-                                    No. of Events
-                                    <br />
-                                    (Conflict)
-                                </>
-                            )}
-                            value={countryData?.country?.eventsConflict?.totalCount}
-                        />
-                        <NumberBlock
-                            label={(
-                                <>
-                                    No. of Events
-                                    <br />
-                                    (Disaster)
-                                </>
-                            )}
-                            value={countryData?.country?.eventsDisaster?.totalCount}
-                        />
-                        <NumberBlock
-                            label="Entries"
-                            value={countryData?.country?.entries?.totalCount}
+                        <NdChart
+                            // eslint-disable-next-line max-len
+                            conflictData={countryAggregations?.figureAggregations?.ndsConflictFigures}
+                            // eslint-disable-next-line max-len
+                            disasterData={countryAggregations?.figureAggregations?.ndsDisasterFigures}
                         />
                     </div>
                     <CrisesEventsEntriesFiguresTable

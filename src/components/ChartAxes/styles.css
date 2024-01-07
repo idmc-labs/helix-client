@@ -1,0 +1,60 @@
+.chart-axes {
+    --color-axes: #717171;
+
+    .y-axis-label-container {
+        transform: rotate(-90deg);
+
+        .y-axis-label {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .y-axis-tick-text {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: var(--spacing-extra-small);
+        text-align: right;
+        word-break: break-word;
+        font-size: var(--font-size-extra-small);
+    }
+
+    .x-axis-tick {
+        .x-axis-tick-text {
+            padding: var(--spacing-extra-small) 0;
+            text-align: center;
+            word-break: break-word;
+            font-size: var(--font-size-extra-small);
+
+            @media screen and (max-width: 30rem) {
+                transform: rotate(-30deg) translateX(-10%) translateY(20%);
+                padding: 0;
+            }
+        }
+    }
+
+
+    .x-axis-grid-line,
+    .y-axis-grid-line {
+        stroke: var(--color-axes);
+        stroke-dasharray: 4 4;
+        stroke-opacity: 0.5;
+
+        &.hovered {
+            stroke-opacity: 1;
+        }
+    }
+
+    .bound-rect {
+        fill: var(--color-axes);
+        fill-opacity: 0;
+        transition: fill-opacity var(--go-ui-duration-transition-slow) ease-in-out;
+
+        &:hover {
+            fill-opacity: 0.2;
+        }
+    }
+}

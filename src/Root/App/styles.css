@@ -78,6 +78,9 @@
     --color-foreground: rgb(255, 255, 255);
     --color-background: rgb(240, 243, 247);
 
+    --color-disaster: #018eca;
+    --color-conflict: #ef7d00;
+
     /* COLOR TEXT */
     --color-text: rgba(0, 0, 0, .7);
     --color-text-label: rgba(0, 0, 0, .5);
@@ -94,6 +97,10 @@
 
     --color-separator: rgba(0, 0, 0, .1);
     --color-link: var(--color-primary);
+
+    --duration-transition-slow: .5s;
+    --duration-transition-medium: .3s;
+    --duration-transition-fast: .15s;
 
     --tui-color-primary: var(--color-primary);
     --tui-color-accent: var(--color-accent);

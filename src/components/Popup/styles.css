@@ -1,0 +1,36 @@
+.popup {
+    position: fixed;
+    border-radius: var(--spacing-extra-small);
+    box-shadow: 0 4pt 16pt -6pt rgb(0 0 0 / 1);
+    /* FIXME: use variable */
+    background-color: #fff;
+    max-height: 40vh;
+    overflow: auto;
+
+    &.top-orientation {
+        /* FIXME: add variable */
+        box-shadow: 0 -8pt 20pt -5pt rgb(0 0 0 / 0.5);
+    }
+}
+
+.pointer {
+    position: fixed;
+    transform: translateX(-50%);
+    background-color: transparent;
+    line-height: 0;
+    /* FIXME: use variable */
+    color: #fff;
+    font-size: 0.5rem;
+    pointer-events: none;
+    filter: drop-shadow(0 -1pt 1pt rgb(0 0 0 / .1));
+
+    .icon {
+        width: 2em;
+        height: 1em;
+        fill: currentColor;
+    }
+
+    &.top-orientation {
+        transform: translateX(-50%) rotate(180deg);
+    }
+}

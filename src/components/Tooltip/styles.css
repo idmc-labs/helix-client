@@ -1,0 +1,44 @@
+.tooltip-dummy {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.tooltip-content {
+    opacity: 0;
+    padding: 0;
+    animation: slide-down var(--duration-transition-medium) ease-in forwards;
+    animation-delay: var(--duration-transition-fast);
+
+    .content {
+        display: flex;
+        flex-direction: column;
+        gap: var(--go-ui-spacing-sm);
+    }
+}
+
+.pointer {
+    opacity: 0;
+    animation: fade-in var(--duration-transition-medium) ease-in forwards;
+    animation-delay: var(--duration-transition-medium);
+}
+
+@keyframes slide-down {
+    from {
+        transform: translateY(-5pt);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
