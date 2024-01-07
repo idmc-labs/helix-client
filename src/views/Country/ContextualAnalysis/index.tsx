@@ -55,6 +55,7 @@ function ContextualAnalysis(props: CountryContextualAnalysisProps) {
 
     return (
         <Container
+            borderless
             className={_cs(className, styles.contextualAnalysis)}
             contentClassName={styles.content}
             heading="Contextual Analyses"

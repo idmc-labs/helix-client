@@ -2,14 +2,9 @@
     position: relative;
 
     .content-container {
-        display: flex;
-        align-items: flex-end;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
         gap: var(--spacing-medium);
-
-        .input {
-            min-width: 192px;
-        }
 
         .form-buttons{
             display: flex;

@@ -11,6 +11,7 @@ import Map, {
     MapSource,
     MapLayer,
 } from '@togglecorp/re-map';
+import { Button } from '@togglecorp/toggle-ui';
 
 import {
     gql,
@@ -41,6 +42,7 @@ import CrisesEventsEntriesFiguresTable from './CrisesEventsEntriesFiguresTable';
 import ContextualAnalysis from './ContextualAnalysis';
 import CountrySummary from './CountrySummary';
 import styles from './styles.css';
+import useSidebarLayout from '#hooks/useSidebarLayout';
 
 type Bounds = [number, number, number, number];
 
@@ -285,8 +287,17 @@ function Country(props: CountryProps) {
 
     const bounds = countryData?.country?.boundingBox ?? undefined;
 
+    const {
+        showSidebar,
+        containerClassName,
+        sidebarClassName,
+        sidebarSpaceReserverElement,
+        setShowSidebarTrue,
+        setShowSidebarFalse,
+    } = useSidebarLayout();
+
     return (
-        <div className={_cs(className, styles.countries)}>
+        <div className={_cs(styles.countries, className)}>
             <PageHeader
                 title={(
                     <CountrySelectInput
@@ -297,144 +308,152 @@ function Country(props: CountryProps) {
                         nonClearable
                     />
                 )}
+                description={(
+                    <Button
+                        name={undefined}
+                        onClick={setShowSidebarTrue}
+                        disabled={showSidebar}
+                    >
+                        Filters
+                    </Button>
+                )}
             />
-            <div className={styles.content}>
-                <div className={styles.leftContent}>
-                    <div className={styles.top}>
-                        <Container
-                            className={styles.extraLargeContainer}
-                            contentClassName={styles.idpMap}
-                            heading="Details"
-                        >
-                            <div className={styles.stats}>
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            Internal Displacements
-                                            <br />
-                                            {`(Conflict ${year})`}
-                                        </>
-                                    )}
-                                    value={countryData?.country?.totalFlowConflict}
-                                />
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            Internal Displacements
-                                            <br />
-                                            {`(Disaster ${year})`}
-                                        </>
-                                    )}
-                                    value={countryData?.country?.totalFlowDisaster}
-                                />
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            No. of IDPs
-                                            <br />
-                                            {`(Conflict ${year})`}
-                                        </>
-                                    )}
-                                    value={countryData?.country?.totalStockConflict}
-                                />
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            No. of IDPs
-                                            <br />
-                                            {`(Disaster ${year})`}
-                                        </>
-                                    )}
-                                    value={countryData?.country?.totalStockDisaster}
-                                />
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            No. of Crises
-                                            <br />
-                                            (Conflict)
-                                        </>
-                                    )}
-                                    value={countryData?.country?.crisesConflict?.totalCount}
-                                />
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            No. of Crises
-                                            <br />
-                                            (Disaster)
-                                        </>
-                                    )}
-                                    value={countryData?.country?.crisesDisaster?.totalCount}
-                                />
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            No. of Events
-                                            <br />
-                                            (Conflict)
-                                        </>
-                                    )}
-                                    value={countryData?.country?.eventsConflict?.totalCount}
-                                />
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            No. of Events
-                                            <br />
-                                            (Disaster)
-                                        </>
-                                    )}
-                                    value={countryData?.country?.eventsDisaster?.totalCount}
-                                />
-                                <NumberBlock
-                                    label="Entries"
-                                    value={countryData?.country?.entries?.totalCount}
-                                />
-                            </div>
-                            <Map
-                                mapStyle={lightStyle}
-                                mapOptions={{
-                                    logoPosition: 'bottom-left',
+            <div className={containerClassName}>
+                {sidebarSpaceReserverElement}
+                <div className={styles.mainContent}>
+                    <Map
+                        mapStyle={lightStyle}
+                        mapOptions={{
+                            logoPosition: 'bottom-left',
+                        }}
+                        scaleControlShown
+                        navControlShown
+                    >
+                        <MapContainer className={styles.mapContainer} />
+                        <MapBounds
+                            bounds={bounds as Bounds | undefined}
+                            padding={50}
+                        />
+                        {countryData?.country?.geojsonUrl && (
+                            <MapSource
+                                sourceKey="country"
+                                sourceOptions={{
+                                    type: 'geojson',
                                 }}
-                                scaleControlShown
-                                navControlShown
+                                geoJson={countryData.country.geojsonUrl}
                             >
-                                <MapContainer className={styles.mapContainer} />
-                                <MapBounds
-                                    bounds={bounds as Bounds | undefined}
-                                    padding={50}
+                                <MapLayer
+                                    layerKey="country-fill"
+                                    layerOptions={{
+                                        type: 'fill',
+                                        paint: countryFillPaint,
+                                    }}
                                 />
-                                {countryData?.country?.geojsonUrl && (
-                                    <MapSource
-                                        sourceKey="country"
-                                        sourceOptions={{
-                                            type: 'geojson',
-                                        }}
-                                        geoJson={countryData.country.geojsonUrl}
-                                    >
-                                        <MapLayer
-                                            layerKey="country-fill"
-                                            layerOptions={{
-                                                type: 'fill',
-                                                paint: countryFillPaint,
-                                            }}
-                                        />
-                                        <MapLayer
-                                            layerKey="country-line"
-                                            layerOptions={{
-                                                type: 'line',
-                                                paint: countryLinePaint,
-                                            }}
-                                        />
-                                    </MapSource>
-                                )}
-                            </Map>
-                        </Container>
+                                <MapLayer
+                                    layerKey="country-line"
+                                    layerOptions={{
+                                        type: 'line',
+                                        paint: countryLinePaint,
+                                    }}
+                                />
+                            </MapSource>
+                        )}
+                    </Map>
+                    <div className={styles.stats}>
+                        <NumberBlock
+                            label={(
+                                <>
+                                    Internal Displacements
+                                    <br />
+                                    {`(Conflict ${year})`}
+                                </>
+                            )}
+                            value={countryData?.country?.totalFlowConflict}
+                        />
+                        <NumberBlock
+                            label={(
+                                <>
+                                    Internal Displacements
+                                    <br />
+                                    {`(Disaster ${year})`}
+                                </>
+                            )}
+                            value={countryData?.country?.totalFlowDisaster}
+                        />
+                        <NumberBlock
+                            label={(
+                                <>
+                                    No. of IDPs
+                                    <br />
+                                    {`(Conflict ${year})`}
+                                </>
+                            )}
+                            value={countryData?.country?.totalStockConflict}
+                        />
+                        <NumberBlock
+                            label={(
+                                <>
+                                    No. of IDPs
+                                    <br />
+                                    {`(Disaster ${year})`}
+                                </>
+                            )}
+                            value={countryData?.country?.totalStockDisaster}
+                        />
+                        <NumberBlock
+                            label={(
+                                <>
+                                    No. of Crises
+                                    <br />
+                                    (Conflict)
+                                </>
+                            )}
+                            value={countryData?.country?.crisesConflict?.totalCount}
+                        />
+                        <NumberBlock
+                            label={(
+                                <>
+                                    No. of Crises
+                                    <br />
+                                    (Disaster)
+                                </>
+                            )}
+                            value={countryData?.country?.crisesDisaster?.totalCount}
+                        />
+                        <NumberBlock
+                            label={(
+                                <>
+                                    No. of Events
+                                    <br />
+                                    (Conflict)
+                                </>
+                            )}
+                            value={countryData?.country?.eventsConflict?.totalCount}
+                        />
+                        <NumberBlock
+                            label={(
+                                <>
+                                    No. of Events
+                                    <br />
+                                    (Disaster)
+                                </>
+                            )}
+                            value={countryData?.country?.eventsDisaster?.totalCount}
+                        />
+                        <NumberBlock
+                            label="Entries"
+                            value={countryData?.country?.entries?.totalCount}
+                        />
                     </div>
-                    <div className={styles.middle}>
+                    <CrisesEventsEntriesFiguresTable
+                        className={styles.eventsEntriesFiguresTable}
+                        countryId={countryId}
+                    />
+                    <Container
+                        className={styles.overview}
+                    >
                         <CountrySummary
-                            className={styles.container}
+                            className={styles.countrySummary}
                             summary={countryData?.country?.lastSummary}
                             disabled={disabled}
                             countryId={countryId}
@@ -443,30 +462,53 @@ function Country(props: CountryProps) {
                             onSummaryFormOpen={handleSummaryFormOpen}
                             onSummaryFormClose={handleSummaryFormClose}
                         />
-                    </div>
-                </div>
-                <div className={styles.sideContent}>
-                    <ContextualAnalysis
-                        className={styles.container}
-                        contextualAnalysis={countryData?.country?.lastContextualAnalysis}
-                        disabled={disabled}
-                        contextualFormOpened={contextualFormOpened}
-                        handleContextualFormOpen={handleContextualFormOpen}
-                        handleContextualFormClose={handleContextualFormClose}
-                        countryId={countryId}
-                        onAddNewContextualAnalysisInCache={handleAddNewContextualAnalysis}
-                    />
+                        <ContextualAnalysis
+                            className={styles.contextualAnalysis}
+                            contextualAnalysis={countryData?.country?.lastContextualAnalysis}
+                            disabled={disabled}
+                            contextualFormOpened={contextualFormOpened}
+                            handleContextualFormOpen={handleContextualFormOpen}
+                            handleContextualFormClose={handleContextualFormClose}
+                            countryId={countryId}
+                            onAddNewContextualAnalysisInCache={handleAddNewContextualAnalysis}
+                        />
+                    </Container>
                     <MyResources
-                        className={styles.container}
+                        className={styles.resources}
                         country={countryId}
                     />
                 </div>
-            </div>
-            <div className={styles.fullWidth}>
-                <CrisesEventsEntriesFiguresTable
-                    className={styles.largeContainer}
-                    countryId={countryId}
-                />
+                <Container
+                    borderless
+                    className={_cs(styles.filters, sidebarClassName)}
+                    heading="Filter"
+                    contentClassName={styles.filtersContent}
+                    headerActions={(
+                        <Button
+                            name={undefined}
+                            onClick={setShowSidebarFalse}
+                        >
+                            Close
+                        </Button>
+                    )}
+                    footerContent={<div />}
+                    footerActions={(
+                        <>
+                            <Button
+                                name={undefined}
+                            >
+                                Reset
+                            </Button>
+                            <Button
+                                name={undefined}
+                            >
+                                Apply
+                            </Button>
+                        </>
+                    )}
+                >
+                    Filters go!
+                </Container>
             </div>
         </div>
     );

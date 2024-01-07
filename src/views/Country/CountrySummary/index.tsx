@@ -54,6 +54,7 @@ function CountrySummary(props: CountrySummaryProps) {
 
     return (
         <Container
+            borderless
             className={_cs(className, styles.summary)}
             contentClassName={styles.content}
             heading="Summary"
