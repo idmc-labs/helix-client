@@ -20,6 +20,8 @@ import {
 import {
     CountryQuery,
     CountryQueryVariables,
+    CountryAggregationsQuery,
+    CountryAggregationsQueryVariables,
     CreateSummaryMutation,
     CreateContextualAnalysisMutation,
 } from '#generated/types';
@@ -85,6 +87,29 @@ const COUNTRY = gql`
     }
 `;
 
+const COUNTRY_AGGREGATIONS = gql`
+    query CountryAggregations($filters: FigureExtractionFilterDataInputType!) {
+        figureAggregations(filters: $filters) {
+            idpsConflictFigures {
+                date
+                value
+            }
+            idpsDisasterFigures {
+                date
+                value
+            }
+            ndsConflictFigures {
+                date
+                value
+            }
+            ndsDisasterFigures {
+                date
+                value
+            }
+        }
+    }
+`;
+
 const lightStyle = 'mapbox://styles/togglecorp/cl50rwy0a002d14mo6w9zprio';
 
 const year = new Date().getFullYear();
@@ -140,6 +165,16 @@ function Country(props: CountryProps) {
         (): CountryQueryVariables | undefined => ({ id: countryId }),
         [countryId],
     );
+
+    const countryAggregationsVariables = useMemo(
+        (): CountryAggregationsQueryVariables | undefined => ({
+            filters: {
+                filterFigureCountries: [countryId],
+            },
+        }),
+        [countryId],
+    );
+
     const {
         data: countryData,
         loading: countryDataLoading,
@@ -161,6 +196,18 @@ function Country(props: CountryProps) {
             }
         },
     });
+
+    const {
+        data: countryAggregations,
+        loading: countryAggregationsLoading,
+        error: countryAggregationsError,
+    } = useQuery<CountryAggregationsQuery>(COUNTRY_AGGREGATIONS, {
+        variables: countryAggregationsVariables,
+        skip: !countryAggregationsVariables,
+    });
+
+    // FIXME: remove these later
+    console.warn(countryAggregations, countryAggregationsLoading, countryAggregationsError);
 
     const loading = countryDataLoading;
     const errored = !!countryDataLoadingError;
