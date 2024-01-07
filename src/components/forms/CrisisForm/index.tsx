@@ -167,12 +167,13 @@ const schema: FormSchema = {
     }),
 };
 
-const defaultFormValues: PartialForm<FormType> = {};
-
-interface CrisisFormProps {
-    id?: string;
+export interface CrisisFormProps {
     onCrisisCreate?: (result: NonNullable<NonNullable<CreateCrisisMutation['createCrisis']>['result']>) => void;
     onCrisisFormCancel: () => void;
+
+    id?: string;
+    disabledFields?: ('countries')[];
+    defaultFormValue?: PartialForm<FormType>;
 }
 
 function CrisisForm(props: CrisisFormProps) {
@@ -180,6 +181,8 @@ function CrisisForm(props: CrisisFormProps) {
         id,
         onCrisisCreate,
         onCrisisFormCancel,
+        defaultFormValue = {},
+        disabledFields = [],
     } = props;
 
     const [countries, setCountries] = useOptions('country');
@@ -193,7 +196,7 @@ function CrisisForm(props: CrisisFormProps) {
         onErrorSet,
         onValueSet,
         onPristineSet,
-    } = useForm(defaultFormValues, schema);
+    } = useForm(defaultFormValue, schema);
 
     const {
         notify,
@@ -419,6 +422,7 @@ function CrisisForm(props: CrisisFormProps) {
                 onChange={onValueChange}
                 error={error?.fields?.countries?.$internal}
                 disabled={disabled}
+                readOnly={disabledFields.includes('countries')}
             />
             <Row>
                 <DateInput

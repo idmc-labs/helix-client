@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useContext, useEffect } from 'react';
+import React, { useMemo, useCallback, useContext, useEffect } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { getOperationName } from 'apollo-link';
 import {
@@ -7,10 +7,6 @@ import {
 } from '@togglecorp/fujs';
 import {
     Button,
-    Tabs,
-    // Tab,
-    TabPanel,
-    // TabList,
     DateTimeRange,
     DateTime,
     Modal,
@@ -23,12 +19,12 @@ import {
     IoInformationCircleOutline,
     IoCreateOutline,
 } from 'react-icons/io5';
-
 import {
     gql,
     useQuery,
     useMutation,
 } from '@apollo/client';
+
 import {
     ReportQuery,
     ReportQueryVariables,
@@ -47,7 +43,6 @@ import {
     SetPfaVisibleInGiddMutation,
     SetPfaVisibleInGiddMutationVariables,
 } from '#generated/types';
-
 import useOptions from '#hooks/useOptions';
 import ButtonLikeExternalLink from '#components/ButtonLikeExternalLink';
 import DomainContext from '#components/DomainContext';
@@ -58,20 +53,22 @@ import { MarkdownPreview } from '#components/MarkdownEditor';
 import ReportSelectInput from '#components/selections/ReportSelectInput';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import route from '#config/routes';
-
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-import ReportComments from './ReportComments';
-import styles from './styles.css';
 import QuickActionButton from '#components/QuickActionButton';
+import useModalState from '#hooks/useModalState';
+
 import AnalysisUpdateForm from './Analysis/AnalysisUpdateForm';
 import MethodologyUpdateForm from './Methodology/MethodologyUpdateForm';
 import SummaryUpdateForm from './Summary/SummaryUpdateForm';
 import PublicFigureAnalysisForm from './PublicFigureAnalysis/PublicFigureUpdateForm';
 import ChallengesUpdateForm from './Challenges/ChallengesUpdateForm';
 import SignificateUpdateForm from './Significant/SignificantUpdatesForm';
-import useModalState from '#hooks/useModalState';
+import ReportComments from './ReportComments';
+import CountriesCrisesEventsEntriesFiguresTable from './CountriesCrisesEventsEntriesFiguresTable';
+
+import styles from './styles.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
@@ -391,8 +388,6 @@ function Report(props: ReportProps) {
     } = useContext(NotificationContext);
     const { reportId } = useParams<{ reportId: string }>();
     const { replace: historyReplace } = useHistory();
-
-    const [selectedTab, setSelectedTab] = useState<'country' | 'crisis' | 'event' | 'entry' | 'figure' | undefined>('figure');
 
     const reportVariables = useMemo(
         (): ReportQueryVariables | undefined => ({ id: reportId }),
@@ -746,38 +741,6 @@ function Report(props: ReportProps) {
         },
         [report, reportTypes],
     );
-
-    /*
-    const tabs = (
-        <TabList>
-            <Tab
-                name="country"
-            >
-                Countries
-            </Tab>
-            <Tab
-                name="crisis"
-            >
-                Crises
-            </Tab>
-            <Tab
-                name="event"
-            >
-                Events
-            </Tab>
-            <Tab
-                name="entry"
-            >
-                Entries
-            </Tab>
-            <Tab
-                name="figure"
-            >
-                Figures
-            </Tab>
-        </TabList>
-    );
-    */
 
     const status = !reportDataLoading && (
         <>
@@ -1188,56 +1151,10 @@ function Report(props: ReportProps) {
                 </div>
             </div>
             <div className={styles.fullWidth}>
-                <Tabs
-                    value={selectedTab}
-                    onChange={setSelectedTab}
-                >
-                    <TabPanel name="country">
-                        {/*
-                        <ReportCountryTable
-                            tabs={tabs}
-                            className={styles.largeContainer}
-                            report={reportId}
-                        />
-                        */}
-                    </TabPanel>
-                    <TabPanel name="crisis">
-                        {/*
-                        <ReportCrisisTable
-                            tabs={tabs}
-                            className={styles.largeContainer}
-                            report={reportId}
-                        />
-                        */}
-                    </TabPanel>
-                    <TabPanel name="event">
-                        {/*
-                        <ReportEventTable
-                            tabs={tabs}
-                            className={styles.largeContainer}
-                            report={reportId}
-                        />
-                        */}
-                    </TabPanel>
-                    <TabPanel name="entry">
-                        {/*
-                        <ReportEntryTable
-                            tabs={tabs}
-                            className={styles.largeContainer}
-                            report={reportId}
-                        />
-                        */}
-                    </TabPanel>
-                    <TabPanel name="figure">
-                        {/*
-                        <ReportFigureTable
-                            tabs={tabs}
-                            className={styles.largeContainer}
-                            report={reportId}
-                        />
-                        */}
-                    </TabPanel>
-                </Tabs>
+                <CountriesCrisesEventsEntriesFiguresTable
+                    className={styles.largeContainer}
+                    reportId={reportId}
+                />
             </div>
             {shouldShowUpdateAnalysisModal && (
                 <Modal

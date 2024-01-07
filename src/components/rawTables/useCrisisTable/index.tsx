@@ -1,4 +1,5 @@
 import React, { useMemo, useCallback, useContext } from 'react';
+import { isDefined } from '@togglecorp/fujs';
 import {
     gql,
     useQuery,
@@ -24,7 +25,7 @@ import {
 } from '#components/tableHelpers';
 import Message from '#components/Message';
 import Loading from '#components/Loading';
-import CrisisForm from '#components/forms/CrisisForm';
+import CrisisForm, { CrisisFormProps } from '#components/forms/CrisisForm';
 import StackedProgressCell, { StackedProgressProps } from '#components/tableHelpers/StackedProgress';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
@@ -121,6 +122,10 @@ interface Props {
     className?: string;
     filters: CrisesQueryVariables | undefined;
 
+    hiddenColumns?: ('countries')[];
+    disabledFields?: ('countries')[];
+    defaultFormValue?: CrisisFormProps['defaultFormValue'];
+
     page: number;
     pageSize: number;
     onPageChange: (value: number) => void;
@@ -132,6 +137,10 @@ function useCrisisTable(props: Props) {
     const {
         className,
         filters,
+
+        hiddenColumns = [],
+        disabledFields,
+        defaultFormValue,
 
         page,
         pageSize,
@@ -312,13 +321,15 @@ function useCrisisTable(props: Props) {
                     (item) => item.endDate,
                     { sortable: true },
                 ),
-                createTextColumn<CrisisFields, string>(
-                    'countries__idmc_short_name',
-                    'Countries',
-                    (item) => item.countries.map((c) => c.idmcShortName).join(', '),
-                    { sortable: true },
-                    'large',
-                ),
+                hiddenColumns.includes('countries')
+                    ? undefined
+                    : createTextColumn<CrisisFields, string>(
+                        'countries__idmc_short_name',
+                        'Countries',
+                        (item) => item.countries.map((c) => c.idmcShortName).join(', '),
+                        { sortable: true },
+                        'large',
+                    ),
                 createTextColumn<CrisisFields, string>(
                     'crisis_type',
                     'Cause',
@@ -356,13 +367,14 @@ function useCrisisTable(props: Props) {
                     undefined,
                     2,
                 ),
-            ];
+            ].filter(isDefined);
         },
         [
             handleCrisisDelete,
             showAddCrisisModal,
             crisisPermissions?.delete,
             crisisPermissions?.change,
+            hiddenColumns,
         ],
     );
     const totalCrisesCount = crisesData?.crisisList?.totalCount ?? 0;
@@ -434,6 +446,8 @@ function useCrisisTable(props: Props) {
                             id={editableCrisisId}
                             onCrisisCreate={handleCrisisCreate}
                             onCrisisFormCancel={hideAddCrisisModal}
+                            defaultFormValue={defaultFormValue}
+                            disabledFields={disabledFields}
                         />
                     </Modal>
                 )}

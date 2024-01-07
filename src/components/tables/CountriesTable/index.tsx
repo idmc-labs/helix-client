@@ -3,7 +3,7 @@ import {
     SortContext,
 } from '@togglecorp/toggle-ui';
 
-import CountriesFilter from '#components/rawTables/useCountryTable/CountriesFilter';
+import CountriesFilter, { CountriesFilterFields } from '#components/rawTables/useCountryTable/CountriesFilter';
 import useCountryTable from '#components/rawTables/useCountryTable';
 import Container from '#components/Container';
 import {
@@ -40,7 +40,7 @@ function CountriesTable(props: CountriesProps) {
         pageSize,
         rawPageSize,
         setPageSize,
-    } = useFilterState<NonNullable<CountriesQueryVariables['filters']>>({
+    } = useFilterState<CountriesFilterFields>({
         filter: {},
         ordering: {
             name: 'idmc_short_name',
@@ -49,15 +49,25 @@ function CountriesTable(props: CountriesProps) {
     });
 
     const countriesVariables = useMemo(
-        () => ({
-            ordering,
-            page,
-            pageSize,
-            filters: expandObject<NonNullable<CountriesQueryVariables['filters']>>(
-                filter,
-                {},
-            ),
-        }),
+        () => {
+            const queryFilters = {
+                ...filter,
+                aggregateFigures: {
+                    year: filter.year,
+                },
+            };
+            delete queryFilters.year;
+
+            return ({
+                ordering,
+                page,
+                pageSize,
+                filters: expandObject<NonNullable<CountriesQueryVariables['filters']>>(
+                    queryFilters,
+                    {},
+                ),
+            });
+        },
         [
             ordering,
             page,

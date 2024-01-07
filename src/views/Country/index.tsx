@@ -32,10 +32,10 @@ import NumberBlock from '#components/NumberBlock';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import MyResources from '#components/lists/MyResources';
-import EventsEntriesFiguresTable from '#components/tables/EventsEntriesFiguresTable';
 import CountrySelectInput from '#components/selections/CountrySelectInput';
-
 import useOptions from '#hooks/useOptions';
+
+import CrisesEventsEntriesFiguresTable from './CrisesEventsEntriesFiguresTable';
 import ContextualAnalysis from './ContextualAnalysis';
 import CountrySummary from './CountrySummary';
 import styles from './styles.css';
@@ -60,6 +60,7 @@ const COUNTRY = gql`
                 summary
             }
             boundingBox
+            iso2
             eventsConflict: events(filters: { eventTypes: ["CONFLICT"] }) {
                 totalCount
             }
@@ -148,8 +149,15 @@ function Country(props: CountryProps) {
         skip: !countryVariables,
         onCompleted: (response) => {
             if (response.country) {
-                const { id, idmcShortName } = response.country;
-                setCountryOptions([{ id, idmcShortName }]);
+                const {
+                    id,
+                    idmcShortName,
+                    boundingBox,
+                    iso2,
+                } = response.country;
+                // NOTE: we are setting this options so that we can use country
+                // option when adding crisis/event on the country page
+                setCountryOptions([{ id, idmcShortName, iso2, boundingBox }]);
             }
         },
     });
@@ -408,13 +416,9 @@ function Country(props: CountryProps) {
                 </div>
             </div>
             <div className={styles.fullWidth}>
-                <EventsEntriesFiguresTable
+                <CrisesEventsEntriesFiguresTable
                     className={styles.largeContainer}
-                    // FIXME: we should not use this
-                    country={(
-                        countryData?.country
-                        ?? { id: countryId, idmcShortName: '???' }
-                    )}
+                    countryId={countryId}
                 />
             </div>
         </div>

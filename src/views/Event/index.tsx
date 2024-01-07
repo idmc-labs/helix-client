@@ -108,6 +108,8 @@ const countryLinePaint: mapboxgl.LinePaint = {
     'line-width': 1,
 };
 
+const now = new Date();
+
 interface EventProps {
     className?: string;
 }
@@ -141,6 +143,10 @@ function Event(props: EventProps) {
         showAddEventModal,
         hideAddEventModal,
     ] = useModalState<{ id: string, clone?: boolean }>();
+
+    const eventYear = new Date(
+        eventData?.event?.endDate ?? eventData?.event?.startDate ?? now,
+    ).getFullYear();
 
     let title = 'Event';
     if (eventData?.event) {
@@ -351,6 +357,7 @@ function Event(props: EventProps) {
             <CountriesEntriesFiguresTable
                 className={styles.largeContainer}
                 eventId={eventId}
+                eventYear={eventYear}
             />
             {shouldShowAddEventModal && (
                 <Modal

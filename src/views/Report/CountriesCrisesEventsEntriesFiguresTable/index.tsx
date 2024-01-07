@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
     TabList,
@@ -13,11 +13,17 @@ import Container from '#components/Container';
 import {
     ExtractionEntryListFiltersQueryVariables,
     ExtractionFigureListQueryVariables,
+    EventListQueryVariables,
+    CrisesQueryVariables,
     CountriesQueryVariables,
 } from '#generated/types';
 import { PurgeNull } from '#types';
 import CountriesFilter, { CountriesFilterFields } from '#components/rawTables/useCountryTable/CountriesFilter';
 import useCountryTable from '#components/rawTables/useCountryTable';
+import EventsFilter from '#components/rawTables/useEventTable/EventsFilter';
+import useEventTable from '#components/rawTables/useEventTable';
+import CrisesFilter from '#components/rawTables/useCrisisTable/CrisesFilter';
+import useCrisisTable from '#components/rawTables/useCrisisTable';
 import useEntryTable from '#components/rawTables/useEntryTable';
 import useFigureTable from '#components/rawTables/useFigureTable';
 import FiguresFilter from '#components/rawTables/useFigureTable/FiguresFilter';
@@ -26,20 +32,20 @@ import styles from './styles.css';
 
 type Tabs = 'Entries' | 'Figures';
 
-interface EntriesFiguresTableProps {
+interface CountriesCrisesEventsEntriesFiguresTableProps {
     className?: string;
-    eventId: string;
-    eventYear: number;
+    reportId: string;
 }
 
-function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
+function CountriesCrisesEventsEntriesFiguresTable(
+    props: CountriesCrisesEventsEntriesFiguresTableProps,
+) {
     const {
         className,
-        eventId,
-        eventYear,
+        reportId,
     } = props;
 
-    const [selectedTab, setSelectedTab] = useState<'Countries' | 'Entries' | 'Figures' | undefined>('Figures');
+    const [selectedTab, setSelectedTab] = useState<'Countries' | 'Crises' | 'Events' | 'Entries' | 'Figures' | undefined>('Figures');
 
     const {
         page: countriesPage,
@@ -61,6 +67,52 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
         ordering: {
             name: 'idmc_short_name',
             direction: 'asc',
+        },
+    });
+
+    const {
+        page: crisesPage,
+        rawPage: rawCrisesPage,
+        setPage: setCrisesPage,
+
+        ordering: crisesOrdering,
+        sortState: crisesSortState,
+
+        rawFilter: rawCrisesFilter,
+        filter: crisesFilter,
+        setFilter: setCrisesFilter,
+
+        pageSize: crisesPageSize,
+        rawPageSize: rawCrisesPageSize,
+        setPageSize: setCrisesPageSize,
+    } = useFilterState<PurgeNull<NonNullable<CrisesQueryVariables['filters']>>>({
+        filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
+    });
+
+    const {
+        page: eventsPage,
+        rawPage: rawEventsPage,
+        setPage: setEventsPage,
+
+        ordering: eventsOrdering,
+        sortState: eventsSortState,
+
+        rawFilter: rawEventsFilter,
+        filter: eventsFilter,
+        setFilter: setEventsFilter,
+
+        pageSize: eventsPageSize,
+        rawPageSize: rawEventsPageSize,
+        setPageSize: setEventsPageSize,
+    } = useFilterState<PurgeNull<NonNullable<EventListQueryVariables['filters']>>>({
+        filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
         },
     });
 
@@ -122,23 +174,80 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
                 filters: expandObject<NonNullable<CountriesQueryVariables['filters']>>(
                     queryFilters,
                     {
-                        events: [eventId],
+                        filterFigures: {
+                            reportId,
+                        },
                         aggregateFigures: {
                             filterFigures: {
-                                filterFigureEvents: [eventId],
+                                reportId,
                             },
-                            year: countriesFilter.year,
                         },
                     },
                 ),
             });
         },
         [
-            eventId,
+            reportId,
             countriesOrdering,
             countriesPage,
             countriesPageSize,
             countriesFilter,
+        ],
+    );
+
+    const crisesVariables = useMemo(
+        (): CrisesQueryVariables => ({
+            ordering: crisesOrdering,
+            page: crisesPage,
+            pageSize: crisesPageSize,
+            filters: expandObject<NonNullable<CrisesQueryVariables['filters']>>(
+                crisesFilter,
+                {
+                    filterFigures: {
+                        reportId,
+                    },
+                    aggregateFigures: {
+                        filterFigures: {
+                            reportId,
+                        },
+                    },
+                },
+            ),
+        }),
+        [
+            reportId,
+            crisesOrdering,
+            crisesPage,
+            crisesPageSize,
+            crisesFilter,
+        ],
+    );
+
+    const eventsVariables = useMemo(
+        (): EventListQueryVariables => ({
+            ordering: eventsOrdering,
+            page: eventsPage,
+            pageSize: eventsPageSize,
+            filters: expandObject<NonNullable<EventListQueryVariables['filters']>>(
+                eventsFilter,
+                {
+                    filterFigures: {
+                        reportId,
+                    },
+                    aggregateFigures: {
+                        filterFigures: {
+                            reportId,
+                        },
+                    },
+                },
+            ),
+        }),
+        [
+            eventsOrdering,
+            eventsPage,
+            eventsPageSize,
+            eventsFilter,
+            reportId,
         ],
     );
 
@@ -150,7 +259,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
             filters: expandObject<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>(
                 entriesFilter,
                 {
-                    filterFigureEvents: [eventId],
+                    reportId,
                 },
             ),
         }),
@@ -159,7 +268,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
             entriesPage,
             entriesPageSize,
             entriesFilter,
-            eventId,
+            reportId,
         ],
     );
 
@@ -171,7 +280,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
             filters: expandObject<NonNullable<ExtractionFigureListQueryVariables['filters']>>(
                 figuresFilter,
                 {
-                    filterFigureEvents: [eventId],
+                    reportId,
                 },
             ),
         }),
@@ -179,12 +288,13 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
             figuresOrdering,
             figuresPage,
             figuresPageSize,
-            eventId,
             figuresFilter,
+            reportId,
         ],
     );
 
-    const figureHiddenColumns = ['event' as const];
+    // TODO: Add country hidden filters
+    const countriesHiddenColumns = ['year' as const];
 
     const {
         table: countriesTable,
@@ -197,6 +307,32 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
         pageSize: rawCountriesPageSize,
         onPageChange: setCountriesPage,
         onPageSizeChange: setCountriesPageSize,
+    });
+
+    const {
+        table: crisesTable,
+        exportButton: crisesExportButton,
+        pager: crisesPager,
+    } = useCrisisTable({
+        className: styles.table,
+        filters: crisesVariables,
+        page: rawCrisesPage,
+        pageSize: rawCrisesPageSize,
+        onPageChange: setCrisesPage,
+        onPageSizeChange: setCrisesPageSize,
+    });
+
+    const {
+        table: eventsTable,
+        exportButton: eventsExportButton,
+        pager: eventsPager,
+    } = useEventTable({
+        className: styles.table,
+        filters: eventsVariables,
+        page: rawEventsPage,
+        pageSize: rawEventsPageSize,
+        onPageChange: setEventsPage,
+        onPageSizeChange: setEventsPageSize,
     });
 
     const {
@@ -223,15 +359,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
         pageSize: rawFiguresPageSize,
         onPageChange: setFiguresPage,
         onPageSizeChange: setFiguresPageSize,
-        hiddenColumns: figureHiddenColumns,
     });
-
-    useEffect(
-        () => {
-            setCountriesFilter((item) => ({ ...item, year: eventYear }));
-        },
-        [eventYear, setCountriesFilter],
-    );
 
     return (
         <Tabs
@@ -246,6 +374,16 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
                             name="Countries"
                         >
                             Countries
+                        </Tab>
+                        <Tab
+                            name="Crises"
+                        >
+                            Crises
+                        </Tab>
+                        <Tab
+                            name="Events"
+                        >
+                            Events
                         </Tab>
                         <Tab
                             name="Entries"
@@ -267,24 +405,31 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
                             <CountriesFilter
                                 initialFilter={rawCountriesFilter}
                                 onFilterChange={setCountriesFilter}
-                                // hiddenFields={countriesHiddenColumns}
-                                // events={eventId ? [eventId] : undefined}
+                                hiddenFields={countriesHiddenColumns}
+                            />
+                        )}
+                        {selectedTab === 'Crises' && (
+                            <CrisesFilter
+                                initialFilter={rawCrisesFilter}
+                                onFilterChange={setCrisesFilter}
+                            />
+                        )}
+                        {selectedTab === 'Events' && (
+                            <EventsFilter
+                                initialFilter={rawEventsFilter}
+                                onFilterChange={setEventsFilter}
                             />
                         )}
                         {selectedTab === 'Entries' && (
                             <FiguresFilter
                                 initialFilter={rawEntriesFilter}
                                 onFilterChange={setEntriesFilter}
-                                hiddenFields={figureHiddenColumns}
-                                events={[eventId]}
                             />
                         )}
                         {selectedTab === 'Figures' && (
                             <FiguresFilter
                                 initialFilter={rawFiguresFilter}
                                 onFilterChange={setFiguresFilter}
-                                hiddenFields={figureHiddenColumns}
-                                events={[eventId]}
                             />
                         )}
                     </>
@@ -292,6 +437,8 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
                 headerActions={(
                     <>
                         {selectedTab === 'Countries' && countriesExportButton}
+                        {selectedTab === 'Crises' && crisesExportButton}
+                        {selectedTab === 'Events' && eventsExportButton}
                         {selectedTab === 'Entries' && entriesExportButton}
                         {selectedTab === 'Figures' && figuresExportButton}
                     </>
@@ -299,6 +446,8 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
                 footerContent={(
                     <>
                         {selectedTab === 'Countries' && countriesPager}
+                        {selectedTab === 'Crises' && crisesPager}
+                        {selectedTab === 'Events' && eventsPager}
                         {selectedTab === 'Entries' && entriesPager}
                         {selectedTab === 'Figures' && figuresPager}
                     </>
@@ -307,6 +456,16 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
                 <TabPanel name="Countries">
                     <SortContext.Provider value={countriesSortState}>
                         {countriesTable}
+                    </SortContext.Provider>
+                </TabPanel>
+                <TabPanel name="Crises">
+                    <SortContext.Provider value={crisesSortState}>
+                        {crisesTable}
+                    </SortContext.Provider>
+                </TabPanel>
+                <TabPanel name="Events">
+                    <SortContext.Provider value={eventsSortState}>
+                        {eventsTable}
                     </SortContext.Provider>
                 </TabPanel>
                 <TabPanel name="Entries">
@@ -323,4 +482,4 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
         </Tabs>
     );
 }
-export default CountriesEntriesFiguresTable;
+export default CountriesCrisesEventsEntriesFiguresTable;

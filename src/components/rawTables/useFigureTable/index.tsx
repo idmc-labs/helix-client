@@ -142,10 +142,9 @@ const keySelector = (item: FigureFields) => item.id;
 
 interface NudeFigureTableProps {
     className?: string;
+    filters?: ExtractionEntryListFiltersQueryVariables;
 
     hiddenColumns?: ('event' | 'crisis' | 'entry' | 'country' | 'createdBy')[];
-
-    filters?: ExtractionEntryListFiltersQueryVariables;
 
     page: number;
     pageSize: number;

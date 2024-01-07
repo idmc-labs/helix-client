@@ -68,6 +68,7 @@ function CrisesTable(props: CrisesProps) {
 
     const {
         table: crisesTable,
+        addButton: crisesAddButton,
         exportButton: crisesExportButton,
         pager: crisesPager,
     } = useCrisisTable({
@@ -87,6 +88,7 @@ function CrisesTable(props: CrisesProps) {
             heading={title || 'Crises'}
             headerActions={(
                 <>
+                    {crisesAddButton}
                     {crisesExportButton}
                 </>
             )}

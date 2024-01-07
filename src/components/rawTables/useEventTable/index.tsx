@@ -210,8 +210,8 @@ interface Props {
 
     qaMode?: 'MULTIPLE_RF' | 'NO_RF' | 'IGNORE_QA' | undefined;
 
-    disabledFields?: ('crisis' | 'countries')[];
     hiddenColumns?: ('createdBy' | 'crisis' | 'countries')[];
+    disabledFields?: ('crisis' | 'countries')[];
     defaultFormValue?: EventFormProps['defaultFormValue'];
 
     filters: EventListQueryVariables | undefined;

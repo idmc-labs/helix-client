@@ -47,7 +47,7 @@ import {
 const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
 
-type EventFilterFields = NonNullable<EventListQueryVariables['filters']>;
+export type EventFilterFields = NonNullable<EventListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<EventFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -378,20 +378,6 @@ function EventsFilter(props: EventsFilterProps) {
                         groupLabelSelector={disasterGroupLabelSelector}
                         groupKeySelector={disasterGroupKeySelector}
                         grouped
-                    />
-                )}
-                {!hiddenFields.includes('reviewStatus') && (
-                    <MultiSelectInput
-                        className={styles.input}
-                        options={data?.eventReviewStatus?.enumValues}
-                        label="Review Status"
-                        name="reviewStatus"
-                        value={value.reviewStatus}
-                        onChange={onValueChange}
-                        keySelector={enumKeySelector}
-                        labelSelector={enumLabelSelector}
-                        error={error?.fields?.reviewStatus?.$internal}
-                        disabled={eventOptionsLoading || !!eventOptionsError}
                     />
                 )}
                 {!hiddenFields.includes('crisis') && (

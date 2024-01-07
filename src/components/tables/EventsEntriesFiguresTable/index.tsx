@@ -125,14 +125,21 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
     const crisisId = crisis?.id;
     const countryId = country?.id;
 
+    const onEventsFilterChange = useCallback(
+        (value: PurgeNull<NonNullable<EventListQueryVariables['filters']>>) => {
+            setEventsQueryFilters(value);
+            setEntriesPage(1);
+            setFiguresPage(1);
+        },
+        [],
+    );
+
     const onFilterChange = useCallback(
         (value: PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>) => {
             if (selectedTab === 'Entries') {
                 setEntriesQueryFilters(value);
             } else if (selectedTab === 'Figures') {
                 setFiguresQueryFilters(value);
-            } else {
-                setEventsQueryFilters(value);
             }
             setEntriesPage(1);
             setFiguresPage(1);
@@ -384,7 +391,7 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
                     <>
                         {selectedTab === 'Events' && (
                             <EventsFilter
-                                onFilterChange={onFilterChange}
+                                onFilterChange={onEventsFilterChange}
                                 countries={countryId ? [countryId] : undefined}
                                 crises={crisisId ? [crisisId] : undefined}
                                 hiddenFields={hiddenColumns}
