@@ -1,0 +1,10 @@
+.modal {
+    display: flex;
+    gap: var(--spacing-medium);
+
+    .footer {
+        display: flex;
+        gap: var(--spacing-small);
+        justify-content: flex-end;
+    }
+}
