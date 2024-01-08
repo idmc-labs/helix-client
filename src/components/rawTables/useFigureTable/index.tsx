@@ -42,11 +42,11 @@ import {
     ExtractionEntryListFiltersQueryVariables,
     ExportFiguresMutation,
     ExportFiguresMutationVariables,
-    BulkApiOperationInputType,
 } from '#generated/types';
 import route from '#config/routes';
 import useModalState from '#hooks/useModalState';
 import UpdateFigureRoleModal from './UpdateFigureRoleModal';
+import NonFieldError from '#components/NonFieldError';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 const ALL_SELECT_COUNT = 100;
@@ -144,17 +144,17 @@ const FIGURE_DELETE = gql`
 `;
 
 // TODO: use integration with server
-const FIGURES_ROLE_UPDATE = gql`
-    mutation TriggerBulkOperation ($data: BulkApiOperationInputType!) {
-        triggerBulkOperation(data: $data) {
-            ok
-            errors
-            result {
-                id
-            }
-        }
-    }
-`;
+// const FIGURES_ROLE_UPDATE = gql`
+//     mutation TriggerBulkOperation ($data: BulkApiOperationInputType!) {
+//         triggerBulkOperation(data: $data) {
+//             ok
+//             errors
+//             result {
+//                 id
+//             }
+//         }
+//     }
+// `;
 
 type FigureFields = NonNullable<NonNullable<ExtractionFigureListQuery['figureList']>['results']>[number];
 
@@ -185,10 +185,12 @@ function useFigureTable(props: NudeFigureTableProps) {
         onPageSizeChange,
         pagerPageControlDisabled,
     } = props;
+
     const [selectedFigures, setSelectedFigures] = useState<string[]>([]);
     const [excludeFigures, setExcludeFigures] = useState<string[]>([]);
     const [mode, setMode] = useState<'SELECT' | 'DESELECT'>('SELECT');
     const [role, setRole] = useState<string | undefined>();
+    const [selectedFiguresCount, setSelectedFiguresCount] = useState<number | null>();
 
     const [
         roleUpdatedModal, ,
@@ -208,17 +210,18 @@ function useFigureTable(props: NudeFigureTableProps) {
                 setSelectedFigures([]);
             }
 
-            // eslint-disable-next-line max-len
-            const totalRequestedFigures = figureResponse.figureList?.page * figureResponse.figureList?.pageSize;
-
-            if (mode === 'DESELECT' && totalRequestedFigures <= ALL_SELECT_COUNT) {
-                const newFigures = figureResponse.figureList?.results;
-                setSelectedFigures(
-                    (oldFigures) => unique([...oldFigures, ...newFigures ?? []], (d) => d.id),
+            if (mode === 'DESELECT') {
+                const newFigures = figureResponse.figureList?.results?.map(
+                    (fig) => fig.id,
                 );
+                setSelectedFigures(
+                    (oldFigures) => unique([...oldFigures, ...newFigures ?? []], (d) => d),
+                );
+                setSelectedFiguresCount(figureResponse?.figureList?.totalCount);
             }
         },
     });
+
     const {
         notify,
         notifyGQLError,
@@ -317,21 +320,27 @@ function useFigureTable(props: NudeFigureTableProps) {
         setSelectedFigures((oldFigures) => {
             if (value) {
                 setMode('DESELECT');
+                setSelectedFiguresCount(figuresData?.figureList?.totalCount);
                 return unique([...oldFigures, ...figures ?? []], (d) => d);
             }
             const idMap = listToMap(figures ?? [], (d) => d, () => true);
             return oldFigures.filter((d) => !idMap[d]);
         });
-    }, [figures]);
+    }, [
+        figures,
+        figuresData,
+    ]);
 
     const handleSelection = useCallback((value: boolean, figure: FigureFields) => {
         if (value) {
             setSelectedFigures((oldSelectedFigures) => ([...oldSelectedFigures, figure.id]));
+            setSelectedFiguresCount((oldCount) => (oldCount ?? 0) + 1);
         } else {
             setSelectedFigures((oldSelectedFigures) => (
                 oldSelectedFigures.filter((v) => v !== figure.id)
             ));
             setExcludeFigures((oldSelectedFigures) => ([...oldSelectedFigures, figure.id]));
+            setSelectedFiguresCount((oldCount) => (oldCount ?? 0) - 1);
         }
     }, []);
 
@@ -604,6 +613,11 @@ function useFigureTable(props: NudeFigureTableProps) {
         ),
         table: (
             <>
+                {(selectedFiguresCount ?? 0) > ALL_SELECT_COUNT && (
+                    <NonFieldError>
+                        { `Cannot select more than ${ALL_SELECT_COUNT}!` }
+                    </NonFieldError>
+                )}
                 {totalFiguresCount > 0 && (
                     <Table
                         className={className}
