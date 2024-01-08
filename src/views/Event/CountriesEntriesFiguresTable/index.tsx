@@ -49,6 +49,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
         ordering: countriesOrdering,
         sortState: countriesSortState,
 
+        rawFilter: rawCountriesFilter,
         initialFilter: initialCountriesFilter,
         filter: countriesFilter,
         setFilter: setCountriesFilter,
@@ -72,6 +73,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
         ordering: entriesOrdering,
         sortState: entriesSortState,
 
+        rawFilter: rawEntriesFilter,
         initialFilter: initialEntriesFilter,
         filter: entriesFilter,
         setFilter: setEntriesFilter,
@@ -95,6 +97,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
         ordering: figuresOrdering,
         sortState: figuresSortState,
 
+        rawFilter: rawFiguresFilter,
         initialFilter: initialFiguresFilter,
         filter: figuresFilter,
         setFilter: setFiguresFilter,
@@ -265,6 +268,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
                     <>
                         {selectedTab === 'Countries' && (
                             <CountriesFilter
+                                currentFilter={rawCountriesFilter}
                                 initialFilter={initialCountriesFilter}
                                 onFilterChange={setCountriesFilter}
                                 // hiddenFields={countriesHiddenColumns}
@@ -273,6 +277,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
                         )}
                         {selectedTab === 'Entries' && (
                             <FiguresFilter
+                                currentFilter={rawEntriesFilter}
                                 initialFilter={initialEntriesFilter}
                                 onFilterChange={setEntriesFilter}
                                 hiddenFields={figureHiddenColumns}
@@ -281,6 +286,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
                         )}
                         {selectedTab === 'Figures' && (
                             <FiguresFilter
+                                currentFilter={rawFiguresFilter}
                                 initialFilter={initialFiguresFilter}
                                 onFilterChange={setFiguresFilter}
                                 hiddenFields={figureHiddenColumns}

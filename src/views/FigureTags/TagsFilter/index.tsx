@@ -31,6 +31,7 @@ const schema: FormSchema = {
 interface TagsFilterProps {
     className?: string;
     initialFilter: PartialForm<FormType>;
+    currentFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
 }
 
@@ -38,6 +39,7 @@ function TagsFilter(props: TagsFilterProps) {
     const {
         className,
         initialFilter,
+        currentFilter,
         onFilterChange,
     } = props;
 
@@ -49,13 +51,17 @@ function TagsFilter(props: TagsFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(initialFilter ?? initialFilter, schema);
-    // NOTE: Set the form value when initialFilter is changed on parent
+    } = useForm(currentFilter, schema);
+    // NOTE: Set the form value when initialFilter and currentFilter is changed on parent
+    // We cannot only use initialFilter as it will change the form value when
+    // currentFilter != initialFilter on mount
     useEffect(
         () => {
-            onValueSet(initialFilter);
+            if (initialFilter === currentFilter) {
+                onValueSet(initialFilter);
+            }
         },
-        [initialFilter, onValueSet],
+        [currentFilter, initialFilter, onValueSet],
     );
 
     const onResetFilters = useCallback(

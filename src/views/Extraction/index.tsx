@@ -599,6 +599,7 @@ function Extraction(props: ExtractionProps) {
                 />
                 <AdvancedFiguresFilter
                     className={styles.container}
+                    currentFilter={rawFiguresFilter}
                     initialFilter={initialFiguresFilter}
                     disabled={filterDisabled}
                     onFilterChange={setFilter}

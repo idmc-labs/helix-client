@@ -34,6 +34,7 @@ function CrisesTable(props: CrisesProps) {
         ordering,
         sortState,
 
+        rawFilter,
         initialFilter,
         filter,
         setFilter,
@@ -96,6 +97,7 @@ function CrisesTable(props: CrisesProps) {
             footerContent={crisesPager}
             description={(
                 <CrisesFilter
+                    currentFilter={rawFilter}
                     initialFilter={initialFilter}
                     onFilterChange={setFilter}
                 />

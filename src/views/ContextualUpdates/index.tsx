@@ -115,6 +115,7 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
         ordering,
         sortState,
 
+        rawFilter,
         initialFilter,
         filter,
         setFilter,
@@ -284,6 +285,7 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                 contentClassName={styles.content}
                 description={(
                     <ContextualUpdateFilter
+                        currentFilter={rawFilter}
                         initialFilter={initialFilter}
                         onFilterChange={setFilter}
                     />

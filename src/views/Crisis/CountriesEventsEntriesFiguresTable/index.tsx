@@ -52,6 +52,7 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
         ordering: countriesOrdering,
         sortState: countriesSortState,
 
+        rawFilter: rawCountriesFilter,
         initialFilter: initialCountriesFilter,
         filter: countriesFilter,
         setFilter: setCountriesFilter,
@@ -75,6 +76,7 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
         ordering: eventsOrdering,
         sortState: eventsSortState,
 
+        rawFitler: rawEventsFilter,
         initialFilter: initialEventsFilter,
         filter: eventsFilter,
         setFilter: setEventsFilter,
@@ -98,6 +100,7 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
         ordering: entriesOrdering,
         sortState: entriesSortState,
 
+        rawFilter: rawEntriesFilter,
         initialFilter: initialEntriesFilter,
         filter: entriesFilter,
         setFilter: setEntriesFilter,
@@ -121,6 +124,7 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
         ordering: figuresOrdering,
         sortState: figuresSortState,
 
+        rawFilter: rawFiguresFilter,
         initialFilter: initialFiguresFilter,
         filter: figuresFilter,
         setFilter: setFiguresFilter,
@@ -344,6 +348,7 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
                     <>
                         {selectedTab === 'Countries' && (
                             <CountriesFilter
+                                currentFilter={rawCountriesFilter}
                                 initialFilter={initialCountriesFilter}
                                 onFilterChange={setCountriesFilter}
                                 // hiddenFields={countriesHiddenColumns}
@@ -352,6 +357,7 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
                         )}
                         {selectedTab === 'Events' && (
                             <EventsFilter
+                                currentFilter={rawEventsFilter}
                                 initialFilter={initialEventsFilter}
                                 onFilterChange={setEventsFilter}
                                 hiddenFields={eventsHiddenColumns}
@@ -360,6 +366,7 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
                         )}
                         {selectedTab === 'Entries' && (
                             <FiguresFilter
+                                currentFilter={rawEntriesFilter}
                                 initialFilter={initialEntriesFilter}
                                 onFilterChange={setEntriesFilter}
                                 hiddenFields={figureHiddenColumns}
@@ -368,6 +375,7 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
                         )}
                         {selectedTab === 'Figures' && (
                             <FiguresFilter
+                                currentFilter={rawFiguresFilter}
                                 initialFilter={initialFiguresFilter}
                                 onFilterChange={setFiguresFilter}
                                 hiddenFields={figureHiddenColumns}

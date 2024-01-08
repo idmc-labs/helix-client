@@ -228,6 +228,7 @@ const disasterGroupLabelSelector = (item: DisasterOption) => (
 interface FiguresFilterProps {
     className?: string;
     initialFilter: PurgeNull<FiguresFilterFields>;
+    currentFilter: PurgeNull<FiguresFilterFields>;
     onFilterChange: (value: PurgeNull<FiguresFilterFields>) => void;
     disabled?: boolean;
 
@@ -244,6 +245,7 @@ function FiguresFilter(props: FiguresFilterProps) {
     const {
         className,
         initialFilter,
+        currentFilter,
         onFilterChange,
         disabled,
         crises,
@@ -266,13 +268,17 @@ function FiguresFilter(props: FiguresFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(initialFilter, schema);
-    // NOTE: Set the form value when initialFilter is changed on parent
+    } = useForm(currentFilter, schema);
+    // NOTE: Set the form value when initialFilter and currentFilter is changed on parent
+    // We cannot only use initialFilter as it will change the form value when
+    // currentFilter != initialFilter on mount
     useEffect(
         () => {
-            onValueSet(initialFilter);
+            if (initialFilter === currentFilter) {
+                onValueSet(initialFilter);
+            }
         },
-        [initialFilter, onValueSet],
+        [currentFilter, initialFilter, onValueSet],
     );
 
     const onResetFilters = useCallback(

@@ -55,6 +55,7 @@ function CountriesCrisesEventsEntriesFiguresTable(
         ordering: countriesOrdering,
         sortState: countriesSortState,
 
+        rawFitler: rawCountriesFilter,
         initialFilter: initialCountriesFilter,
         filter: countriesFilter,
         setFilter: setCountriesFilter,
@@ -78,6 +79,7 @@ function CountriesCrisesEventsEntriesFiguresTable(
         ordering: crisesOrdering,
         sortState: crisesSortState,
 
+        rawFilter: rawCrisesFilter,
         initialFilter: initialCrisesFilter,
         filter: crisesFilter,
         setFilter: setCrisesFilter,
@@ -101,6 +103,7 @@ function CountriesCrisesEventsEntriesFiguresTable(
         ordering: eventsOrdering,
         sortState: eventsSortState,
 
+        rawFilter: rawEventsFilter,
         initialFilter: initialEventsFilter,
         filter: eventsFilter,
         setFilter: setEventsFilter,
@@ -124,6 +127,7 @@ function CountriesCrisesEventsEntriesFiguresTable(
         ordering: entriesOrdering,
         sortState: entriesSortState,
 
+        rawFilter: rawEntriesFilter,
         initialFilter: initialEntriesFilter,
         filter: entriesFilter,
         setFilter: setEntriesFilter,
@@ -147,6 +151,7 @@ function CountriesCrisesEventsEntriesFiguresTable(
         ordering: figuresOrdering,
         sortState: figuresSortState,
 
+        rawFilter: rawFiguresFilter,
         initialFilter: initialFiguresFilter,
         filter: figuresFilter,
         setFilter: setFiguresFilter,
@@ -403,6 +408,7 @@ function CountriesCrisesEventsEntriesFiguresTable(
                     <>
                         {selectedTab === 'Countries' && (
                             <CountriesFilter
+                                currentFilter={rawCountriesFilter}
                                 initialFilter={initialCountriesFilter}
                                 onFilterChange={setCountriesFilter}
                                 hiddenFields={countriesHiddenColumns}
@@ -410,24 +416,28 @@ function CountriesCrisesEventsEntriesFiguresTable(
                         )}
                         {selectedTab === 'Crises' && (
                             <CrisesFilter
+                                currentFilter={rawCrisesFilter}
                                 initialFilter={initialCrisesFilter}
                                 onFilterChange={setCrisesFilter}
                             />
                         )}
                         {selectedTab === 'Events' && (
                             <EventsFilter
+                                currentFilter={rawEventsFilter}
                                 initialFilter={initialEventsFilter}
                                 onFilterChange={setEventsFilter}
                             />
                         )}
                         {selectedTab === 'Entries' && (
                             <FiguresFilter
+                                currentFilter={rawEntriesFilter}
                                 initialFilter={initialEntriesFilter}
                                 onFilterChange={setEntriesFilter}
                             />
                         )}
                         {selectedTab === 'Figures' && (
                             <FiguresFilter
+                                currentFilter={rawFiguresFilter}
                                 initialFilter={initialFiguresFilter}
                                 onFilterChange={setFiguresFilter}
                             />

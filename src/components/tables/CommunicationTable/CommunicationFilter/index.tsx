@@ -31,6 +31,7 @@ const schema: FormSchema = {
 
 interface ContactsFilterProps {
     className?: string;
+    currentFilter: PartialForm<FormType>;
     initialFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
 }
@@ -38,6 +39,7 @@ interface ContactsFilterProps {
 function ContactsFilter(props: ContactsFilterProps) {
     const {
         className,
+        currentFilter,
         initialFilter,
         onFilterChange,
     } = props;
@@ -50,13 +52,17 @@ function ContactsFilter(props: ContactsFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(initialFilter ?? initialFilter, schema);
-    // NOTE: Set the form value when initialFilter is changed on parent
+    } = useForm(currentFilter, schema);
+    // NOTE: Set the form value when initialFilter and currentFilter is changed on parent
+    // We cannot only use initialFilter as it will change the form value when
+    // currentFilter != initialFilter on mount
     useEffect(
         () => {
-            onValueSet(initialFilter);
+            if (initialFilter === currentFilter) {
+                onValueSet(initialFilter);
+            }
         },
-        [initialFilter, onValueSet],
+        [currentFilter, initialFilter, onValueSet],
     );
 
     const onResetFilters = useCallback(

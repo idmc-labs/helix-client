@@ -38,6 +38,7 @@ function CountriesTable(props: CountriesProps) {
         ordering,
         sortState,
 
+        rawFilter,
         initialFilter,
         filter,
         setFilter,
@@ -108,6 +109,7 @@ function CountriesTable(props: CountriesProps) {
             footerContent={countriesPager}
             description={(
                 <CountriesFilter
+                    currentFilter={rawFilter}
                     initialFilter={initialFilter}
                     onFilterChange={setFilter}
                 />

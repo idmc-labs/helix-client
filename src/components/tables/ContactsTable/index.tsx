@@ -133,6 +133,7 @@ function ContactsTable(props: ContactsTableProps) {
         ordering,
         sortState,
 
+        rawFilter,
         initialFilter,
         filter,
         setFilter,
@@ -392,6 +393,7 @@ function ContactsTable(props: ContactsTableProps) {
             )}
             description={(
                 <ContactsFilter
+                    currentFilter={rawFilter}
                     initialFilter={initialFilter}
                     onFilterChange={setFilter}
                 />
