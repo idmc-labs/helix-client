@@ -10,7 +10,6 @@ import { sumSafe } from '#utils/common';
 import Tooltip from '#components/Tooltip';
 import NumberBlock from '#components/NumberBlock';
 import Container from '#components/Container';
-import InfoIcon from '#components/InfoIcon';
 
 const X_AXIS_HEIGHT = 16;
 const Y_AXIS_WIDTH = 40;

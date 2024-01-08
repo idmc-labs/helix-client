@@ -44,9 +44,4 @@
         flex-basis: unset !important;
         flex-grow: unset !important;
     }
-
-    .geo-input {
-        height: 300px;
-    }
-
 }

@@ -334,6 +334,16 @@ function EntryForm(props: EntryFormProps) {
         events,
         setEvents,
     ] = useState<EventListOption[] | null | undefined>([]);
+    type FigureResponse = NonNullable<NonNullable<EntryQuery['entry']>['figures']>[number];
+    type FigureMapping = Pick<FigureResponse, 'role' | 'reviewStatus'> & {
+        fieldStatuses: FigureResponse['lastReviewCommentStatus']
+    };
+    const [
+        figureMapping,
+        setFigureMapping,
+    ] = useState<{
+        [key: string]: FigureMapping,
+    }>({});
     const [, setOrganizations] = useOptions('organization');
     const [, setTagOptions] = useOptions('tag');
     const [, setViolenceContextOptions] = useOptions('contextOfViolence');
@@ -659,19 +669,31 @@ function EntryForm(props: EntryFormProps) {
                     return figure;
                 }).filter(isDefined) ?? [];
 
+                /*
                 const newFigures = savedFigures
                     .filter((item) => item.new)
                     .map((item) => item.value)
                     .sort((foo, bar) => compareStringAsNumber(foo.id, bar.id));
+                 */
 
                 return ({
                     ...oldValue,
-                    figures: [
-                        ...updatedFigures,
-                        ...newFigures,
-                    ],
+                    figures: updatedFigures,
                 });
             });
+            const mapping = listToMap(
+                savedFigures,
+                (figure) => figure.value.uuid,
+                (figure) => ({
+                    role: figure.value.role,
+                    reviewStatus: figure.value.reviewStatus,
+                    fieldStatuses: figure.value.lastReviewCommentStatus,
+                }),
+            );
+            setFigureMapping((oldMapping) => ({
+                ...oldMapping,
+                ...mapping,
+            }));
 
             // NOTE: onValueSet clears errors so setting this later
             onErrorSet({
@@ -913,11 +935,7 @@ function EntryForm(props: EntryFormProps) {
             ));
             setSelectedFigure(mainFigure?.uuid);
             setSelectedFieldType(initialFieldType ?? undefined);
-        },
-    });
 
-    const figureMapping = useMemo(
-        () => {
             const figures = entryData?.entry?.figures;
             const mapping = listToMap(
                 figures,
@@ -928,10 +946,9 @@ function EntryForm(props: EntryFormProps) {
                     fieldStatuses: figure.lastReviewCommentStatus,
                 }),
             );
-            return mapping;
+            setFigureMapping(mapping);
         },
-        [entryData],
-    );
+    });
 
     // eslint-disable-next-line max-len
     const loading = (

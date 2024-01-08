@@ -1511,7 +1511,6 @@ function FigureInput(props: FigureInputProps) {
                     />
                     {value.country && locationsShown && (
                         <GeoInput
-                            className={styles.geoInput}
                             name="geoLocations"
                             value={value.geoLocations}
                             onChange={onValueChange}
