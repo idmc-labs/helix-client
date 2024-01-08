@@ -1,4 +1,4 @@
-.nd-chart {
+.idp-chart {
     .content {
         display: flex;
         flex-direction: column;
@@ -6,8 +6,14 @@
 
         .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
             gap: var(--spacing-medium);
+
+            .disaggregation {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
+                gap: var(--spacing-medium);
+            }
 
             .conflict-block {
                 color: var(--color-conflict);
@@ -27,6 +33,17 @@
 
                 .rect {
                     fill: currentColor;
+                }
+
+                .circle {
+                    fill: currentColor;
+                    r: 6;
+                }
+
+                .path {
+                    fill: none;
+                    stroke: currentColor;
+                    stroke-width: 2pt;
                 }
 
                 .background-bars {

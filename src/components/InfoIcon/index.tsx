@@ -2,6 +2,8 @@ import React from 'react';
 import { _cs, isNotDefined } from '@togglecorp/fujs';
 import { IoInformationCircleOutline } from 'react-icons/io5';
 
+import Tooltip from '#components/Tooltip';
+
 import styles from './styles.css';
 
 export interface IconProps {
@@ -20,12 +22,15 @@ function InfoIcon(props: IconProps) {
     }
 
     return (
-        <div
+        <span
             className={_cs(styles.icon, className)}
-            title={tooltip}
+            // title={tooltip}
         >
             <IoInformationCircleOutline />
-        </div>
+            <Tooltip
+                description={tooltip}
+            />
+        </span>
     );
 }
 

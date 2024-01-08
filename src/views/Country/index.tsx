@@ -43,6 +43,7 @@ import CountrySummary from './CountrySummary';
 import styles from './styles.css';
 import useSidebarLayout from '#hooks/useSidebarLayout';
 import NdChart from './NdChart';
+import IdpChart from './IdpChart';
 
 type Bounds = [number, number, number, number];
 
@@ -113,8 +114,6 @@ const COUNTRY_AGGREGATIONS = gql`
 `;
 
 const lightStyle = 'mapbox://styles/togglecorp/cl50rwy0a002d14mo6w9zprio';
-
-const year = new Date().getFullYear();
 
 const countryFillPaint: mapboxgl.FillPaint = {
     'fill-color': '#354052', // empty color
@@ -359,12 +358,30 @@ function Country(props: CountryProps) {
                             </MapSource>
                         )}
                     </Map>
-                    <div className={styles.stats}>
+                    <div className={styles.charts}>
                         <NdChart
-                            // eslint-disable-next-line max-len
-                            conflictData={countryAggregations?.figureAggregations?.ndsConflictFigures}
-                            // eslint-disable-next-line max-len
-                            disasterData={countryAggregations?.figureAggregations?.ndsDisasterFigures}
+                            conflictData={
+                                countryAggregations
+                                    ?.figureAggregations
+                                    ?.ndsConflictFigures
+                            }
+                            disasterData={
+                                countryAggregations
+                                    ?.figureAggregations
+                                    ?.ndsDisasterFigures
+                            }
+                        />
+                        <IdpChart
+                            conflictData={
+                                countryAggregations
+                                    ?.figureAggregations
+                                    ?.idpsConflictFigures
+                            }
+                            disasterData={
+                                countryAggregations
+                                    ?.figureAggregations
+                                    ?.idpsDisasterFigures
+                            }
                         />
                     </div>
                     <CrisesEventsEntriesFiguresTable

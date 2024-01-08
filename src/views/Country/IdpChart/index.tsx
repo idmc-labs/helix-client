@@ -1,15 +1,16 @@
 import React, { useMemo, useRef } from 'react';
-import { isDefined, isNotDefined, listToGroupList, mapToList } from '@togglecorp/fujs';
+import { compareDate, isDefined, isNotDefined, listToGroupList, mapToList } from '@togglecorp/fujs';
 
 import ChartAxes from '#components/ChartAxes';
 import useChartData from '#hooks/useChartData';
-import { defaultChartMargin, defaultChartPadding } from '#utils/chart';
+import { defaultChartMargin, defaultChartPadding, getPathData } from '#utils/chart';
 
 import styles from './styles.css';
 import { sumSafe } from '#utils/common';
 import Tooltip from '#components/Tooltip';
 import NumberBlock from '#components/NumberBlock';
 import Container from '#components/Container';
+import InfoIcon from '#components/InfoIcon';
 
 const X_AXIS_HEIGHT = 16;
 const Y_AXIS_WIDTH = 40;
@@ -33,7 +34,7 @@ interface Props {
     disasterData: Data[] | undefined | null;
 }
 
-function NdChart(props: Props) {
+function IdpChart(props: Props) {
     const { conflictData, disasterData } = props;
     const chartContainerRef = useRef<HTMLDivElement>(null);
 
@@ -51,14 +52,14 @@ function NdChart(props: Props) {
                 ),
             ].filter(isDefined).flat();
 
-            const yearGrouped = listToGroupList(
+            const dateGrouped = listToGroupList(
                 combinedData,
-                (datum) => new Date(datum.date).getFullYear(),
+                (datum) => datum.date,
             );
 
             return mapToList(
-                yearGrouped,
-                (value, year) => {
+                dateGrouped,
+                (value, date) => {
                     // Note: there should only be one data of each type
                     const conflictSum = sumSafe(
                         value.filter(({ type }) => type === CONFLICT_TYPE).map(
@@ -72,41 +73,43 @@ function NdChart(props: Props) {
                     );
 
                     return {
-                        year: +year,
+                        date,
                         // Note: There will be at least one type present
-                        totalDisplacement: (conflictSum ?? 0) + (disasterSum ?? 0),
+                        maxDisplacement: Math.max((conflictSum ?? 0), (disasterSum ?? 0)),
+                        sum: (conflictSum ?? 0) + (disasterSum ?? 0),
                         conflict: conflictSum,
                         disaster: disasterSum,
                     };
                 },
+            ).sort(
+                (a, b) => compareDate(a.date, b.date),
             );
         },
         [conflictData, disasterData],
     );
 
-    const displacements = useMemo(
+    const lastPointWithData = useMemo(
         () => {
-            const total = sumSafe(data.map((datum) => datum.totalDisplacement));
-            const conflict = sumSafe(data.map((datum) => datum.conflict));
-            const disaster = sumSafe(data.map((datum) => datum.disaster));
+            const lastDataPoint = [...data].reverse().find(
+                (datum) => isDefined(datum.conflict) || isDefined(datum.disaster),
+            );
 
-            return {
-                total,
-                conflict,
-                disaster,
-            };
+            return lastDataPoint;
         },
         [data],
     );
 
-    const yearRange = useMemo(
+    const dateRange = useMemo(
         () => {
             const now = new Date();
             if (!data || data.length === 0) {
-                return { min: now.getFullYear() - NUM_X_AXIS_POINTS + 1, max: now.getFullYear() };
+                return {
+                    min: new Date(now.getFullYear() - NUM_X_AXIS_POINTS + 1, 0, 1),
+                    max: new Date(now.getFullYear(), 11, 31),
+                };
             }
 
-            const yearList = data.map(({ year }) => year);
+            const yearList = data.map(({ date }) => new Date(date).getFullYear());
             const minYear = Math.min(...yearList);
             const maxYear = Math.max(...yearList);
 
@@ -117,16 +120,12 @@ function NdChart(props: Props) {
                 : NUM_X_AXIS_POINTS - remainder - 1;
 
             return {
-                min: minYear - Math.ceil(additional / 2),
-                max: maxYear + Math.floor(additional / 2),
+                min: new Date(minYear - Math.ceil(additional / 2), 0, 1),
+                max: new Date(maxYear + Math.floor(additional / 2), 11, 31),
             };
         },
         [data],
     );
-
-    const xAxisCompression = data.length === 0
-        ? 1
-        : (yearRange.max - yearRange.min) / NUM_X_AXIS_POINTS;
 
     const {
         dataPoints,
@@ -134,7 +133,6 @@ function NdChart(props: Props) {
         xAxisTicks,
         yAxisTicks,
         yScaleFn,
-        xAxisTickWidth,
         renderableHeight,
     } = useChartData(
         data,
@@ -143,18 +141,22 @@ function NdChart(props: Props) {
             chartOffset,
             chartMargin: defaultChartMargin,
             chartPadding: defaultChartPadding,
-            type: 'numeric',
-            keySelector: (datum) => datum.year,
-            xValueSelector: (datum) => datum.year,
-            xAxisLabelSelector: (year) => year,
-            yValueSelector: (datum) => datum.totalDisplacement,
+            type: 'temporal',
+            keySelector: (datum) => datum.date,
+            xValueSelector: (datum) => {
+                const date = new Date(datum.date);
+                return date.getTime();
+            },
+            xAxisLabelSelector: (timestamp) => {
+                const date = new Date(timestamp);
+                return date.getFullYear();
+            },
+            yValueSelector: (datum) => datum.maxDisplacement,
             yAxisStartsFromZero: true,
             numXAxisTicks: NUM_X_AXIS_POINTS,
-            xDomain: yearRange,
+            xDomain: { min: dateRange.min.getTime(), max: dateRange.max.getTime() },
         },
     );
-
-    const barWidth = 10;
 
     const conflictDataPoints = dataPoints.map(
         (dataPoint) => {
@@ -169,27 +171,42 @@ function NdChart(props: Props) {
         },
     ).filter(isDefined);
 
+    const disasterDataPoints = dataPoints.map(
+        (dataPoint) => {
+            if (isNotDefined(dataPoint.originalData.disaster)) {
+                return undefined;
+            }
+
+            return {
+                ...dataPoint,
+                y: yScaleFn(dataPoint.originalData.disaster),
+            };
+        },
+    ).filter(isDefined);
+
     return (
         <Container
-            heading="Internal Displacements"
-            className={styles.ndChart}
+            heading="Internally Displaced People (IDPs)"
+            className={styles.idpChart}
             contentClassName={styles.content}
         >
             <div className={styles.stats}>
                 <NumberBlock
-                    label="Total"
-                    value={displacements.total}
+                    label={`Total as of ${lastPointWithData?.date ?? '--'}`}
+                    value={lastPointWithData?.sum}
                 />
-                <NumberBlock
-                    className={styles.conflictBlock}
-                    label="Conflict"
-                    value={displacements.conflict}
-                />
-                <NumberBlock
-                    className={styles.disasterBlock}
-                    label="Disaster"
-                    value={displacements.disaster}
-                />
+                <div className={styles.disaggregation}>
+                    <NumberBlock
+                        className={styles.conflictBlock}
+                        label="Conflict"
+                        value={lastPointWithData?.conflict}
+                    />
+                    <NumberBlock
+                        className={styles.disasterBlock}
+                        label="Disaster"
+                        value={lastPointWithData?.disaster}
+                    />
+                </div>
             </div>
             <div
                 className={styles.chartContainer}
@@ -210,13 +227,13 @@ function NdChart(props: Props) {
                                 <rect
                                     key={point.key}
                                     className={styles.rect}
-                                    x={point.x - xAxisTickWidth / (2 * xAxisCompression)}
+                                    x={point.x - 4}
                                     y={0}
-                                    width={xAxisTickWidth / xAxisCompression}
+                                    width={8}
                                     height={renderableHeight}
                                 >
                                     <Tooltip
-                                        title={point.originalData.year}
+                                        title={point.originalData.date}
                                         description={(
                                             <div className={styles.tooltipContent}>
                                                 <NumberBlock
@@ -235,42 +252,36 @@ function NdChart(props: Props) {
                         )}
                     </g>
                     <g className={styles.totalDisplacement}>
-                        {dataPoints.map(
+                        {disasterDataPoints.map(
                             (point) => (
-                                <rect
+                                <circle
                                     key={point.key}
-                                    className={styles.rect}
-                                    x={point.x - barWidth / 2}
-                                    y={point.y}
-                                    width={barWidth}
-                                    height={
-                                        Math.max(
-                                            renderableHeight - point.y,
-                                            0,
-                                        )
-                                    }
+                                    className={styles.circle}
+                                    cx={point.x}
+                                    cy={point.y}
                                 />
                             ),
                         )}
+                        <path
+                            className={styles.path}
+                            d={getPathData(disasterDataPoints)}
+                        />
                     </g>
                     <g className={styles.conflict}>
                         {conflictDataPoints.map(
                             (point) => (
-                                <rect
+                                <circle
                                     key={point.key}
-                                    className={styles.rect}
-                                    x={point.x - barWidth / 2}
-                                    y={point.y}
-                                    width={barWidth}
-                                    height={
-                                        Math.max(
-                                            renderableHeight - point.y,
-                                            0,
-                                        )
-                                    }
+                                    className={styles.circle}
+                                    cx={point.x}
+                                    cy={point.y}
                                 />
                             ),
                         )}
+                        <path
+                            className={styles.path}
+                            d={getPathData(conflictDataPoints)}
+                        />
                     </g>
                 </svg>
             </div>
@@ -278,4 +289,4 @@ function NdChart(props: Props) {
     );
 }
 
-export default NdChart;
+export default IdpChart;
