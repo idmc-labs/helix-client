@@ -34,6 +34,7 @@ import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import SymbolCell, { SymbolCellProps } from '#components/tableHelpers/SymbolCell';
+import NonFieldError from '#components/NonFieldError';
 import {
     ExtractionFigureListQuery,
     ExtractionFigureListQueryVariables,
@@ -45,8 +46,10 @@ import {
 } from '#generated/types';
 import route from '#config/routes';
 import useModalState from '#hooks/useModalState';
+
 import UpdateFigureRoleModal from './UpdateFigureRoleModal';
-import NonFieldError from '#components/NonFieldError';
+import styles from './styles.css';
+import Heading from '#components/Heading';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 const ALL_SELECT_COUNT = 100;
@@ -323,6 +326,9 @@ function useFigureTable(props: NudeFigureTableProps) {
                 setSelectedFiguresCount(figuresData?.figureList?.totalCount);
                 return unique([...oldFigures, ...figures ?? []], (d) => d);
             }
+            // NOTE: clear value after deselect all
+            setMode('SELECT');
+            setSelectedFiguresCount(0);
             const idMap = listToMap(figures ?? [], (d) => d, () => true);
             return oldFigures.filter((d) => !idMap[d]);
         });
@@ -361,6 +367,7 @@ function useFigureTable(props: NudeFigureTableProps) {
                 id: 'select',
                 title: '',
                 headerCellRenderer: Checkbox,
+                headerCellRendererClassName: styles.checkbox,
                 headerCellRendererParams: {
                     value: selectAllCheckValue,
                     onChange: handleSelectAll,
@@ -372,6 +379,7 @@ function useFigureTable(props: NudeFigureTableProps) {
                     value: selectedFigures.some((id) => id === data.id),
                     onChange: (newVal) => handleSelection(newVal, data),
                 }),
+                cellRendererClassName: styles.checkbox,
                 columnWidth: 48,
             };
 
@@ -582,14 +590,6 @@ function useFigureTable(props: NudeFigureTableProps) {
     const totalFiguresCount = figuresData?.figureList?.totalCount ?? 0;
 
     return {
-        updateRoleButton: (
-            <Button
-                name="update role"
-                onClick={showRoleUpdateModal}
-            >
-                Update role
-            </Button>
-        ),
         exportButton: (
             <ConfirmButton
                 confirmationHeader="Confirm Export"
@@ -600,6 +600,28 @@ function useFigureTable(props: NudeFigureTableProps) {
             >
                 Export
             </ConfirmButton>
+        ),
+        updateRoleButton: (
+            <div className={styles.updateRoleSection}>
+                {isDefined(selectedFiguresCount) && selectedFiguresCount > 0 && (
+                    <Button
+                        name="totalFigure"
+                        readOnly
+                        focused
+                    >
+                        {`${selectedFiguresCount} figures selected`}
+                    </Button>
+                )}
+                {(selectedFiguresCount ?? 0) > 0 && (
+                    <Button
+                        name="update role"
+                        variant="primary"
+                        onClick={showRoleUpdateModal}
+                    >
+                        Update role
+                    </Button>
+                )}
+            </div>
         ),
         pager: (
             <Pager
@@ -615,7 +637,7 @@ function useFigureTable(props: NudeFigureTableProps) {
             <>
                 {(selectedFiguresCount ?? 0) > ALL_SELECT_COUNT && (
                     <NonFieldError>
-                        { `Cannot select more than ${ALL_SELECT_COUNT}!` }
+                        { `Cannot select more than ${ALL_SELECT_COUNT} figures!` }
                     </NonFieldError>
                 )}
                 {totalFiguresCount > 0 && (

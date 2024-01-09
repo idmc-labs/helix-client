@@ -148,19 +148,19 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                 headerActions={(
                     <>
                         {selectedTab === 'Entries' && entriesExportButton}
-                        {selectedTab === 'Figures' && (
-                            <>
-                                { updateFiguresRoleButton }
-                                { figuresExportButton }
-                            </>
-                        )}
+                        {selectedTab === 'Figures' && figuresExportButton}
                         {headingActions}
                     </>
                 )}
                 footerContent={(
                     <>
                         {selectedTab === 'Entries' && entriesPager}
-                        {selectedTab === 'Figures' && figuresPager}
+                        {selectedTab === 'Figures' && (
+                            <div className={styles.figureFooter}>
+                                {figuresPager}
+                                { updateFiguresRoleButton }
+                            </div>
+                        )}
                     </>
                 )}
             >
