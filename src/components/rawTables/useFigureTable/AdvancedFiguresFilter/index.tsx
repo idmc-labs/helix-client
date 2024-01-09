@@ -171,6 +171,7 @@ const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
 
 interface DisplacementTypeOption {
+    // FIXME: type for 'name' should be FigureCategoryTypes
     // name: FigureCategoryTypes;
     name: string;
     description?: string | null | undefined;
@@ -237,17 +238,13 @@ const schema: FormSchema = {
     },
 };
 
-// TODO: move fetching extraction query outside this component
 interface AdvancedFigureFiltersProps {
     className?: string;
     currentFilter: PartialForm<FormType>,
     initialFilter: PartialForm<FormType>,
     onFilterChange: (value: PartialForm<FormType>) => void;
-    disabled: boolean;
-    //
-    // NOTE: We have not implemented createdBy
+    disabled?: boolean;
     hiddenFields?: ('event' | 'crisis' | 'country' | 'reviewStatus' | 'createdBy')[];
-
     // We use these props to filter out other options
     countries?: string[];
     crises?: string[];
@@ -515,7 +512,6 @@ function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
                 <>
                     <MultiSelectInput
                         className={_cs(
-                            styles.input,
                             // eslint-disable-next-line max-len
                             (hasNoData(value.filterFigureViolenceSubTypes) && !filtersExpanded)
                             && styles.hidden,
@@ -534,7 +530,6 @@ function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
                     />
                     <ViolenceContextMultiSelectInput
                         className={_cs(
-                            styles.input,
                             // eslint-disable-next-line max-len
                             (hasNoData(value.filterFigureContextOfViolence) && !filtersExpanded)
                             && styles.hidden,
@@ -550,7 +545,6 @@ function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
             {disasterType && (
                 <MultiSelectInput
                     className={_cs(
-                        styles.input,
                         // eslint-disable-next-line max-len
                         (hasNoData(value.filterFigureDisasterSubTypes) && !filtersExpanded)
                         && styles.hidden,
@@ -570,7 +564,6 @@ function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
             )}
             <UserMultiSelectInput
                 className={_cs(
-                    styles.input,
                     (hasNoData(value.filterFigureCreatedBy) && !filtersExpanded)
                     && styles.hidden,
                 )}
@@ -583,7 +576,6 @@ function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
             />
             <OrganizationMultiSelectInput
                 className={_cs(
-                    styles.input,
                     (hasNoData(value.filterEntryPublishers) && !filtersExpanded)
                     && styles.hidden,
                 )}
@@ -596,7 +588,6 @@ function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
             />
             <OrganizationMultiSelectInput
                 className={_cs(
-                    styles.input,
                     (hasNoData(value.filterFigureSources) && !filtersExpanded)
                     && styles.hidden,
                 )}
@@ -610,7 +601,6 @@ function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
             {!hiddenFields.includes('reviewStatus') && (
                 <MultiSelectInput
                     className={_cs(
-                        styles.input,
                         (hasNoData(value.filterFigureReviewStatus) && !filtersExpanded)
                         && styles.hidden,
                     )}
@@ -627,7 +617,6 @@ function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
             )}
             <FigureTagMultiSelectInput
                 className={_cs(
-                    styles.input,
                     (hasNoData(value.filterFigureTags) && !filtersExpanded)
                     && styles.hidden,
                 )}
@@ -640,7 +629,6 @@ function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
             />
             <MultiSelectInput<string, 'filterFigureCategoryTypes', NonNullable<FigureCategoryTypeOptions>[number], { containerClassName?: string }>
                 className={_cs(
-                    styles.input,
                     (hasNoData(value.filterFigureCategoryTypes) && !filtersExpanded)
                     && styles.hidden,
                 )}
@@ -656,7 +644,6 @@ function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
             />
             <MultiSelectInput
                 className={_cs(
-                    styles.input,
                     (hasNoData(value.filterFigureCategories) && !filtersExpanded)
                     && styles.hidden,
                 )}
@@ -676,7 +663,6 @@ function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
             />
             <BooleanInput
                 className={_cs(
-                    styles.input,
                     (hasNoData(value.filterFigureHasDisaggregatedData) && !filtersExpanded)
                     && styles.hidden,
                 )}
@@ -689,7 +675,6 @@ function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
             />
             <BooleanInput
                 className={_cs(
-                    styles.input,
                     (hasNoData(value.filterFigureHasExcerptIdu) && !filtersExpanded)
                     && styles.hidden,
                 )}
@@ -702,7 +687,6 @@ function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
             />
             <BooleanInput
                 className={_cs(
-                    styles.input,
                     (hasNoData(value.filterFigureHasHousingDestruction) && !filtersExpanded)
                     && styles.hidden,
                 )}

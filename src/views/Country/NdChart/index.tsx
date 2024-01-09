@@ -1,9 +1,9 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { isDefined, isNotDefined, listToGroupList, mapToList } from '@togglecorp/fujs';
 
 import ChartAxes from '#components/ChartAxes';
 import useChartData from '#hooks/useChartData';
-import { defaultChartMargin, defaultChartPadding } from '#utils/chart';
+import { defaultChartMargin, defaultChartPadding, getNumberOfDays, getNumberOfMonths, getSuitableTemporalResolution } from '#utils/chart';
 
 import styles from './styles.css';
 import { sumSafe } from '#utils/common';
@@ -21,7 +21,7 @@ const chartOffset = {
     bottom: X_AXIS_HEIGHT,
 };
 
-const NUM_X_AXIS_POINTS = 8;
+const NUM_X_AXIS_POINTS = 6;
 
 interface Data {
     date: string;
@@ -40,25 +40,84 @@ function NdChart(props: Props) {
     const CONFLICT_TYPE = 'conflict';
     const DISASTER_TYPE = 'disaster';
 
-    const data = useMemo(
-        () => {
-            const combinedData = [
+    const combinedData = useMemo(
+        () => (
+            [
                 conflictData?.map(
                     (datum) => ({ type: CONFLICT_TYPE, ...datum }),
                 ),
                 disasterData?.map(
                     (datum) => ({ type: DISASTER_TYPE, ...datum }),
                 ),
-            ].filter(isDefined).flat();
+            ].filter(isDefined).flat()
+        ),
+        [conflictData, disasterData],
+    );
 
-            const yearGrouped = listToGroupList(
-                combinedData,
-                (datum) => new Date(datum.date).getFullYear(),
-            );
+    const temporalDomain = useMemo(
+        () => {
+            const now = new Date();
+
+            if (!combinedData || combinedData.length === 0) {
+                return { min: now.getFullYear() - NUM_X_AXIS_POINTS + 1, max: now.getFullYear() };
+            }
+
+            const timestampList = combinedData.map(({ date }) => new Date(date).getTime());
+            const minTimestamp = Math.min(...timestampList);
+            const maxTimestamp = Math.max(...timestampList);
+
+            return {
+                min: minTimestamp,
+                max: maxTimestamp,
+            };
+        },
+        [combinedData],
+    );
+
+    const temporalResolution = getSuitableTemporalResolution(
+        temporalDomain,
+        NUM_X_AXIS_POINTS,
+    );
+
+    const data = useMemo(
+        () => {
+            let groupedData;
+
+            if (temporalResolution === 'year') {
+                groupedData = listToGroupList(
+                    combinedData,
+                    (datum) => new Date(datum.date).getFullYear()
+                        - new Date(temporalDomain.min).getFullYear(),
+                );
+            } else if (temporalResolution === 'month') {
+                groupedData = listToGroupList(
+                    combinedData,
+                    (datum) => {
+                        const date = new Date(datum.date);
+
+                        return getNumberOfMonths(
+                            new Date(temporalDomain.min),
+                            date,
+                        );
+                    },
+                );
+            } else {
+                groupedData = listToGroupList(
+                    combinedData,
+                    (datum) => {
+                        const date = new Date(datum.date);
+
+                        return getNumberOfDays(
+                            new Date(temporalDomain.min),
+                            date,
+                        );
+                    },
+                );
+            }
 
             return mapToList(
-                yearGrouped,
-                (value, year) => {
+                groupedData,
+                (value, key) => {
                     // Note: there should only be one data of each type
                     const conflictSum = sumSafe(
                         value.filter(({ type }) => type === CONFLICT_TYPE).map(
@@ -72,7 +131,7 @@ function NdChart(props: Props) {
                     );
 
                     return {
-                        year: +year,
+                        key: Number(key),
                         // Note: There will be at least one type present
                         totalDisplacement: (conflictSum ?? 0) + (disasterSum ?? 0),
                         conflict: conflictSum,
@@ -81,7 +140,7 @@ function NdChart(props: Props) {
                 },
             );
         },
-        [conflictData, disasterData],
+        [combinedData, temporalResolution, temporalDomain],
     );
 
     const displacements = useMemo(
@@ -99,26 +158,26 @@ function NdChart(props: Props) {
         [data],
     );
 
-    const yearRange = useMemo(
+    const domain = useMemo(
         () => {
             const now = new Date();
             if (!data || data.length === 0) {
                 return { min: now.getFullYear() - NUM_X_AXIS_POINTS + 1, max: now.getFullYear() };
             }
 
-            const yearList = data.map(({ year }) => year);
-            const minYear = Math.min(...yearList);
-            const maxYear = Math.max(...yearList);
+            const yearList = data.map(({ key }) => key);
+            const minKey = Math.min(...yearList);
+            const maxKey = Math.max(...yearList);
 
-            const diff = maxYear - minYear;
+            const diff = maxKey - minKey;
             const remainder = diff % (NUM_X_AXIS_POINTS - 1);
             const additional = remainder === 0
                 ? 0
                 : NUM_X_AXIS_POINTS - remainder - 1;
 
             return {
-                min: minYear - Math.ceil(additional / 2),
-                max: maxYear + Math.floor(additional / 2),
+                min: minKey - Math.ceil(additional / 2),
+                max: maxKey + Math.floor(additional / 2),
             };
         },
         [data],
@@ -126,7 +185,39 @@ function NdChart(props: Props) {
 
     const xAxisCompression = data.length === 0
         ? 1
-        : (yearRange.max - yearRange.min) / NUM_X_AXIS_POINTS;
+        : (domain.max - domain.min) / NUM_X_AXIS_POINTS;
+
+    const resolveDomainLabelX = useCallback(
+        (diff) => {
+            const minDate = new Date(temporalDomain.min);
+            if (temporalResolution === 'year') {
+                return minDate.getFullYear() + diff;
+            }
+
+            if (temporalResolution === 'month') {
+                minDate.setDate(1);
+                minDate.setMonth(minDate.getMonth() + diff);
+                return minDate.toLocaleString(
+                    navigator.language,
+                    {
+                        year: '2-digit',
+                        month: 'short',
+                    },
+                );
+            }
+
+            minDate.setDate(minDate.getDate() + diff);
+            return minDate.toLocaleString(
+                navigator.language,
+                {
+                    year: 'numeric',
+                    month: 'short',
+                    day: '2-digit',
+                },
+            );
+        },
+        [temporalResolution, temporalDomain],
+    );
 
     const {
         dataPoints,
@@ -144,13 +235,13 @@ function NdChart(props: Props) {
             chartMargin: defaultChartMargin,
             chartPadding: defaultChartPadding,
             type: 'numeric',
-            keySelector: (datum) => datum.year,
-            xValueSelector: (datum) => datum.year,
-            xAxisLabelSelector: (year) => year,
+            keySelector: (datum) => datum.key,
+            xValueSelector: (datum) => datum.key,
+            xAxisLabelSelector: resolveDomainLabelX,
             yValueSelector: (datum) => datum.totalDisplacement,
             yAxisStartsFromZero: true,
             numXAxisTicks: NUM_X_AXIS_POINTS,
-            xDomain: yearRange,
+            xDomain: domain,
         },
     );
 
@@ -216,7 +307,7 @@ function NdChart(props: Props) {
                                     height={renderableHeight}
                                 >
                                     <Tooltip
-                                        title={point.originalData.year}
+                                        title={resolveDomainLabelX(point.originalData.key)}
                                         description={(
                                             <div className={styles.tooltipContent}>
                                                 <NumberBlock

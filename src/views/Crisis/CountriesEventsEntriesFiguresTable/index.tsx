@@ -351,8 +351,6 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
                                 currentFilter={rawCountriesFilter}
                                 initialFilter={initialCountriesFilter}
                                 onFilterChange={setCountriesFilter}
-                                // hiddenFields={countriesHiddenColumns}
-                                // crises={crisisId ? [crisisId] : undefined}
                             />
                         )}
                         {selectedTab === 'Events' && (

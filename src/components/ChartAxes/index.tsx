@@ -106,16 +106,20 @@ function ChartAxes(props: Props) {
         0,
     );
 
+    const yAxisDiff = Math.max(
+        yAxisPoints[1].y - yAxisPoints[0].y,
+    );
+
     return (
         <g className={styles.chartAxes}>
             {isDefined(yAxisLabel) && (
                 <foreignObject
                     x={0}
-                    y={chartSize.height - 20}
+                    y={chartSize.height - yAxisDiff}
                     width={chartSize.height}
-                    height={20}
+                    height={yAxisDiff}
                     className={styles.yAxisLabelContainer}
-                    style={{ transformOrigin: `0 ${chartSize.height - 20}px` }}
+                    style={{ transformOrigin: `0 ${chartSize.height - yAxisDiff}px` }}
                 >
                     <div className={styles.yAxisLabel}>
                         {yAxisLabel}

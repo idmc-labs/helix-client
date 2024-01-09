@@ -381,14 +381,49 @@ export function getColorScaleFunction(
     };
 }
 
-/*
-function getNumberOfDaysInMonth(year: number, month: number) {
-    const date = new Date(year, month + 1, 1);
-    date.setDate(date.getDate() - 1);
-    return date.getDate();
+export function getNumberOfMonths(start: Date, end: Date) {
+    const yearDiff = Math.abs(end.getFullYear() - start.getFullYear());
+
+    return yearDiff * 12 + Math.abs(
+        end.getMonth() - start.getMonth(),
+    );
+}
+
+export function getNumberOfDays(start: Date, end: Date) {
+    let numDays = 0;
+    for (let i = new Date(start); i < end; i.setDate(i.getDate() + 1)) {
+        numDays += 1;
+    }
+
+    return numDays;
 }
 
 type TemporalResolution = 'year' | 'month' | 'day';
+export function getSuitableTemporalResolution(
+    bounds: Bounds,
+    numPoints: number,
+): TemporalResolution {
+    const minDate = new Date(bounds.min);
+    const maxDate = new Date(bounds.max);
+
+    const yearDiff = Math.abs(
+        maxDate.getFullYear() - minDate.getFullYear(),
+    );
+    const minDiff = numPoints / 2;
+
+    if (yearDiff >= minDiff) {
+        return 'year';
+    }
+
+    const monthDiff = yearDiff * 12 + Math.abs(maxDate.getMonth() - minDate.getMonth());
+    if (monthDiff >= minDiff) {
+        return 'month';
+    }
+
+    return 'day';
+}
+
+/*
 export function getTemporalIntervals(
     bounds: Bounds,
     numPoints: number,

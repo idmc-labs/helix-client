@@ -57,6 +57,7 @@ type SelectInputProps<
     Def,
     'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
 > & {
+    // TODO: Make permissions typesafe after updating typescript
     // permissions?: `${PermissionAction}_${PermissionEntity}`[];
     permissions?: string[] | null;
 };

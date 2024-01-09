@@ -3,7 +3,7 @@ import { compareDate, isDefined, isNotDefined, listToGroupList, mapToList, _cs }
 
 import ChartAxes from '#components/ChartAxes';
 import useChartData from '#hooks/useChartData';
-import { defaultChartMargin, defaultChartPadding, getPathData } from '#utils/chart';
+import { defaultChartMargin, defaultChartPadding, getNumberOfDays, getPathData, getSuitableTemporalResolution } from '#utils/chart';
 
 import styles from './styles.css';
 import { sumSafe } from '#utils/common';
@@ -23,7 +23,7 @@ const chartOffset = {
 const chartPadding = defaultChartPadding;
 const chartMargin = defaultChartMargin;
 
-const NUM_X_AXIS_POINTS = 8;
+const NUM_X_AXIS_POINTS = 6;
 
 interface Data {
     date: string;
@@ -89,6 +89,26 @@ function IdpChart(props: Props) {
         [conflictData, disasterData],
     );
 
+    const temporalDomain = useMemo(
+        () => {
+            const now = new Date();
+
+            if (!data || data.length === 0) {
+                return { min: now.getFullYear() - NUM_X_AXIS_POINTS + 1, max: now.getFullYear() };
+            }
+
+            const timestampList = data.map(({ date }) => new Date(date).getTime());
+            const minTimestamp = Math.min(...timestampList);
+            const maxTimestamp = Math.max(...timestampList);
+
+            return {
+                min: minTimestamp,
+                max: maxTimestamp,
+            };
+        },
+        [data],
+    );
+
     const lastPointWithData = useMemo(
         () => {
             const lastDataPoint = [...data].reverse().find(
@@ -128,6 +148,19 @@ function IdpChart(props: Props) {
         [data],
     );
 
+    const temporalResolution = getSuitableTemporalResolution(
+        temporalDomain,
+        NUM_X_AXIS_POINTS,
+    );
+
+    const xDomain = useMemo(
+        () => ({
+            min: 0,
+            max: getNumberOfDays(dateRange.min, dateRange.max),
+        }),
+        [dateRange],
+    );
+
     const {
         dataPoints,
         chartSize,
@@ -142,20 +175,44 @@ function IdpChart(props: Props) {
             chartOffset,
             chartMargin,
             chartPadding,
-            type: 'temporal',
+            type: 'numeric',
             keySelector: (datum) => datum.date,
             xValueSelector: (datum) => {
                 const date = new Date(datum.date);
-                return date.getTime();
+                return getNumberOfDays(dateRange.min, date);
             },
-            xAxisLabelSelector: (timestamp) => {
-                const date = new Date(timestamp);
-                return date.getFullYear();
+            xAxisLabelSelector: (diff) => {
+                const startDate = new Date(dateRange.min);
+                const currentDate = new Date(startDate.getTime());
+                currentDate.setDate(currentDate.getDate() + diff);
+
+                if (temporalResolution === 'year') {
+                    return currentDate.getFullYear();
+                }
+
+                if (temporalResolution === 'month') {
+                    return currentDate.toLocaleString(
+                        navigator.language,
+                        {
+                            year: 'numeric',
+                            month: 'short',
+                        },
+                    );
+                }
+
+                return currentDate.toLocaleString(
+                    navigator.language,
+                    {
+                        year: 'numeric',
+                        month: 'short',
+                        day: '2-digit',
+                    },
+                );
             },
             yValueSelector: (datum) => datum.maxDisplacement,
             yAxisStartsFromZero: true,
             numXAxisTicks: NUM_X_AXIS_POINTS,
-            xDomain: { min: dateRange.min.getTime(), max: dateRange.max.getTime() },
+            xDomain,
         },
     );
 

@@ -9,7 +9,6 @@ import {
 import { ApolloLink } from 'apollo-link';
 import { RetryLink } from 'apollo-link-retry';
 import { RestLink } from 'apollo-link-rest';
-// import { BatchHttpLink } from 'apollo-link-batch-http';
 import { createUploadLink } from 'apollo-upload-client';
 import { isDefined } from '@togglecorp/fujs';
 
@@ -42,12 +41,6 @@ const client = new ApolloClient({
                 new RestLink({
                     uri: 'https://osmnames.idmcdb.org',
                 }) as unknown as ApolloLink,
-                /*
-                new BatchHttpLink({
-                    uri: GRAPHQL_ENDPOINT,
-                    credentials: 'include',
-                }),
-                */
                 new HttpLink({
                     uri: GRAPHQL_ENDPOINT,
                     credentials: 'include',

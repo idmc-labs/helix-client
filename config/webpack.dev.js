@@ -99,7 +99,6 @@ module.exports = (env) => {
                     use: [
                         // require.resolve('cache-loader'),
                         require.resolve('babel-loader'),
-                        /*
                         {
                             loader: require.resolve('eslint-loader'),
                             options: {
@@ -108,7 +107,6 @@ module.exports = (env) => {
                                 failOnError: true,
                             },
                         },
-                        */
                     ],
                 },
                 {

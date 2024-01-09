@@ -168,7 +168,6 @@ interface CommunicationFormProps {
     id: string | undefined;
     onHideAddCommunicationModal: () => void;
     onAddCommunicationCache: MutationUpdaterFn<CreateCommunicationMutation>;
-
     contact: ContactType['id'];
 }
 

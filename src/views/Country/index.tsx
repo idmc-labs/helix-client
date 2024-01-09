@@ -191,6 +191,7 @@ function Country(props: CountryProps) {
 
     const {
         data: countryAggregations,
+        // TODO: Handle error and loading states
         // loading: countryAggregationsLoading,
         // error: countryAggregationsError,
     } = useQuery<CountryAggregationsQuery>(COUNTRY_AGGREGATIONS, {
@@ -397,7 +398,6 @@ function Country(props: CountryProps) {
                         className={styles.overview}
                     >
                         <CountrySummary
-                            className={styles.countrySummary}
                             summary={countryData?.country?.lastSummary}
                             disabled={disabled}
                             countryId={countryId}
@@ -407,7 +407,6 @@ function Country(props: CountryProps) {
                             onSummaryFormClose={handleSummaryFormClose}
                         />
                         <ContextualAnalysis
-                            className={styles.contextualAnalysis}
                             contextualAnalysis={countryData?.country?.lastContextualAnalysis}
                             disabled={disabled}
                             contextualFormOpened={contextualFormOpened}

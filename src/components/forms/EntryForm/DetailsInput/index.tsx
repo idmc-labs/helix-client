@@ -236,6 +236,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 onChange={onValueChange}
                 value={value.isConfidential}
                 name="isConfidential"
+                // FIXME: add error prop on Switch
                 // error={error?.fields?.isConfidential}
                 disabled={disabled}
                 readOnly={!editMode}

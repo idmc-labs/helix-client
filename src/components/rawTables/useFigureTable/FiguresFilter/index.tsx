@@ -338,7 +338,6 @@ function FiguresFilter(props: FiguresFilterProps) {
             </NonFieldError>
             <div className={styles.contentContainer}>
                 <TextInput
-                    className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Search"
                     name="filterEntryArticleTitle"
@@ -347,7 +346,6 @@ function FiguresFilter(props: FiguresFilterProps) {
                     placeholder="Search by entry title or code"
                 />
                 <OrganizationMultiSelectInput
-                    className={styles.input}
                     label="Publishers"
                     name="filterEntryPublishers"
                     onChange={onValueChange}
@@ -355,7 +353,6 @@ function FiguresFilter(props: FiguresFilterProps) {
                     error={error?.fields?.filterEntryPublishers?.$internal}
                 />
                 <OrganizationMultiSelectInput
-                    className={styles.input}
                     label="Sources"
                     name="filterFigureSources"
                     onChange={onValueChange}
@@ -460,7 +457,6 @@ function FiguresFilter(props: FiguresFilterProps) {
                 {conflictType && (
                     <>
                         <MultiSelectInput
-                            className={styles.input}
                             options={violenceOptions}
                             keySelector={basicEntityKeySelector}
                             labelSelector={basicEntityLabelSelector}
@@ -474,7 +470,6 @@ function FiguresFilter(props: FiguresFilterProps) {
                             grouped
                         />
                         <ViolenceContextMultiSelectInput
-                            className={styles.input}
                             label="Context of Violence"
                             name="filterFigureContextOfViolence"
                             value={value.filterFigureContextOfViolence}
@@ -485,7 +480,6 @@ function FiguresFilter(props: FiguresFilterProps) {
                 )}
                 {disasterType && (
                     <MultiSelectInput
-                        className={styles.input}
                         options={disasterSubTypeOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
@@ -501,7 +495,6 @@ function FiguresFilter(props: FiguresFilterProps) {
                 )}
                 {!hiddenFields.includes('reviewStatus') && (
                     <MultiSelectInput
-                        className={styles.input}
                         options={data?.figureReviewStatus?.enumValues}
                         label="Review Status"
                         name="filterFigureReviewStatus"

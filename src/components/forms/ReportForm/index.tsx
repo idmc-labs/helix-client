@@ -618,6 +618,7 @@ function ReportForm(props: ReportFormProps) {
                 onChange={onValueChange}
                 value={value.isGiddReport}
                 name="isGiddReport"
+                // FIXME: add error prop on Switch
                 // error={error?.fields?.isConfidential}
                 disabled={disabled}
             />
@@ -703,7 +704,6 @@ function ReportForm(props: ReportFormProps) {
                             value={value.filterFigureCrises}
                             onChange={onValueChange}
                             disabled={disabled}
-                            // countries={value.filterFigureCountries}
                         />
                         <EventMultiSelectInput
                             label="Events"

@@ -1813,6 +1813,7 @@ function FigureInput(props: FigureInputProps) {
                                 name="isHousingDestruction"
                                 value={value.isHousingDestruction}
                                 onChange={onValueChange}
+                                // FIXME: add error prop on Switch
                                 // error={error?.fields?.isHousingDestruction}
                                 disabled={disabled || eventNotChosen}
                                 readOnly={!editMode}
@@ -1897,6 +1898,7 @@ function FigureInput(props: FigureInputProps) {
                         name="isDisaggregated"
                         value={value.isDisaggregated}
                         onChange={onValueChange}
+                        // FIXME: add error prop on Switch
                         // error={error?.fields?.isDisaggregated}
                         disabled={disabled || eventNotChosen}
                         readOnly={!editMode}
@@ -2040,6 +2042,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.includeIdu}
                     onChange={onValueChange}
                     disabled={disabled || eventNotChosen}
+                    // FIXME: add error prop on Switch
                     readOnly={!editMode}
                 />
                 {value.includeIdu && (

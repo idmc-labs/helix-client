@@ -102,10 +102,7 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
         ordering: entriesOrdering,
         sortState: entriesSortState,
 
-        // rawFilter: rawEntriesFilter,
-        // initialFilter: initialEntriesFilter,
-        // filter: entriesFilter,
-        // setFilter: setEntriesFilter,
+        // NOTE: We are not using the filters for entries
 
         pageSize: entriesPageSize,
         rawPageSize: rawEntriesPageSize,

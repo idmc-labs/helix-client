@@ -9,12 +9,6 @@
             grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
             gap: var(--spacing-medium);
 
-            .disaggregation {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
-                gap: var(--spacing-medium);
-            }
-
             .conflict-block {
                 color: var(--color-conflict);
             }

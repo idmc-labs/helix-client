@@ -670,6 +670,7 @@ function EntryForm(props: EntryFormProps) {
                 }).filter(isDefined) ?? [];
 
                 /*
+                FIXME: Remove this comment once we are sure we don't need this
                 const newFigures = savedFigures
                     .filter((item) => item.new)
                     .map((item) => item.value)
@@ -950,7 +951,6 @@ function EntryForm(props: EntryFormProps) {
         },
     });
 
-    // eslint-disable-next-line max-len
     const loading = (
         getEntryLoading
         || pending

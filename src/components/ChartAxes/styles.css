@@ -42,10 +42,6 @@
         stroke: var(--color-axes);
         stroke-dasharray: 4 4;
         stroke-opacity: 0.5;
-
-        &.hovered {
-            stroke-opacity: 1;
-        }
     }
 
     .bound-rect {

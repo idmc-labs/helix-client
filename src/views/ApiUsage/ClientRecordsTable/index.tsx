@@ -163,6 +163,7 @@ function ClientRecordsTable(props: ClientRecordProps) {
     const columns = useMemo(
         () => ([
             /*
+            TODO: Add column after field added to server
             createDateTimeColumn<ClientFields, string>(
                 'date_created',
                 'Date Created',

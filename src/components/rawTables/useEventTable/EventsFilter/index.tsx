@@ -286,7 +286,6 @@ function EventsFilter(props: EventsFilterProps) {
             </NonFieldError>
             <div className={styles.contentContainer}>
                 <TextInput
-                    className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Name"
                     name="name"
@@ -296,7 +295,6 @@ function EventsFilter(props: EventsFilterProps) {
                 />
                 {!hiddenFields.includes('createdBy') && (
                     <UserMultiSelectInput
-                        className={styles.input}
                         label="Created By"
                         name="createdByIds"
                         value={value.createdByIds}
@@ -305,7 +303,6 @@ function EventsFilter(props: EventsFilterProps) {
                     />
                 )}
                 <DateRangeDualInput
-                    className={styles.input}
                     label="Date Range"
                     fromName="startDate_Gte"
                     fromValue={value.startDate_Gte}
@@ -317,7 +314,6 @@ function EventsFilter(props: EventsFilterProps) {
                     toError={error?.fields?.endDate_Lte}
                 />
                 <MultiSelectInput
-                    className={styles.input}
                     options={data?.eventType?.enumValues}
                     label="Causes"
                     name="eventTypes"
@@ -330,7 +326,6 @@ function EventsFilter(props: EventsFilterProps) {
                 />
                 {!hiddenFields.includes('reviewStatus') && (
                     <MultiSelectInput
-                        className={styles.input}
                         options={eventReviewStatusOptions}
                         label="Review Status"
                         name="reviewStatus"
@@ -345,7 +340,6 @@ function EventsFilter(props: EventsFilterProps) {
                 {conflictType && (
                     <>
                         <MultiSelectInput
-                            className={styles.input}
                             options={violenceOptions}
                             keySelector={basicEntityKeySelector}
                             labelSelector={basicEntityLabelSelector}
@@ -359,7 +353,6 @@ function EventsFilter(props: EventsFilterProps) {
                             grouped
                         />
                         <ViolenceContextMultiSelectInput
-                            className={styles.input}
                             label="Context of Violence"
                             name="contextOfViolences"
                             value={value.contextOfViolences}
@@ -370,7 +363,6 @@ function EventsFilter(props: EventsFilterProps) {
                 )}
                 {disasterType && (
                     <MultiSelectInput
-                        className={styles.input}
                         options={disasterSubTypeOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
@@ -386,7 +378,6 @@ function EventsFilter(props: EventsFilterProps) {
                 )}
                 {!hiddenFields.includes('crisis') && (
                     <CrisisMultiSelectInput
-                        className={styles.input}
                         label="Crises"
                         name="crisisByIds"
                         error={error?.fields?.crisisByIds?.$internal}
@@ -398,7 +389,6 @@ function EventsFilter(props: EventsFilterProps) {
                 )}
                 {!hiddenFields.includes('countries') && (
                     <CountryMultiSelectInput
-                        className={styles.input}
                         label="Countries"
                         name="countries"
                         value={value.countries}

@@ -15,12 +15,14 @@
         .main-content {
             display: grid;
             flex-basis: 100%;
-            grid-template-columns: repeat(auto-fit, minmax(26rem, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(32rem, 1fr));
             gap: var(--spacing-large);
 
             .map-container {
                 height: 45rem;
                 grid-column: 1 / -2;
+                /* FIXME: remove this */
+                pointer-events: none;
             }
 
             .charts {
