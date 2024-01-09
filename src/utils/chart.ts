@@ -423,19 +423,6 @@ export function getSuitableTemporalResolution(
     return 'day';
 }
 
-/*
-export function getTemporalIntervals(
-    bounds: Bounds,
-    numPoints: number,
-    resolution: TemporalResolution,
-) {
-    const minDate = new Date(bounds.min);
-    const maxDate = new Date(bounds.max);
-
-    const yearDiff = maxDate.getFullYear() - minDate.getFullYear();
-}
-*/
-
 export function getIntervals(bounds: Bounds, numPoints: number) {
     const diff = (bounds.max - bounds.min) / (numPoints - 1);
     const ticks = bounds.max === 0

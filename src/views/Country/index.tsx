@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useEffect, useState } from 'react';
 import produce from 'immer';
 import { useParams, useHistory } from 'react-router-dom';
 import {
@@ -11,7 +11,7 @@ import Map, {
     MapSource,
     MapLayer,
 } from '@togglecorp/re-map';
-import { Button } from '@togglecorp/toggle-ui';
+import { Button, Portal } from '@togglecorp/toggle-ui';
 import { IoFilterOutline, IoClose } from 'react-icons/io5';
 
 import {
@@ -111,6 +111,56 @@ const countryLinePaint: mapboxgl.LinePaint = {
     'line-color': '#334053',
     'line-width': 1,
 };
+
+interface FloatingButtonProps {
+    onClick: () => void,
+}
+
+// FIXME: create a separate general component
+function FloatingButton(props: FloatingButtonProps) {
+    const { onClick } = props;
+    const [scroll, setScroll] = useState<number>(
+        document.querySelectorAll('[data-multiplexer-content]')[0]?.scrollTop ?? 0,
+    );
+
+    const handleDocumentScroll = useCallback(
+        (e: Event) => {
+            if (e.target instanceof HTMLElement) {
+                const isMultiplexerContent = e.target.getAttribute('data-multiplexer-content');
+
+                if (isMultiplexerContent) {
+                    setScroll(e.target.scrollTop);
+                }
+            }
+        },
+        [],
+    );
+
+    useEffect(
+        () => {
+            document.addEventListener('scroll', handleDocumentScroll, true);
+
+            return () => {
+                document.removeEventListener('scroll', handleDocumentScroll, true);
+            };
+        },
+        [handleDocumentScroll],
+    );
+
+    return (
+        <Portal>
+            <Button
+                className={_cs(styles.floatingButton, scroll < 80 && styles.hidden)}
+                name={undefined}
+                onClick={onClick}
+                icons={<IoFilterOutline />}
+                variant="primary"
+            >
+                Filters
+            </Button>
+        </Portal>
+    );
+}
 
 interface CountryProps {
     className?: string;
@@ -445,6 +495,11 @@ function Country(props: CountryProps) {
                     />
                 </Container>
             </div>
+            {!showSidebar && (
+                <FloatingButton
+                    onClick={setShowSidebarTrue}
+                />
+            )}
         </div>
     );
 }

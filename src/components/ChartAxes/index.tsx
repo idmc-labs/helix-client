@@ -85,17 +85,20 @@ function ChartAxes(props: Props) {
         [onHover],
     );
 
-    function getLineX(startX: number, endX: number) {
-        if (xAxisAlignment === 'left') {
-            return startX;
-        }
+    const getLineX = useCallback(
+        (startX: number, endX: number) => {
+            if (xAxisAlignment === 'left') {
+                return startX;
+            }
 
-        if (xAxisAlignment === 'right') {
-            return endX;
-        }
+            if (xAxisAlignment === 'right') {
+                return endX;
+            }
 
-        return (endX + startX) / 2;
-    }
+            return (endX + startX) / 2;
+        },
+        [xAxisAlignment],
+    );
 
     if (xAxisPoints.length < 2) {
         return null;

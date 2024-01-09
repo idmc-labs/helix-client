@@ -2,10 +2,7 @@
     position: fixed;
     top: var(--height-navbar);
     left: -100%;
-
-    /* FIXME: use variables */
-    transition: left 0.2s ease-in-out;
-
+    transition: left var(--duration-transition-medium) ease-in-out;
     width: var(--width-sidebar);
     height: calc(100% - var(--height-navbar));
     overflow: auto;
@@ -21,9 +18,7 @@
     .sidebar-reserved-space {
         flex-basis: 0;
         flex-shrink: 0;
-
-        /* FIXME: use variables */
-        transition: flex-basis 0.2s ease-in-out;
+        transition: flex-basis var(--duration-transition-medium) ease-in-out;
     }
 
     &.sidebar-shown {

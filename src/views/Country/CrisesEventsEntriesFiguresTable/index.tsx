@@ -29,8 +29,6 @@ import styles from './styles.css';
 type Filter = PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>;
 type FilterState = FilterStateResponse<Filter>;
 
-type Tabs = 'Entries' | 'Figures';
-
 interface CrisesEventsEntriesFiguresTableProps {
     className?: string;
     countryId: string;
@@ -44,7 +42,7 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
         figuresFilterState,
     } = props;
 
-    const [selectedTab, setSelectedTab] = useState<'Crises' | 'Events' | 'Entries' | undefined>('Crises');
+    const [selectedTab, setSelectedTab] = useState<'Crises' | 'Events' | 'Entries' | undefined>('Events');
 
     const {
         page: crisesPage,

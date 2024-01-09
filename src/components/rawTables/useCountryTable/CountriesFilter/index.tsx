@@ -23,9 +23,9 @@ import NonFieldError from '#components/NonFieldError';
 import { CountriesQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
-type Tmp = NonNullable<CountriesQueryVariables['filters']>;
+type CountriesQueryFilters = NonNullable<CountriesQueryVariables['filters']>;
 
-export type CountriesFilterFields = Omit<Tmp, 'aggregateFigures'> & Pick<NonNullable<Tmp['aggregateFigures']>, 'year'>;
+export type CountriesFilterFields = Omit<CountriesQueryFilters, 'aggregateFigures'> & Pick<NonNullable<CountriesQueryFilters['aggregateFigures']>, 'year'>;
 type FormType = PurgeNull<PartialForm<CountriesFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>

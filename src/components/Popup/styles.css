@@ -2,8 +2,7 @@
     position: fixed;
     border-radius: var(--spacing-extra-small);
     box-shadow: 0 4pt 16pt -6pt rgb(0 0 0 / 1);
-    /* FIXME: use variable */
-    background-color: #fff;
+    background-color: var(--color-foreground);
     max-height: 40vh;
     overflow: auto;
 
@@ -18,8 +17,7 @@
     transform: translateX(-50%);
     background-color: transparent;
     line-height: 0;
-    /* FIXME: use variable */
-    color: #fff;
+    color: var(--color-foreground);
     font-size: 0.5rem;
     pointer-events: none;
     filter: drop-shadow(0 -1pt 1pt rgb(0 0 0 / .1));

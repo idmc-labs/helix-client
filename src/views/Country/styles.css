@@ -47,3 +47,20 @@
         }
     }
 }
+
+.floating-button {
+    position: fixed;
+    top: calc(var(--height-navbar) + var(--spacing-medium));
+    left: 0;
+    transform: rotate(-90deg) translateX(-100%) translateY(0);
+    transform-origin: 0 0;
+    transition: transform var(--duration-transition-medium) ease-in-out;
+    z-index: 1;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+
+
+    &.hidden {
+        transform: rotate(-90deg) translateX(-100%) translateY(-100%);
+    }
+}

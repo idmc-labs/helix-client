@@ -273,7 +273,10 @@ function Multiplexer(props: Props) {
                             {navbarVisibility && authenticated && (
                                 <Navbar className={styles.navbar} />
                             )}
-                            <div className={styles.content}>
+                            <div
+                                className={styles.content}
+                                data-multiplexer-content
+                            >
                                 <Suspense
                                     fallback={(
                                         <Loading message="Loading page..." />

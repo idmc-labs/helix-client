@@ -1,6 +1,4 @@
 .chart-axes {
-    --color-axes: #717171;
-
     .y-axis-label-container {
         transform: rotate(-90deg);
 
@@ -39,13 +37,13 @@
 
     .x-axis-grid-line,
     .y-axis-grid-line {
-        stroke: var(--color-axes);
+        stroke: var(--color-chart-axes);
         stroke-dasharray: 4 4;
         stroke-opacity: 0.5;
     }
 
     .bound-rect {
-        fill: var(--color-axes);
+        fill: var(--color-chart-axes);
         fill-opacity: 0;
         transition: fill-opacity var(--go-ui-duration-transition-slow) ease-in-out;
 

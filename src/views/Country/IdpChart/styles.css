@@ -31,8 +31,7 @@
 
                 .circle {
                     stroke: currentColor;
-                    /* FIXME: use variable */
-                    fill: #fff;
+                    fill: var(--color-foreground);
                     r: 4pt;
                     stroke-width: 2pt;
                     transition: r var(--duration-transition-medium) ease-in-out, fill var(--duration-transition-medium) ease-in-out;
