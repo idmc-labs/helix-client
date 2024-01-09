@@ -46,7 +46,7 @@ export function getWidthFromN(n: number) {
     const buttonSize = 26;
     const gapSize = 6;
     const padding = 10;
-    const extra = 1; // border takes one extra pixel right now
+    const extra = 1 * 2; // border takes one extra pixel right now
     return buttonSize * n + gapSize * (n - 1) + 2 * padding + extra;
 }
 

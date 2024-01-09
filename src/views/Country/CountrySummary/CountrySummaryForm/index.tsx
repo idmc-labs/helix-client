@@ -1,4 +1,4 @@
-import React, { useMemo, useContext } from 'react';
+import React, { useMemo, useContext, useCallback } from 'react';
 import { Button } from '@togglecorp/toggle-ui';
 import {
     gql,
@@ -130,7 +130,7 @@ function CountrySummaryForm(props:CountrySummaryFormProps) {
         },
     );
 
-    const handleSubmit = React.useCallback(
+    const handleSubmit = useCallback(
         (finalValues: PartialForm<FormType>) => {
             createSummary({
                 variables: {

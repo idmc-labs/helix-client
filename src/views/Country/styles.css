@@ -1,87 +1,66 @@
 .countries {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-large);
-
-    .container {
-        min-height: 200px;
-    }
-
-    .large-container {
-        min-height: 400px;
-    }
-
-    .extra-large-container {
-        min-height: 600px;
-    }
-
-    .content {
-        display: flex;
-        gap: var(--spacing-large);
-
-        .left-content {
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-            gap: var(--spacing-large);
-
-            .middle {
-                display: flex;
-                gap: var(--spacing-large);
-
-                >* {
-                    flex-basis: 0;
-                    flex-grow: 1;
-                }
-            }
-
-            .top {
-                display: flex;
-                gap: var(--spacing-large);
-
-                >* {
-                    flex-basis: 0;
-                    flex-grow: 1;
-                }
-
-                .idp-map {
-                    display: flex;
-                    flex-direction: column;
-                    gap: var(--spacing-medium);
-
-                    .stats {
-                        display: flex;
-                        flex-wrap: wrap;
-                        justify-content: space-between;
-                        gap: var(--spacing-medium);
-
-                        >* {
-                            flex-basis: 0;
-                            flex-grow: 1;
-                            min-width: 16rem;
-                        }
-                    }
-
-                    .map-container {
-                        flex-grow: 1;
-                    }
-                }
-            }
-
-        }
-
-        .side-content {
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-            width: calc(160px + 10vw);
-            gap: var(--spacing-large);
-        }
-    }
-
-    .full-width {
+    .page-content {
         display: flex;
         flex-direction: column;
         gap: var(--spacing-large);
+
+        .filters {
+            background-color: var(--color-background);
+
+            .filters-content {
+                flex-grow: 1;
+            }
+        }
+
+        .main-content {
+            display: grid;
+            flex-basis: 100%;
+            grid-template-columns: repeat(auto-fit, minmax(32rem, 1fr));
+            gap: var(--spacing-large);
+
+            .map-container {
+                height: 45rem;
+                grid-column: 1 / -2;
+                /* FIXME: remove this */
+                pointer-events: none;
+            }
+
+            .charts {
+                display: flex;
+                flex-direction: column;
+                gap: var(--spacing-medium);
+                grid-column: auto / -1;
+            }
+
+            .events-entries-figures-table {
+                grid-column: 1 / -1;
+                min-height: 600px;
+            }
+
+            .overview {
+                grid-column: 1 / -2;
+            }
+
+            .resources {
+                grid-column: auto / -1;
+            }
+        }
+    }
+}
+
+.floating-button {
+    position: fixed;
+    top: calc(var(--height-navbar) + var(--spacing-medium));
+    left: 0;
+    transform: rotate(-90deg) translateX(-100%) translateY(0);
+    transform-origin: 0 0;
+    transition: transform var(--duration-transition-medium) ease-in-out;
+    z-index: 1;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+
+
+    &.hidden {
+        transform: rotate(-90deg) translateX(-100%) translateY(-100%);
     }
 }

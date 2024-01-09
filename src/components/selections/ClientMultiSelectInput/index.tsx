@@ -8,6 +8,7 @@ import {
     SearchMultiSelectInputProps,
 } from '@togglecorp/toggle-ui';
 
+import useOptions from '#hooks/useOptions';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import {
     ApiClientListQuery,
@@ -15,8 +16,14 @@ import {
 } from '#generated/types';
 
 const GET_CLIENT_CODE_OPTIONS = gql`
-    query ApiClientList($search: String, $ordering: String) {
-        clientList (name: $search, ordering: $ordering) {
+    query ApiClientList(
+        $search: String,
+        $ordering: String,
+    ) {
+        clientList(
+            ordering: $ordering,
+            filters: { name: $search },
+        ) {
             totalCount
             results {
                 id
@@ -40,7 +47,7 @@ type SelectInputProps<
     K,
     ClientCodeOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
 >;
 
 function ClientMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -58,7 +65,7 @@ function ClientMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
         (): ApiClientListQueryVariables => (
             debouncedSearchText
                 ? { search: debouncedSearchText }
-                : { ordering: '-createdAt' }
+                : { ordering: '-created_at' }
         ),
         [debouncedSearchText],
     );
@@ -75,6 +82,8 @@ function ClientMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const searchOptions = data?.clientList?.results;
     const totalOptionsCount = data?.clientList?.totalCount;
 
+    const [options, setOptions] = useOptions('client');
+
     return (
         <SearchMultiSelectInput
             {...otherProps}
@@ -86,6 +95,8 @@ function ClientMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
+            options={options}
+            onOptionsChange={setOptions}
         />
     );
 }

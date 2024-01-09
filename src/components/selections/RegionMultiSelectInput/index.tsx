@@ -10,13 +10,20 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
+import useOptions from '#hooks/useOptions';
 import { GetRegionQuery, GetRegionQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
 
 const COUNTRY_REGION = gql`
-    query GetRegion($search: String, $ordering: String) {
-        countryRegionList(name: $search, ordering: $ordering) {
+    query GetRegion(
+        $search: String,
+        $ordering: String,
+    ) {
+        countryRegionList(
+            ordering: $ordering,
+            filters: { name: $search },
+        ) {
             totalCount
             results {
                 id
@@ -39,7 +46,7 @@ type SelectInputProps<
     K,
     RegionOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange' | 'options' | 'onOptionsChange' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
 >;
 
 function RegionMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -72,6 +79,8 @@ function RegionMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const searchOptions = data?.countryRegionList?.results;
     const totalOptionsCount = data?.countryRegionList?.totalCount;
 
+    const [options, setOptions] = useOptions('region');
+
     return (
         <SearchMultiSelectInput
             {...otherProps}
@@ -83,6 +92,8 @@ function RegionMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
+            options={options}
+            onOptionsChange={setOptions}
         />
     );
 }

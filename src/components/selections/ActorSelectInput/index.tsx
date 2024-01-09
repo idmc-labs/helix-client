@@ -10,13 +10,20 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
+import useOptions from '#hooks/useOptions';
 import { GetActorQuery, GetActorQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
 
 const ACTOR = gql`
-    query GetActor($search: String, $ordering: String) {
-        actorList(name_Unaccent_Icontains: $search, ordering: $ordering) {
+    query GetActor(
+        $search: String,
+        $ordering: String,
+    ) {
+        actorList(
+            ordering: $ordering,
+            filters: { name_Unaccent_Icontains: $search },
+        ){
             totalCount
             results {
                 id
@@ -39,7 +46,7 @@ type SelectInputProps<
     K,
     ActorOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
 >;
 
 function ActorSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -72,6 +79,8 @@ function ActorSelectInput<K extends string>(props: SelectInputProps<K>) {
     const searchOptions = data?.actorList?.results;
     const totalOptionsCount = data?.actorList?.totalCount;
 
+    const [options, setOptions] = useOptions('actor');
+
     return (
         <SearchSelectInput
             {...otherProps}
@@ -83,6 +92,8 @@ function ActorSelectInput<K extends string>(props: SelectInputProps<K>) {
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
+            options={options}
+            onOptionsChange={setOptions}
         />
     );
 }

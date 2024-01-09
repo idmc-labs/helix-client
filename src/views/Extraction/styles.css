@@ -39,7 +39,7 @@
         display: flex;
         flex-direction: column;
         flex-shrink: 0;
-        width: calc(160px + 10vw);
+        width: calc(160px + 16vw);
         gap: var(--spacing-large);
 
         .new-query-button {

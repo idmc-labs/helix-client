@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext } from 'react';
 import {
     gql,
     useQuery,
@@ -7,7 +7,6 @@ import {
 import { isDefined } from '@togglecorp/fujs';
 import {
     Table,
-    useSortState,
     Pager,
     Modal,
     Button,
@@ -28,7 +27,6 @@ import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
 import useModalState from '#hooks/useModalState';
-import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import {
     FigureTagListQuery,
@@ -36,6 +34,7 @@ import {
     DeleteFigureTagMutation,
     DeleteFigureTagMutationVariables,
 } from '#generated/types';
+import useFilterState from '#hooks/useFilterState';
 
 import FigureTagForm from './FigureTagForm';
 import TagsFilter from '../TagsFilter';
@@ -44,8 +43,18 @@ import styles from './styles.css';
 type FigureTagFields = NonNullable<NonNullable<FigureTagListQuery['figureTagList']>['results']>[number];
 
 const FIGURE_TAG_LIST = gql`
-    query FigureTagList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
-        figureTagList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Unaccent_Icontains: $name) {
+    query FigureTagList(
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+        $filters: FigureTagFilterDataInputType,
+    ) {
+        figureTagList(
+            ordering: $ordering,
+            page: $page,
+            pageSize: $pageSize,
+            filters: $filters,
+        ) {
             totalCount
             page
             pageSize
@@ -73,11 +82,6 @@ const FIGURE_TAG_DELETE = gql`
     }
 `;
 
-const defaultSorting = {
-    name: 'created_at',
-    direction: 'dsc',
-};
-
 const keySelector = (item: FigureTagFields) => item.id;
 
 interface FigureTagsProps {
@@ -89,25 +93,34 @@ function FigureTagsTable(props: FigureTagsProps) {
         className,
     } = props;
 
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting || defaultSorting;
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-    const debouncedPage = useDebouncedValue(page);
+    const {
+        page,
+        rawPage,
+        setPage,
+
+        ordering,
+        sortState,
+
+        rawFilter,
+        initialFilter,
+        filter,
+        setFilter,
+
+        rawPageSize,
+        pageSize,
+        setPageSize,
+    } = useFilterState<PurgeNull<NonNullable<FigureTagListQueryVariables['filters']>>>({
+        filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
+    });
 
     const {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
-
-    const [
-        tagsQueryFilters,
-        setTagsQueryFilters,
-    ] = useState<PurgeNull<FigureTagListQueryVariables>>();
 
     const [
         shouldShowAddFigureTagModal,
@@ -116,33 +129,18 @@ function FigureTagsTable(props: FigureTagsProps) {
         hideAddFigureTagModal,
     ] = useModalState();
 
-    const onFilterChange = React.useCallback(
-        (value: PurgeNull<FigureTagListQueryVariables>) => {
-            setTagsQueryFilters(value);
-            setPage(1);
-        }, [],
-    );
-
-    const handlePageSizeChange = useCallback(
-        (value: number) => {
-            setPageSize(value);
-            setPage(1);
-        },
-        [],
-    );
-
     const variables = useMemo(
-        () => ({
+        (): FigureTagListQueryVariables => ({
             ordering,
-            page: debouncedPage,
+            page,
             pageSize,
-            ...tagsQueryFilters,
+            filters: filter,
         }),
         [
             ordering,
-            debouncedPage,
+            page,
             pageSize,
-            tagsQueryFilters,
+            filter,
         ],
     );
 
@@ -187,7 +185,7 @@ function FigureTagsTable(props: FigureTagsProps) {
         },
     );
 
-    const handleFigureTagCreate = React.useCallback(() => {
+    const handleFigureTagCreate = useCallback(() => {
         refetchFigureTags(variables);
         hideAddFigureTagModal();
     }, [refetchFigureTags, variables, hideAddFigureTagModal]);
@@ -263,16 +261,18 @@ function FigureTagsTable(props: FigureTagsProps) {
             )}
             description={(
                 <TagsFilter
-                    onFilterChange={onFilterChange}
+                    currentFilter={rawFilter}
+                    initialFilter={initialFilter}
+                    onFilterChange={setFilter}
                 />
             )}
             footerContent={(
                 <Pager
-                    activePage={page}
+                    activePage={rawPage}
                     itemsCount={totalFigureTagsCount}
-                    maxItemsPerPage={pageSize}
+                    maxItemsPerPage={rawPageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={handlePageSizeChange}
+                    onItemsPerPageChange={setPageSize}
                 />
             )}
         >

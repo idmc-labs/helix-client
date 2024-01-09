@@ -8,12 +8,21 @@ import {
     SearchSelectInputProps,
 } from '@togglecorp/toggle-ui';
 
+import useOptions from '#hooks/useOptions';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { GetReportQuery, GetReportQueryVariables } from '#generated/types';
 
 const REPORT = gql`
-    query GetReport($search: String, $ordering: String) {
-        reportList(name_Unaccent_Icontains: $search, ordering: $ordering) {
+    query GetReport(
+        $search: String,
+        $ordering: String,
+    ) {
+        reportList(
+            filters: {
+                name_Unaccent_Icontains: $search,
+            },
+            ordering: $ordering,
+        ) {
             totalCount
             results {
                 id
@@ -36,7 +45,7 @@ type SelectInputProps<
     K,
     ReportOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
 >;
 
 function ReportSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -52,7 +61,7 @@ function ReportSelectInput<K extends string>(props: SelectInputProps<K>) {
 
     const searchVariable = useMemo(
         (): GetReportQueryVariables => (
-            debouncedSearchText ? { search: debouncedSearchText } : { ordering: '-createdAt' }
+            debouncedSearchText ? { search: debouncedSearchText } : { ordering: '-created_at' }
         ),
         [debouncedSearchText],
     );
@@ -69,6 +78,8 @@ function ReportSelectInput<K extends string>(props: SelectInputProps<K>) {
     const searchOptions = data?.reportList?.results;
     const totalOptionsCount = data?.reportList?.totalCount;
 
+    const [options, setOptions] = useOptions('report');
+
     return (
         <SearchSelectInput
             {...otherProps}
@@ -80,6 +91,8 @@ function ReportSelectInput<K extends string>(props: SelectInputProps<K>) {
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
+            options={options}
+            onOptionsChange={setOptions}
         />
     );
 }

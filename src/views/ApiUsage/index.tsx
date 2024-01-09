@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
     Tabs,
@@ -25,14 +25,14 @@ interface TabReduxProps {
     name: string;
 }
 
-// FIXME: move this to components
+// TODO: move this to components
 function TabRedux(props: TabReduxProps) {
     const {
         className,
         name,
         children,
     } = props;
-    const context = React.useContext(TabsContext);
+    const context = useContext(TabsContext);
 
     const handleClick = useCallback(
         (e: React.MouseEvent<HTMLAnchorElement>) => {

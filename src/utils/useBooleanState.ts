@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 
 type SetTrueFn = () => void;
 type SetFalseFn = () => void;
@@ -12,17 +12,17 @@ export default function useBooleanState(initialValue: boolean): [
     SetValueFn,
     ToggleFn,
 ] {
-    const [value, setValue] = React.useState(initialValue);
+    const [value, setValue] = useState(initialValue);
 
-    const setTrue = React.useCallback(() => {
+    const setTrue = useCallback(() => {
         setValue(true);
     }, [setValue]);
 
-    const setFalse = React.useCallback(() => {
+    const setFalse = useCallback(() => {
         setValue(false);
     }, [setValue]);
 
-    const toggleFn = React.useCallback(() => {
+    const toggleFn = useCallback(() => {
         setValue((oldValue) => !oldValue);
     }, [setValue]);
 

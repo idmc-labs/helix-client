@@ -60,8 +60,7 @@ import {
     Date_Accuracy as DateAccuracy,
     Displacement_Occurred as DisplacementOccurred,
 } from '#generated/types';
-import { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
-import { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
+import useOptions from '#hooks/useOptions';
 
 import {
     ENTRY,
@@ -102,7 +101,7 @@ import {
 
 import styles from './styles.css';
 
-// FIXME: move this to utils
+// TODO: move this to utils
 function useWatchDog(
     stop: boolean,
     watchdogTimer: number,
@@ -201,7 +200,6 @@ function getValuesFromFigures(figures: (NonNullable<NonNullable<EntryQuery['entr
         (o) => o.id,
     );
 
-    // FIXME: server should always pass event
     const eventsForState = figures
         ?.map((item) => item?.event)
         .filter(isDefined);
@@ -331,22 +329,24 @@ function EntryForm(props: EntryFormProps) {
 
     const [redirectId, setRedirectId] = useState<string | undefined>();
 
-    const [
-        organizations,
-        setOrganizations,
-    ] = useState<OrganizationOption[] | null | undefined>([]);
+    // NOTE: we are not using useOptions as this event has more details
     const [
         events,
         setEvents,
     ] = useState<EventListOption[] | null | undefined>([]);
+    type FigureResponse = NonNullable<NonNullable<EntryQuery['entry']>['figures']>[number];
+    type FigureMapping = Pick<FigureResponse, 'role' | 'reviewStatus'> & {
+        fieldStatuses: FigureResponse['lastReviewCommentStatus']
+    };
     const [
-        tagOptions,
-        setTagOptions,
-    ] = useState<FigureTagOption[] | undefined | null>();
-    const [
-        violenceContextOptions,
-        setViolenceContextOptions,
-    ] = useState<ViolenceContextOption[] | null | undefined>();
+        figureMapping,
+        setFigureMapping,
+    ] = useState<{
+        [key: string]: FigureMapping,
+    }>({});
+    const [, setOrganizations] = useOptions('organization');
+    const [, setTagOptions] = useOptions('tag');
+    const [, setViolenceContextOptions] = useOptions('contextOfViolence');
 
     const {
         data: figureOptionsData,
@@ -576,7 +576,6 @@ function EntryForm(props: EntryFormProps) {
                 (item) => item,
             );
 
-            // TODO: Remove deleted figures
             const deletedFigures = deleteResponses?.map((item) => {
                 if (!item) {
                     return undefined;
@@ -652,22 +651,10 @@ function EntryForm(props: EntryFormProps) {
                 }),
             );
 
-            setOrganizations((oldOrganizations) => unique(
-                [...organizationsForState, ...(oldOrganizations ?? [])],
-                (item) => item.id,
-            ));
-            setEvents((oldEvents) => unique(
-                [...(eventsForState ?? []), ...(oldEvents ?? [])],
-                (item) => item.id,
-            ));
-            setTagOptions((oldTagOptions) => unique(
-                [...(tagOptionsForState ?? []), ...(oldTagOptions ?? [])],
-                (item) => item.id,
-            ));
-            setViolenceContextOptions((oldViolenceContextOptions) => unique(
-                [...(violenceContextOptionsForState ?? []), ...(oldViolenceContextOptions ?? [])],
-                (item) => item.id,
-            ));
+            setOrganizations(organizationsForState);
+            setEvents(eventsForState);
+            setTagOptions(tagOptionsForState);
+            setViolenceContextOptions(violenceContextOptionsForState);
 
             // NOTE: Not updating the figures yet
             onValueSet((oldValue) => {
@@ -682,19 +669,32 @@ function EntryForm(props: EntryFormProps) {
                     return figure;
                 }).filter(isDefined) ?? [];
 
+                /*
+                FIXME: Remove this comment once we are sure we don't need this
                 const newFigures = savedFigures
                     .filter((item) => item.new)
                     .map((item) => item.value)
                     .sort((foo, bar) => compareStringAsNumber(foo.id, bar.id));
+                 */
 
                 return ({
                     ...oldValue,
-                    figures: [
-                        ...updatedFigures,
-                        ...newFigures,
-                    ],
+                    figures: updatedFigures,
                 });
             });
+            const mapping = listToMap(
+                savedFigures,
+                (figure) => figure.value.uuid,
+                (figure) => ({
+                    role: figure.value.role,
+                    reviewStatus: figure.value.reviewStatus,
+                    fieldStatuses: figure.value.lastReviewCommentStatus,
+                }),
+            );
+            setFigureMapping((oldMapping) => ({
+                ...oldMapping,
+                ...mapping,
+            }));
 
             // NOTE: onValueSet clears errors so setting this later
             onErrorSet({
@@ -744,7 +744,16 @@ function EntryForm(props: EntryFormProps) {
                 });
             }
         },
-        [end, notify, onPristineSet, onErrorSet, onValueSet],
+        [
+            end,
+            notify,
+            onPristineSet,
+            onErrorSet,
+            onValueSet,
+            setOrganizations,
+            setTagOptions,
+            setViolenceContextOptions,
+        ],
     );
 
     const [
@@ -763,7 +772,7 @@ function EntryForm(props: EntryFormProps) {
                 const { errors, result, deletedResult } = bulkUpdateFiguresRes;
                 // NOTE: We do not need to make sure that the no. of items in
                 // deleteIds is equal to deleteResponses
-                // TODO: We need to make sure that the no. of items in
+                // NOTE: We need to make sure that the no. of items in
                 // errorResponses and deleteResponses is equal to figures
                 updateResponses({
                     errorResponses: errors,
@@ -828,10 +837,7 @@ function EntryForm(props: EntryFormProps) {
                         entryForState,
                     } = getValuesFromEntry(result);
 
-                    setOrganizations((oldOrganizations) => unique(
-                        [...organizationsForState, ...(oldOrganizations ?? [])],
-                        (item) => item.id,
-                    ));
+                    setOrganizations(organizationsForState);
                     setSourcePreview(result.preview ?? undefined);
                     setAttachment(result.document ?? undefined);
 
@@ -915,10 +921,8 @@ function EntryForm(props: EntryFormProps) {
             setTagOptions(tagOptionsForState);
             setViolenceContextOptions(violenceContextOptionsForState);
 
-            setOrganizations(unique([
-                ...organizationsForState,
-                ...organizationsForState2,
-            ], (item) => item.id));
+            setOrganizations(organizationsForState);
+            setOrganizations(organizationsForState2);
 
             onValueSet({
                 ...entryForState,
@@ -932,11 +936,7 @@ function EntryForm(props: EntryFormProps) {
             ));
             setSelectedFigure(mainFigure?.uuid);
             setSelectedFieldType(initialFieldType ?? undefined);
-        },
-    });
 
-    const figureMapping = useMemo(
-        () => {
             const figures = entryData?.entry?.figures;
             const mapping = listToMap(
                 figures,
@@ -947,12 +947,10 @@ function EntryForm(props: EntryFormProps) {
                     fieldStatuses: figure.lastReviewCommentStatus,
                 }),
             );
-            return mapping;
+            setFigureMapping(mapping);
         },
-        [entryData],
-    );
+    });
 
-    // eslint-disable-next-line max-len
     const loading = (
         getEntryLoading
         || pending
@@ -1149,6 +1147,7 @@ function EntryForm(props: EntryFormProps) {
                 endDateAccuracy: dayAccuracy,
                 displacementOccurred: unknownDisplacement,
                 sources: [],
+                entry: entryId,
             };
             handleSelectedFigureChange(newFigure.uuid);
             onValueChange(
@@ -1160,7 +1159,7 @@ function EntryForm(props: EntryFormProps) {
                 variant: 'default',
             });
         },
-        [onValueChange, value, notify, handleSelectedFigureChange],
+        [onValueChange, value, notify, handleSelectedFigureChange, entryId],
     );
 
     const handleFigureClone = useCallback(
@@ -1330,8 +1329,6 @@ function EntryForm(props: EntryFormProps) {
                             onRemoveAttachment={handleAttachmentRemove}
                             onUrlProcess={handleUrlProcess}
                             onRemoveUrl={handleRemoveUrl}
-                            organizations={organizations}
-                            setOrganizations={setOrganizations}
                             mode={mode}
                         />
                     </TabPanel>
@@ -1339,7 +1336,7 @@ function EntryForm(props: EntryFormProps) {
                         className={styles.analysisAndFigures}
                         name="figures-and-analysis"
                     >
-                        {/* FIXME: Trends and patterns input element
+                        {/* NOTE: Trends and patterns input element
                             temporarily hidden until further notice */}
                         <Section
                             className={styles.hidden}
@@ -1391,10 +1388,6 @@ function EntryForm(props: EntryFormProps) {
                                             mode={mode}
                                             // eslint-disable-next-line max-len
                                             optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
-                                            tagOptions={tagOptions}
-                                            setTagOptions={setTagOptions}
-                                            violenceContextOptions={violenceContextOptions}
-                                            setViolenceContextOptions={setViolenceContextOptions}
                                             events={events}
                                             setEvents={setEvents}
                                             // eslint-disable-next-line max-len
@@ -1427,8 +1420,6 @@ function EntryForm(props: EntryFormProps) {
                                             // eslint-disable-next-line max-len
                                             otherSubTypeOptions={figureOptionsData?.otherSubTypeList}
                                             trafficLightShown={trafficLightShown}
-                                            organizations={organizations}
-                                            setOrganizations={setOrganizations}
                                             onFigureClone={handleFigureClone}
                                             isRecommended={figureMapping[fig.uuid]?.role === 'RECOMMENDED'}
                                             reviewStatus={figureMapping[fig.uuid]?.reviewStatus}

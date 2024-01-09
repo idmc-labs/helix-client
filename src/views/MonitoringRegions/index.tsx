@@ -10,7 +10,6 @@ import {
     TableHeaderCell,
     TableHeaderCellProps,
     Modal,
-    useSortState,
     SortContext,
 } from '@togglecorp/toggle-ui';
 import {
@@ -18,6 +17,7 @@ import {
     createNumberColumn,
 } from '#components/tableHelpers';
 
+import useFilterState from '#hooks/useFilterState';
 import DomainContext from '#components/DomainContext';
 import Message from '#components/Message';
 import Container from '#components/Container';
@@ -38,8 +38,14 @@ import styles from './styles.css';
 type RegionFields = NonNullable<NonNullable<MonitoringRegionsQuery['monitoringSubRegionList']>['results']>[number];
 
 const REGION_LIST = gql`
-    query monitoringRegions($name: String, $ordering: String) {
-        monitoringSubRegionList(name: $name, ordering: $ordering) {
+    query monitoringRegions(
+        $name: String,
+        $ordering: String,
+    ) {
+        monitoringSubRegionList(
+            ordering: $ordering,
+            filters: { name: $name },
+        ) {
             pageSize
             page
             totalCount
@@ -61,11 +67,6 @@ const REGION_LIST = gql`
     }
 `;
 
-const defaultSorting = {
-    name: 'name',
-    direction: 'asc',
-};
-
 const keySelector = (item: RegionFields) => item.id;
 
 interface MonitoringRegionProps {
@@ -75,12 +76,16 @@ interface MonitoringRegionProps {
 function MonitoringRegions(props: MonitoringRegionProps) {
     const { className } = props;
 
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting || defaultSorting;
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
+    const {
+        ordering,
+        sortState,
+    } = useFilterState<MonitoringRegionsQueryVariables>({
+        filter: {},
+        ordering: {
+            name: 'name',
+            direction: 'asc',
+        },
+    });
 
     const [
         shouldShowRegionCoordinatorForm,

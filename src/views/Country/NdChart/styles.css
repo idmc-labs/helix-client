@@ -1,0 +1,63 @@
+.nd-chart {
+    .content {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-large);
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+            gap: var(--spacing-medium);
+
+            .conflict-block {
+                color: var(--color-conflict);
+            }
+
+            .disaster-block {
+                color: var(--color-disaster);
+            }
+        }
+
+        .chart-container {
+            height: 14rem;
+
+            .svg {
+                width: 100%;
+                height: 100%;
+
+                .rect {
+                    fill: currentColor;
+                }
+
+                .background-bars {
+                    color: var(--color-axes);
+
+                    .rect {
+                        transition: opacity var(--duration-transition-medium) ease-in-out;
+                        opacity: 0;
+
+                        &:hover {
+                            opacity: 0.2;
+                        }
+                    }
+                }
+
+                .total-displacement {
+                    pointer-events: none;
+                    color: var(--color-conflict);
+                }
+
+                .disaster {
+                    pointer-events: none;
+                    color: var(--color-disaster);
+                }
+            }
+        }
+    }
+}
+
+.tooltip-content {
+    display: flex;
+    gap: var(--spacing-medium);
+    flex-direction: column;
+}

@@ -1,15 +1,13 @@
 import React, { useContext } from 'react';
 import { _cs } from '@togglecorp/fujs';
 
-import Wip from '#components/Wip';
 import DomainContext from '#components/DomainContext';
-import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import MyResources from '#components/lists/MyResources';
 import ParkedItemTable from '#components/tables/ParkedItemTable';
 
+import CrisesEventsEntriesFiguresTable from './CrisesEventsEntriesFiguresTable';
 import styles from './styles.css';
-import EventsEntriesFiguresTable from '#components/tables/EventsEntriesFiguresTable';
 
 interface DashboardProps {
     className?: string;
@@ -30,12 +28,6 @@ function Dashboard(props: DashboardProps) {
             <div className={styles.content}>
                 <div className={styles.mainContent}>
                     <div className={styles.top}>
-                        <Wip>
-                            <Container
-                                className={styles.container}
-                                heading="For Review"
-                            />
-                        </Wip>
                         <ParkedItemTable
                             className={styles.container}
                             headerActions={(
@@ -47,41 +39,20 @@ function Dashboard(props: DashboardProps) {
                                     Go to Media Monitoring Platform
                                 </a>
                             )}
-                            defaultUser={user?.id}
-                            defaultStatus="TO_BE_REVIEWED"
-                            detailsHidden
-                            searchHidden
-                            addButtonHidden
-                            pageChangeHidden
+                            assignedUser={user?.id}
+                            status="TO_BE_REVIEWED"
                         />
                     </div>
-                    <div className={styles.bottom}>
-                        <EventsEntriesFiguresTable
-                            className={styles.largeContainer}
-                            pageSize={5}
-                            userId={user?.id}
-                        />
-                        <Wip>
-                            <Container
-                                className={styles.container}
-                                heading="IDP Map"
+                    {user && (
+                        <div className={styles.bottom}>
+                            <CrisesEventsEntriesFiguresTable
+                                className={styles.largeContainer}
+                                userId={user.id}
                             />
-                        </Wip>
-                        <Wip>
-                            <Container
-                                className={styles.container}
-                                heading="IDP Trends"
-                            />
-                        </Wip>
-                    </div>
+                        </div>
+                    )}
                 </div>
                 <div className={styles.sideContent}>
-                    <Wip>
-                        <Container
-                            className={styles.container}
-                            heading="Recent Updates"
-                        />
-                    </Wip>
                     <MyResources
                         className={styles.container}
                     />

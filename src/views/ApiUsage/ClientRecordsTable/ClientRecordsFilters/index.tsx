@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
     Button,
     TextInput,
@@ -23,8 +23,7 @@ import {
 } from '#generated/types';
 import styles from './styles.css';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type ClientFilterFields = Omit<ClientListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type ClientFilterFields = NonNullable<ClientListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<ClientFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -37,19 +36,18 @@ const schema: FormSchema = {
     }),
 };
 
-const defaultFormValues: PartialForm<FormType> = {
-    isActive: undefined,
-    name: undefined,
-};
-
 interface ClientFilterProps {
     className?: string;
-    onFilterChange: (value: PurgeNull<ClientListQueryVariables>) => void;
+    initialFilter: PartialForm<FormType>;
+    currentFilter: PartialForm<FormType>;
+    onFilterChange: (value: PartialForm<FormType>) => void;
 }
 
 function ClientRecordsFilter(props: ClientFilterProps) {
     const {
         className,
+        initialFilter,
+        currentFilter,
         onFilterChange,
     } = props;
 
@@ -61,14 +59,25 @@ function ClientRecordsFilter(props: ClientFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(defaultFormValues, schema);
+    } = useForm(currentFilter, schema);
+    // NOTE: Set the form value when initialFilter and currentFilter is changed on parent
+    // We cannot only use initialFilter as it will change the form value when
+    // currentFilter != initialFilter on mount
+    useEffect(
+        () => {
+            if (initialFilter === currentFilter) {
+                onValueSet(initialFilter);
+            }
+        },
+        [currentFilter, initialFilter, onValueSet],
+    );
 
     const onResetFilters = useCallback(
         () => {
-            onValueSet(defaultFormValues);
-            onFilterChange(defaultFormValues);
+            onValueSet(initialFilter);
+            onFilterChange(initialFilter);
         },
-        [onValueSet, onFilterChange],
+        [onValueSet, onFilterChange, initialFilter],
     );
 
     const handleSubmit = useCallback((finalValues: FormType) => {
@@ -76,7 +85,7 @@ function ClientRecordsFilter(props: ClientFilterProps) {
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
 
-    const filterChanged = defaultFormValues !== value;
+    const filterChanged = initialFilter !== value;
 
     return (
         <form

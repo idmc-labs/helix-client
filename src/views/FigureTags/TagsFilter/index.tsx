@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { TextInput, Button } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -16,8 +16,7 @@ import { PartialForm, PurgeNull } from '#types';
 import { FigureTagListQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type TagsFilterFields = Omit<FigureTagListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type TagsFilterFields = NonNullable<FigureTagListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<TagsFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -25,22 +24,22 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        name: [],
+        name_Unaccent_Icontains: [],
     }),
-};
-
-const defaultFormValues: PartialForm<FormType> = {
-    name: undefined,
 };
 
 interface TagsFilterProps {
     className?: string;
-    onFilterChange: (value: PurgeNull<FigureTagListQueryVariables>) => void;
+    initialFilter: PartialForm<FormType>;
+    currentFilter: PartialForm<FormType>;
+    onFilterChange: (value: PartialForm<FormType>) => void;
 }
 
 function TagsFilter(props: TagsFilterProps) {
     const {
         className,
+        initialFilter,
+        currentFilter,
         onFilterChange,
     } = props;
 
@@ -52,22 +51,33 @@ function TagsFilter(props: TagsFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(defaultFormValues, schema);
+    } = useForm(currentFilter, schema);
+    // NOTE: Set the form value when initialFilter and currentFilter is changed on parent
+    // We cannot only use initialFilter as it will change the form value when
+    // currentFilter != initialFilter on mount
+    useEffect(
+        () => {
+            if (initialFilter === currentFilter) {
+                onValueSet(initialFilter);
+            }
+        },
+        [currentFilter, initialFilter, onValueSet],
+    );
 
     const onResetFilters = useCallback(
         () => {
-            onValueSet(defaultFormValues);
-            onFilterChange(defaultFormValues);
+            onValueSet(initialFilter);
+            onFilterChange(initialFilter);
         },
-        [onValueSet, onFilterChange],
+        [onValueSet, onFilterChange, initialFilter],
     );
 
-    const handleSubmit = React.useCallback((finalValues: FormType) => {
+    const handleSubmit = useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
 
-    const filterChanged = defaultFormValues !== value;
+    const filterChanged = initialFilter !== value;
 
     return (
         <form
@@ -82,10 +92,10 @@ function TagsFilter(props: TagsFilterProps) {
                     className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Search"
-                    name="name"
-                    value={value.name}
+                    name="name_Unaccent_Icontains"
+                    value={value.name_Unaccent_Icontains}
                     onChange={onValueChange}
-                    error={error?.fields?.name}
+                    error={error?.fields?.name_Unaccent_Icontains}
                 />
                 <div className={styles.formButtons}>
                     <Button

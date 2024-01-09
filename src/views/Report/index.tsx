@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useContext, useEffect } from 'react';
+import React, { useMemo, useCallback, useContext, useEffect } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { getOperationName } from 'apollo-link';
 import {
@@ -7,10 +7,6 @@ import {
 } from '@togglecorp/fujs';
 import {
     Button,
-    Tabs,
-    Tab,
-    TabPanel,
-    TabList,
     DateTimeRange,
     DateTime,
     Modal,
@@ -23,12 +19,12 @@ import {
     IoInformationCircleOutline,
     IoCreateOutline,
 } from 'react-icons/io5';
-
 import {
     gql,
     useQuery,
     useMutation,
 } from '@apollo/client';
+
 import {
     ReportQuery,
     ReportQueryVariables,
@@ -47,35 +43,32 @@ import {
     SetPfaVisibleInGiddMutation,
     SetPfaVisibleInGiddMutationVariables,
 } from '#generated/types';
-
+import useOptions from '#hooks/useOptions';
 import ButtonLikeExternalLink from '#components/ButtonLikeExternalLink';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import UserItem from '#components/UserItem';
 import NumberBlock from '#components/NumberBlock';
 import { MarkdownPreview } from '#components/MarkdownEditor';
-import ReportSelectInput, { ReportOption } from '#components/selections/ReportSelectInput';
+import ReportSelectInput from '#components/selections/ReportSelectInput';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import route from '#config/routes';
-
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-import ReportComments from './ReportComments';
-import ReportCountryTable from './ReportCountryTable';
-import ReportCrisisTable from './ReportCrisisTable';
-import ReportEventTable from './ReportEventTable';
-import ReportEntryTable from './ReportEntryTable';
-import ReportFigureTable from './ReportFigureTable';
-import styles from './styles.css';
 import QuickActionButton from '#components/QuickActionButton';
+import useModalState from '#hooks/useModalState';
+
 import AnalysisUpdateForm from './Analysis/AnalysisUpdateForm';
 import MethodologyUpdateForm from './Methodology/MethodologyUpdateForm';
 import SummaryUpdateForm from './Summary/SummaryUpdateForm';
 import PublicFigureAnalysisForm from './PublicFigureAnalysis/PublicFigureUpdateForm';
 import ChallengesUpdateForm from './Challenges/ChallengesUpdateForm';
 import SignificateUpdateForm from './Significant/SignificantUpdatesForm';
-import useModalState from '#hooks/useModalState';
+import ReportComments from './ReportComments';
+import CountriesCrisesEventsEntriesFiguresTable from './CountriesCrisesEventsEntriesFiguresTable';
+
+import styles from './styles.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
@@ -147,21 +140,6 @@ const REPORT = gql`
             filterFigureEndBefore
             filterFigureCrisisTypes
             publicFigureAnalysis
-            countriesReport {
-                totalCount
-            }
-            crisesReport {
-                totalCount
-            }
-            entriesReport {
-                totalCount
-            }
-            eventsReport {
-                totalCount
-            }
-            figuresReport {
-                totalCount
-            }
 
             generatedFrom
             isPfaVisibleInGidd
@@ -411,13 +389,11 @@ function Report(props: ReportProps) {
     const { reportId } = useParams<{ reportId: string }>();
     const { replace: historyReplace } = useHistory();
 
-    const [selectedTab, setSelectedTab] = useState<'country' | 'crisis' | 'event' | 'entry' | 'figure' | undefined>('figure');
-
     const reportVariables = useMemo(
         (): ReportQueryVariables | undefined => ({ id: reportId }),
         [reportId],
     );
-    const [reportOptions, setReportOptions] = useState<ReportOption[] | undefined | null>();
+    const [, setReportOptions] = useOptions('report');
 
     const {
         data: reportData,
@@ -456,7 +432,7 @@ function Report(props: ReportProps) {
 
     const lastGenerationStatus = reportWithLastGeneration?.generation?.status;
 
-    // FIXME: get a better way to stop polling
+    // TODO: get a better way to stop polling
     // refer to source preview poll mechanism
     useEffect(
         () => {
@@ -766,36 +742,6 @@ function Report(props: ReportProps) {
         [report, reportTypes],
     );
 
-    const tabs = (
-        <TabList>
-            <Tab
-                name="country"
-            >
-                Countries
-            </Tab>
-            <Tab
-                name="crisis"
-            >
-                Crises
-            </Tab>
-            <Tab
-                name="event"
-            >
-                Events
-            </Tab>
-            <Tab
-                name="entry"
-            >
-                Entries
-            </Tab>
-            <Tab
-                name="figure"
-            >
-                Figures
-            </Tab>
-        </TabList>
-    );
-
     const status = !reportDataLoading && (
         <>
             {report?.isGiddReport && (
@@ -919,8 +865,6 @@ function Report(props: ReportProps) {
                         name="report"
                         value={reportId}
                         onChange={handleReportChange}
-                        options={reportOptions}
-                        onOptionsChange={setReportOptions}
                         placeholder="Select a report"
                         nonClearable
                     />
@@ -937,53 +881,54 @@ function Report(props: ReportProps) {
                     >
                         <div className={styles.stats}>
                             {(!reportTypes || reportTypes.length <= 0 || reportTypes.includes('CONFLICT')) && (
-                                <>
-                                    <NumberBlock
-                                        label={(
-                                            <>
-                                                Internal Displacements
-                                                <br />
-                                                (Conflict)
-                                            </>
-                                        )}
-                                        value={report?.totalDisaggregation?.totalFlowConflictSum}
-                                    />
-                                    <NumberBlock
-                                        label={(
-                                            <>
-                                                No. of IDPs
-                                                <br />
-                                                (Conflict)
-                                            </>
-                                        )}
-                                        value={report?.totalDisaggregation?.totalStockConflictSum}
-                                    />
-                                </>
+                                <NumberBlock
+                                    label={(
+                                        <>
+                                            Internal Displacements
+                                            <br />
+                                            (Conflict)
+                                        </>
+                                    )}
+                                    value={report?.totalDisaggregation?.totalFlowConflictSum}
+                                />
                             )}
                             {(!reportTypes || reportTypes.length <= 0 || reportTypes.includes('DISASTER')) && (
-                                <>
-                                    <NumberBlock
-                                        label={(
-                                            <>
-                                                Internal Displacements
-                                                <br />
-                                                (Disaster)
-                                            </>
-                                        )}
-                                        value={report?.totalDisaggregation?.totalFlowDisasterSum}
-                                    />
-                                    <NumberBlock
-                                        label={(
-                                            <>
-                                                No. of IDPs
-                                                <br />
-                                                (Disaster)
-                                            </>
-                                        )}
-                                        value={report?.totalDisaggregation?.totalStockDisasterSum}
-                                    />
-                                </>
+                                <NumberBlock
+                                    label={(
+                                        <>
+                                            Internal Displacements
+                                            <br />
+                                            (Disaster)
+                                        </>
+                                    )}
+                                    value={report?.totalDisaggregation?.totalFlowDisasterSum}
+                                />
                             )}
+                            {(!reportTypes || reportTypes.length <= 0 || reportTypes.includes('CONFLICT')) && (
+                                <NumberBlock
+                                    label={(
+                                        <>
+                                            No. of IDPs
+                                            <br />
+                                            (Conflict)
+                                        </>
+                                    )}
+                                    value={report?.totalDisaggregation?.totalStockConflictSum}
+                                />
+                            )}
+                            {(!reportTypes || reportTypes.length <= 0 || reportTypes.includes('DISASTER')) && (
+                                <NumberBlock
+                                    label={(
+                                        <>
+                                            No. of IDPs
+                                            <br />
+                                            (Disaster)
+                                        </>
+                                    )}
+                                    value={report?.totalDisaggregation?.totalStockDisasterSum}
+                                />
+                            )}
+                            {/*
                             <NumberBlock
                                 label="Countries"
                                 value={report?.countriesReport?.totalCount}
@@ -1004,7 +949,7 @@ function Report(props: ReportProps) {
                                 label="Figures"
                                 value={report?.figuresReport?.totalCount}
                             />
-                            <div />
+                            */}
                         </div>
                     </Container>
                     <Container
@@ -1206,46 +1151,10 @@ function Report(props: ReportProps) {
                 </div>
             </div>
             <div className={styles.fullWidth}>
-                <Tabs
-                    value={selectedTab}
-                    onChange={setSelectedTab}
-                >
-                    <TabPanel name="country">
-                        <ReportCountryTable
-                            tabs={tabs}
-                            className={styles.largeContainer}
-                            report={reportId}
-                        />
-                    </TabPanel>
-                    <TabPanel name="crisis">
-                        <ReportCrisisTable
-                            tabs={tabs}
-                            className={styles.largeContainer}
-                            report={reportId}
-                        />
-                    </TabPanel>
-                    <TabPanel name="event">
-                        <ReportEventTable
-                            tabs={tabs}
-                            className={styles.largeContainer}
-                            report={reportId}
-                        />
-                    </TabPanel>
-                    <TabPanel name="entry">
-                        <ReportEntryTable
-                            tabs={tabs}
-                            className={styles.largeContainer}
-                            report={reportId}
-                        />
-                    </TabPanel>
-                    <TabPanel name="figure">
-                        <ReportFigureTable
-                            tabs={tabs}
-                            className={styles.largeContainer}
-                            report={reportId}
-                        />
-                    </TabPanel>
-                </Tabs>
+                <CountriesCrisesEventsEntriesFiguresTable
+                    className={styles.largeContainer}
+                    reportId={reportId}
+                />
             </div>
             {shouldShowUpdateAnalysisModal && (
                 <Modal

@@ -8,11 +8,12 @@ import {
 import { removeNull } from '@togglecorp/toggle-form';
 import {
     isDefined,
-    unique,
     _cs,
 } from '@togglecorp/fujs';
 import { Button, Pager } from '@togglecorp/toggle-ui';
 
+import useFilterState from '#hooks/useFilterState';
+import useOptions from '#hooks/useOptions';
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import Container from '#components/Container';
 import {
@@ -45,14 +46,10 @@ import {
 import EventForm from '#components/forms/EventForm';
 import PageHeader from '#components/PageHeader';
 import { EventListOption } from '#components/selections/EventListSelectInput';
-import { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
-import { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
-import { OrganizationOption } from '#components/selections/OrganizationSelectInput';
 import Preview from '#components/Preview';
 import FigureInput from '#components/forms/EntryForm/FigureInput';
 import NotificationContext from '#components/NotificationContext';
 import DomainContext from '#components/DomainContext';
-import useDebouncedValue from '#hooks/useDebouncedValue';
 import route from '#config/routes';
 
 import styles from './styles.css';
@@ -134,36 +131,36 @@ function EventReview(props: Props) {
     const { eventId } = useParams<{ eventId: string }>();
     const [selectedFigure, setSelectedFigure] = useState<string | undefined>();
 
+    // NOTE: We are not using useOptions for events as it's more detailed event
+    // object
     const [
         events,
         setEvents,
     ] = useState<EventListOption[] | null | undefined>([]);
-    const [
-        tagOptions,
-        setTagOptions,
-    ] = useState<FigureTagOption[] | undefined | null>();
-    const [
-        violenceContextOptions,
-        setViolenceContextOptions,
-    ] = useState<ViolenceContextOption[] | null | undefined>();
-    const [
-        organizations,
-        setOrganizations,
-    ] = useState<OrganizationOption[] | null | undefined>([]);
+    const [, setTagOptions] = useOptions('tag');
+    const [, setViolenceContextOptions] = useOptions('contextOfViolence');
+    const [, setOrganizations] = useOptions('organization');
 
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-    const debouncedPage = useDebouncedValue(page);
+    const {
+        page,
+        rawPage,
+        setPage,
+        pageSize,
+        rawPageSize,
+        setPageSize,
+    } = useFilterState({
+        filter: {},
+    });
 
     const figureListVariables = useMemo(
         (): FigureListQueryVariables => ({
-            eventId,
-            page: debouncedPage,
+            eventId: isDefined(eventId) ? [eventId] : undefined,
+            page,
             pageSize,
         }),
         [
             eventId,
-            debouncedPage,
+            page,
             pageSize,
         ],
     );
@@ -186,19 +183,11 @@ function EventReview(props: Props) {
             setViolenceContextOptions(
                 figureList?.results?.flatMap((item) => item.contextOfViolence).filter(isDefined),
             );
-            const organizationsFromEntry: OrganizationOption[] = [];
 
-            organizationsFromEntry.push(
-                ...(figureList?.results
-                    ?.flatMap((item) => item.sources?.results)
-                    .filter(isDefined) ?? []),
-            );
-
-            const uniqueOrganizations = unique(
-                organizationsFromEntry,
-                (o) => o.id,
-            );
-            setOrganizations(uniqueOrganizations);
+            const organizations = figureList?.results
+                ?.flatMap((item) => item.sources?.results)
+                .filter(isDefined) ?? [];
+            setOrganizations(organizations);
         },
     });
 
@@ -263,14 +252,6 @@ function EventReview(props: Props) {
             });
         },
         [signOffEvent],
-    );
-
-    const handlePageSizeChange = useCallback(
-        (value: number) => {
-            setPageSize(value);
-            setPage(1);
-        },
-        [],
     );
 
     const {
@@ -350,11 +331,11 @@ function EventReview(props: Props) {
                     contentClassName={styles.figures}
                     footerContent={(
                         <Pager
-                            activePage={page}
+                            activePage={rawPage}
                             itemsCount={totalFigureItemCount}
-                            maxItemsPerPage={pageSize}
+                            maxItemsPerPage={rawPageSize}
                             onActivePageChange={setPage}
-                            onItemsPerPageChange={handlePageSizeChange}
+                            onItemsPerPageChange={setPageSize}
                         />
                     )}
                 >
@@ -375,10 +356,6 @@ function EventReview(props: Props) {
                             disabled={getFiguresLoading}
                             mode={mode}
                             optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
-                            tagOptions={tagOptions}
-                            setTagOptions={setTagOptions}
-                            violenceContextOptions={violenceContextOptions}
-                            setViolenceContextOptions={setViolenceContextOptions}
                             events={events}
                             setEvents={setEvents}
                             // eslint-disable-next-line max-len
@@ -410,8 +387,6 @@ function EventReview(props: Props) {
                             // eslint-disable-next-line max-len
                             otherSubTypeOptions={figureOptionsData?.otherSubTypeList}
                             trafficLightShown={trafficLightShown}
-                            organizations={organizations}
-                            setOrganizations={setOrganizations}
                             reviewStatus={fig.reviewStatus}
                             fieldStatuses={fig.lastReviewCommentStatus}
                             isRecommended={fig.role === 'RECOMMENDED'}

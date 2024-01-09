@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useCallback } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
     TextInput,
@@ -224,7 +224,7 @@ function ViolenceContextForm(props: ViolenceContextFormProps) {
         },
     );
 
-    const handleSubmit = React.useCallback((finalValues: FormType) => {
+    const handleSubmit = useCallback((finalValues: FormType) => {
         if (finalValues.id) {
             updateContextOfViolence({
                 variables: {

@@ -54,6 +54,7 @@ function CountrySummary(props: CountrySummaryProps) {
 
     return (
         <Container
+            borderless
             className={_cs(className, styles.summary)}
             contentClassName={styles.content}
             heading="Summary"
@@ -108,7 +109,6 @@ function CountrySummary(props: CountrySummaryProps) {
                     message="No summary found."
                 />
             )}
-            {/* TODO: fix variable column width in table */}
             {summaryHistoryOpened && (
                 <Modal
                     heading="Summary Update History"
@@ -116,7 +116,6 @@ function CountrySummary(props: CountrySummaryProps) {
                     size="medium"
                     freeHeight
                 >
-                    {/* FIXME: view SummaryHistoryList causes cache set to null */}
                     <SummaryHistoryList
                         country={countryId}
                     />

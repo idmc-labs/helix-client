@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
     TextInput,
     Button,
@@ -20,7 +20,7 @@ import {
 } from 'react-icons/io5';
 
 import NonFieldError from '#components/NonFieldError';
-import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
+import CountryMultiSelectInput from '#components/selections/CountryMultiSelectInput';
 import BooleanInput from '#components/selections/BooleanInput';
 
 import {
@@ -30,8 +30,7 @@ import {
 import { enumKeySelector, enumLabelSelector } from '#utils/common';
 import styles from './styles.css';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type ReportsFilterFields = Omit<ReportsQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type ReportsFilterFields = NonNullable<ReportsQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<ReportsFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -40,21 +39,12 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         filterFigureCountries: [arrayCondition],
-        name: [],
+        name_Unaccent_Icontains: [],
         reviewStatus: [arrayCondition],
         startDateAfter: [],
         endDateBefore: [],
         isPublic: [],
     }),
-};
-
-const defaultFormValues: PartialForm<FormType> = {
-    filterFigureCountries: [],
-    name: undefined,
-    reviewStatus: [],
-    isPublic: undefined,
-    startDateAfter: undefined,
-    endDateBefore: undefined,
 };
 
 const STATUS_OPTIONS = gql`
@@ -71,19 +61,18 @@ const STATUS_OPTIONS = gql`
 
 interface ReportFilterProps {
     className?: string;
-    onFilterChange: (value: PurgeNull<ReportsQueryVariables>) => void;
+    currentFilter: PartialForm<FormType>;
+    initialFilter: PartialForm<FormType>;
+    onFilterChange: (value: PartialForm<FormType>) => void;
 }
 
 function ReportFilter(props: ReportFilterProps) {
     const {
         className,
+        initialFilter,
+        currentFilter,
         onFilterChange,
     } = props;
-
-    const [
-        filterFigureCountries,
-        setFilterFigureCountries,
-    ] = useState<CountryOption[] | null | undefined>();
 
     const {
         pristine,
@@ -93,7 +82,18 @@ function ReportFilter(props: ReportFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(defaultFormValues, schema);
+    } = useForm(currentFilter, schema);
+    // NOTE: Set the form value when initialFilter and currentFilter is changed on parent
+    // We cannot only use initialFilter as it will change the form value when
+    // currentFilter != initialFilter on mount
+    useEffect(
+        () => {
+            if (initialFilter === currentFilter) {
+                onValueSet(initialFilter);
+            }
+        },
+        [currentFilter, initialFilter, onValueSet],
+    );
 
     const {
         data: statusOptions,
@@ -103,18 +103,18 @@ function ReportFilter(props: ReportFilterProps) {
 
     const onResetFilters = useCallback(
         () => {
-            onValueSet(defaultFormValues);
-            onFilterChange(defaultFormValues);
+            onValueSet(initialFilter);
+            onFilterChange(initialFilter);
         },
-        [onValueSet, onFilterChange],
+        [onValueSet, onFilterChange, initialFilter],
     );
 
-    const handleSubmit = React.useCallback((finalValues: FormType) => {
+    const handleSubmit = useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
 
-    const filterChanged = defaultFormValues !== value;
+    const filterChanged = initialFilter !== value;
 
     return (
         <form
@@ -129,15 +129,13 @@ function ReportFilter(props: ReportFilterProps) {
                     className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Name"
-                    name="name"
-                    value={value.name}
+                    name="name_Unaccent_Icontains"
+                    value={value.name_Unaccent_Icontains}
                     onChange={onValueChange}
                     placeholder="Search"
                 />
                 <CountryMultiSelectInput
                     className={styles.input}
-                    options={filterFigureCountries}
-                    onOptionsChange={setFilterFigureCountries}
                     label="Countries"
                     name="filterFigureCountries"
                     value={value.filterFigureCountries}

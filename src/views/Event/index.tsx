@@ -4,12 +4,19 @@ import {
     gql,
     useQuery,
 } from '@apollo/client';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
+import Map, {
+    MapContainer,
+    MapBounds,
+    MapSource,
+    MapLayer,
+} from '@togglecorp/re-map';
 import {
     Button,
     Modal,
 } from '@togglecorp/toggle-ui';
 
+import { mergeBbox } from '#utils/common';
 import { MarkdownPreview } from '#components/MarkdownEditor';
 import DomainContext from '#components/DomainContext';
 import Container from '#components/Container';
@@ -18,7 +25,6 @@ import NumberBlock from '#components/NumberBlock';
 import PageHeader from '#components/PageHeader';
 import EventForm from '#components/forms/EventForm';
 import useModalState from '#hooks/useModalState';
-import EntriesFiguresTable from '#components/tables/EntriesFiguresTable';
 import Status from '#components/tableHelpers/Status';
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import route from '#config/routes';
@@ -28,6 +34,7 @@ import {
     EventSummaryQueryVariables,
 } from '#generated/types';
 
+import CountriesEntriesFiguresTable from './CountriesEntriesFiguresTable';
 import styles from './styles.css';
 
 const EVENT = gql`
@@ -54,6 +61,8 @@ const EVENT = gql`
             countries {
                 id
                 idmcShortName
+                boundingBox
+                geojsonUrl
             }
             glideNumbers
             eventNarrative
@@ -84,6 +93,22 @@ const EVENT = gql`
         }
     }
 `;
+
+type Bounds = [number, number, number, number];
+
+const lightStyle = 'mapbox://styles/togglecorp/cl50rwy0a002d14mo6w9zprio';
+
+const countryFillPaint: mapboxgl.FillPaint = {
+    'fill-color': '#354052', // empty color
+    'fill-opacity': 0.2,
+};
+
+const countryLinePaint: mapboxgl.LinePaint = {
+    'line-color': '#334053',
+    'line-width': 1,
+};
+
+const now = new Date();
 
 interface EventProps {
     className?: string;
@@ -118,6 +143,10 @@ function Event(props: EventProps) {
         showAddEventModal,
         hideAddEventModal,
     ] = useModalState<{ id: string, clone?: boolean }>();
+
+    const eventYear = new Date(
+        eventData?.event?.endDate ?? eventData?.event?.startDate ?? now,
+    ).getFullYear();
 
     let title = 'Event';
     if (eventData?.event) {
@@ -155,6 +184,12 @@ function Event(props: EventProps) {
     );
 
     const eventStatus = eventData?.event?.reviewStatus;
+
+    const bounds = mergeBbox(
+        eventData?.event?.countries
+            ?.map((country) => country.boundingBox as (GeoJSON.BBox | null | undefined))
+            .filter(isDefined),
+    );
 
     return (
         <div className={_cs(styles.event, className)}>
@@ -199,101 +234,117 @@ function Event(props: EventProps) {
                 )}
             />
             <Container
-                className={styles.container}
+                className={styles.extraLargeContainer}
                 contentClassName={styles.details}
                 heading="Details"
             >
-                {eventData ? (
-                    <>
-                        <div className={styles.stats}>
+                <div className={styles.stats}>
+                    <NumberBlock
+                        label="Internal displacements"
+                        value={eventData?.event?.totalFlowNdFigures}
+                    />
+                    <NumberBlock
+                        label={
+                            eventData?.event?.stockIdpFiguresMaxEndDate
+                                ? `No. of IDPs as of ${eventData.event.stockIdpFiguresMaxEndDate}`
+                                : 'No. of IDPs'
+                        }
+                        value={eventData?.event?.totalStockIdpFigures}
+                    />
+                    <TextBlock
+                        label="Start Date"
+                        value={eventData?.event?.startDate}
+                    />
+                    <TextBlock
+                        label="End Date"
+                        value={eventData?.event?.endDate}
+                    />
+                    <TextBlock
+                        label="Cause"
+                        value={eventData?.event?.eventTypeDisplay}
+                    />
+                    <TextBlock
+                        label="Event Codes"
+                        value={eventData?.event?.glideNumbers?.map((glideID) => glideID).join(', ')}
+                    />
+                    <TextBlock
+                        label="Countries"
+                        value={eventData?.event?.countries?.map((country) => country.idmcShortName).join(', ')}
+                    />
+                    {eventData?.event?.eventType === 'CONFLICT' && (
+                        <>
                             <TextBlock
-                                label="Cause"
-                                value={eventData?.event?.eventTypeDisplay}
-                            />
-                            <NumberBlock
-                                label="Internal displacements"
-                                value={eventData?.event?.totalFlowNdFigures}
-                            />
-                            <NumberBlock
-                                label={
-                                    eventData?.event?.stockIdpFiguresMaxEndDate
-                                        ? `No. of IDPs as of ${eventData.event.stockIdpFiguresMaxEndDate}`
-                                        : 'No. of IDPs'
-                                }
-                                value={eventData?.event?.totalStockIdpFigures}
+                                // NOTE: This block is hidden
+                                className={styles.hidden}
+                                label="Actor"
+                                value={eventData?.event?.actor?.name}
                             />
                             <TextBlock
-                                label="Event Codes"
-                                value={eventData?.event?.glideNumbers?.map((glideID) => glideID).join(', ')}
+                                label="Violence Type"
+                                value={eventData?.event?.violence?.name}
                             />
                             <TextBlock
-                                label="Start Date"
-                                value={eventData?.event?.startDate}
+                                label="Violence Subtype"
+                                value={eventData?.event?.violenceSubType?.name}
                             />
                             <TextBlock
-                                label="End Date"
-                                value={eventData?.event?.endDate}
+                                label="Context of Violence"
+                                value={eventData?.event?.contextOfViolence?.map((context) => context.name).join(', ')}
                             />
-
-                            <TextBlock
-                                label="Countries"
-                                value={eventData?.event?.countries?.map((country) => country.idmcShortName).join(', ')}
+                        </>
+                    )}
+                    {eventData?.event?.eventType === 'DISASTER' && (
+                        <TextBlock
+                            label="Hazard Subtype"
+                            value={eventData?.event?.disasterSubType?.name}
+                        />
+                    )}
+                    {eventData?.event?.eventType === 'OTHER' && (
+                        <TextBlock
+                            label="Subtype"
+                            value={eventData?.event?.otherSubType?.name}
+                        />
+                    )}
+                </div>
+                <Map
+                    mapStyle={lightStyle}
+                    mapOptions={{
+                        logoPosition: 'bottom-left',
+                    }}
+                    scaleControlShown
+                    navControlShown
+                >
+                    <MapContainer className={styles.mapContainer} />
+                    <MapBounds
+                        bounds={bounds as Bounds | undefined}
+                        padding={50}
+                    />
+                    {eventData?.event?.countries?.map((country) => (!!country.geojsonUrl && (
+                        <MapSource
+                            key={country.id}
+                            sourceKey={`country-${country.id}`}
+                            sourceOptions={{
+                                type: 'geojson',
+                            }}
+                            geoJson={country.geojsonUrl}
+                        >
+                            <MapLayer
+                                layerKey="country-fill"
+                                layerOptions={{
+                                    type: 'fill',
+                                    paint: countryFillPaint,
+                                }}
                             />
-                            {eventData?.event?.eventType === 'CONFLICT' && (
-                                <>
-                                    <TextBlock
-                                        // NOTE: This block is hidden
-                                        className={styles.hidden}
-                                        label="Actor"
-                                        value={eventData?.event?.actor?.name}
-                                    />
-                                    <TextBlock
-                                        label="Violence Type"
-                                        value={eventData?.event?.violence?.name}
-                                    />
-                                    <TextBlock
-                                        label="Violence Subtype"
-                                        value={eventData?.event?.violenceSubType?.name}
-                                    />
-                                    <TextBlock
-                                        label="Context of Violence"
-                                        value={eventData?.event?.contextOfViolence?.map((context) => context.name).join(', ')}
-                                    />
-                                    <div />
-                                    <div />
-                                </>
-                            )}
-                            {eventData?.event?.eventType === 'DISASTER' && (
-                                <>
-                                    <TextBlock
-                                        label="Hazard Subtype"
-                                        value={eventData?.event?.disasterSubType?.name}
-                                    />
-                                    <div />
-                                    <div />
-                                    <div />
-                                    <div />
-                                    <div />
-                                </>
-                            )}
-                            {eventData?.event?.eventType === 'OTHER' && (
-                                <>
-                                    <TextBlock
-                                        label="Subtype"
-                                        value={eventData?.event?.otherSubType?.name}
-                                    />
-                                    <div />
-                                    <div />
-                                    <div />
-                                    <div />
-                                    <div />
-                                </>
-                            )}
-                        </div>
-                    </>
-                ) : (
-                    'Details not available'
-                )}
+                            <MapLayer
+                                layerKey="country-line"
+                                layerOptions={{
+                                    type: 'line',
+                                    paint: countryLinePaint,
+                                }}
+                            />
+                        </MapSource>
+                    )))}
+                </Map>
             </Container>
             <Container
                 className={styles.container}
@@ -303,11 +354,10 @@ function Event(props: EventProps) {
                     markdown={eventData?.event?.eventNarrative ?? 'Narrative not available'}
                 />
             </Container>
-            <EntriesFiguresTable
+            <CountriesEntriesFiguresTable
                 className={styles.largeContainer}
-                eventColumnHidden
-                crisisColumnHidden
                 eventId={eventId}
+                eventYear={eventYear}
             />
             {shouldShowAddEventModal && (
                 <Modal

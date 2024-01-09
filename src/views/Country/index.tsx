@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useCallback, useEffect, useState } from 'react';
 import produce from 'immer';
 import { useParams, useHistory } from 'react-router-dom';
 import {
@@ -11,6 +11,8 @@ import Map, {
     MapSource,
     MapLayer,
 } from '@togglecorp/re-map';
+import { Button, Portal } from '@togglecorp/toggle-ui';
+import { IoFilterOutline, IoClose } from 'react-icons/io5';
 
 import {
     gql,
@@ -20,26 +22,34 @@ import {
 import {
     CountryQuery,
     CountryQueryVariables,
+    CountryAggregationsQuery,
+    CountryAggregationsQueryVariables,
     CreateSummaryMutation,
     CreateContextualAnalysisMutation,
+    ExtractionEntryListFiltersQueryVariables,
 } from '#generated/types';
 
+import { PurgeNull } from '#types';
+import useFilterState from '#hooks/useFilterState';
 import useBasicToggle from '#hooks/useBasicToggle';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import route from '#config/routes';
 
-import Wip from '#components/Wip';
-import NumberBlock from '#components/NumberBlock';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import MyResources from '#components/lists/MyResources';
-import EventsEntriesFiguresTable from '#components/tables/EventsEntriesFiguresTable';
-import ContactsTable from '#components/tables/ContactsTable';
-import CountrySelectInput, { CountryOption } from '#components/selections/CountrySelectInput';
+import CountrySelectInput from '#components/selections/CountrySelectInput';
+import useOptions from '#hooks/useOptions';
+import AdvancedFiguresFilter from '#components/rawTables/useFigureTable/AdvancedFiguresFilter';
+import { expandObject } from '#utils/common';
 
+import CrisesEventsEntriesFiguresTable from './CrisesEventsEntriesFiguresTable';
 import ContextualAnalysis from './ContextualAnalysis';
 import CountrySummary from './CountrySummary';
 import styles from './styles.css';
+import useSidebarLayout from '#hooks/useSidebarLayout';
+import NdChart from './NdChart';
+import IdpChart from './IdpChart';
 
 type Bounds = [number, number, number, number];
 
@@ -61,33 +71,36 @@ const COUNTRY = gql`
                 summary
             }
             boundingBox
-            eventsConflict: events(eventTypes: ["CONFLICT"]) {
-                totalCount
-            }
-            eventsDisaster: events(eventTypes: ["DISASTER"]) {
-                totalCount
-            }
-            crisesConflict: crises(crisisTypes: ["CONFLICT"]) {
-                totalCount
-            }
-            crisesDisaster: crises(crisisTypes: ["DISASTER"]) {
-                totalCount
-            }
-            entries {
-                totalCount
-            }
-            totalStockConflict
-            totalStockDisaster
-            totalFlowConflict
-            totalFlowDisaster
+            iso2
             geojsonUrl
         }
     }
 `;
 
-const lightStyle = 'mapbox://styles/togglecorp/cl50rwy0a002d14mo6w9zprio';
+const COUNTRY_AGGREGATIONS = gql`
+    query CountryAggregations($filters: FigureExtractionFilterDataInputType!) {
+        figureAggregations(filters: $filters) {
+            idpsConflictFigures {
+                date
+                value
+            }
+            idpsDisasterFigures {
+                date
+                value
+            }
+            ndsConflictFigures {
+                date
+                value
+            }
+            ndsDisasterFigures {
+                date
+                value
+            }
+        }
+    }
+`;
 
-const year = new Date().getFullYear();
+const lightStyle = 'mapbox://styles/togglecorp/cl50rwy0a002d14mo6w9zprio';
 
 const countryFillPaint: mapboxgl.FillPaint = {
     'fill-color': '#354052', // empty color
@@ -95,9 +108,59 @@ const countryFillPaint: mapboxgl.FillPaint = {
 };
 
 const countryLinePaint: mapboxgl.LinePaint = {
-    'line-color': '#ffffff',
+    'line-color': '#334053',
     'line-width': 1,
 };
+
+interface FloatingButtonProps {
+    onClick: () => void,
+}
+
+// FIXME: create a separate general component
+function FloatingButton(props: FloatingButtonProps) {
+    const { onClick } = props;
+    const [scroll, setScroll] = useState<number>(
+        document.querySelectorAll('[data-multiplexer-content]')[0]?.scrollTop ?? 0,
+    );
+
+    const handleDocumentScroll = useCallback(
+        (e: Event) => {
+            if (e.target instanceof HTMLElement) {
+                const isMultiplexerContent = e.target.getAttribute('data-multiplexer-content');
+
+                if (isMultiplexerContent) {
+                    setScroll(e.target.scrollTop);
+                }
+            }
+        },
+        [],
+    );
+
+    useEffect(
+        () => {
+            document.addEventListener('scroll', handleDocumentScroll, true);
+
+            return () => {
+                document.removeEventListener('scroll', handleDocumentScroll, true);
+            };
+        },
+        [handleDocumentScroll],
+    );
+
+    return (
+        <Portal>
+            <Button
+                className={_cs(styles.floatingButton, scroll < 80 && styles.hidden)}
+                name={undefined}
+                onClick={onClick}
+                icons={<IoFilterOutline />}
+                variant="primary"
+            >
+                Filters
+            </Button>
+        </Portal>
+    );
+}
 
 interface CountryProps {
     className?: string;
@@ -108,19 +171,6 @@ function Country(props: CountryProps) {
 
     const { countryId } = useParams<{ countryId: string }>();
     const { replace: historyReplace } = useHistory();
-
-    const handleCountryChange = useCallback(
-        (value?: string) => {
-            if (isDefined(value)) {
-                const countryRoute = reverseRoute(route.country.path, { countryId: value });
-                historyReplace(countryRoute);
-            } else {
-                const countriesRoute = reverseRoute(route.countries.path);
-                historyReplace(countriesRoute);
-            }
-        },
-        [historyReplace],
-    );
 
     const [
         contextualFormOpened,
@@ -134,15 +184,39 @@ function Country(props: CountryProps) {
         handleSummaryFormClose,
     ] = useBasicToggle();
 
-    const [countryOptions, setCountryOptions] = useState<CountryOption[] | undefined | null>();
+    const [, setCountryOptions] = useOptions('country');
 
-    // NOTE: Find used because defaultCountryOption is the selected country
-    const defaultCountryOption = countryOptions?.find((country) => country.id === countryId);
+    const figuresFilterState = useFilterState<PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>>({
+        filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
+    });
+    const {
+        filter: figuresFilter,
+        rawFilter: rawFiguresFilter,
+        initialFilter: initialFiguresFilter,
+        setFilter: setFiguresFilter,
+    } = figuresFilterState;
 
     const countryVariables = useMemo(
         (): CountryQueryVariables | undefined => ({ id: countryId }),
         [countryId],
     );
+
+    const countryAggregationsVariables = useMemo(
+        (): CountryAggregationsQueryVariables | undefined => ({
+            filters: expandObject(
+                figuresFilter,
+                {
+                    filterFigureCountries: [countryId],
+                },
+            ),
+        }),
+        [countryId, figuresFilter],
+    );
+
     const {
         data: countryData,
         loading: countryDataLoading,
@@ -152,15 +226,45 @@ function Country(props: CountryProps) {
         skip: !countryVariables,
         onCompleted: (response) => {
             if (response.country) {
-                const { id, idmcShortName } = response.country;
-                setCountryOptions([{ id, idmcShortName }]);
+                const {
+                    id,
+                    idmcShortName,
+                    boundingBox,
+                    iso2,
+                } = response.country;
+                // NOTE: we are setting this options so that we can use country
+                // option when adding crisis/event on the country page
+                setCountryOptions([{ id, idmcShortName, iso2, boundingBox }]);
             }
         },
+    });
+
+    const {
+        data: countryAggregations,
+        // TODO: Handle error and loading states
+        // loading: countryAggregationsLoading,
+        // error: countryAggregationsError,
+    } = useQuery<CountryAggregationsQuery>(COUNTRY_AGGREGATIONS, {
+        variables: countryAggregationsVariables,
+        skip: !countryAggregationsVariables,
     });
 
     const loading = countryDataLoading;
     const errored = !!countryDataLoadingError;
     const disabled = loading || errored;
+
+    const handleCountryChange = useCallback(
+        (value?: string) => {
+            if (isDefined(value)) {
+                const countryRoute = reverseRoute(route.country.path, { countryId: value });
+                historyReplace(countryRoute);
+            } else {
+                const countriesRoute = reverseRoute(route.countries.path);
+                historyReplace(countriesRoute);
+            }
+        },
+        [historyReplace],
+    );
 
     const handleAddNewSummary: MutationUpdaterFn<
         CreateSummaryMutation
@@ -232,161 +336,118 @@ function Country(props: CountryProps) {
         [countryVariables],
     );
 
+    const figureHiddenColumns = ['country' as const];
+
     const bounds = countryData?.country?.boundingBox ?? undefined;
 
+    const {
+        showSidebar,
+        containerClassName,
+        sidebarClassName,
+        sidebarSpaceReserverElement,
+        setShowSidebarTrue,
+        setShowSidebarFalse,
+    } = useSidebarLayout();
+
     return (
-        <div className={_cs(className, styles.countries)}>
-            <PageHeader
-                title={(
-                    <CountrySelectInput
-                        name="country"
-                        value={countryId}
-                        onChange={handleCountryChange}
-                        options={countryOptions}
-                        onOptionsChange={setCountryOptions}
-                        placeholder="Select a country"
-                        nonClearable
-                    />
-                )}
-            />
-            <div className={styles.content}>
-                <div className={styles.leftContent}>
-                    <div className={styles.top}>
-                        <Container
-                            className={styles.extraLargeContainer}
-                            contentClassName={styles.idpMap}
-                            heading="Details"
+        <div className={_cs(styles.countries, containerClassName, className)}>
+            {sidebarSpaceReserverElement}
+            <div className={styles.pageContent}>
+                <PageHeader
+                    title={(
+                        <CountrySelectInput
+                            name="country"
+                            value={countryId}
+                            onChange={handleCountryChange}
+                            placeholder="Select a country"
+                            nonClearable
+                        />
+                    )}
+                    description={!showSidebar && (
+                        <Button
+                            name={undefined}
+                            onClick={setShowSidebarTrue}
+                            disabled={showSidebar}
+                            icons={<IoFilterOutline />}
                         >
-                            <div className={styles.stats}>
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            Internal Displacements
-                                            <br />
-                                            {`(Conflict ${year})`}
-                                        </>
-                                    )}
-                                    value={countryData?.country?.totalFlowConflict}
-                                />
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            No. of IDPs
-                                            <br />
-                                            {`(Conflict ${year})`}
-                                        </>
-                                    )}
-                                    value={countryData?.country?.totalStockConflict}
-                                />
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            No. of Crises
-                                            <br />
-                                            (Conflict)
-                                        </>
-                                    )}
-                                    value={countryData?.country?.crisesConflict?.totalCount}
-                                />
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            No. of Events
-                                            <br />
-                                            (Conflict)
-                                        </>
-                                    )}
-                                    value={countryData?.country?.eventsConflict?.totalCount}
-                                />
-                                <NumberBlock
-                                    label="Entries"
-                                    value={countryData?.country?.entries?.totalCount}
-                                />
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            Internal Displacements
-                                            <br />
-                                            {`(Disaster ${year})`}
-                                        </>
-                                    )}
-                                    value={countryData?.country?.totalFlowDisaster}
-                                />
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            No. of IDPs
-                                            <br />
-                                            {`(Disaster ${year})`}
-                                        </>
-                                    )}
-                                    value={countryData?.country?.totalStockDisaster}
-                                />
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            No. of Crises
-                                            <br />
-                                            (Disaster)
-                                        </>
-                                    )}
-                                    value={countryData?.country?.crisesDisaster?.totalCount}
-                                />
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            No. of Events
-                                            <br />
-                                            (Disaster)
-                                        </>
-                                    )}
-                                    value={countryData?.country?.eventsDisaster?.totalCount}
-                                />
-                                <div />
-                            </div>
-                            <Map
-                                mapStyle={lightStyle}
-                                mapOptions={{
-                                    logoPosition: 'bottom-left',
+                            Filters
+                        </Button>
+                    )}
+                />
+                <div className={styles.mainContent}>
+                    <Map
+                        mapStyle={lightStyle}
+                        mapOptions={{
+                            logoPosition: 'bottom-left',
+                        }}
+                        scaleControlShown
+                        navControlShown
+                    >
+                        <MapContainer className={styles.mapContainer} />
+                        <MapBounds
+                            bounds={bounds as Bounds | undefined}
+                            padding={50}
+                        />
+                        {countryData?.country?.geojsonUrl && (
+                            <MapSource
+                                sourceKey="country"
+                                sourceOptions={{
+                                    type: 'geojson',
                                 }}
-                                scaleControlShown
-                                navControlShown
+                                geoJson={countryData.country.geojsonUrl}
                             >
-                                <MapContainer className={styles.mapContainer} />
-                                <MapBounds
-                                    bounds={bounds as Bounds | undefined}
-                                    padding={50}
+                                <MapLayer
+                                    layerKey="country-fill"
+                                    layerOptions={{
+                                        type: 'fill',
+                                        paint: countryFillPaint,
+                                    }}
                                 />
-                                {countryData?.country?.geojsonUrl && (
-                                    <MapSource
-                                        sourceKey="country"
-                                        sourceOptions={{
-                                            type: 'geojson',
-                                        }}
-                                        geoJson={countryData.country.geojsonUrl}
-                                    >
-                                        <MapLayer
-                                            layerKey="country-fill"
-                                            layerOptions={{
-                                                type: 'fill',
-                                                paint: countryFillPaint,
-                                            }}
-                                        />
-                                        <MapLayer
-                                            layerKey="country-line"
-                                            layerOptions={{
-                                                type: 'line',
-                                                paint: countryLinePaint,
-                                            }}
-                                        />
-                                    </MapSource>
-                                )}
-                            </Map>
-                        </Container>
+                                <MapLayer
+                                    layerKey="country-line"
+                                    layerOptions={{
+                                        type: 'line',
+                                        paint: countryLinePaint,
+                                    }}
+                                />
+                            </MapSource>
+                        )}
+                    </Map>
+                    <div className={styles.charts}>
+                        <NdChart
+                            conflictData={
+                                countryAggregations
+                                    ?.figureAggregations
+                                    ?.ndsConflictFigures
+                            }
+                            disasterData={
+                                countryAggregations
+                                    ?.figureAggregations
+                                    ?.ndsDisasterFigures
+                            }
+                        />
+                        <IdpChart
+                            conflictData={
+                                countryAggregations
+                                    ?.figureAggregations
+                                    ?.idpsConflictFigures
+                            }
+                            disasterData={
+                                countryAggregations
+                                    ?.figureAggregations
+                                    ?.idpsDisasterFigures
+                            }
+                        />
                     </div>
-                    <div className={styles.middle}>
+                    <CrisesEventsEntriesFiguresTable
+                        className={styles.eventsEntriesFiguresTable}
+                        countryId={countryId}
+                        figuresFilterState={figuresFilterState}
+                    />
+                    <Container
+                        className={styles.overview}
+                    >
                         <CountrySummary
-                            className={styles.container}
                             summary={countryData?.country?.lastSummary}
                             disabled={disabled}
                             countryId={countryId}
@@ -395,52 +456,50 @@ function Country(props: CountryProps) {
                             onSummaryFormOpen={handleSummaryFormOpen}
                             onSummaryFormClose={handleSummaryFormClose}
                         />
-                        <Wip>
-                            <Container
-                                className={styles.container}
-                                heading="Recent Activity"
-                            />
-                        </Wip>
-                    </div>
-                    <Wip>
-                        <div>
-                            <Container
-                                className={styles.container}
-                                heading="Country Crises Overtime"
-                            />
-                        </div>
-                    </Wip>
-                </div>
-                <div className={styles.sideContent}>
-                    <ContextualAnalysis
-                        className={styles.container}
-                        contextualAnalysis={countryData?.country?.lastContextualAnalysis}
-                        disabled={disabled}
-                        contextualFormOpened={contextualFormOpened}
-                        handleContextualFormOpen={handleContextualFormOpen}
-                        handleContextualFormClose={handleContextualFormClose}
-                        countryId={countryId}
-                        onAddNewContextualAnalysisInCache={handleAddNewContextualAnalysis}
-                    />
+                        <ContextualAnalysis
+                            contextualAnalysis={countryData?.country?.lastContextualAnalysis}
+                            disabled={disabled}
+                            contextualFormOpened={contextualFormOpened}
+                            handleContextualFormOpen={handleContextualFormOpen}
+                            handleContextualFormClose={handleContextualFormClose}
+                            countryId={countryId}
+                            onAddNewContextualAnalysisInCache={handleAddNewContextualAnalysis}
+                        />
+                    </Container>
                     <MyResources
-                        className={styles.container}
-                        defaultCountryOption={defaultCountryOption}
+                        className={styles.resources}
+                        country={countryId}
                     />
                 </div>
-            </div>
-            <div className={styles.fullWidth}>
-                <EventsEntriesFiguresTable
-                    className={styles.largeContainer}
-                    country={(
-                        countryData?.country
-                        ?? { id: countryId, idmcShortName: '???' }
+                <Container
+                    className={_cs(styles.filters, sidebarClassName)}
+                    heading="Filters"
+                    contentClassName={styles.filtersContent}
+                    headerActions={(
+                        <Button
+                            name={undefined}
+                            onClick={setShowSidebarFalse}
+                            transparent
+                            title="Close"
+                        >
+                            <IoClose />
+                        </Button>
                     )}
-                />
-                <ContactsTable
-                    className={styles.largeContainer}
-                    defaultCountryOption={defaultCountryOption}
-                />
+                >
+                    <AdvancedFiguresFilter
+                        currentFilter={rawFiguresFilter}
+                        initialFilter={initialFiguresFilter}
+                        onFilterChange={setFiguresFilter}
+                        hiddenFields={figureHiddenColumns}
+                        countries={[countryId]}
+                    />
+                </Container>
             </div>
+            {!showSidebar && (
+                <FloatingButton
+                    onClick={setShowSidebarTrue}
+                />
+            )}
         </div>
     );
 }

@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Pager } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
@@ -9,9 +9,9 @@ import {
     Review_Field_Type as ReviewFieldType,
 } from '#generated/types';
 
+import useFilterState from '#hooks/useFilterState';
 import DomainContext from '#components/DomainContext';
 import Message from '#components/Message';
-import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
@@ -20,20 +20,16 @@ import styles from './styles.css';
 
 const REVIEW_COMMENTS = gql`
     query ReviewComments(
-        $fields: [String!],
-        $events: [ID!],
-        $figures: [ID!],
         $page: Int,
         $pageSize: Int,
         $ordering: String,
+        $filters: UnifiedReviewCommentFilterDataInputType,
     ) {
         reviewComments(
-            events: $events,
-            fields: $fields,
-            figures: $figures,
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
+            filters: $filters,
         ) {
             totalCount
             results {
@@ -76,30 +72,37 @@ export default function ReviewComments(props: ReportCommentsProps) {
         reviewDisabled,
     } = props;
 
-    const [page, setPage] = useState(1);
-    const [pageSize] = useState(50);
-    const debouncedPage = useDebouncedValue(page);
+    const {
+        page,
+        rawPage,
+        setPage,
+        pageSize,
+        rawPageSize,
+    } = useFilterState({
+        filter: {},
+    });
 
     const { user } = useContext(DomainContext);
 
-    // FIXME: this is a different permission
     const commentPermission = user?.permissions?.reviewcomment;
 
     const variables = useMemo(
-        () => ({
+        (): ReviewCommentsQueryVariables => ({
             pageSize,
-            ordering: '-createdAt',
-            page: debouncedPage,
+            ordering: '-created_at',
+            page,
 
-            events: eventId ? [eventId] : undefined,
-            figures: figureId ? [figureId] : undefined,
-            fields: [name],
+            filters: {
+                events: eventId ? [eventId] : undefined,
+                figures: figureId ? [figureId] : undefined,
+                fields: [name],
+            },
         }),
         [
             eventId,
             figureId,
             name,
-            debouncedPage,
+            page,
             pageSize,
         ],
     );
@@ -150,9 +153,9 @@ export default function ReviewComments(props: ReportCommentsProps) {
                 />
             )}
             <Pager
-                activePage={page}
+                activePage={rawPage}
                 itemsCount={totalCommentCount}
-                maxItemsPerPage={pageSize}
+                maxItemsPerPage={rawPageSize}
                 onActivePageChange={setPage}
                 itemsPerPageControlHidden
             />

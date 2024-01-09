@@ -147,7 +147,7 @@ const routeSettings = {
         },
         visibility: 'is-authenticated',
     }),
-    // TODO: add contextual Update later
+    // TODO: add contextual Update page
     contextualUpdateView: wrap({
         path: '/contextual-updates/:contextualUpdateId(\\d+)/',
         title: 'View Contextual Update',
@@ -423,7 +423,6 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-authenticated',
-        // FIXME: add permission for review comment
         checkPermissions: (permissions) => (
             permissions.event?.sign_off
             || permissions.figure?.approve

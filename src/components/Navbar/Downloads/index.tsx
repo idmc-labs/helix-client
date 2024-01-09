@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { gql, useQuery, useLazyQuery } from '@apollo/client';
 import { _cs, isDefined } from '@togglecorp/fujs';
 import {
@@ -9,6 +9,7 @@ import {
     IoDownload,
 } from 'react-icons/io5';
 
+import useFilterState from '#hooks/useFilterState';
 import Badge from '#components/Badge';
 import Message from '#components/Message';
 import {
@@ -17,7 +18,6 @@ import {
     ExcelExportsCountQuery,
     ExcelExportsCountQueryVariables,
 } from '#generated/types';
-import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import Loading from '#components/Loading';
 import Container from '#components/Container';
@@ -25,12 +25,17 @@ import Container from '#components/Container';
 import DownloadedItem from './DownloadedItem';
 import styles from './styles.css';
 
-const pageSize = 10;
-const ordering = '-createdAt';
-
 const DOWNLOADS = gql`
-    query ExcelExports($ordering: String, $page: Int, $pageSize: Int) {
-        excelExports(pageSize: $pageSize, page: $page, ordering: $ordering) {
+    query ExcelExports(
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+    ) {
+        excelExports(
+            pageSize: $pageSize,
+            page: $page,
+            ordering: $ordering,
+        ) {
             totalCount
             results {
                 id
@@ -43,7 +48,9 @@ const DOWNLOADS = gql`
                 fileSize
             }
         }
-        excelRemainingExports: excelExports(statusList: ["PENDING", "IN_PROGRESS"]) {
+        excelRemainingExports: excelExports(
+            filters: { statusList: ["PENDING", "IN_PROGRESS"] },
+        ) {
             totalCount
         }
     }
@@ -52,23 +59,32 @@ const DOWNLOADS = gql`
 // NOTE: exporting this so that other requests can refetch this request
 export const DOWNLOADS_COUNT = gql`
     query ExcelExportsCount {
-      excelExports(statusList: ["PENDING", "IN_PROGRESS"]) {
+      excelExports(
+        filters: { statusList: ["PENDING", "IN_PROGRESS"] },
+    ) {
         totalCount
       }
     }
 `;
 
 function DownloadsSection() {
-    const [page, setPage] = useState(1);
-    const debouncedPage = useDebouncedValue(page);
+    const {
+        page,
+        rawPage,
+        setPage,
+        pageSize,
+        rawPageSize,
+    } = useFilterState({
+        filter: {},
+    });
 
     const downloadVariables = useMemo(
         (): ExcelExportsQueryVariables => ({
-            ordering,
-            page: debouncedPage,
+            ordering: '-created_at',
+            page,
             pageSize,
         }),
-        [debouncedPage],
+        [page, pageSize],
     );
 
     const {
@@ -104,9 +120,9 @@ function DownloadsSection() {
                 />
             )}
             <Pager
-                activePage={page}
+                activePage={rawPage}
                 itemsCount={totalDownloadFilesCount}
-                maxItemsPerPage={pageSize}
+                maxItemsPerPage={rawPageSize}
                 onActivePageChange={setPage}
                 itemsPerPageControlHidden
             />

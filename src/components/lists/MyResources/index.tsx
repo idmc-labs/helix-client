@@ -19,7 +19,6 @@ import {
 import Message from '#components/Message';
 import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
-import { CountryOption } from '#components/selections/CountryMultiSelectInput';
 
 import useBasicToggle from '#hooks/useBasicToggle';
 import DomainContext from '#components/DomainContext';
@@ -56,13 +55,13 @@ const GET_RESOURCES_LIST = gql`
 
 interface MyResourcesProps {
     className?: string;
-    defaultCountryOption?: CountryOption | undefined | null;
+    country?: string | undefined | null;
 }
 
 function MyResources(props: MyResourcesProps) {
     const {
         className,
-        defaultCountryOption,
+        country,
     } = props;
 
     const [searchText, setSearchText] = useState<string | undefined>('');
@@ -71,7 +70,7 @@ function MyResources(props: MyResourcesProps) {
         previousData,
         data: resources = previousData,
         refetch: refetchResource,
-        // FIXME:
+        // TODO: handle loading and error
         // loading: resourcesLoading,
         // error: errorResourceLoading,
     } = useQuery<ResourcesQuery>(GET_RESOURCES_LIST);
@@ -90,15 +89,15 @@ function MyResources(props: MyResourcesProps) {
 
     const resourcesList = useMemo(
         () => {
-            if (!defaultCountryOption) {
+            if (!country) {
                 return unfilteredResourcesList;
             }
             return unfilteredResourcesList
                 ?.filter((item) => item.countries.some(
-                    (country) => country.id === defaultCountryOption.id,
+                    (c) => c.id === country,
                 ));
         },
-        [unfilteredResourcesList, defaultCountryOption],
+        [unfilteredResourcesList, country],
     );
 
     const [
@@ -106,7 +105,7 @@ function MyResources(props: MyResourcesProps) {
         editableResourceId,
         handleResourceFormOpen,
         handleResourceFormClose,
-    ] = useModalState();
+    ] = useModalState(false);
 
     const resetSearchText = useCallback(
         () => {
@@ -210,8 +209,8 @@ function MyResources(props: MyResourcesProps) {
                     <ResourceForm
                         onResourceFormClose={handleResourceFormClose}
                         id={editableResourceId}
+                        country={country}
                         handleRefetchResource={onHandleRefetchResource}
-                        defaultCountryOption={defaultCountryOption}
                     />
                 </Modal>
             )}

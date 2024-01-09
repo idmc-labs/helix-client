@@ -1,9 +1,8 @@
-import React, { useCallback, useState, useMemo, useContext } from 'react';
+import React, { useCallback, useMemo, useContext } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
-    useSortState,
     Pager,
     Modal,
     Button,
@@ -27,7 +26,7 @@ import DomainContext from '#components/DomainContext';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 
 import useModalState from '#hooks/useModalState';
-import useDebouncedValue from '#hooks/useDebouncedValue';
+import useFilterState from '#hooks/useFilterState';
 
 import {
     OrganizationsListQuery,
@@ -49,19 +48,13 @@ const GET_ORGANIZATIONS_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $name: String,
-        $categories: [String!],
-        $countries: [ID!],
-        $organizationKinds: [ID!],
+        $filters: OrganizationFilterDataInputType,
     ) {
         organizationList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            name_Unaccent_Icontains: $name,
-            categories: $categories,
-            organizationKinds: $organizationKinds,
-            countries: $countries,
+            filters: $filters,
         ) {
             results {
                 id
@@ -100,27 +93,16 @@ const DELETE_ORGANIZATION = gql`
 
 const ORGANIZATION_DOWNLOAD = gql`
     mutation ExportOrganizations(
-        $name: String,
-        $categories: [String!],
-        $countries: [ID!],
-        $organizationKinds: [ID!],
+        $filters: OrganizationFilterDataInputType!,
     ) {
         exportOrganizations(
-            name_Unaccent_Icontains: $name,
-            categories: $categories,
-            organizationKinds: $organizationKinds,
-            countries: $countries,
+            filters: $filters,
         ) {
                 errors
                 ok
             }
         }
 `;
-
-const defaultSorting = {
-    name: 'created_at',
-    direction: 'dsc',
-};
 
 type OrganizationFields = NonNullable<NonNullable<OrganizationsListQuery['organizationList']>['results']>[number];
 
@@ -135,22 +117,29 @@ function OrganizationTable(props: OrganizationProps) {
         className,
     } = props;
 
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting || defaultSorting;
+    const {
+        page,
+        rawPage,
+        setPage,
 
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
+        ordering,
+        sortState,
 
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-    const debouncedPage = useDebouncedValue(page);
+        rawFilter,
+        initialFilter,
+        filter,
+        setFilter,
 
-    const [
-        organizationsQueryFilters,
-        setOrganizationsQueryFilters,
-    ] = useState<PurgeNull<OrganizationsListQueryVariables>>();
+        rawPageSize,
+        pageSize,
+        setPageSize,
+    } = useFilterState<PurgeNull<NonNullable<OrganizationsListQueryVariables['filters']>>>({
+        filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
+    });
 
     const {
         notify,
@@ -167,33 +156,18 @@ function OrganizationTable(props: OrganizationProps) {
         hideAddOrganizationModal,
     ] = useModalState();
 
-    const onFilterChange = React.useCallback(
-        (value: PurgeNull<OrganizationsListQueryVariables>) => {
-            setOrganizationsQueryFilters(value);
-            setPage(1);
-        }, [],
-    );
-
-    const handlePageSizeChange = useCallback(
-        (value: number) => {
-            setPageSize(value);
-            setPage(1);
-        },
-        [],
-    );
-
     const organizationVariables = useMemo(
         (): OrganizationsListQueryVariables => ({
             ordering,
-            page: debouncedPage,
+            page,
             pageSize,
-            ...organizationsQueryFilters,
+            filters: filter,
         }),
         [
             ordering,
-            debouncedPage,
+            page,
             pageSize,
-            organizationsQueryFilters,
+            filter,
         ],
     );
 
@@ -286,7 +260,9 @@ function OrganizationTable(props: OrganizationProps) {
     const handleExportTableData = useCallback(
         () => {
             exportOrganizations({
-                variables: organizationVariables,
+                variables: {
+                    filters: organizationVariables?.filters ?? {},
+                },
             });
         },
         [exportOrganizations, organizationVariables],
@@ -386,16 +362,18 @@ function OrganizationTable(props: OrganizationProps) {
             )}
             description={(
                 <OrganizationFilter
-                    onFilterChange={onFilterChange}
+                    currentFilter={rawFilter}
+                    initialFilter={initialFilter}
+                    onFilterChange={setFilter}
                 />
             )}
             footerContent={(
                 <Pager
-                    activePage={page}
+                    activePage={rawPage}
                     itemsCount={totalOrganizationsCount}
-                    maxItemsPerPage={pageSize}
+                    maxItemsPerPage={rawPageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={handlePageSizeChange}
+                    onItemsPerPageChange={setPageSize}
                 />
             )}
         >

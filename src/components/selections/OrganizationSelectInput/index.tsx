@@ -9,14 +9,21 @@ import {
     SearchSelectInputProps,
 } from '@togglecorp/toggle-ui';
 
+import useOptions from '#hooks/useOptions';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { GetOrganizationQuery, GetOrganizationQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
 
 export const ORGANIZATION = gql`
-    query GetOrganization($search: String, $ordering: String, $countries: [ID!]) {
-        organizationList(name_Unaccent_Icontains: $search, ordering: $ordering, orderCountryFirst: $countries) {
+    query GetOrganization(
+        $ordering: String,
+        $filters: OrganizationFilterDataInputType,
+    ) {
+        organizationList(
+        ordering: $ordering,
+        filters: $filters,
+    ) {
             totalCount
             results {
                 id
@@ -58,9 +65,9 @@ type SelectInputProps<
     K,
     OrganizationOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
 > & {
-    country?: string
+    country?: string | null
 };
 
 function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -77,11 +84,13 @@ function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
 
     const searchVariable = useMemo(
         (): GetOrganizationQueryVariables => ({
-            search: debouncedSearchText,
             ordering: debouncedSearchText || country
                 ? undefined
                 : 'name',
-            countries: country ? [country] : undefined,
+            filters: {
+                name_Unaccent_Icontains: debouncedSearchText,
+                orderCountryFirst: country ? [country] : undefined,
+            },
         }),
         [debouncedSearchText, country],
     );
@@ -98,6 +107,8 @@ function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
     const searchOptions = data?.organizationList?.results;
     const totalOptionsCount = data?.organizationList?.totalCount;
 
+    const [options, setOptions] = useOptions('organization');
+
     return (
         <SearchSelectInput
             {...otherProps}
@@ -109,6 +120,8 @@ function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
+            options={options}
+            onOptionsChange={setOptions}
         />
     );
 }

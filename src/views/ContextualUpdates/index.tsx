@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext } from 'react';
 import {
     gql,
     useQuery,
@@ -7,7 +7,6 @@ import {
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
-    useSortState,
     Pager,
     SortContext,
 } from '@togglecorp/toggle-ui';
@@ -18,6 +17,7 @@ import {
     createDateColumn,
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
+import useFilterState from '#hooks/useFilterState';
 
 import Message from '#components/Message';
 import Loading from '#components/Loading';
@@ -34,7 +34,6 @@ import {
 } from '#generated/types';
 
 import route from '#config/routes';
-import useDebouncedValue from '#hooks/useDebouncedValue';
 import ContextualUpdateFilter from './ContextualUpdateFilter/index';
 import styles from './styles.css';
 
@@ -45,20 +44,14 @@ const CONTEXTUAL_UPDATE_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $name: String,
-        $countries: [String!],
-        $publishers: [String!],
-        $sources: [String!],
-        ) {
+        $filters: ContextualUpdateFilterDataInputType,
+    ) {
         contextualUpdateList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            articleTitle: $name,
-            countries: $countries,
-            publishers: $publishers,
-            sources: $sources,
-            ) {
+            filters: $filters,
+        ) {
             totalCount
             pageSize
             page
@@ -105,11 +98,6 @@ const CONTEXTUAL_UPDATE_DELETE = gql`
     }
 `;
 
-const defaultSorting = {
-    name: 'createdAt',
-    direction: 'dsc',
-};
-
 const keySelector = (item: ContextualUpdateFields) => item.id;
 
 interface ContextualUpdatesProps {
@@ -119,55 +107,47 @@ interface ContextualUpdatesProps {
 function ContextualUpdates(props: ContextualUpdatesProps) {
     const { className } = props;
 
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting || defaultSorting;
+    const {
+        page,
+        rawPage,
+        setPage,
 
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
+        ordering,
+        sortState,
 
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-    const debouncedPage = useDebouncedValue(page);
+        rawFilter,
+        initialFilter,
+        filter,
+        setFilter,
 
-    const [
-        contextualUpdateQueryFilters,
-        setContextualUpdateQueryFilters,
-    ] = useState<PurgeNull<ContextualUpdatesQueryVariables>>();
+        rawPageSize,
+        pageSize,
+        setPageSize,
+    } = useFilterState<PurgeNull<NonNullable<ContextualUpdatesQueryVariables['filters']>>>({
+        filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
+    });
 
     const {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
 
-    const onFilterChange = React.useCallback(
-        (value: PurgeNull<ContextualUpdatesQueryVariables>) => {
-            setContextualUpdateQueryFilters(value);
-            setPage(1);
-        }, [],
-    );
-
-    const handlePageSizeChange = useCallback(
-        (value: number) => {
-            setPageSize(value);
-            setPage(1);
-        },
-        [],
-    );
-
     const contextualUpdatesVariables = useMemo(
         (): ContextualUpdatesQueryVariables => ({
             ordering,
-            page: debouncedPage,
+            page,
             pageSize,
-            ...contextualUpdateQueryFilters,
+            filters: filter,
         }),
         [
             ordering,
-            debouncedPage,
+            page,
             pageSize,
-            contextualUpdateQueryFilters,
+            filter,
         ],
     );
 
@@ -305,16 +285,18 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                 contentClassName={styles.content}
                 description={(
                     <ContextualUpdateFilter
-                        onFilterChange={onFilterChange}
+                        currentFilter={rawFilter}
+                        initialFilter={initialFilter}
+                        onFilterChange={setFilter}
                     />
                 )}
                 footerContent={(
                     <Pager
-                        activePage={page}
+                        activePage={rawPage}
                         itemsCount={totalContextualUpdatesCount}
-                        maxItemsPerPage={pageSize}
+                        maxItemsPerPage={rawPageSize}
                         onActivePageChange={setPage}
-                        onItemsPerPageChange={handlePageSizeChange}
+                        onItemsPerPageChange={setPageSize}
                     />
                 )}
             >

@@ -2,7 +2,6 @@ import React, {
     useContext,
     useMemo,
     useCallback,
-    useState,
 } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -14,7 +13,6 @@ import {
     Modal,
     Button,
     Pager,
-    useSortState,
     SortContext,
     createYesNoColumn,
 } from '@togglecorp/toggle-ui';
@@ -26,10 +24,10 @@ import {
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import useModalState from '#hooks/useModalState';
-import useDebouncedValue from '#hooks/useDebouncedValue';
 import Container from '#components/Container';
 import DomainContext from '#components/DomainContext';
 import ClientRecordForm from '#components/forms/ClientRecordForm';
+import useFilterState from '#hooks/useFilterState';
 import { PurgeNull } from '#types';
 
 import ClientRecordsFilter from './ClientRecordsFilters';
@@ -46,15 +44,13 @@ const CLIENT_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $isActive: Boolean,
-        $name: String,
+        $filters: ClientFilterDataInputType,
     ) {
         clientList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            name: $name,
-            isActive: $isActive,
+            filters: $filters,
         ) {
             page
             pageSize
@@ -77,11 +73,6 @@ type ClientFields = NonNullable<NonNullable<ClientListQuery['clientList']>['resu
 
 const keySelector = (item: ClientFields) => item.id;
 
-const defaultSorting = {
-    name: 'name',
-    direction: 'dsc',
-};
-
 interface ClientRecordProps {
     className?: string;
     tableClassName?: string;
@@ -99,15 +90,29 @@ function ClientRecordsTable(props: ClientRecordProps) {
         pagerPageControlDisabled,
     } = props;
 
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting || defaultSorting;
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-    const debouncedPage = useDebouncedValue(page);
+    const {
+        page,
+        rawPage,
+        setPage,
+
+        ordering,
+        sortState,
+
+        rawFilter,
+        initialFilter,
+        filter,
+        setFilter,
+
+        pageSize,
+        rawPageSize,
+        setPageSize,
+    } = useFilterState<PurgeNull<NonNullable<ClientListQueryVariables['filters']>>>({
+        filter: {},
+        ordering: {
+            name: 'name',
+            direction: 'asc',
+        },
+    });
 
     const { user } = useContext(DomainContext);
     const recordEditPermission = user?.permissions?.event;
@@ -119,39 +124,18 @@ function ClientRecordsTable(props: ClientRecordProps) {
         hideAddClientModal,
     ] = useModalState<string | undefined>();
 
-    const [
-        clientQueryFilters,
-        setClientQueryFilters,
-    ] = useState<PurgeNull<ClientListQueryVariables>>();
-
-    const handlePageSizeChange = useCallback(
-        (value: number) => {
-            setPageSize(value);
-            setPage(1);
-        },
-        [],
-    );
-
-    const onFilterChange = useCallback(
-        (value: PurgeNull<ClientListQueryVariables>) => {
-            setClientQueryFilters(value);
-            setPageSize(10);
-        },
-        [],
-    );
-
     const clientVariables = useMemo(
         (): ClientListQueryVariables => ({
             ordering,
-            page: debouncedPage,
+            page,
             pageSize,
-            ...clientQueryFilters,
+            filters: filter,
         }),
         [
             ordering,
-            debouncedPage,
+            page,
             pageSize,
-            clientQueryFilters,
+            filter,
         ],
     );
 
@@ -178,6 +162,14 @@ function ClientRecordsTable(props: ClientRecordProps) {
 
     const columns = useMemo(
         () => ([
+            /*
+            TODO: Add column after field added to server
+            createDateTimeColumn<ClientFields, string>(
+                'date_created',
+                'Date Created',
+                (item) => item.createdAt,
+            ),
+            */
             createTextColumn<ClientFields, string>(
                 'id',
                 'Code',
@@ -195,7 +187,8 @@ function ClientRecordsTable(props: ClientRecordProps) {
                 'Active',
                 (item) => item.isActive,
                 { sortable: true },
-            ), createTextColumn<ClientFields, string>(
+            ),
+            createTextColumn<ClientFields, string>(
                 'created_by',
                 'Created By',
                 (item) => item.createdBy?.fullName,
@@ -237,17 +230,19 @@ function ClientRecordsTable(props: ClientRecordProps) {
             )}
             footerContent={!pagerDisabled && (
                 <Pager
-                    activePage={page}
+                    activePage={rawPage}
                     itemsCount={totalClientCount}
-                    maxItemsPerPage={pageSize}
+                    maxItemsPerPage={rawPageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={handlePageSizeChange}
+                    onItemsPerPageChange={setPageSize}
                     itemsPerPageControlHidden={pagerPageControlDisabled}
                 />
             )}
             description={(
                 <ClientRecordsFilter
-                    onFilterChange={onFilterChange}
+                    currentFilter={rawFilter}
+                    initialFilter={initialFilter}
+                    onFilterChange={setFilter}
                 />
             )}
         >

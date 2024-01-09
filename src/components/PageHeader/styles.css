@@ -15,6 +15,14 @@
         }
     }
 
+    .description {
+        display: flex;
+        align-items: center;
+        border-bottom: var(--width-separator-thin) solid var(--color-separator);
+        padding-right: var(--spacing-large);
+        padding-left: var(--spacing-large);
+    }
+
     .dummy-section {
         flex-grow: 1;
         border-bottom: var(--width-separator-thin) solid var(--color-separator);

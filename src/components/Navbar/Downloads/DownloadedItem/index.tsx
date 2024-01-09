@@ -32,7 +32,7 @@ interface DownloadedItemProps {
     status: ExcelGenerationStatus | null | undefined;
 }
 
-// FIXME: move this to utils
+// TODO: move this to utils
 interface FilesizeProps {
     className?: string;
     value: number | undefined | null,
