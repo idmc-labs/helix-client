@@ -1,5 +1,5 @@
-import React, { useMemo, useRef } from 'react';
-import { compareDate, isDefined, isNotDefined, listToGroupList, mapToList } from '@togglecorp/fujs';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { compareDate, isDefined, isNotDefined, listToGroupList, mapToList, _cs } from '@togglecorp/fujs';
 
 import ChartAxes from '#components/ChartAxes';
 import useChartData from '#hooks/useChartData';
@@ -20,6 +20,8 @@ const chartOffset = {
     right: 0,
     bottom: X_AXIS_HEIGHT,
 };
+const chartPadding = defaultChartPadding;
+const chartMargin = defaultChartMargin;
 
 const NUM_X_AXIS_POINTS = 8;
 
@@ -138,8 +140,8 @@ function IdpChart(props: Props) {
         {
             containerRef: chartContainerRef,
             chartOffset,
-            chartMargin: defaultChartMargin,
-            chartPadding: defaultChartPadding,
+            chartMargin,
+            chartPadding,
             type: 'temporal',
             keySelector: (datum) => datum.date,
             xValueSelector: (datum) => {
@@ -155,6 +157,30 @@ function IdpChart(props: Props) {
             numXAxisTicks: NUM_X_AXIS_POINTS,
             xDomain: { min: dateRange.min.getTime(), max: dateRange.max.getTime() },
         },
+    );
+
+    const hoverOutTimeoutRef = useRef<number | undefined>();
+    const [hoveredKey, setHoveredKey] = useState<string | number | undefined>();
+
+    const getMouseOverHandler = useCallback(
+        (key: number | string) => () => {
+            window.clearTimeout(hoverOutTimeoutRef.current);
+            setHoveredKey(key);
+        },
+        [],
+    );
+
+    const handleMouseOut = useCallback(
+        () => {
+            window.clearTimeout(hoverOutTimeoutRef.current);
+            hoverOutTimeoutRef.current = window.setTimeout(
+                () => {
+                    setHoveredKey(undefined);
+                },
+                200,
+            );
+        },
+        [],
     );
 
     const conflictDataPoints = dataPoints.map(
@@ -182,6 +208,10 @@ function IdpChart(props: Props) {
             };
         },
     ).filter(isDefined);
+
+    const renderableMinX = chartOffset.left + chartMargin.left + chartPadding.left;
+    const renderableMaxX = chartSize.width
+        - (chartOffset.right + chartMargin.right + chartPadding.right);
 
     return (
         <Container
@@ -218,69 +248,89 @@ function IdpChart(props: Props) {
                         xAxisHeight={X_AXIS_HEIGHT}
                         yAxisWidth={Y_AXIS_WIDTH}
                         chartSize={chartSize}
-                        chartMargin={defaultChartMargin}
+                        chartMargin={chartMargin}
                     />
                     <g className={styles.backgroundBars}>
                         {dataPoints.map(
-                            (point) => (
-                                <rect
-                                    key={point.key}
-                                    className={styles.rect}
-                                    x={point.x - 4}
-                                    y={0}
-                                    width={8}
-                                    height={renderableHeight}
-                                >
-                                    <Tooltip
-                                        title={point.originalData.date}
-                                        description={(
-                                            <div className={styles.tooltipContent}>
-                                                <NumberBlock
-                                                    label="Disaster"
-                                                    value={point.originalData.disaster}
-                                                />
-                                                <NumberBlock
-                                                    label="Conflict"
-                                                    value={point.originalData.conflict}
-                                                />
-                                            </div>
-                                        )}
-                                    />
-                                </rect>
-                            ),
+                            (point, i) => {
+                                const prevPoint = dataPoints[i - 1];
+                                const nextPoint = dataPoints[i + 1];
+
+                                const startX = isDefined(prevPoint)
+                                    ? (prevPoint.x + point.x) / 2
+                                    : renderableMinX;
+                                const endX = isDefined(nextPoint)
+                                    ? (nextPoint.x + point.x) / 2
+                                    : renderableMaxX;
+
+                                return (
+                                    <rect
+                                        key={point.key}
+                                        className={styles.rect}
+                                        x={startX}
+                                        y={0}
+                                        width={endX - startX}
+                                        height={renderableHeight}
+                                        onMouseOver={getMouseOverHandler(point.key)}
+                                        onMouseOut={handleMouseOut}
+                                    >
+                                        <Tooltip
+                                            title={point.originalData.date}
+                                            description={(
+                                                <div className={styles.tooltipContent}>
+                                                    <NumberBlock
+                                                        label="Disaster"
+                                                        value={point.originalData.disaster}
+                                                    />
+                                                    <NumberBlock
+                                                        label="Conflict"
+                                                        value={point.originalData.conflict}
+                                                    />
+                                                </div>
+                                            )}
+                                        />
+                                    </rect>
+                                );
+                            },
                         )}
                     </g>
                     <g className={styles.totalDisplacement}>
-                        {disasterDataPoints.map(
-                            (point) => (
-                                <circle
-                                    key={point.key}
-                                    className={styles.circle}
-                                    cx={point.x}
-                                    cy={point.y}
-                                />
-                            ),
-                        )}
                         <path
                             className={styles.path}
                             d={getPathData(disasterDataPoints)}
                         />
-                    </g>
-                    <g className={styles.conflict}>
-                        {conflictDataPoints.map(
+                        {disasterDataPoints.map(
                             (point) => (
                                 <circle
                                     key={point.key}
-                                    className={styles.circle}
+                                    className={_cs(
+                                        styles.circle,
+                                        hoveredKey === point.key && styles.hovered,
+                                    )}
                                     cx={point.x}
                                     cy={point.y}
                                 />
                             ),
                         )}
+                    </g>
+                    <g className={styles.conflict}>
                         <path
                             className={styles.path}
                             d={getPathData(conflictDataPoints)}
                         />
+                        {conflictDataPoints.map(
+                            (point) => (
+                                <circle
+                                    key={point.key}
+                                    className={_cs(
+                                        styles.circle,
+                                        hoveredKey === point.key && styles.hovered,
+                                    )}
+                                    cx={point.x}
+                                    cy={point.y}
+                                />
+                            ),
+                        )}
                     </g>
                 </svg>
             </div>

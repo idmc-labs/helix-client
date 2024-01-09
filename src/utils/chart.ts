@@ -381,6 +381,26 @@ export function getColorScaleFunction(
     };
 }
 
+/*
+function getNumberOfDaysInMonth(year: number, month: number) {
+    const date = new Date(year, month + 1, 1);
+    date.setDate(date.getDate() - 1);
+    return date.getDate();
+}
+
+type TemporalResolution = 'year' | 'month' | 'day';
+export function getTemporalIntervals(
+    bounds: Bounds,
+    numPoints: number,
+    resolution: TemporalResolution,
+) {
+    const minDate = new Date(bounds.min);
+    const maxDate = new Date(bounds.max);
+
+    const yearDiff = maxDate.getFullYear() - minDate.getFullYear();
+}
+*/
+
 export function getIntervals(bounds: Bounds, numPoints: number) {
     const diff = (bounds.max - bounds.min) / (numPoints - 1);
     const ticks = bounds.max === 0

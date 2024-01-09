@@ -43,13 +43,13 @@
                 }
 
                 .total-displacement {
-                    color: var(--color-disaster);
-                    pointer-events: none;
-                }
-
-                .conflict {
                     pointer-events: none;
                     color: var(--color-conflict);
+                }
+
+                .disaster {
+                    pointer-events: none;
+                    color: var(--color-disaster);
                 }
             }
         }

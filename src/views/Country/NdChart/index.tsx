@@ -156,15 +156,15 @@ function NdChart(props: Props) {
 
     const barWidth = 10;
 
-    const conflictDataPoints = dataPoints.map(
+    const disasterDataPoints = dataPoints.map(
         (dataPoint) => {
-            if (isNotDefined(dataPoint.originalData.conflict)) {
+            if (isNotDefined(dataPoint.originalData.disaster)) {
                 return undefined;
             }
 
             return {
                 ...dataPoint,
-                y: yScaleFn(dataPoint.originalData.conflict),
+                y: yScaleFn(dataPoint.originalData.disaster),
             };
         },
     ).filter(isDefined);
@@ -253,8 +253,8 @@ function NdChart(props: Props) {
                             ),
                         )}
                     </g>
-                    <g className={styles.conflict}>
-                        {conflictDataPoints.map(
+                    <g className={styles.disaster}>
+                        {disasterDataPoints.map(
                             (point) => (
                                 <rect
                                     key={point.key}

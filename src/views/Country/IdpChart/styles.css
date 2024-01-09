@@ -36,8 +36,17 @@
                 }
 
                 .circle {
-                    fill: currentColor;
+                    stroke: currentColor;
+                    /* FIXME: use variable */
+                    fill: #fff;
                     r: 4pt;
+                    stroke-width: 2pt;
+                    transition: r var(--duration-transition-medium) ease-in-out, fill var(--duration-transition-medium) ease-in-out;
+
+                    &.hovered {
+                        r: 5pt;
+                        fill: currentColor;
+                    }
                 }
 
                 .path {
@@ -50,7 +59,6 @@
                     color: var(--color-axes);
 
                     .rect {
-                        transition: opacity var(--duration-transition-medium) ease-in-out;
                         opacity: 0;
 
                         &:hover {
