@@ -6,4 +6,10 @@
         position: relative;
         flex-direction: column;
     }
+
+    .figure-footer {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+    }
 }
