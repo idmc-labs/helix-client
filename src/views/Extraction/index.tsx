@@ -19,9 +19,10 @@ import route from '#config/routes';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import { PurgeNull } from '#types';
 import useOptions from '#hooks/useOptions';
+import AdvancedFiguresFilter from '#components/rawTables/useFigureTable/AdvancedFiguresFilter';
+import Container from '#components/Container';
 
 import ExtractionEntriesTable from './ExtractionEntriesTable';
-import AdvancedFiguresFilter from '#components/rawTables/useFigureTable/AdvancedFiguresFilter';
 import SavedFiltersList, { GET_SAVED_QUERY_LIST } from './SavedFiltersList';
 
 import {
@@ -597,13 +598,15 @@ function Extraction(props: ExtractionProps) {
                 <PageHeader
                     title={header}
                 />
-                <AdvancedFiguresFilter
-                    className={styles.container}
-                    currentFilter={rawFiguresFilter}
-                    initialFilter={initialFiguresFilter}
-                    disabled={filterDisabled}
-                    onFilterChange={setFilter}
-                />
+                <Container>
+                    <AdvancedFiguresFilter
+                        className={styles.container}
+                        currentFilter={rawFiguresFilter}
+                        initialFilter={initialFiguresFilter}
+                        disabled={filterDisabled}
+                        onFilterChange={setFilter}
+                    />
+                </Container>
                 <ExtractionEntriesTable
                     className={styles.largeContainer}
                     entriesFilterState={entriesFilterState}

@@ -40,7 +40,7 @@ import PageHeader from '#components/PageHeader';
 import MyResources from '#components/lists/MyResources';
 import CountrySelectInput from '#components/selections/CountrySelectInput';
 import useOptions from '#hooks/useOptions';
-import FiguresFilter from '#components/rawTables/useFigureTable/FiguresFilter';
+import AdvancedFiguresFilter from '#components/rawTables/useFigureTable/AdvancedFiguresFilter';
 import { expandObject } from '#utils/common';
 
 import CrisesEventsEntriesFiguresTable from './CrisesEventsEntriesFiguresTable';
@@ -438,7 +438,7 @@ function Country(props: CountryProps) {
                         </Button>
                     )}
                 >
-                    <FiguresFilter
+                    <AdvancedFiguresFilter
                         currentFilter={rawFiguresFilter}
                         initialFilter={initialFiguresFilter}
                         onFilterChange={setFiguresFilter}
