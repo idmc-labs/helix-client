@@ -1,32 +1,38 @@
 .query-form {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
     gap: var(--spacing-medium);
 
-    .column-container {
+    .non-field-error {
+        grid-column: 1 / -1;
+    }
+
+    .search-input {
+        grid-column: 1 / -1;
+    }
+
+    .column {
         display: flex;
-        gap: var(--spacing-large);
+        flex-direction: column;
+        gap: var(--spacing-medium);
 
-        .column {
-            display: flex;
-            flex-basis: 0;
-            flex-direction: column;
-            flex-grow: 1;
-            gap: var(--spacing-medium);
+        .label {
+            font-weight: var(--font-weight-bold);
         }
     }
 
-    .input {
-        &.hidden {
-            display: none;
-        }
+    .additional-filters-switch {
+        grid-column: 1 / -1;
     }
 
-    .label {
-        font-weight: var(--tui-font-weight-bold);
+    .actions {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: flex-end;
+        gap: var(--spacing-medium);
+    }
 
-        &.hidden {
-            display: none;
-        }
+    .hidden {
+        display: none;
     }
 }

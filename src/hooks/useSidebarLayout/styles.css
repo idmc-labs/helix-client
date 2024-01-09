@@ -6,12 +6,6 @@
     /* FIXME: use variables */
     transition: left 0.2s ease-in-out;
 
-    /* FIXME: use variables */
-    box-shadow: 10px 0 10px -10px rgba(0, 0, 0, 0.3);
-
-    /* FIXME: use variables */
-    background-color: #fff;
-
     width: var(--width-sidebar);
     height: calc(100% - var(--height-navbar));
     overflow: auto;

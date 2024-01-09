@@ -221,21 +221,22 @@ function IdpChart(props: Props) {
         >
             <div className={styles.stats}>
                 <NumberBlock
-                    label={`Total as of ${lastPointWithData?.date ?? '--'}`}
+                    label="Total"
                     value={lastPointWithData?.sum}
+                    description={`as of ${lastPointWithData?.date ?? '--'}`}
                 />
-                <div className={styles.disaggregation}>
-                    <NumberBlock
-                        className={styles.conflictBlock}
-                        label="Conflict"
-                        value={lastPointWithData?.conflict}
-                    />
-                    <NumberBlock
-                        className={styles.disasterBlock}
-                        label="Disaster"
-                        value={lastPointWithData?.disaster}
-                    />
-                </div>
+                <NumberBlock
+                    className={styles.conflictBlock}
+                    label="Conflict"
+                    value={lastPointWithData?.conflict}
+                    description={`as of ${lastPointWithData?.date ?? '--'}`}
+                />
+                <NumberBlock
+                    className={styles.disasterBlock}
+                    label="Disaster"
+                    value={lastPointWithData?.disaster}
+                    description={`as of ${lastPointWithData?.date ?? '--'}`}
+                />
             </div>
             <div
                 className={styles.chartContainer}

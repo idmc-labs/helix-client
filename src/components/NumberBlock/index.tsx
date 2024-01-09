@@ -7,9 +7,11 @@ import styles from './styles.css';
 function NumberBlock({
     label,
     value,
+    description,
     className,
 }: {
     label: React.ReactNode;
+    description?: React.ReactNode;
     value: number | null | undefined;
     className?: string;
 }) {
@@ -23,6 +25,11 @@ function NumberBlock({
                 value={value}
                 placeholder="N/a"
             />
+            {description && (
+                <div className={styles.description}>
+                    {description}
+                </div>
+            )}
         </div>
     );
 }

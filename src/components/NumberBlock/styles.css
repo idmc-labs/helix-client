@@ -5,7 +5,13 @@
 
     .label {
         color: var(--color-text-label);
-        font-size: var(--font-size--small);
+        font-size: var(--font-size-small);
+    }
+
+    .description {
+        color: var(--color-text-label);
+        font-size: var(--font-size-small);
+        font-style: italic;
     }
 }
 

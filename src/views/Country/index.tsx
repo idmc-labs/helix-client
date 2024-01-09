@@ -299,30 +299,30 @@ function Country(props: CountryProps) {
     } = useSidebarLayout();
 
     return (
-        <div className={_cs(styles.countries, className)}>
-            <PageHeader
-                title={(
-                    <CountrySelectInput
-                        name="country"
-                        value={countryId}
-                        onChange={handleCountryChange}
-                        placeholder="Select a country"
-                        nonClearable
-                    />
-                )}
-                description={(
-                    <Button
-                        name={undefined}
-                        onClick={setShowSidebarTrue}
-                        disabled={showSidebar}
-                        icons={<IoFilterOutline />}
-                    >
-                        Filters
-                    </Button>
-                )}
-            />
-            <div className={containerClassName}>
-                {sidebarSpaceReserverElement}
+        <div className={_cs(styles.countries, containerClassName, className)}>
+            {sidebarSpaceReserverElement}
+            <div className={styles.pageContent}>
+                <PageHeader
+                    title={(
+                        <CountrySelectInput
+                            name="country"
+                            value={countryId}
+                            onChange={handleCountryChange}
+                            placeholder="Select a country"
+                            nonClearable
+                        />
+                    )}
+                    description={!showSidebar && (
+                        <Button
+                            name={undefined}
+                            onClick={setShowSidebarTrue}
+                            disabled={showSidebar}
+                            icons={<IoFilterOutline />}
+                        >
+                            Filters
+                        </Button>
+                    )}
+                />
                 <div className={styles.mainContent}>
                     <Map
                         mapStyle={lightStyle}
@@ -423,7 +423,6 @@ function Country(props: CountryProps) {
                     />
                 </div>
                 <Container
-                    borderless
                     className={_cs(styles.filters, sidebarClassName)}
                     heading="Filters"
                     contentClassName={styles.filtersContent}
