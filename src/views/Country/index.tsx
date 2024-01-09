@@ -12,6 +12,7 @@ import Map, {
     MapLayer,
 } from '@togglecorp/re-map';
 import { Button } from '@togglecorp/toggle-ui';
+import { IoFilterOutline, IoClose } from 'react-icons/io5';
 
 import {
     gql,
@@ -25,8 +26,11 @@ import {
     CountryAggregationsQueryVariables,
     CreateSummaryMutation,
     CreateContextualAnalysisMutation,
+    ExtractionEntryListFiltersQueryVariables,
 } from '#generated/types';
 
+import { PurgeNull } from '#types';
+import useFilterState from '#hooks/useFilterState';
 import useBasicToggle from '#hooks/useBasicToggle';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import route from '#config/routes';
@@ -36,6 +40,8 @@ import PageHeader from '#components/PageHeader';
 import MyResources from '#components/lists/MyResources';
 import CountrySelectInput from '#components/selections/CountrySelectInput';
 import useOptions from '#hooks/useOptions';
+import FiguresFilter from '#components/rawTables/useFigureTable/FiguresFilter';
+import { expandObject } from '#utils/common';
 
 import CrisesEventsEntriesFiguresTable from './CrisesEventsEntriesFiguresTable';
 import ContextualAnalysis from './ContextualAnalysis';
@@ -66,25 +72,6 @@ const COUNTRY = gql`
             }
             boundingBox
             iso2
-            eventsConflict: events(filters: { eventTypes: ["CONFLICT"] }) {
-                totalCount
-            }
-            eventsDisaster: events(filters: { eventTypes: ["DISASTER"] }) {
-                totalCount
-            }
-            crisesConflict: crises(filters: { crisisTypes: ["CONFLICT"] }) {
-                totalCount
-            }
-            crisesDisaster: crises(filters: { crisisTypes: ["DISASTER"] }) {
-                totalCount
-            }
-            entries {
-                totalCount
-            }
-            totalStockConflict
-            totalStockDisaster
-            totalFlowConflict
-            totalFlowDisaster
             geojsonUrl
         }
     }
@@ -135,19 +122,6 @@ function Country(props: CountryProps) {
     const { countryId } = useParams<{ countryId: string }>();
     const { replace: historyReplace } = useHistory();
 
-    const handleCountryChange = useCallback(
-        (value?: string) => {
-            if (isDefined(value)) {
-                const countryRoute = reverseRoute(route.country.path, { countryId: value });
-                historyReplace(countryRoute);
-            } else {
-                const countriesRoute = reverseRoute(route.countries.path);
-                historyReplace(countriesRoute);
-            }
-        },
-        [historyReplace],
-    );
-
     const [
         contextualFormOpened,
         handleContextualFormOpen,
@@ -162,6 +136,20 @@ function Country(props: CountryProps) {
 
     const [, setCountryOptions] = useOptions('country');
 
+    const figuresFilterState = useFilterState<PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>>({
+        filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
+    });
+    const {
+        filter: figuresFilter,
+        rawFilter: rawFiguresFilter,
+        initialFilter: initialFiguresFilter,
+        setFilter: setFiguresFilter,
+    } = figuresFilterState;
+
     const countryVariables = useMemo(
         (): CountryQueryVariables | undefined => ({ id: countryId }),
         [countryId],
@@ -169,11 +157,14 @@ function Country(props: CountryProps) {
 
     const countryAggregationsVariables = useMemo(
         (): CountryAggregationsQueryVariables | undefined => ({
-            filters: {
-                filterFigureCountries: [countryId],
-            },
+            filters: expandObject(
+                figuresFilter,
+                {
+                    filterFigureCountries: [countryId],
+                },
+            ),
         }),
-        [countryId],
+        [countryId, figuresFilter],
     );
 
     const {
@@ -200,19 +191,29 @@ function Country(props: CountryProps) {
 
     const {
         data: countryAggregations,
-        loading: countryAggregationsLoading,
-        error: countryAggregationsError,
+        // loading: countryAggregationsLoading,
+        // error: countryAggregationsError,
     } = useQuery<CountryAggregationsQuery>(COUNTRY_AGGREGATIONS, {
         variables: countryAggregationsVariables,
         skip: !countryAggregationsVariables,
     });
 
-    // FIXME: remove these later
-    console.warn(countryAggregations, countryAggregationsLoading, countryAggregationsError);
-
     const loading = countryDataLoading;
     const errored = !!countryDataLoadingError;
     const disabled = loading || errored;
+
+    const handleCountryChange = useCallback(
+        (value?: string) => {
+            if (isDefined(value)) {
+                const countryRoute = reverseRoute(route.country.path, { countryId: value });
+                historyReplace(countryRoute);
+            } else {
+                const countriesRoute = reverseRoute(route.countries.path);
+                historyReplace(countriesRoute);
+            }
+        },
+        [historyReplace],
+    );
 
     const handleAddNewSummary: MutationUpdaterFn<
         CreateSummaryMutation
@@ -284,6 +285,8 @@ function Country(props: CountryProps) {
         [countryVariables],
     );
 
+    const figureHiddenColumns = ['country' as const];
+
     const bounds = countryData?.country?.boundingBox ?? undefined;
 
     const {
@@ -312,6 +315,7 @@ function Country(props: CountryProps) {
                         name={undefined}
                         onClick={setShowSidebarTrue}
                         disabled={showSidebar}
+                        icons={<IoFilterOutline />}
                     >
                         Filters
                     </Button>
@@ -387,6 +391,7 @@ function Country(props: CountryProps) {
                     <CrisesEventsEntriesFiguresTable
                         className={styles.eventsEntriesFiguresTable}
                         countryId={countryId}
+                        figuresFilterState={figuresFilterState}
                     />
                     <Container
                         className={styles.overview}
@@ -420,33 +425,26 @@ function Country(props: CountryProps) {
                 <Container
                     borderless
                     className={_cs(styles.filters, sidebarClassName)}
-                    heading="Filter"
+                    heading="Filters"
                     contentClassName={styles.filtersContent}
                     headerActions={(
                         <Button
                             name={undefined}
                             onClick={setShowSidebarFalse}
+                            transparent
+                            title="Close"
                         >
-                            Close
+                            <IoClose />
                         </Button>
                     )}
-                    footerContent={<div />}
-                    footerActions={(
-                        <>
-                            <Button
-                                name={undefined}
-                            >
-                                Reset
-                            </Button>
-                            <Button
-                                name={undefined}
-                            >
-                                Apply
-                            </Button>
-                        </>
-                    )}
                 >
-                    Filters go!
+                    <FiguresFilter
+                        currentFilter={rawFiguresFilter}
+                        initialFilter={initialFiguresFilter}
+                        onFilterChange={setFiguresFilter}
+                        hiddenFields={figureHiddenColumns}
+                        countries={[countryId]}
+                    />
                 </Container>
             </div>
         </div>

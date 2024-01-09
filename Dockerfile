@@ -1,13 +1,10 @@
-FROM node:14.20.1-alpine
+FROM node:16.20.2-bullseye
 
-MAINTAINER togglecorp info@togglecorp.com
+# RUN yarn install --network-concurrency 1
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends git \
+    && git config --global --add safe.directory /code \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /code
-
-COPY ./package.json /code/package.json
-# RUN yarn install --network-concurrency 1
-RUN apk update \
-    && apk add --no-cache --virtual .build-deps\
-        git
-
-COPY . /code/

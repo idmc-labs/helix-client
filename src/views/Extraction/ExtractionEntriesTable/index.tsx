@@ -1,4 +1,4 @@
-import React, { useState, useMemo, SetStateAction } from 'react';
+import React, { useState, useMemo } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
     TabList,
@@ -13,29 +13,16 @@ import {
 } from '#generated/types';
 import { PurgeNull } from '#types';
 import Container from '#components/Container';
-import { SortParameter } from '#hooks/useFilterState';
+import { FilterStateResponse } from '#hooks/useFilterState';
 import useEntryTable from '#components/rawTables/useEntryTable';
 import useFigureTable from '#components/rawTables/useFigureTable';
+
 import styles from './styles.css';
 
 type Tabs = 'Entries' | 'Figures';
 
 type Filter = PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>;
-type FilterState = {
-    page: number;
-    setPage: (value: number) => void;
-
-    filter: Filter;
-
-    ordering: string | undefined;
-    sortState: {
-        sorting: SortParameter | undefined;
-        setSorting: (value: SetStateAction<SortParameter | undefined>) => void;
-    };
-
-    pageSize: number;
-    setPageSize: (value: number) => void;
-}
+type FilterState = FilterStateResponse<Filter>;
 
 interface ExtractionEntriesTableProps {
     headingActions?: React.ReactNode;

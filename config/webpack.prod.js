@@ -8,7 +8,7 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import CircularDependencyPlugin from 'circular-dependency-plugin';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
-// import GitRevisionPlugin from 'git-revision-webpack-plugin';
+import GitRevisionPlugin from 'git-revision-webpack-plugin';
 import StyleLintPlugin from 'stylelint-webpack-plugin';
 import OptimizeCssAssetsPlugin from 'optimize-css-assets-webpack-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
@@ -20,7 +20,7 @@ const dotenv = config({
     path: '.env',
 });
 
-// const gitRevisionPlugin = new GitRevisionPlugin();
+const gitRevisionPlugin = new GitRevisionPlugin();
 
 const appBase = process.cwd();
 const eslintFile = path.resolve(appBase, '.eslintrc-loader.js');
@@ -36,9 +36,9 @@ module.exports = (env) => {
     const ENV_VARS = {
         ...dotenv.pared,
         ...getEnvVariables(env),
-        // REACT_APP_VERSION: JSON.stringify(gitRevisionPlugin.version()),
-        // REACT_APP_COMMITHASH: JSON.stringify(gitRevisionPlugin.commithash()),
-        // REACT_APP_BRANCH: JSON.stringify(gitRevisionPlugin.branch()),
+        REACT_APP_VERSION: JSON.stringify(gitRevisionPlugin.version()),
+        REACT_APP_COMMITHASH: JSON.stringify(gitRevisionPlugin.commithash()),
+        REACT_APP_BRANCH: JSON.stringify(gitRevisionPlugin.branch()),
     };
 
     return {

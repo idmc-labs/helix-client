@@ -10,6 +10,32 @@ import { EntriesAsList } from '@togglecorp/toggle-form';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { hasNoData } from '#utils/common';
 
+export interface FilterStateResponse<T> {
+    rawFilter: T;
+    initialFilter: T;
+    filter: T;
+    filterChanged: boolean;
+    filtered: boolean;
+    setFilter: (value: SetStateAction<T>, updateInitialFilter?: boolean) => void;
+    resetFilter: () => void;
+    setFilterField: (...args: EntriesAsList<T>) => void;
+
+    rawPage: number;
+    page: number;
+    setPage: (value: number) => void;
+
+    rawPageSize: number;
+    pageSize: number;
+    setPageSize: (value: number) => void;
+
+    rawOrdering: string | undefined;
+    ordering: string | undefined;
+    sortState: {
+        sorting: SortParameter | undefined;
+        setSorting: (value: SetStateAction<SortParameter | undefined>) => void;
+    };
+}
+
 type SortDirection = 'asc' | 'dsc';
 export interface SortParameter {
     name: string;
@@ -77,7 +103,7 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
     page?: number,
     pageSize?: number,
     debounceTime?: number,
-}) {
+}): FilterStateResponse<FILTER> {
     const {
         filter,
         ordering = defaultOrdering,

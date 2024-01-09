@@ -29,6 +29,7 @@
 
         .events-entries-figures-table {
             grid-column: 1 / -1;
+            min-height: 600px;
         }
 
         .overview {

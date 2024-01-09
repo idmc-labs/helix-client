@@ -55,7 +55,7 @@ function CountriesCrisesEventsEntriesFiguresTable(
         ordering: countriesOrdering,
         sortState: countriesSortState,
 
-        rawFitler: rawCountriesFilter,
+        rawFilter: rawCountriesFilter,
         initialFilter: initialCountriesFilter,
         filter: countriesFilter,
         setFilter: setCountriesFilter,

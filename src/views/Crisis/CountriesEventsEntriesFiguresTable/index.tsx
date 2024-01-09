@@ -76,7 +76,7 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
         ordering: eventsOrdering,
         sortState: eventsSortState,
 
-        rawFitler: rawEventsFilter,
+        rawFilter: rawEventsFilter,
         initialFilter: initialEventsFilter,
         filter: eventsFilter,
         setFilter: setEventsFilter,
