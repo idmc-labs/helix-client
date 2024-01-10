@@ -156,10 +156,10 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                     <>
                         {selectedTab === 'Entries' && entriesPager}
                         {selectedTab === 'Figures' && (
-                            <div className={styles.figureFooter}>
+                            <>
                                 {figuresPager}
-                                { updateFiguresRoleButton }
-                            </div>
+                                {updateFiguresRoleButton}
+                            </>
                         )}
                     </>
                 )}
