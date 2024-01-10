@@ -7,5 +7,7 @@
 .update-role-section {
     display: flex;
     align-items: center;
+    flex-grow: 1;
+    justify-content: end;
     gap: var(--spacing-medium);
 }

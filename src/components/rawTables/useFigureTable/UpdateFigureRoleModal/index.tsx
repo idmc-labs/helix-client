@@ -3,10 +3,14 @@ import { Button, Modal, SelectInput } from '@togglecorp/toggle-ui';
 import {
     gql, useQuery,
 } from '@apollo/client';
-import { noOp, _cs } from '@togglecorp/fujs';
+import { _cs } from '@togglecorp/fujs';
 import Heading from '#components/Heading';
-import { FigureRoleOptionsQuery, FigureRoleOptionsQueryVariables } from '#generated/types';
-import { enumKeySelector, enumLabelSelector } from '#utils/common';
+import {
+    FigureRoleOptionsQuery,
+    FigureRoleOptionsQueryVariables,
+    TriggerBulkOperationMutationVariables,
+} from '#generated/types';
+import { enumKeySelector, enumLabelSelector, GetEnumOptions } from '#utils/common';
 
 import styles from './styles.css';
 
@@ -21,23 +25,27 @@ const FIGURE_ROLE_OPTIONS = gql`
     }
 `;
 
-// type FigureRoleOptions = GetEnumOptions<
-//     NonNullable<FigureRoleOptionsQuery['role']>['enumValues'],
-//     NonNullable<FigureRoleOptionsQuery['role']>['enumValues']
-// >;
+type Role = NonNullable<NonNullable<NonNullable<TriggerBulkOperationMutationVariables['data']>['payload']>['figureRole']>['role'];
+
 interface Props {
     className?: string;
+    role: Role | null | undefined;
+    totalFigureSelected?: number | null;
+    handleRoleChange: React.Dispatch<React.SetStateAction<Role | null | undefined>>;
+    onSubmitRole: () => void;
     onClose: () => void;
-    handleRoleChange: React.Dispatch<React.SetStateAction<string | undefined>>;
-    role: string | undefined;
+    disabled?: boolean;
 }
 
 function UpdateFigureRoleModal(props: Props) {
     const {
         className,
-        onClose,
-        handleRoleChange,
         role,
+        totalFigureSelected,
+        handleRoleChange,
+        onSubmitRole,
+        onClose,
+        disabled,
     } = props;
 
     const {
@@ -45,6 +53,11 @@ function UpdateFigureRoleModal(props: Props) {
         loading,
     } = useQuery<FigureRoleOptionsQuery, FigureRoleOptionsQueryVariables>(FIGURE_ROLE_OPTIONS);
 
+    const roles = data?.figureRoleList?.enumValues;
+    type RoleOptions = GetEnumOptions<
+        typeof roles,
+        NonNullable<typeof role>
+    >;
     return (
         <div>
             <Modal
@@ -69,22 +82,22 @@ function UpdateFigureRoleModal(props: Props) {
                         </Button>
                         <Button
                             name={undefined}
-                            onClick={noOp}
+                            onClick={onSubmitRole}
                             variant="primary"
+                            disabled={disabled}
                         >
                             Save
                         </Button>
                     </>
                 )}
             >
-                { /* TODO: update dynamically */ }
                 <Heading size="small">
-                    No. of figures selected: 2
+                    {`No. of figures selected: ${totalFigureSelected}`}
                 </Heading>
                 <SelectInput
                     label="Role"
                     name="role"
-                    options={data?.figureRoleList?.enumValues}
+                    options={roles as RoleOptions}
                     value={role}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
