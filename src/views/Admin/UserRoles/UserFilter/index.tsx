@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useEffect } from 'react';
-import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
+import { SelectInput, TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import { gql, useQuery } from '@apollo/client';
 import {
@@ -50,16 +50,9 @@ const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         fullName: [],
         roleIn: [],
-        // isActive: [],
+        isActive: [],
     }),
 };
-
-/*
-const isActiveOptions = [
-    { id: 'true', name: 'Yes' },
-    { id: 'false', name: 'No' },
-];
-*/
 
 interface UsersFilterProps {
     className?: string;
@@ -68,7 +61,6 @@ interface UsersFilterProps {
     onFilterChange: (value: PartialForm<FormType>) => void;
 }
 
-/*
 interface ActiveOption {
     key: boolean;
     label: string;
@@ -79,7 +71,6 @@ const isActiveOptions: ActiveOption[] = [
 ];
 const keySelector = (item: ActiveOption) => item.key;
 const labelSelector = (item: ActiveOption) => item.label;
-*/
 
 function UserFilter(props: UsersFilterProps) {
     const {
@@ -170,7 +161,6 @@ function UserFilter(props: UsersFilterProps) {
                     error={error?.fields?.roleIn?.$internal}
                     disabled={rolesOptionsLoading || !!rolesOptionsError}
                 />
-                {/*
                 <SelectInput
                     className={styles.input}
                     label="Active"
@@ -182,7 +172,6 @@ function UserFilter(props: UsersFilterProps) {
                     onChange={onValueChange}
                     error={error?.fields?.isActive}
                 />
-                */}
                 <div className={styles.formButtons}>
                     <Button
                         name={undefined}

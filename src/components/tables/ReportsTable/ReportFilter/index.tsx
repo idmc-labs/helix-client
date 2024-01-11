@@ -44,6 +44,8 @@ const schema: FormSchema = {
         startDateAfter: [],
         endDateBefore: [],
         isPublic: [],
+        isGiddReport: [],
+        isPfaVisibleInGidd: [],
     }),
 };
 
@@ -156,10 +158,26 @@ function ReportFilter(props: ReportFilterProps) {
                 />
                 <BooleanInput
                     className={styles.input}
-                    label="Public"
+                    label="Public Report"
                     name="isPublic"
                     error={error?.fields?.isPublic}
                     value={value.isPublic}
+                    onChange={onValueChange}
+                />
+                <BooleanInput
+                    className={styles.input}
+                    label="GRID Report"
+                    name="isGiddReport"
+                    error={error?.fields?.isGiddReport}
+                    value={value.isGiddReport}
+                    onChange={onValueChange}
+                />
+                <BooleanInput
+                    className={styles.input}
+                    label="Has Public Figure Analysis"
+                    name="isPfaVisibleInGidd"
+                    error={error?.fields?.isPfaVisibleInGidd}
+                    value={value.isPfaVisibleInGidd}
                     onChange={onValueChange}
                 />
                 <DateRangeDualInput
