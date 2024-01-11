@@ -170,6 +170,7 @@ function useFigureTable(props: NudeFigureTableProps) {
     } = props;
 
     // FIXME: clear selected figures when filters is applied
+    // Need to pass from parent component
     const [selectedFigures, setSelectedFigures] = useState<string[]>([]);
     const [mode, setMode] = useState<'SELECT' | 'DESELECT'>('SELECT');
 
@@ -262,7 +263,6 @@ function useFigureTable(props: NudeFigureTableProps) {
         },
     );
 
-    // TODO: hide all actions when at least one figure is selected
     const handleFigureDelete = useCallback(
         (id: string) => {
             deleteFigure({
@@ -543,6 +543,7 @@ function useFigureTable(props: NudeFigureTableProps) {
                         editLinkAttrs: { entryId: datum.entry.id },
                         editHash: '/figures-and-analysis',
                         editSearch: `id=${datum.id}`,
+                        disabled: selectedFigures.length > 0,
                     }),
                     'action',
                     '',
@@ -561,6 +562,7 @@ function useFigureTable(props: NudeFigureTableProps) {
             headerCheckboxValue,
             selectedFiguresMapping,
             mode,
+            selectedFigures,
         ],
     );
 
@@ -571,7 +573,7 @@ function useFigureTable(props: NudeFigureTableProps) {
                 confirmationMessage="Are you sure you want to export this table data?"
                 name={undefined}
                 onConfirm={handleExportTableData}
-                disabled={exportingTableData}
+                disabled={exportingTableData || selectedFigures.length > 0}
             >
                 Export
             </ConfirmButton>

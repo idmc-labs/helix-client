@@ -1,45 +1,63 @@
 import React, { useMemo } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Pager } from '@togglecorp/toggle-ui';
+
 import useFilterState from '#hooks/useFilterState';
 import Message from '#components/Message';
+import {
+    ExcelExportsQuery,
+    ExcelExportsQueryVariables,
+} from '#generated/types';
 
 import Loading from '#components/Loading';
 import Container from '#components/Container';
-import { BulkApiOperationsQuery, BulkApiOperationsQueryVariables } from '#generated/types';
 
-import BulkActionDownloadedItem from './BulkActionDownloadItem';
+import DownloadedItem from './DownloadedItem';
 import styles from './styles.css';
 
-const BULK_OPERATIONS = gql`
-    query BulkApiOperations(
+const DOWNLOADS = gql`
+    query ExcelExports(
         $ordering: String,
         $page: Int,
         $pageSize: Int,
     ) {
-        bulkApiOperations(
-            ordering: $ ordering,
+        excelExports(
+            pageSize: $pageSize,
             page: $page,
-            pageSize: $pageSize
+            ordering: $ordering,
         ) {
+            totalCount
             results {
                 id
-                status
-                statusDisplay
-                action
-                actionDisplay
+                downloadType
+                startedAt
+                completedAt
                 createdAt
-                failureCount
-                successCount
+                status
+                file
+                fileSize
             }
+        }
+        excelRemainingExports: excelExports(
+            filters: { statusList: ["PENDING", "IN_PROGRESS"] },
+        ) {
             totalCount
-            page
-            pageSize
         }
     }
 `;
 
-function BulkActionDownload() {
+// NOTE: exporting this so that other requests can refetch this request
+export const DOWNLOADS_COUNT = gql`
+    query ExcelExportsCount {
+      excelExports(
+        filters: { statusList: ["PENDING", "IN_PROGRESS"] },
+    ) {
+        totalCount
+      }
+    }
+`;
+
+function ExportDownloadSection() {
     const {
         page,
         rawPage,
@@ -50,8 +68,8 @@ function BulkActionDownload() {
         filter: {},
     });
 
-    const variables = useMemo(
-        (): BulkApiOperationsQueryVariables => ({
+    const downloadVariables = useMemo(
+        (): ExcelExportsQueryVariables => ({
             ordering: '-created_at',
             page,
             pageSize,
@@ -62,25 +80,23 @@ function BulkActionDownload() {
     const {
         data: downloadData,
         loading: downloadDataLoading,
-    } = useQuery<BulkApiOperationsQuery>(BULK_OPERATIONS, { variables });
+    } = useQuery<ExcelExportsQuery>(DOWNLOADS, { variables: downloadVariables });
 
-    // TODO:
-    const downloadFiles = downloadData?.bulkApiOperations?.results;
-    const totalDownloadFilesCount = downloadData?.bulkApiOperations?.totalCount ?? 0;
+    const downloadFiles = downloadData?.excelExports?.results;
+    const totalDownloadFilesCount = downloadData?.excelExports?.totalCount ?? 0;
 
     return (
         <Container contentClassName={styles.exportsContent}>
             {downloadDataLoading && <Loading absolute />}
             {downloadFiles?.map((item) => (
-                <BulkActionDownloadedItem
+                <DownloadedItem
                     key={item.id}
-                    // TODO: once implemented on server
-                    file={undefined}
-                    fileSize={undefined}
-                    startedDate={item.createdAt}
-                    completedDate={item.createdAt}
+                    file={item.file}
+                    fileSize={item.fileSize}
+                    startedDate={item.startedAt}
+                    completedDate={item.completedAt}
                     createdDate={item.createdAt}
-                    downloadType={item.actionDisplay}
+                    downloadType={item.downloadType}
                     status={item.status}
                 />
             ))}
@@ -100,4 +116,4 @@ function BulkActionDownload() {
     );
 }
 
-export default BulkActionDownload;
+export default ExportDownloadSection;
