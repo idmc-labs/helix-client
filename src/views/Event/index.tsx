@@ -64,7 +64,6 @@ const EVENT = gql`
                 boundingBox
                 geojsonUrl
             }
-            glideNumbers
             eventNarrative
             violence {
                 id
@@ -89,6 +88,10 @@ const EVENT = gql`
             assignee {
                 id
                 username
+            }
+            eventCodes {
+                id
+                eventCode
             }
         }
     }
@@ -265,7 +268,7 @@ function Event(props: EventProps) {
                     />
                     <TextBlock
                         label="Event Codes"
-                        value={eventData?.event?.glideNumbers?.map((glideID) => glideID).join(', ')}
+                        value={eventData?.event?.eventCodes?.map((code) => code.eventCode).join(', ')}
                     />
                     <TextBlock
                         label="Countries"

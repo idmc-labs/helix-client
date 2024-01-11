@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { Error, removeNull } from '@togglecorp/toggle-form';
 
 import { transformToFormError } from '#utils/errorTransform';
@@ -128,14 +127,5 @@ export function getGeoLocationReviewProps(
 
     return {
         name,
-    };
-}
-
-// Remove id and generate new uuid
-export function ghost<T extends { id?: string; uuid: string }>(value: T): T {
-    return {
-        ...value,
-        id: undefined,
-        uuid: uuidv4(),
     };
 }
