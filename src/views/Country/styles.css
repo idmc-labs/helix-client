@@ -18,6 +18,13 @@
             grid-template-columns: repeat(auto-fit, minmax(32rem, 1fr));
             gap: var(--spacing-large);
 
+            .filter-outputs {
+                grid-column: 1 / -1;
+                display: flex;
+                flex-wrap: wrap;
+                gap: var(--spacing-medium) var(--spacing-large);
+            }
+
             .map-container {
                 height: 45rem;
                 grid-column: 1 / -2;

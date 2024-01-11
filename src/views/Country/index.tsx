@@ -27,9 +27,10 @@ import {
     CreateSummaryMutation,
     CreateContextualAnalysisMutation,
     ExtractionEntryListFiltersQueryVariables,
+    ExtractionFormOptionsQuery,
 } from '#generated/types';
 
-import { PurgeNull } from '#types';
+import { EnumEntity, PurgeNull } from '#types';
 import useFilterState from '#hooks/useFilterState';
 import useBasicToggle from '#hooks/useBasicToggle';
 import { reverseRoute } from '#hooks/useRouteMatching';
@@ -50,8 +51,91 @@ import styles from './styles.css';
 import useSidebarLayout from '#hooks/useSidebarLayout';
 import NdChart from './NdChart';
 import IdpChart from './IdpChart';
+import FilterOutput from '#components/FilterOutput';
 
 type Bounds = [number, number, number, number];
+
+const FORM_OPTIONS = gql`
+    query ExtractionFormOptions {
+        figureCategoryList: __type(name: "FIGURE_CATEGORY_TYPES") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        figureTermList: __type(name: "FIGURE_TERMS") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        figureRoleList: __type(name: "ROLE") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        crisisType: __type(name: "CRISIS_TYPE") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        figureReviewStatus: __type(name: "FIGURE_REVIEW_STATUS") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        violenceList {
+            results {
+                id
+                name
+                subTypes {
+                    results {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+        contextOfViolenceList {
+            results {
+              id
+              name
+            }
+        }
+        disasterCategoryList {
+            results {
+                id
+                name
+                subCategories {
+                    results {
+                        id
+                        name
+                        types {
+                            results {
+                                id
+                                name
+                                subTypes {
+                                    results {
+                                        id
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+`;
 
 const COUNTRY = gql`
     query Country($id: ID!) {
@@ -99,6 +183,13 @@ const COUNTRY_AGGREGATIONS = gql`
         }
     }
 `;
+
+const enumKeySelector = <T extends string | number>(d: EnumEntity<T>) => (
+    d.name
+);
+const enumLabelSelector = <T extends string | number>(d: EnumEntity<T>) => (
+    d.description ?? String(d.name)
+);
 
 const lightStyle = 'mapbox://styles/togglecorp/cl50rwy0a002d14mo6w9zprio';
 
@@ -185,6 +276,13 @@ function Country(props: CountryProps) {
     ] = useBasicToggle();
 
     const [, setCountryOptions] = useOptions('country');
+    const [eventOptions] = useOptions('event');
+
+    const {
+        data: filterOptions,
+        loading: queryOptionsLoading,
+        error: queryOptionsError,
+    } = useQuery<ExtractionFormOptionsQuery>(FORM_OPTIONS);
 
     const figuresFilterState = useFilterState<PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>>({
         filter: {},
@@ -375,6 +473,54 @@ function Country(props: CountryProps) {
                     )}
                 />
                 <div className={styles.mainContent}>
+                    <div className={styles.filterOutputs}>
+                        <FilterOutput
+                            label="Date from"
+                            options={[]}
+                            value={rawFiguresFilter.filterFigureStartAfter}
+                            keySelector={enumKeySelector}
+                            labelSelector={() => rawFiguresFilter.filterFigureStartAfter}
+                        />
+                        <FilterOutput
+                            label="Date to"
+                            options={[]}
+                            value={rawFiguresFilter.filterFigureEndBefore}
+                            keySelector={enumKeySelector}
+                            labelSelector={() => rawFiguresFilter.filterFigureEndBefore}
+                        />
+                        <FilterOutput
+                            label="Causes"
+                            options={filterOptions?.crisisType?.enumValues}
+                            value={rawFiguresFilter.filterFigureCrisisTypes}
+                            keySelector={enumKeySelector}
+                            labelSelector={enumLabelSelector}
+                            multi
+                        />
+                        <FilterOutput
+                            label="Terms"
+                            options={filterOptions?.figureTermList?.enumValues}
+                            value={rawFiguresFilter.filterFigureTerms}
+                            keySelector={enumKeySelector}
+                            labelSelector={enumLabelSelector}
+                            multi
+                        />
+                        <FilterOutput
+                            label="Roles"
+                            options={filterOptions?.figureRoleList?.enumValues}
+                            value={rawFiguresFilter.filterFigureRoles}
+                            keySelector={enumKeySelector}
+                            labelSelector={enumLabelSelector}
+                            multi
+                        />
+                        <FilterOutput
+                            label="Events"
+                            options={eventOptions}
+                            value={rawFiguresFilter.filterFigureEvents}
+                            keySelector={(d) => d.id}
+                            labelSelector={(d) => d.name}
+                            multi
+                        />
+                    </div>
                     <Map
                         mapStyle={lightStyle}
                         mapOptions={{
