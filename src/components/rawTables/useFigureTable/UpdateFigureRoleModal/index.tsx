@@ -107,6 +107,7 @@ function UpdateFigureRoleModal(props: Props) {
             },
         },
     );
+    console.log('jhjhjhj', mode, selectedFigures);
 
     const handleRoleUpdate = useCallback(
         () => {
@@ -124,7 +125,7 @@ function UpdateFigureRoleModal(props: Props) {
                                 figureRole: {
                                     figure: {
                                         ...filters,
-                                        filterFigureIds: mode !== 'DESELECT' ? [] : selectedFigures,
+                                        filterFigureIds: mode !== 'DESELECT' ? selectedFigures : [],
                                         filterFigureExcludeIds: mode === 'DESELECT' ? selectedFigures : [],
                                     },
                                 },

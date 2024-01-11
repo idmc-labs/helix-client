@@ -1,9 +1,13 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { gql, useQuery, useLazyQuery } from '@apollo/client';
 import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     PopupButton,
     Pager,
+    Tabs,
+    TabList,
+    Tab,
+    TabPanel,
 } from '@togglecorp/toggle-ui';
 import {
     IoDownload,
@@ -24,6 +28,7 @@ import Container from '#components/Container';
 
 import DownloadedItem from './DownloadedItem';
 import styles from './styles.css';
+import BulkActionDownload from './BulkActionDownload';
 
 const DOWNLOADS = gql`
     query ExcelExports(
@@ -96,11 +101,7 @@ function DownloadsSection() {
     const totalDownloadFilesCount = downloadData?.excelExports?.totalCount ?? 0;
 
     return (
-        <Container
-            heading="Exports"
-            borderless
-            contentClassName={styles.exportsContent}
-        >
+        <Container contentClassName={styles.exportsContent}>
             {downloadDataLoading && <Loading absolute />}
             {downloadFiles?.map((item) => (
                 <DownloadedItem
@@ -141,6 +142,7 @@ function Downloads(props: Props) {
         buttonClassName,
     } = props;
 
+    const [selectedTab, setSelectedTab] = useState<'Exports' | 'BulkActions' | undefined>('Exports');
     const [
         start,
         { data, stopPolling },
@@ -181,7 +183,21 @@ function Downloads(props: Props) {
                 arrowHidden
                 persistent={false}
             >
-                <DownloadsSection />
+                <Tabs
+                    value={selectedTab}
+                    onChange={setSelectedTab}
+                >
+                    <TabList className={styles.tabList}>
+                        <Tab name="Exports"> Exports </Tab>
+                        <Tab name="BulkActions"> Bulk Actions </Tab>
+                    </TabList>
+                    <TabPanel name="Exports">
+                        <DownloadsSection />
+                    </TabPanel>
+                    <TabPanel name="BulkActions">
+                        <BulkActionDownload />
+                    </TabPanel>
+                </Tabs>
             </PopupButton>
             <Badge
                 className={styles.badge}

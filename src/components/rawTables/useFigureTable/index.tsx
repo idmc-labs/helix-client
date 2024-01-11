@@ -263,7 +263,6 @@ function useFigureTable(props: NudeFigureTableProps) {
     );
 
     // TODO: hide all actions when at least one figure is selected
-
     const handleFigureDelete = useCallback(
         (id: string) => {
             deleteFigure({
