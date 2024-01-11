@@ -35,6 +35,7 @@ import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import SymbolCell, { SymbolCellProps } from '#components/tableHelpers/SymbolCell';
 import NonFieldError from '#components/NonFieldError';
+import Heading from '#components/Heading';
 import {
     ExtractionFigureListQuery,
     ExtractionFigureListQueryVariables,
@@ -43,7 +44,6 @@ import {
     ExtractionEntryListFiltersQueryVariables,
     ExportFiguresMutation,
     ExportFiguresMutationVariables,
-    TriggerBulkOperationMutation,
     TriggerBulkOperationMutationVariables,
 } from '#generated/types';
 import route from '#config/routes';
@@ -51,8 +51,6 @@ import useModalState from '#hooks/useModalState';
 
 import UpdateFigureRoleModal from './UpdateFigureRoleModal';
 import styles from './styles.css';
-import Header from '#components/Header';
-import Heading from '#components/Heading';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 const MAX_SELECT_COUNT = 100;
@@ -149,18 +147,6 @@ const FIGURE_DELETE = gql`
     }
 `;
 
-const FIGURES_ROLE_UPDATE = gql`
-    mutation TriggerBulkOperation ($data: BulkApiOperationInputType!) {
-        triggerBulkOperation(data: $data) {
-            ok
-            errors
-            result {
-                id
-            }
-        }
-    }
-`;
-
 type FigureFields = NonNullable<NonNullable<ExtractionFigureListQuery['figureList']>['results']>[number];
 type Role = NonNullable<NonNullable<NonNullable<TriggerBulkOperationMutationVariables['data']>['payload']>['figureRole']>['role'];
 
@@ -169,9 +155,7 @@ const keySelector = (item: FigureFields) => item.id;
 interface NudeFigureTableProps {
     className?: string;
     filters?: ExtractionEntryListFiltersQueryVariables;
-
     hiddenColumns?: ('event' | 'crisis' | 'entry' | 'country' | 'createdBy')[];
-
     page: number;
     pageSize: number;
     onPageChange: (value: number) => void;
@@ -184,7 +168,6 @@ function useFigureTable(props: NudeFigureTableProps) {
         className,
         filters,
         hiddenColumns = [],
-
         page,
         pageSize,
         onPageChange,
@@ -193,10 +176,8 @@ function useFigureTable(props: NudeFigureTableProps) {
     } = props;
 
     const [selectedFigures, setSelectedFigures] = useState<string[]>([]);
-    const [excludeFigures, setExcludeFigures] = useState<string[]>([]);
     const [mode, setMode] = useState<'SELECT' | 'DESELECT'>('SELECT');
     const [role, setRole] = useState<Role | null>();
-    const [selectedFiguresCount, setSelectedFiguresCount] = useState<number>(0);
 
     const [
         roleUpdatedModal, ,
@@ -210,21 +191,14 @@ function useFigureTable(props: NudeFigureTableProps) {
         refetch: refetchFigures,
     } = useQuery<ExtractionFigureListQuery, ExtractionFigureListQueryVariables>(FIGURE_LIST, {
         variables: filters,
-        onCompleted: (figureResponse) => {
-            if (mode === 'DESELECT') {
-                const newFigures = figureResponse.figureList?.results?.map(
-                    (fig) => fig.id,
-                );
-                setSelectedFigures(
-                    (oldFigures) => unique([...oldFigures, ...newFigures ?? []], (d) => d),
-                );
-                setSelectedFiguresCount(figureResponse?.figureList?.totalCount ?? 0);
-            }
+        onCompleted: () => {
+            const isFilterEmpty = isDefined(filters)
+            && isDefined(filters?.filters)
+            && Object.keys(filters?.filters).length === 0;
 
             // Note: prevent empty from pageSize and ordering filter
-            if (isDefined(filters?.filters)) {
+            if (!isFilterEmpty) {
                 setSelectedFigures([]);
-                setExcludeFigures([]);
                 setMode('SELECT');
             }
         },
@@ -297,29 +271,6 @@ function useFigureTable(props: NudeFigureTableProps) {
         },
     );
 
-    const [
-        triggerUpdateFigureRole,
-        { loading: figureRoleUpdating },
-    ] = useMutation<TriggerBulkOperationMutation, TriggerBulkOperationMutationVariables>(
-        FIGURES_ROLE_UPDATE,
-        {
-            onCompleted: (response) => {
-                if (response.triggerBulkOperation?.ok) {
-                    setSelectedFigures([]);
-                    setExcludeFigures([]);
-                    setMode('SELECT');
-                    hideRoleUpdateModal();
-                }
-            },
-            onError: (error) => {
-                notify({
-                    children: error.message,
-                    variant: 'error',
-                });
-            },
-        },
-    );
-
     const handleFigureDelete = useCallback(
         (id: string) => {
             deleteFigure({
@@ -340,86 +291,90 @@ function useFigureTable(props: NudeFigureTableProps) {
         [exportFigures, filters],
     );
 
-    const handleRoleUpdate = useCallback(
-        () => {
-            if (isDefined(role)) {
-                triggerUpdateFigureRole({
-                    variables: {
-                        data: {
-                            action: 'FIGURE_ROLE',
-                            payload: {
-                                figureRole: {
-                                    role,
-                                },
-                            },
-                            filters: {
-                                figureRole: {
-                                    figure: {
-                                        ...filters,
-                                        filterFigureIds: mode === 'DESELECT' ? [] : selectedFigures,
-                                        filterFigureExcludeIds: mode === 'DESELECT' ? excludeFigures : [],
-                                    },
-                                },
-                            },
-                        },
-                    },
-                });
-            }
-        },
-        [
-            role,
-            selectedFigures,
-            excludeFigures,
-            filters,
-            triggerUpdateFigureRole,
-            mode,
-        ],
-    );
-
     const { user } = useContext(DomainContext);
     const entryPermissions = user?.permissions?.entry;
 
-    const figures = useMemo(() => figuresData?.figureList?.results?.map(
+    const figureIds = useMemo(() => figuresData?.figureList?.results?.map(
         (fig) => fig.id,
     ), [figuresData]);
 
     const handleSelectAll = useCallback((value: boolean) => {
-        setSelectedFigures((oldFigures) => {
-            if (value) {
-                setMode('DESELECT');
-                setSelectedFiguresCount(figuresData?.figureList?.totalCount ?? 0);
-                return unique([...oldFigures, ...figures ?? []], (d) => d);
-            }
-
-            // NOTE: clear value after deselect all
-            setMode('SELECT');
-            setSelectedFiguresCount(0);
-            const idMap = listToMap(figures ?? [], (d) => d, () => true);
-            return oldFigures.filter((d) => !idMap[d]);
-        });
-    }, [
-        figures,
-        figuresData,
-    ]);
-
-    const handleSelection = useCallback((value: boolean, figure: FigureFields) => {
         if (value) {
-            setSelectedFigures((oldSelectedFigures) => ([...oldSelectedFigures, figure.id]));
-            setSelectedFiguresCount((oldCount) => (oldCount ?? 0) + 1);
+            setSelectedFigures([]);
+            setMode('DESELECT');
         } else {
-            setSelectedFigures((oldSelectedFigures) => (
-                oldSelectedFigures.filter((v) => v !== figure.id)
-            ));
-            setExcludeFigures((oldSelectedFigures) => ([...oldSelectedFigures, figure.id]));
-            setSelectedFiguresCount((oldCount) => (oldCount ?? 0) - 1);
+            setMode('SELECT');
+            setSelectedFigures([]);
         }
     }, []);
 
-    const selectedFiguresMap = listToMap(selectedFigures, (d) => d, () => true);
-    const selectAllCheckValue = figures?.some((d) => selectedFiguresMap[d]);
+    const handleSelection = useCallback((value: boolean, figure: FigureFields) => {
+        if (value) {
+            setSelectedFigures((oldSelectedFigures) => unique(
+                [...oldSelectedFigures, figure.id],
+                (d) => d,
+            ));
+        } else {
+            setSelectedFigures(
+                (oldSelectedFigures) => {
+                    const filterDeselectFigure = figureIds?.filter(
+                        (figureId) => figureId === figure.id,
+                    );
+                    return unique(
+                        [...oldSelectedFigures, ...filterDeselectFigure ?? []],
+                        (d) => d,
+                    );
+                },
+            );
+        }
+    }, [figureIds]);
 
-    const indeterminate = (mode === 'DESELECT' && excludeFigures.length > 0)
-        || (mode === 'SELECT' && selectedFigures.length > 0);
+    const filterExcludeFigureIds = useMemo(
+        () => {
+            if (mode === 'DESELECT' && selectedFigures.length > 0) {
+                return (figureIds ?? []).filter((id) => !selectedFigures.includes(id));
+            }
+            if (mode === 'DESELECT' && selectedFigures.length === 0) {
+                return figureIds;
+            }
+
+            return selectedFigures;
+        }, [
+            figureIds,
+            selectedFigures,
+            mode,
+        ],
+    );
+
+    const selectedFiguresCount = useMemo(
+        () => {
+            if (mode === 'DESELECT' && selectedFigures.length === 0) {
+                return figuresData?.figureList?.totalCount ?? 0;
+            }
+            if (mode === 'DESELECT' && selectedFigures.length > 0) {
+                return (figuresData?.figureList?.totalCount ?? 0) - selectedFigures.length;
+            }
+            return filterExcludeFigureIds?.length ?? 0;
+        }, [
+            mode,
+            figuresData?.figureList,
+            filterExcludeFigureIds,
+            selectedFigures,
+        ],
+    );
+
+    const selectedFiguresMap = listToMap(figureIds, (d) => d, () => true);
+    const selectAllCheckValue = useMemo(
+        () => mode === 'DESELECT'
+        && figureIds?.some((d) => selectedFiguresMap[d]),
+        [figureIds, selectedFiguresMap, mode],
+    );
+
+    const queryBasedFigureList = figuresData?.figureList?.results;
+    const totalFiguresCount = figuresData?.figureList?.totalCount ?? 0;
+
+    const indeterminate = (selectedFigures.length > 0
+                           && figureIds?.length !== filterExcludeFigureIds?.length);
 
     const columns = useMemo(
         () => {
@@ -441,7 +396,7 @@ function useFigureTable(props: NudeFigureTableProps) {
                 cellRenderer: Checkbox,
                 cellRendererParams: (_, data) => ({
                     name: data.id,
-                    value: selectedFigures.some((id) => id === data.id),
+                    value: filterExcludeFigureIds?.some((id) => id === data.id),
                     onChange: (newVal) => handleSelection(newVal, data),
                 }),
                 cellRendererClassName: styles.checkbox,
@@ -645,14 +600,11 @@ function useFigureTable(props: NudeFigureTableProps) {
             entryPermissions?.delete,
             handleSelectAll,
             handleSelection,
-            selectedFigures,
             indeterminate,
             selectAllCheckValue,
+            filterExcludeFigureIds,
         ],
     );
-
-    const queryBasedFigureList = figuresData?.figureList?.results;
-    const totalFiguresCount = figuresData?.figureList?.totalCount ?? 0;
 
     return {
         exportButton: (
@@ -720,12 +672,14 @@ function useFigureTable(props: NudeFigureTableProps) {
                 )}
                 {roleUpdatedModal && (
                     <UpdateFigureRoleModal
+                        mode={mode}
+                        onChangeMode={setMode}
                         role={role}
+                        selectedFigures={selectedFigures}
                         totalFigureSelected={selectedFiguresCount}
                         handleRoleChange={setRole}
-                        onSubmitRole={handleRoleUpdate}
                         onClose={hideRoleUpdateModal}
-                        disabled={figureRoleUpdating}
+                        onChangeSelectedFigures={setSelectedFigures}
                     />
                 )}
             </>
