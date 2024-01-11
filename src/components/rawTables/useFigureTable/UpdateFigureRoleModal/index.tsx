@@ -1,16 +1,19 @@
-import React from 'react';
+import React, { useCallback, useContext } from 'react';
 import { Button, Modal, SelectInput } from '@togglecorp/toggle-ui';
 import {
-    gql, useQuery,
+    gql, useMutation, useQuery,
 } from '@apollo/client';
-import { _cs } from '@togglecorp/fujs';
+import { isDefined, _cs } from '@togglecorp/fujs';
 import Heading from '#components/Heading';
 import {
+    ExtractionEntryListFiltersQueryVariables,
     FigureRoleOptionsQuery,
     FigureRoleOptionsQueryVariables,
+    TriggerBulkOperationMutation,
     TriggerBulkOperationMutationVariables,
 } from '#generated/types';
 import { enumKeySelector, enumLabelSelector, GetEnumOptions } from '#utils/common';
+import NotificationContext from '#components/NotificationContext';
 
 import styles from './styles.css';
 
@@ -25,27 +28,45 @@ const FIGURE_ROLE_OPTIONS = gql`
     }
 `;
 
+const FIGURES_ROLE_UPDATE = gql`
+    mutation TriggerBulkOperation ($data: BulkApiOperationInputType!) {
+        triggerBulkOperation(data: $data) {
+            ok
+            errors
+            result {
+                id
+            }
+        }
+    }
+`;
+
 type Role = NonNullable<NonNullable<NonNullable<TriggerBulkOperationMutationVariables['data']>['payload']>['figureRole']>['role'];
 
 interface Props {
     className?: string;
+    mode: 'SELECT' | 'DESELECT';
     role: Role | null | undefined;
+    selectedFigures: string[];
     totalFigureSelected?: number | null;
+    filters?: ExtractionEntryListFiltersQueryVariables;
     handleRoleChange: React.Dispatch<React.SetStateAction<Role | null | undefined>>;
-    onSubmitRole: () => void;
+    onChangeSelectedFigures: React.Dispatch<React.SetStateAction<string[]>>;
+    onChangeMode: React.Dispatch<React.SetStateAction<'SELECT' | 'DESELECT'>>;
     onClose: () => void;
-    disabled?: boolean;
 }
 
 function UpdateFigureRoleModal(props: Props) {
     const {
         className,
         role,
+        mode,
+        selectedFigures,
         totalFigureSelected,
+        filters,
         handleRoleChange,
-        onSubmitRole,
+        onChangeSelectedFigures,
+        onChangeMode,
         onClose,
-        disabled,
     } = props;
 
     const {
@@ -53,11 +74,77 @@ function UpdateFigureRoleModal(props: Props) {
         loading,
     } = useQuery<FigureRoleOptionsQuery, FigureRoleOptionsQueryVariables>(FIGURE_ROLE_OPTIONS);
 
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
+
     const roles = data?.figureRoleList?.enumValues;
     type RoleOptions = GetEnumOptions<
         typeof roles,
         NonNullable<typeof role>
     >;
+
+    const [
+        triggerUpdateFigureRole,
+        { loading: figureRoleUpdating },
+    ] = useMutation<TriggerBulkOperationMutation, TriggerBulkOperationMutationVariables>(
+        FIGURES_ROLE_UPDATE,
+        {
+            onCompleted: (response) => {
+                const { triggerBulkOperation: figureResponse } = response;
+                if (figureResponse?.ok) {
+                    onChangeSelectedFigures([]);
+                    onChangeMode('SELECT');
+                }
+                if (figureResponse?.errors) {
+                    notifyGQLError(figureResponse.errors);
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const handleRoleUpdate = useCallback(
+        () => {
+            if (isDefined(role)) {
+                triggerUpdateFigureRole({
+                    variables: {
+                        data: {
+                            action: 'FIGURE_ROLE',
+                            payload: {
+                                figureRole: {
+                                    role,
+                                },
+                            },
+                            filters: {
+                                figureRole: {
+                                    figure: {
+                                        ...filters,
+                                        filterFigureIds: mode !== 'DESELECT' ? [] : selectedFigures,
+                                        filterFigureExcludeIds: mode === 'DESELECT' ? selectedFigures : [],
+                                    },
+                                },
+                            },
+                        },
+                    },
+                });
+            }
+        },
+        [
+            role,
+            filters,
+            triggerUpdateFigureRole,
+            mode,
+            selectedFigures,
+        ],
+    );
+
     return (
         <div>
             <Modal
@@ -82,9 +169,9 @@ function UpdateFigureRoleModal(props: Props) {
                         </Button>
                         <Button
                             name={undefined}
-                            onClick={onSubmitRole}
+                            onClick={handleRoleUpdate}
                             variant="primary"
-                            disabled={disabled}
+                            disabled={figureRoleUpdating}
                         >
                             Save
                         </Button>
