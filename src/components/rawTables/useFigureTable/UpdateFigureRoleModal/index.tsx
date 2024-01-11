@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useState, useCallback, useContext } from 'react';
 import { Button, Modal, SelectInput } from '@togglecorp/toggle-ui';
 import {
     gql, useMutation, useQuery,
@@ -45,11 +45,9 @@ type Role = NonNullable<NonNullable<NonNullable<TriggerBulkOperationMutationVari
 interface Props {
     className?: string;
     mode: 'SELECT' | 'DESELECT';
-    role: Role | null | undefined;
     selectedFigures: string[];
     totalFigureSelected?: number | null;
     filters?: ExtractionEntryListFiltersQueryVariables;
-    handleRoleChange: React.Dispatch<React.SetStateAction<Role | null | undefined>>;
     onChangeSelectedFigures: React.Dispatch<React.SetStateAction<string[]>>;
     onChangeMode: React.Dispatch<React.SetStateAction<'SELECT' | 'DESELECT'>>;
     onClose: () => void;
@@ -58,16 +56,16 @@ interface Props {
 function UpdateFigureRoleModal(props: Props) {
     const {
         className,
-        role,
         mode,
         selectedFigures,
         totalFigureSelected,
         filters,
-        handleRoleChange,
         onChangeSelectedFigures,
         onChangeMode,
         onClose,
     } = props;
+
+    const [role, setRole] = useState<Role | null>();
 
     const {
         data,
@@ -150,11 +148,9 @@ function UpdateFigureRoleModal(props: Props) {
             <Modal
                 className={_cs(className, styles.modal)}
                 heading={(
-                    <>
-                        <Heading size="large">
-                            Select figure role
-                        </Heading>
-                    </>
+                    <Heading size="large">
+                        {`Update roles for ${totalFigureSelected} figure(s)`}
+                    </Heading>
                 )}
                 onClose={onClose}
                 freeHeight
@@ -178,9 +174,6 @@ function UpdateFigureRoleModal(props: Props) {
                     </>
                 )}
             >
-                <Heading size="small">
-                    {`No. of figures selected: ${totalFigureSelected}`}
-                </Heading>
                 <SelectInput
                     label="Role"
                     name="role"
@@ -188,7 +181,7 @@ function UpdateFigureRoleModal(props: Props) {
                     value={role}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    onChange={handleRoleChange}
+                    onChange={setRole}
                     disabled={loading}
                     readOnly={loading}
                 />
