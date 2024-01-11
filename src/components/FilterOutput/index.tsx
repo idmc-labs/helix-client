@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { isNotDefined, listToMap } from '@togglecorp/fujs';
+import { isNotDefined, listToMap, isDefined } from '@togglecorp/fujs';
 
 import ReducedListDisplay from '#components/ReducedListDisplay';
 
@@ -62,12 +62,17 @@ function FilterOutput<DATUM, KEY extends Key>(props: Props<DATUM, KEY>) {
             <div className={styles.label}>
                 {label}
             </div>
-            <div className={styles.value}>
+            <div>
                 {/* eslint-disable-next-line react/destructuring-assignment */}
                 {props.multi === true ? (
                     <ReducedListDisplay
-                        // eslint-disable-next-line react/destructuring-assignment
-                        list={props.value.map((valueItem) => optionsByKey[valueItem])}
+                        // FIXME: memoize this
+                        list={(
+                            // eslint-disable-next-line react/destructuring-assignment
+                            props.value
+                                .map((valueItem) => optionsByKey[valueItem])
+                                .filter(isDefined)
+                        )}
                         keySelector={keySelector}
                         labelSelector={labelSelector}
                     />

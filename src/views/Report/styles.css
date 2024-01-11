@@ -1,102 +1,69 @@
-.reports {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-large);
-
-    .container {
-        min-height: 200px;
-    }
-
-    .large-container {
-        min-height: 400px;
-    }
-
-    .extra-large-container {
+.report {
+    .page-content {
         display: flex;
         flex-direction: column;
-    }
-
-    .content {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-medium);
-    }
-
-    .full-width {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .comments {
         flex-grow: 1;
-    }
-
-    .generation-item {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-extra-small);
-
-        .actions {
-            display: flex;
-            gap: var(--spacing-small);
-        }
-
-        .status {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-small);
-
-            .icon {
-                flex-shrink: 0;
-                font-size: var(--font-size-medium);
-            }
-
-            .text {
-                flex-grow: 1;
-            }
-        }
-
-        .export-item {
-            /* stylelint-disable-next-line no-descending-specificity */
-            >* {
-                &:not(:first-child) {
-                    margin-left: var(--spacing-extra-small);
-                }
-            }
-
-            .name {
-                font-weight: var(--font-weight-bold);
-            }
-        }
-    }
-
-    .main-content {
-        display: flex;
         gap: var(--spacing-large);
 
-        .left-content {
+        .stats {
             display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-            overflow: auto;
+            flex-wrap: wrap;
+            gap: var(--spacing-medium) var(--spacing-extra-large);
+        }
+
+        .main-content {
+            display: grid;
+            flex-basis: 100%;
+            grid-template-columns: repeat(auto-fit, minmax(32rem, 1fr));
             gap: var(--spacing-large);
 
-            .idp-map {
-                .stats {
-                    display: grid;
-                    grid-gap: var(--spacing-medium);
-                    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-                }
+            .filter-outputs {
+                grid-column: 1 / -1;
+                display: flex;
+                flex-wrap: wrap;
+                gap: var(--spacing-medium) var(--spacing-large);
+            }
+
+            .map {
+                grid-column: 1 / -2;
+            }
+
+            .map-container {
+                height: 100%;
+                min-height: 45rem;
+            }
+
+            .charts {
+                display: flex;
+                flex-direction: column;
+                gap: var(--spacing-medium);
+                grid-column: auto / -1;
+            }
+
+            .countries-crises-events-entries-figures-table {
+                grid-column: 1 / -1;
+                min-height: 400px;
+            }
+
+            .overview {
+                grid-column: 1 / -2;
+                grid-row: auto / span 4;
+            }
+
+            .status {
+                grid-column: auto / -1;
+            }
+            .history {
+                grid-column: auto / -1;
+            }
+            .masterFactInfo {
+                grid-column: auto / -1;
+            }
+            .comments {
+                grid-column: auto / -1;
             }
         }
 
-        .side-content {
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-            width: calc(160px + 16vw);
-            gap: var(--spacing-large);
-        }
     }
 }
 

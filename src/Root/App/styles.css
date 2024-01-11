@@ -59,10 +59,11 @@
 
     --color-primary: #3E5963;
     --color-accent: #3C88A3;
-
     --color-danger: rgb(187, 33, 36);
     --color-success: rgb(34, 187, 51);
     --color-warning: rgb(240, 173, 78);
+    --color-disaster: #018eca;
+    --color-conflict: #ef7d00;
 
     /* COLOR SEPARATOR */
     --color-separator: rgb(184, 194, 205);
@@ -74,13 +75,9 @@
     --radius-input: 4px;
     --radius-modal: 8px;
 
-
     /* COLOR GENERAL */
     --color-foreground: rgb(255, 255, 255);
     --color-background: rgb(240, 243, 247);
-
-    --color-disaster: #018eca;
-    --color-conflict: #ef7d00;
 
     /* COLOR TEXT */
     --color-text: rgba(0, 0, 0, .7);
@@ -94,8 +91,6 @@
     --color-text-disabled: rgba(0, 0, 0, .3);
     --color-text-watermark: rgba(0, 0, 0, .3);
     --color-chart-axes: #717171;
-
-
 
     --color-separator: rgba(0, 0, 0, .1);
     --color-link: var(--color-primary);

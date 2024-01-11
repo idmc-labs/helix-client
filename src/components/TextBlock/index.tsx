@@ -9,7 +9,7 @@ function TextBlock({
     className,
 }: {
     label: string;
-    value: string | null | undefined;
+    value: React.ReactNode;
     className?: string;
 }) {
     return (

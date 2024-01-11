@@ -8,7 +8,7 @@ import {
     SortContext,
 } from '@togglecorp/toggle-ui';
 
-import useFilterState from '#hooks/useFilterState';
+import useFilterState, { FilterStateResponse } from '#hooks/useFilterState';
 import Container from '#components/Container';
 import {
     ExtractionEntryListFiltersQueryVariables,
@@ -20,16 +20,17 @@ import CountriesFilter, { CountriesFilterFields } from '#components/rawTables/us
 import useCountryTable from '#components/rawTables/useCountryTable';
 import useEntryTable from '#components/rawTables/useEntryTable';
 import useFigureTable from '#components/rawTables/useFigureTable';
-import FiguresFilter from '#components/rawTables/useFigureTable/FiguresFilter';
 import { expandObject } from '#utils/common';
 import styles from './styles.css';
 
-type Tabs = 'Entries' | 'Figures';
+type Filter = PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>;
+type FilterState = FilterStateResponse<Filter>;
 
 interface EntriesFiguresTableProps {
     className?: string;
     eventId: string;
     eventYear: number;
+    figuresFilterState: FilterState,
 }
 
 function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
@@ -37,9 +38,10 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
         className,
         eventId,
         eventYear,
+        figuresFilterState,
     } = props;
 
-    const [selectedTab, setSelectedTab] = useState<'Countries' | 'Entries' | 'Figures' | undefined>('Countries');
+    const [selectedTab, setSelectedTab] = useState<'Countries' | 'Entries' | undefined>('Countries');
 
     const {
         page: countriesPage,
@@ -73,10 +75,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
         ordering: entriesOrdering,
         sortState: entriesSortState,
 
-        rawFilter: rawEntriesFilter,
-        initialFilter: initialEntriesFilter,
-        filter: entriesFilter,
-        setFilter: setEntriesFilter,
+        // NOTE: We are not using the filters for entries
 
         pageSize: entriesPageSize,
         rawPageSize: rawEntriesPageSize,
@@ -98,20 +97,28 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
         sortState: figuresSortState,
 
         rawFilter: rawFiguresFilter,
-        initialFilter: initialFiguresFilter,
+        // initialFilter: initialFiguresFilter,
         filter: figuresFilter,
-        setFilter: setFiguresFilter,
+        // setFilter: setFiguresFilter,
 
         pageSize: figuresPageSize,
         rawPageSize: rawFiguresPageSize,
         setPageSize: setFiguresPageSize,
-    } = useFilterState<PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>>({
-        filter: {},
-        ordering: {
-            name: 'created_at',
-            direction: 'dsc',
+    } = figuresFilterState;
+
+    // NOTE: reset page to 1 when figures filter changes
+    useEffect(
+        () => {
+            setCountriesPage(1);
+            setEntriesPage(1);
+            // setFiguresPage(1);
         },
-    });
+        [
+            rawFiguresFilter,
+            setCountriesPage,
+            setEntriesPage,
+        ],
+    );
 
     const countriesVariables = useMemo(
         (): CountriesQueryVariables => {
@@ -127,9 +134,12 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
                     {
                         events: [eventId],
                         aggregateFigures: {
-                            filterFigures: {
-                                filterFigureEvents: [eventId],
-                            },
+                            filterFigures: expandObject(
+                                figuresFilter,
+                                {
+                                    filterFigureEvents: [eventId],
+                                },
+                            ),
                             year: countriesFilter.year,
                         },
                     },
@@ -142,6 +152,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
             countriesPage,
             countriesPageSize,
             countriesFilter,
+            figuresFilter,
         ],
     );
 
@@ -151,7 +162,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
             page: entriesPage,
             pageSize: entriesPageSize,
             filters: expandObject<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>(
-                entriesFilter,
+                figuresFilter,
                 {
                     filterFigureEvents: [eventId],
                 },
@@ -161,7 +172,7 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
             entriesOrdering,
             entriesPage,
             entriesPageSize,
-            entriesFilter,
+            figuresFilter,
             eventId,
         ],
     );
@@ -237,96 +248,80 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
     );
 
     return (
-        <Tabs
-            value={selectedTab}
-            onChange={setSelectedTab}
-        >
+        <>
             <Container
                 compactContent
-                tabs={(
-                    <TabList>
-                        <Tab
-                            name="Countries"
-                        >
-                            Countries
-                        </Tab>
-                        <Tab
-                            name="Entries"
-                        >
-                            Entries
-                        </Tab>
-                        <Tab
-                            name="Figures"
-                        >
-                            Figures
-                        </Tab>
-                    </TabList>
-                )}
+                heading="Figures"
                 className={_cs(className, styles.entriesTable)}
                 contentClassName={styles.content}
-                description={(
-                    <>
-                        {selectedTab === 'Countries' && (
-                            <CountriesFilter
-                                currentFilter={rawCountriesFilter}
-                                initialFilter={initialCountriesFilter}
-                                onFilterChange={setCountriesFilter}
-                                // hiddenFields={countriesHiddenColumns}
-                                // events={eventId ? [eventId] : undefined}
-                            />
-                        )}
-                        {selectedTab === 'Entries' && (
-                            <FiguresFilter
-                                currentFilter={rawEntriesFilter}
-                                initialFilter={initialEntriesFilter}
-                                onFilterChange={setEntriesFilter}
-                                hiddenFields={figureHiddenColumns}
-                                events={[eventId]}
-                            />
-                        )}
-                        {selectedTab === 'Figures' && (
-                            <FiguresFilter
-                                currentFilter={rawFiguresFilter}
-                                initialFilter={initialFiguresFilter}
-                                onFilterChange={setFiguresFilter}
-                                hiddenFields={figureHiddenColumns}
-                                events={[eventId]}
-                            />
-                        )}
-                    </>
-                )}
-                headerActions={(
-                    <>
-                        {selectedTab === 'Countries' && countriesExportButton}
-                        {selectedTab === 'Entries' && entriesExportButton}
-                        {selectedTab === 'Figures' && figuresExportButton}
-                    </>
-                )}
-                footerContent={(
-                    <>
-                        {selectedTab === 'Countries' && countriesPager}
-                        {selectedTab === 'Entries' && entriesPager}
-                        {selectedTab === 'Figures' && figuresPager}
-                    </>
-                )}
+                headerActions={figuresExportButton}
+                footerContent={figuresPager}
             >
-                <TabPanel name="Countries">
-                    <SortContext.Provider value={countriesSortState}>
-                        {countriesTable}
-                    </SortContext.Provider>
-                </TabPanel>
-                <TabPanel name="Entries">
-                    <SortContext.Provider value={entriesSortState}>
-                        {entriesTable}
-                    </SortContext.Provider>
-                </TabPanel>
-                <TabPanel name="Figures">
-                    <SortContext.Provider value={figuresSortState}>
-                        {figuresTable}
-                    </SortContext.Provider>
-                </TabPanel>
+                <SortContext.Provider value={figuresSortState}>
+                    {figuresTable}
+                </SortContext.Provider>
             </Container>
-        </Tabs>
+            <Tabs
+                value={selectedTab}
+                onChange={setSelectedTab}
+            >
+                <Container
+                    compactContent
+                    tabs={(
+                        <TabList>
+                            <Tab
+                                name="Countries"
+                            >
+                                Countries
+                            </Tab>
+                            <Tab
+                                name="Entries"
+                            >
+                                Entries
+                            </Tab>
+                        </TabList>
+                    )}
+                    className={_cs(className, styles.entriesTable)}
+                    contentClassName={styles.content}
+                    description={(
+                        <>
+                            {selectedTab === 'Countries' && (
+                                <CountriesFilter
+                                    currentFilter={rawCountriesFilter}
+                                    initialFilter={initialCountriesFilter}
+                                    onFilterChange={setCountriesFilter}
+                                    // hiddenFields={countriesHiddenColumns}
+                                    // events={eventId ? [eventId] : undefined}
+                                />
+                            )}
+                        </>
+                    )}
+                    headerActions={(
+                        <>
+                            {selectedTab === 'Countries' && countriesExportButton}
+                            {selectedTab === 'Entries' && entriesExportButton}
+                        </>
+                    )}
+                    footerContent={(
+                        <>
+                            {selectedTab === 'Countries' && countriesPager}
+                            {selectedTab === 'Entries' && entriesPager}
+                        </>
+                    )}
+                >
+                    <TabPanel name="Countries">
+                        <SortContext.Provider value={countriesSortState}>
+                            {countriesTable}
+                        </SortContext.Provider>
+                    </TabPanel>
+                    <TabPanel name="Entries">
+                        <SortContext.Provider value={entriesSortState}>
+                            {entriesTable}
+                        </SortContext.Provider>
+                    </TabPanel>
+                </Container>
+            </Tabs>
+        </>
     );
 }
 export default CountriesEntriesFiguresTable;

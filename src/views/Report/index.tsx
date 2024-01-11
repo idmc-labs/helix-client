@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useContext, useEffect } from 'react';
+import React, { useMemo, useCallback, useContext, useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { getOperationName } from 'apollo-link';
 import {
@@ -7,24 +7,20 @@ import {
 } from '@togglecorp/fujs';
 import {
     Button,
-    DateTimeRange,
-    DateTime,
     Modal,
     PopupButton,
     Switch,
 } from '@togglecorp/toggle-ui';
-import {
-    IoDocumentOutline,
-    IoFolderOutline,
-    IoInformationCircleOutline,
-    IoCreateOutline,
-} from 'react-icons/io5';
+import { removeNull } from '@togglecorp/toggle-form';
+import { IoCreateOutline } from 'react-icons/io5';
 import {
     gql,
     useQuery,
     useMutation,
 } from '@apollo/client';
 
+import { PurgeNull } from '#types';
+import FiguresFilterOutput from '#components/rawTables/useFigureTable/FiguresFilterOutput';
 import {
     ReportQuery,
     ReportQueryVariables,
@@ -36,19 +32,19 @@ import {
     SignOffReportMutationVariables,
     LastGenerationPollQueryVariables,
     LastGenerationPollQuery,
-    Report_Generation_Status as ReportGenerationStatus,
     ExportReportMutation,
     ExportReportMutationVariables,
-    Figure_Category_Types as FigureCategoryTypes,
     SetPfaVisibleInGiddMutation,
     SetPfaVisibleInGiddMutationVariables,
+    ReportAggregationsQuery,
+    ReportAggregationsQueryVariables,
+    ExtractionEntryListFiltersQueryVariables,
 } from '#generated/types';
+import Message from '#components/Message';
 import useOptions from '#hooks/useOptions';
-import ButtonLikeExternalLink from '#components/ButtonLikeExternalLink';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import UserItem from '#components/UserItem';
-import NumberBlock from '#components/NumberBlock';
 import { MarkdownPreview } from '#components/MarkdownEditor';
 import ReportSelectInput from '#components/selections/ReportSelectInput';
 import { reverseRoute } from '#hooks/useRouteMatching';
@@ -58,7 +54,13 @@ import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import QuickActionButton from '#components/QuickActionButton';
 import useModalState from '#hooks/useModalState';
+import TextBlock from '#components/TextBlock';
+import CountriesMap from '#components/CountriesMap';
+import NdChart from '#components/NdChart';
+import IdpChart from '#components/IdpChart';
 
+import GenerationItem from './GenerationItem';
+import MasterFactInfo from './MasterFactInfo';
 import AnalysisUpdateForm from './Analysis/AnalysisUpdateForm';
 import MethodologyUpdateForm from './Methodology/MethodologyUpdateForm';
 import SummaryUpdateForm from './Summary/SummaryUpdateForm';
@@ -69,6 +71,16 @@ import ReportComments from './ReportComments';
 import CountriesCrisesEventsEntriesFiguresTable from './CountriesCrisesEventsEntriesFiguresTable';
 
 import styles from './styles.css';
+
+function getYesNo(value: boolean | null | undefined) {
+    if (value === false) {
+        return 'No';
+    }
+    if (value === true) {
+        return 'Yes';
+    }
+    return undefined;
+}
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
@@ -136,19 +148,10 @@ const REPORT = gql`
             name
             isPublic
             isGiddReport
-            filterFigureStartAfter
-            filterFigureEndBefore
-            filterFigureCrisisTypes
-            publicFigureAnalysis
-
-            generatedFrom
             isPfaVisibleInGidd
-            totalDisaggregation {
-                totalFlowConflictSum
-                totalFlowDisasterSum
-                totalStockConflictSum
-                totalStockDisasterSum
-            }
+            generatedFrom
+
+            publicFigureAnalysis
             analysis
             challenges
             methodology
@@ -156,20 +159,107 @@ const REPORT = gql`
             significantUpdates
 
             generated
-            filterFigureCategories
             totalFigures
-            filterFigureRoles
+
+            filterFigureCountries {
+                id
+                idmcShortName
+            }
+            filterFigureCrises {
+                id
+                name
+            }
+            filterFigureStartAfter
+            filterFigureEndBefore
+            filterFigureCategories
+            filterFigureCategoryTypes
             filterFigureTags {
                 id
                 name
             }
-            filterFigureCountries {
+            filterFigureRoles
+            filterFigureRegions {
                 id
-                idmcShortName
-                boundingBox
+                name
+            }
+            filterFigureGeographicalGroups {
+                id
+                name
+            }
+            filterFigureSources {
+                id
+                name
+                countries {
+                    id
+                    idmcShortName
+                }
+            }
+            filterEntryPublishers {
+                id
+                name
+                countries {
+                    id
+                    idmcShortName
+                }
+            }
+            filterEntryArticleTitle
+            filterFigureCrisisTypes
+            filterFigureHasDisaggregatedData
+            filterFigureEvents {
+                id
+                name
+            }
+            filterFigureCreatedBy {
+                id
+                fullName
+                isActive
+            }
+            filterFigureTerms
+            createdAt
+            createdBy {
+                fullName
+                id
+            }
+            filterFigureReviewStatus
+            filterFigureHasExcerptIdu
+            filterFigureHasHousingDestruction
+            filterFigureContextOfViolence {
+                id
+                name
+            }
+            filterFigureDisasterSubTypes {
+                id
+                name
+            }
+            filterFigureViolenceSubTypes {
+                id
+                name
             }
 
             ...Status
+        }
+    }
+`;
+
+const REPORT_AGGREGATIONS = gql`
+    query ReportAggregations($filters: FigureExtractionFilterDataInputType!) {
+        figureAggregations(filters: $filters) {
+            idpsConflictFigures {
+                date
+                value
+            }
+            idpsDisasterFigures {
+                date
+                value
+            }
+            ndsConflictFigures {
+                date
+                value
+            }
+            ndsDisasterFigures {
+                date
+                value
+            }
         }
     }
 `;
@@ -245,168 +335,169 @@ const SET_PUBLIC_FIGURE_ANALYSIS_VISIBLE = gql`
     }
 `;
 
-interface Entity {
-    id: string;
-    name: string;
-}
-interface Country {
-    id: string;
-    idmcShortName: string;
-}
-
-interface MasterFactInfoProps {
-    className?: string;
-    totalFigures: number | null | undefined;
-    roles: string[] | null | undefined;
-    countries: Country[] | null | undefined;
-    categories: FigureCategoryTypes[] | null | undefined;
-    tags: Entity[] | null | undefined;
-}
-
-function MasterFactInfo(props: MasterFactInfoProps) {
-    const {
-        className,
-        totalFigures,
-        roles,
-        countries,
-        categories,
-        tags,
-    } = props;
-
-    return (
-        <Container
-            className={className}
-            heading="Masterfact"
-            footerContent="This report was migrated from masterfacts."
-        >
-            <div>
-                {`Figure: ${totalFigures}`}
-            </div>
-            <div>
-                {`Role: ${roles?.join(', ')}`}
-            </div>
-            <div>
-                {`Country: ${countries?.map((item) => item.idmcShortName).join(', ')}`}
-            </div>
-            <div>
-                {`Type: ${categories?.join(', ')}`}
-            </div>
-            <div>
-                {`Tags: ${tags?.map((item) => item.name).join(', ')}`}
-            </div>
-        </Container>
-    );
-}
-
-interface GenerationItemProps {
-    className?: string;
-    user: { id: string; fullName?: string; } | null | undefined;
-    date: string | null | undefined;
-    fullReport: string | null | undefined;
-    snapshot: string | null | undefined;
-    status: ReportGenerationStatus;
-}
-
-function GenerationItem(props: GenerationItemProps) {
-    const {
-        user,
-        date,
-        className,
-        fullReport,
-        snapshot,
-        status,
-    } = props;
-
-    const statusText: {
-        [key in Exclude<ReportGenerationStatus, 'COMPLETED'>]: string;
-    } = {
-        PENDING: 'The export will start soon.',
-        IN_PROGRESS: 'The export has started.',
-        KILLED: 'The export has been aborted.',
-        FAILED: 'The export has failed.',
-    };
-
-    return (
-        <div
-            className={_cs(styles.generationItem, className)}
-        >
-            <div className={styles.exportItem}>
-                <span className={styles.name}>
-                    {user?.fullName ?? 'Anon'}
-                </span>
-                <span>
-                    signed off this report on
-                </span>
-                <DateTime
-                    value={date}
-                    format="datetime"
-                />
-            </div>
-            {status === 'COMPLETED' && (
-                <div className={styles.actions}>
-                    {fullReport && (
-                        <ButtonLikeExternalLink
-                            title="export.xlsx"
-                            link={fullReport}
-                            icons={<IoDocumentOutline />}
-                            transparent
-                        />
-                    )}
-                    {snapshot && (
-                        <ButtonLikeExternalLink
-                            title="snapshot.xlsx"
-                            link={snapshot}
-                            icons={<IoFolderOutline />}
-                            transparent
-                        />
-                    )}
-                </div>
-            )}
-            {status !== 'COMPLETED' && (
-                <div className={styles.status}>
-                    <IoInformationCircleOutline className={styles.icon} />
-                    <div className={styles.text}>
-                        {statusText[status]}
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-}
 interface ReportProps {
     className?: string;
 }
 
 function Report(props: ReportProps) {
-    const {
-        className,
-    } = props;
+    const { className } = props;
 
+    const [reportFilters, setReportFilters] = useState<
+        PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>
+    >({});
+
+    const { reportId } = useParams<{ reportId: string }>();
+    const { replace: historyReplace } = useHistory();
+    const [, setReportOptions] = useOptions('report');
+    const [, setCountries] = useOptions('country');
+    const [, setCreatedByOptions] = useOptions('user');
+    const [, setRegions] = useOptions('region');
+    const [, setGeographicGroups] = useOptions('geographicGroup');
+    const [, setCrises] = useOptions('crisis');
+    const [, setTags] = useOptions('tag');
+    const [, setOrganizations] = useOptions('organization');
+    const [, setEventOptions] = useOptions('event');
+    const [, setViolenceContextOptions] = useOptions('contextOfViolence');
     const {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
-    const { reportId } = useParams<{ reportId: string }>();
-    const { replace: historyReplace } = useHistory();
+    const { user } = useContext(DomainContext);
+
+    const [
+        shouldShowUpdateAnalysisModal, ,
+        showUpdateAnalysisModal,
+        hideUpdateAnalysisModal,
+    ] = useModalState();
+    const [
+        shouldShowUpdateMethodologyModal, ,
+        showUpdateMethodologyModal,
+        hideUpdateMethodologyModal,
+    ] = useModalState();
+    const [
+        shouldShowUpdateSummaryModal, ,
+        showUpdateSummaryModal,
+        hideUpdateSummaryModal,
+    ] = useModalState();
+    const [
+        shouldShowPublicFigureAnalysisModal, ,
+        showPublicFigureAnalysisModal,
+        hidePublicFigureAnalysisModal,
+    ] = useModalState();
+    const [
+        shouldShowUpdateChallengesModal, ,
+        showUpdateChallengesModal,
+        hideUpdateChallengesModal,
+    ] = useModalState();
+    const [
+        shouldShowUpdateSignificantModal, ,
+        showUpdateSignificantModal,
+        hideUpdateSignificantModal,
+    ] = useModalState();
 
     const reportVariables = useMemo(
         (): ReportQueryVariables | undefined => ({ id: reportId }),
         [reportId],
     );
-    const [, setReportOptions] = useOptions('report');
+
+    const reportAggregationsVariables = useMemo(
+        (): ReportAggregationsQueryVariables | undefined => ({
+            filters: {
+                reportId,
+            },
+        }),
+        [reportId],
+    );
 
     const {
         data: reportData,
         loading: reportDataLoading,
+        // error: reportDataLoadingError,
     } = useQuery<ReportQuery>(REPORT, {
         variables: reportVariables,
         skip: !reportVariables,
         onCompleted: (response) => {
-            if (response.report) {
-                const { id, name } = response.report;
-                setReportOptions([{ id, name }]);
+            const { report: reportRes } = response;
+            if (!reportRes) {
+                return;
             }
+            // NOTE: we are setting this options so that we can use report
+            // option when adding report on the report page
+            const { id, name } = reportRes;
+            setReportOptions([{ id, name }]);
+
+            if (reportRes.filterFigureRegions) {
+                setRegions(reportRes.filterFigureRegions);
+            }
+            if (reportRes.filterFigureGeographicalGroups) {
+                setGeographicGroups(reportRes.filterFigureGeographicalGroups);
+            }
+            if (reportRes.filterFigureCountries) {
+                setCountries(reportRes.filterFigureCountries);
+            }
+            if (reportRes.filterFigureCrises) {
+                setCrises(reportRes.filterFigureCrises);
+            }
+            if (reportRes.filterFigureTags) {
+                setTags(reportRes.filterFigureTags);
+            }
+            if (reportRes.filterFigureSources) {
+                setOrganizations(reportRes.filterFigureSources);
+            }
+            if (reportRes.filterEntryPublishers) {
+                setOrganizations(reportRes.filterEntryPublishers);
+            }
+            if (reportRes.filterFigureEvents) {
+                setEventOptions(reportRes.filterFigureEvents);
+            }
+            if (reportRes.filterFigureCreatedBy) {
+                setCreatedByOptions(reportRes.filterFigureCreatedBy);
+            }
+            if (reportRes.filterFigureContextOfViolence) {
+                setViolenceContextOptions(reportRes.filterFigureContextOfViolence);
+            }
+
+            setReportFilters(removeNull({
+                filterFigureRegions: reportRes.filterFigureRegions?.map((r) => r.id),
+                filterFigureGeographicalGroups: reportRes.filterFigureGeographicalGroups
+                    ?.map((r) => r.id),
+                filterFigureCreatedBy: reportRes.filterFigureCreatedBy?.map((u) => u.id),
+                filterFigureCountries: reportRes.filterFigureCountries?.map((c) => c.id),
+                filterFigureCrises: reportRes.filterFigureCrises?.map((cr) => cr.id),
+                filterFigureCategories: reportRes.filterFigureCategories,
+                // FIXME: this should not be null in the array
+                filterFigureCategoryTypes: reportRes.filterFigureCategoryTypes?.filter(isDefined),
+                filterFigureTags: reportRes.filterFigureTags?.map((ft) => ft.id),
+                filterFigureTerms: reportRes.filterFigureTerms,
+                filterFigureRoles: reportRes.filterFigureRoles,
+                filterFigureStartAfter: reportRes.filterFigureStartAfter,
+                filterFigureEndBefore: reportRes.filterFigureEndBefore,
+                filterEntryArticleTitle: reportRes.filterEntryArticleTitle,
+                filterFigureCrisisTypes: reportRes.filterFigureCrisisTypes,
+                filterEntryPublishers: reportRes.filterEntryPublishers?.map((fp) => fp.id),
+                filterFigureSources: reportRes.filterFigureSources?.map((fp) => fp.id),
+                filterFigureEvents: reportRes.filterFigureEvents?.map((e) => e.id),
+                filterFigureReviewStatus: reportRes.filterFigureReviewStatus,
+                filterFigureHasDisaggregatedData: reportRes.filterFigureHasDisaggregatedData,
+                filterFigureHasHousingDestruction: reportRes.filterFigureHasHousingDestruction,
+                filterFigureHasExcerptIdu: reportRes.filterFigureHasExcerptIdu,
+                // eslint-disable-next-line max-len
+                filterFigureContextOfViolence: reportRes.filterFigureContextOfViolence?.map((e) => e.id),
+                // eslint-disable-next-line max-len
+                filterFigureDisasterSubTypes: reportRes.filterFigureDisasterSubTypes?.map((e) => e.id),
+                // eslint-disable-next-line max-len
+                filterFigureViolenceSubTypes: reportRes.filterFigureViolenceSubTypes?.map((e) => e.id),
+            }));
         },
+    });
+
+    const {
+        data: reportAggregations,
+        loading: reportAggregationsLoading,
+        // error: reportAggregationsError,
+    } = useQuery<ReportAggregationsQuery>(REPORT_AGGREGATIONS, {
+        variables: reportAggregationsVariables,
+        skip: !reportAggregationsVariables,
     });
 
     const generationId = reportData?.report?.lastGeneration?.id;
@@ -602,6 +693,69 @@ function Report(props: ReportProps) {
         },
     );
 
+    const loading = (
+        reportDataLoading
+        || reportAggregationsLoading
+        || startReportLoading
+        || approveReportLoading
+        || signOffReportLoading
+        || exportReportLoading
+    );
+    // const errored = !!reportDataLoadingError || !!reportAggregationsError;
+    // const disabled = loading || errored;
+
+    const reportPermissions = user?.permissions?.report;
+    const report = reportData?.report;
+    const analysis = report?.analysis;
+    const methodology = report?.methodology;
+    const challenges = report?.challenges;
+    const significantUpdates = report?.significantUpdates;
+    const summary = report?.summary;
+    const publicFigureAnalysis = report?.publicFigureAnalysis;
+    const lastGeneration = report?.lastGeneration;
+    const generations = report?.generations?.results?.filter((item) => item.isSignedOff);
+    const reportTypes = report?.filterFigureCrisisTypes;
+
+    const isPfaValid = useMemo(
+        () => {
+            const countries = report?.filterFigureCountries;
+            const categories = report?.filterFigureCategories;
+            const isPublic = report?.isPublic;
+
+            const endDate = report?.filterFigureEndBefore
+                ? new Date(`${report.filterFigureEndBefore}T00:00:00`)
+                : undefined;
+            const startDate = report?.filterFigureStartAfter
+                ? new Date(`${report.filterFigureStartAfter}T00:00:00`)
+                : undefined;
+
+            return (
+                // Should be public
+                isPublic
+                // Should have one country
+                && countries
+                && countries.length === 1
+                // Should cover a full year
+                && startDate
+                && endDate
+                && startDate.getFullYear() === endDate.getFullYear()
+                && startDate.getMonth() === 0
+                && startDate.getDate() === 1
+                && endDate.getMonth() === 11
+                && endDate.getDate() === 31
+                // Should either be Conflict or Disaster type
+                && reportTypes
+                && reportTypes.length === 1
+                && (reportTypes[0] === 'CONFLICT' || reportTypes[0] === 'DISASTER')
+                // Should either be Idps or Internal Displacements
+                && categories
+                && categories.length === 1
+                && (categories[0] === 'IDPS' || categories[0] === 'NEW_DISPLACEMENT')
+            );
+        },
+        [report, reportTypes],
+    );
+
     const handleStartReport = useCallback(
         () => {
             startReport({
@@ -687,399 +841,310 @@ function Report(props: ReportProps) {
         ],
     );
 
-    const loading = startReportLoading || approveReportLoading || signOffReportLoading;
-
-    const { user } = useContext(DomainContext);
-    const reportPermissions = user?.permissions?.report;
-    const report = reportData?.report;
-    const analysis = report?.analysis;
-    const methodology = report?.methodology;
-    const challenges = report?.challenges;
-    const significantUpdates = report?.significantUpdates;
-    const summary = report?.summary;
-    const publicFigureAnalysis = report?.publicFigureAnalysis;
-    const lastGeneration = report?.lastGeneration;
-    const generations = report?.generations?.results?.filter((item) => item.isSignedOff);
-    const reportTypes = report?.filterFigureCrisisTypes;
-
-    const isPfaValid = useMemo(
-        () => {
-            const countries = report?.filterFigureCountries;
-            const categories = report?.filterFigureCategories;
-            const isPublic = report?.isPublic;
-
-            const endDate = report?.filterFigureEndBefore
-                ? new Date(`${report.filterFigureEndBefore}T00:00:00`)
-                : undefined;
-            const startDate = report?.filterFigureStartAfter
-                ? new Date(`${report.filterFigureStartAfter}T00:00:00`)
-                : undefined;
-
-            return (
-                // Should be public
-                isPublic
-                // Should have one country
-                && countries
-                && countries.length === 1
-                // Should cover a full year
-                && startDate
-                && endDate
-                && startDate.getFullYear() === endDate.getFullYear()
-                && startDate.getMonth() === 0
-                && startDate.getDate() === 1
-                && endDate.getMonth() === 11
-                && endDate.getDate() === 31
-                // Should either be Conflict or Disaster type
-                && reportTypes
-                && reportTypes.length === 1
-                && (reportTypes[0] === 'CONFLICT' || reportTypes[0] === 'DISASTER')
-                // Should either be Idps or Internal Displacements
-                && categories
-                && categories.length === 1
-                && (categories[0] === 'IDPS' || categories[0] === 'NEW_DISPLACEMENT')
-            );
-        },
-        [report, reportTypes],
-    );
-
-    const status = !reportDataLoading && (
-        <>
-            {report?.isGiddReport && (
-                <div>
-                    GRID report
-                </div>
-            )}
-            <DateTimeRange
-                from={report?.filterFigureStartAfter}
-                to={report?.filterFigureEndBefore}
-            />
-        </>
-    );
-
-    const actions = !reportDataLoading && (
-        <>
-            <Button
-                name={undefined}
-                onClick={handleExportReport}
-                disabled={exportReportLoading}
-            >
-                Export
-            </Button>
-            {reportPermissions?.sign_off
-                && (!lastGeneration || lastGeneration.isSignedOff)
-                && (
-                    <Button
-                        name={undefined}
-                        onClick={handleStartReport}
-                        disabled={loading}
-                        variant="primary"
-                    >
-                        Start QA
-                    </Button>
-                )}
-            {reportPermissions?.approve
-                && lastGeneration && !lastGeneration.isSignedOff
-                && user
-                && !lastGeneration.approvals?.results?.find(
-                    (item) => item.createdBy.id === user.id,
-                )
-                && (
-                    <Button
-                        name={undefined}
-                        onClick={handleApproveReport}
-                        disabled={loading}
-                    >
-                        Approve
-                    </Button>
-                )}
-            {reportPermissions?.sign_off
-                && lastGeneration
-                && !lastGeneration.isSignedOff
-                && (
-                    <PopupButton
-                        name={undefined}
-                        label="Sign off"
-                        variant="primary"
-                        persistent={false}
-                    >
-                        <Button
-                            className={styles.popupItemButton}
-                            name={undefined}
-                            onClick={handleSignOffReportWithoutHistory}
-                            disabled={loading}
-                            transparent
-                        >
-                            without history
-                        </Button>
-                        <Button
-                            className={styles.popupItemButton}
-                            name={undefined}
-                            onClick={handleSignOffReport}
-                            disabled={loading}
-                            transparent
-                        >
-                            with history
-                        </Button>
-                    </PopupButton>
-                )}
-        </>
-    );
-
-    const [
-        shouldShowUpdateAnalysisModal, ,
-        showUpdateAnalysisModal,
-        hideUpdateAnalysisModal,
-    ] = useModalState();
-
-    const [
-        shouldShowUpdateMethodologyModal, ,
-        showUpdateMethodologyModal,
-        hideUpdateMethodologyModal,
-    ] = useModalState();
-    const [
-        shouldShowUpdateSummaryModal, ,
-        showUpdateSummaryModal,
-        hideUpdateSummaryModal,
-    ] = useModalState();
-    const [
-        shouldShowPublicFigureAnalysisModal, ,
-        showPublicFigureAnalysisModal,
-        hidePublicFigureAnalysisModal,
-    ] = useModalState();
-    const [
-        shouldShowUpdateChallengesModal, ,
-        showUpdateChallengesModal,
-        hideUpdateChallengesModal,
-    ] = useModalState();
-    const [
-        shouldShowUpdateSignificantModal, ,
-        showUpdateSignificantModal,
-        hideUpdateSignificantModal,
-    ] = useModalState();
-
     return (
-        <div className={_cs(className, styles.reports)}>
-            <PageHeader
-                title={(
-                    <ReportSelectInput
-                        name="report"
-                        value={reportId}
-                        onChange={handleReportChange}
-                        placeholder="Select a report"
-                        nonClearable
-                    />
-                )}
-                actions={actions}
-                status={status}
-            />
-            <div className={styles.mainContent}>
-                <div className={styles.leftContent}>
-                    <Container
-                        className={styles.extraLargeContainer}
-                        heading="Details"
-                        contentClassName={styles.idpMap}
-                    >
-                        <div className={styles.stats}>
-                            {(!reportTypes || reportTypes.length <= 0 || reportTypes.includes('CONFLICT')) && (
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            Internal Displacements
-                                            <br />
-                                            (Conflict)
-                                        </>
-                                    )}
-                                    value={report?.totalDisaggregation?.totalFlowConflictSum}
-                                />
-                            )}
-                            {(!reportTypes || reportTypes.length <= 0 || reportTypes.includes('DISASTER')) && (
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            Internal Displacements
-                                            <br />
-                                            (Disaster)
-                                        </>
-                                    )}
-                                    value={report?.totalDisaggregation?.totalFlowDisasterSum}
-                                />
-                            )}
-                            {(!reportTypes || reportTypes.length <= 0 || reportTypes.includes('CONFLICT')) && (
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            No. of IDPs
-                                            <br />
-                                            (Conflict)
-                                        </>
-                                    )}
-                                    value={report?.totalDisaggregation?.totalStockConflictSum}
-                                />
-                            )}
-                            {(!reportTypes || reportTypes.length <= 0 || reportTypes.includes('DISASTER')) && (
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            No. of IDPs
-                                            <br />
-                                            (Disaster)
-                                        </>
-                                    )}
-                                    value={report?.totalDisaggregation?.totalStockDisasterSum}
-                                />
-                            )}
-                            {/*
-                            <NumberBlock
-                                label="Countries"
-                                value={report?.countriesReport?.totalCount}
-                            />
-                            <NumberBlock
-                                label="Crises"
-                                value={report?.crisesReport?.totalCount}
-                            />
-                            <NumberBlock
-                                label="Events"
-                                value={report?.eventsReport?.totalCount}
-                            />
-                            <NumberBlock
-                                label="Entries"
-                                value={report?.entriesReport?.totalCount}
-                            />
-                            <NumberBlock
-                                label="Figures"
-                                value={report?.figuresReport?.totalCount}
-                            />
-                            */}
-                        </div>
-                    </Container>
-                    <Container
-                        heading="Figure Analysis"
-                        headerActions={reportPermissions?.change && (
-                            <QuickActionButton
-                                name={undefined}
-                                disabled={loading}
-                                title="Edit Figure Analysis"
-                                onClick={showUpdateAnalysisModal}
-                                transparent
-                            >
-                                <IoCreateOutline />
-                            </QuickActionButton>
-                        )}
-                    >
-                        <MarkdownPreview
-                            markdown={analysis || 'N/a'}
+        <div className={_cs(styles.report, className)}>
+            <div className={styles.pageContent}>
+                <PageHeader
+                    title={(
+                        <ReportSelectInput
+                            name="report"
+                            value={reportId}
+                            onChange={handleReportChange}
+                            placeholder="Select a report"
+                            nonClearable
                         />
-                    </Container>
-                    <Container
-                        heading="Methodology"
-                        headerActions={reportPermissions?.change && (
-                            <QuickActionButton
+                    )}
+                    actions={(
+                        <>
+                            <Button
                                 name={undefined}
+                                onClick={handleExportReport}
                                 disabled={loading}
-                                title="Edit Methodology"
-                                onClick={showUpdateMethodologyModal}
-                                transparent
                             >
-                                <IoCreateOutline />
-                            </QuickActionButton>
-                        )}
-                    >
-                        <MarkdownPreview
-                            markdown={methodology || 'N/a'}
-                        />
-                    </Container>
-                    <Container
-                        heading="Challenges"
-                        headerActions={reportPermissions?.change && (
-                            <QuickActionButton
-                                name={undefined}
-                                disabled={loading}
-                                title="Edit Challenges"
-                                onClick={showUpdateChallengesModal}
-                                transparent
-                            >
-                                <IoCreateOutline />
-                            </QuickActionButton>
-                        )}
-                    >
-                        <MarkdownPreview
-                            markdown={challenges || 'N/a'}
-                        />
-                    </Container>
-                    <Container
-                        heading="Significant Changes"
-                        headerActions={reportPermissions?.change && (
-                            <QuickActionButton
-                                name={undefined}
-                                disabled={loading}
-                                title="Edit Significant Changes"
-                                onClick={showUpdateSignificantModal}
-                                transparent
-                            >
-                                <IoCreateOutline />
-                            </QuickActionButton>
-                        )}
-                    >
-                        <MarkdownPreview
-                            markdown={significantUpdates || 'N/a'}
-                        />
-                    </Container>
-                    <Container
-                        heading="Summary"
-                        headerActions={reportPermissions?.change && (
-                            <QuickActionButton
-                                name={undefined}
-                                disabled={loading}
-                                title="Edit Summary"
-                                onClick={showUpdateSummaryModal}
-                                transparent
-                            >
-                                <IoCreateOutline />
-                            </QuickActionButton>
-                        )}
-                    >
-                        <MarkdownPreview
-                            markdown={summary || 'N/a'}
-                        />
-                    </Container>
-                    <Container
-                        heading="Public Figure Analysis"
-                        headerActions={(
-                            <>
-                                {(reportData?.report?.isPfaVisibleInGidd || isPfaValid) && (
-                                    <Switch
-                                        label="This is available in GIDD"
-                                        name="PublicFigureVisibleinGidd"
-                                        value={reportData?.report?.isPfaVisibleInGidd}
-                                        onChange={showPublicFigureInGidd}
-                                        disabled={publicFigureVisibleLoading}
-                                        readOnly={!reportPermissions?.change || !user?.isAdmin}
-                                    />
-                                )}
-                                {reportPermissions?.change && (
-                                    <QuickActionButton
+                                Export
+                            </Button>
+                            {reportPermissions?.sign_off
+                                && (!lastGeneration || lastGeneration.isSignedOff)
+                                && (
+                                    <Button
                                         name={undefined}
+                                        onClick={handleStartReport}
                                         disabled={loading}
-                                        title="Edit public figure analysis"
-                                        onClick={showPublicFigureAnalysisModal}
-                                        transparent
+                                        variant="primary"
                                     >
-                                        <IoCreateOutline />
-                                    </QuickActionButton>
+                                        Start QA
+                                    </Button>
                                 )}
-                            </>
-                        )}
+                            {reportPermissions?.approve
+                                && lastGeneration && !lastGeneration.isSignedOff
+                                && user
+                                && !lastGeneration.approvals?.results?.find(
+                                    (item) => item.createdBy.id === user.id,
+                                )
+                                && (
+                                    <Button
+                                        name={undefined}
+                                        onClick={handleApproveReport}
+                                        disabled={loading}
+                                    >
+                                        Approve
+                                    </Button>
+                                )}
+                            {reportPermissions?.sign_off
+                                && lastGeneration
+                                && !lastGeneration.isSignedOff
+                                && (
+                                    <PopupButton
+                                        name={undefined}
+                                        label="Sign off"
+                                        variant="primary"
+                                        persistent={false}
+                                    >
+                                        <Button
+                                            className={styles.popupItemButton}
+                                            name={undefined}
+                                            onClick={handleSignOffReportWithoutHistory}
+                                            disabled={loading}
+                                            transparent
+                                        >
+                                            without history
+                                        </Button>
+                                        <Button
+                                            className={styles.popupItemButton}
+                                            name={undefined}
+                                            onClick={handleSignOffReport}
+                                            disabled={loading}
+                                            transparent
+                                        >
+                                            with history
+                                        </Button>
+                                    </PopupButton>
+                                )}
+                        </>
+                    )}
+                />
+                <div className={styles.stats}>
+                    <TextBlock
+                        label="Public Report"
+                        value={getYesNo(report?.isPublic)}
+                    />
+                    <TextBlock
+                        label="GIDD Report"
+                        value={getYesNo(report?.isGiddReport)}
+                    />
+                </div>
+                <div className={styles.mainContent}>
+                    <FiguresFilterOutput
+                        className={styles.filterOutputs}
+                        filterState={reportFilters}
+                    />
+                    <Container
+                        className={styles.map}
+                        compact
                     >
-                        <MarkdownPreview
-                            markdown={publicFigureAnalysis || 'N/a'}
+                        <CountriesMap
+                            className={styles.mapContainer}
+                            // bounds={bounds as Bounds | undefined}
+                            // countries={eventData?.event?.countries}
                         />
                     </Container>
-                </div>
-                <div className={styles.sideContent}>
+                    <div className={styles.charts}>
+                        <NdChart
+                            conflictData={
+                                reportAggregations
+                                    ?.figureAggregations
+                                    ?.ndsConflictFigures
+                            }
+                            disasterData={
+                                reportAggregations
+                                    ?.figureAggregations
+                                    ?.ndsDisasterFigures
+                            }
+                        />
+                        <IdpChart
+                            conflictData={
+                                reportAggregations
+                                    ?.figureAggregations
+                                    ?.idpsConflictFigures
+                            }
+                            disasterData={
+                                reportAggregations
+                                    ?.figureAggregations
+                                    ?.idpsDisasterFigures
+                            }
+                        />
+                    </div>
+                    <Container
+                        className={styles.overview}
+                    >
+                        <Container
+                            heading="Figure Analysis"
+                            borderless
+                            headerActions={reportPermissions?.change && (
+                                <QuickActionButton
+                                    name={undefined}
+                                    disabled={loading}
+                                    title="Edit Figure Analysis"
+                                    onClick={showUpdateAnalysisModal}
+                                    transparent
+                                >
+                                    <IoCreateOutline />
+                                </QuickActionButton>
+                            )}
+                        >
+                            {analysis ? (
+                                <MarkdownPreview
+                                    markdown={analysis}
+                                />
+                            ) : (
+                                <Message
+                                    message="No figure analysis found."
+                                />
+                            )}
+                        </Container>
+                        <Container
+                            heading="Methodology"
+                            borderless
+                            headerActions={reportPermissions?.change && (
+                                <QuickActionButton
+                                    name={undefined}
+                                    disabled={loading}
+                                    title="Edit Methodology"
+                                    onClick={showUpdateMethodologyModal}
+                                    transparent
+                                >
+                                    <IoCreateOutline />
+                                </QuickActionButton>
+                            )}
+                        >
+                            {methodology ? (
+                                <MarkdownPreview
+                                    markdown={methodology}
+                                />
+                            ) : (
+                                <Message
+                                    message="No methodology found."
+                                />
+                            )}
+                        </Container>
+                        <Container
+                            heading="Challenges"
+                            borderless
+                            headerActions={reportPermissions?.change && (
+                                <QuickActionButton
+                                    name={undefined}
+                                    disabled={loading}
+                                    title="Edit Challenges"
+                                    onClick={showUpdateChallengesModal}
+                                    transparent
+                                >
+                                    <IoCreateOutline />
+                                </QuickActionButton>
+                            )}
+                        >
+                            {challenges ? (
+                                <MarkdownPreview
+                                    markdown={challenges}
+                                />
+                            ) : (
+                                <Message
+                                    message="No challenges found."
+                                />
+                            )}
+                        </Container>
+                        <Container
+                            heading="Significant Changes"
+                            borderless
+                            headerActions={reportPermissions?.change && (
+                                <QuickActionButton
+                                    name={undefined}
+                                    disabled={loading}
+                                    title="Edit Significant Changes"
+                                    onClick={showUpdateSignificantModal}
+                                    transparent
+                                >
+                                    <IoCreateOutline />
+                                </QuickActionButton>
+                            )}
+                        >
+                            {significantUpdates ? (
+                                <MarkdownPreview
+                                    markdown={significantUpdates}
+                                />
+                            ) : (
+                                <Message
+                                    message="No significant changes found."
+                                />
+                            )}
+                        </Container>
+                        <Container
+                            heading="Summary"
+                            borderless
+                            headerActions={reportPermissions?.change && (
+                                <QuickActionButton
+                                    name={undefined}
+                                    disabled={loading}
+                                    title="Edit Summary"
+                                    onClick={showUpdateSummaryModal}
+                                    transparent
+                                >
+                                    <IoCreateOutline />
+                                </QuickActionButton>
+                            )}
+                        >
+                            {summary ? (
+                                <MarkdownPreview
+                                    markdown={summary}
+                                />
+                            ) : (
+                                <Message
+                                    message="No summary found."
+                                />
+                            )}
+                        </Container>
+                        <Container
+                            heading="Public Figure Analysis"
+                            borderless
+                            headerActions={(
+                                <>
+                                    {(reportData?.report?.isPfaVisibleInGidd || isPfaValid) && (
+                                        <Switch
+                                            label="This is available in GIDD"
+                                            name="PublicFigureVisibleinGidd"
+                                            value={reportData?.report?.isPfaVisibleInGidd}
+                                            onChange={showPublicFigureInGidd}
+                                            disabled={publicFigureVisibleLoading}
+                                            readOnly={!reportPermissions?.change || !user?.isAdmin}
+                                        />
+                                    )}
+                                    {reportPermissions?.change && (
+                                        <QuickActionButton
+                                            name={undefined}
+                                            disabled={loading}
+                                            title="Edit public figure analysis"
+                                            onClick={showPublicFigureAnalysisModal}
+                                            transparent
+                                        >
+                                            <IoCreateOutline />
+                                        </QuickActionButton>
+                                    )}
+                                </>
+                            )}
+                        >
+                            {publicFigureAnalysis ? (
+                                <MarkdownPreview
+                                    markdown={publicFigureAnalysis}
+                                />
+                            ) : (
+                                <Message
+                                    message="No public figure analysis found."
+                                />
+                            )}
+                        </Container>
+                    </Container>
                     {lastGeneration && (lastGeneration.isApproved || lastGeneration.isSignedOff) && ( // eslint-disable-line max-len
                         <Container
-                            className={styles.container}
-                            contentClassName={styles.content}
+                            className={styles.status}
                             heading="Status"
                         >
                             {lastGeneration.approvals?.results
@@ -1112,8 +1177,7 @@ function Report(props: ReportProps) {
                     )}
                     {generations && generations.length > 0 && (
                         <Container
-                            className={styles.container}
-                            contentClassName={styles.content}
+                            className={styles.history}
                             heading="History"
                         >
                             {generations.map((item) => (
@@ -1130,7 +1194,7 @@ function Report(props: ReportProps) {
                     )}
                     {!report?.generated && (report?.filterFigureCategories?.length ?? 0) > 0 && (
                         <MasterFactInfo
-                            className={styles.container}
+                            className={styles.masterFactInfo}
                             totalFigures={report?.totalFigures}
                             roles={report?.filterFigureRoles}
                             countries={report?.filterFigureCountries}
@@ -1139,22 +1203,19 @@ function Report(props: ReportProps) {
                         />
                     )}
                     <Container
-                        className={styles.largeContainer}
-                        contentClassName={styles.content}
+                        className={styles.comments}
                         heading="Comments"
                     >
                         <ReportComments
-                            className={styles.comments}
+                            // className={styles.comments}
                             reportId={reportId}
                         />
                     </Container>
+                    <CountriesCrisesEventsEntriesFiguresTable
+                        className={styles.countriesCrisesEventsEntriesFiguresTable}
+                        reportId={reportId}
+                    />
                 </div>
-            </div>
-            <div className={styles.fullWidth}>
-                <CountriesCrisesEventsEntriesFiguresTable
-                    className={styles.largeContainer}
-                    reportId={reportId}
-                />
             </div>
             {shouldShowUpdateAnalysisModal && (
                 <Modal

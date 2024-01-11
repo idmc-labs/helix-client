@@ -16,7 +16,6 @@ import Map, {
     MapSource,
     MapImage,
     MapCenter,
-    getLayerName,
 } from '@togglecorp/re-map';
 import {
     TextInput,
@@ -239,13 +238,13 @@ const defaultColor = '#333333';
 const pointRadius = 12;
 
 const countryFillPaint: mapboxgl.FillPaint = {
-    'fill-color': '#354052', // empty color
-    'fill-opacity': 0.2,
+    'fill-color': '#e0e8f0',
+    'fill-opacity': 1,
 };
 
 const countryLinePaint: mapboxgl.LinePaint = {
-    'line-color': '#ffffff',
-    'line-width': 1,
+    'line-color': '#3E5963',
+    'line-width': 1.5,
 };
 
 const origin: Identifier = 'ORIGIN';
@@ -964,7 +963,8 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                                 type: 'fill',
                                 paint: countryFillPaint,
                             }}
-                            beneath={getLayerName('lines', 'line')}
+                            // NOTE: this is the lowest line layer in mapstyle
+                            beneath="tunnel-street-minor-low"
                         />
                         <MapLayer
                             layerKey="country-line"
@@ -972,7 +972,8 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                                 type: 'line',
                                 paint: countryLinePaint,
                             }}
-                            beneath={getLayerName('lines', 'line')}
+                            // NOTE: this is the lowest point layer in mapstyle
+                            beneath="road-label"
                         />
                     </MapSource>
                 )}

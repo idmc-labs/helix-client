@@ -1,12 +1,13 @@
 .header {
     display: flex;
+    /* NOTE: we cannot use gap */
 
     .heading-section {
         display: flex;
         align-items: center;
         flex-shrink: 0;
         border-bottom: var(--width-separator-medium) solid var(--color-accent);
-        padding: var(--spacing-medium);
+        padding: var(--spacing-medium) 0;
         gap: var(--spacing-medium);
 
         .icons {

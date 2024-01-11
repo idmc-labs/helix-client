@@ -1,37 +1,41 @@
-import React, { useMemo, useContext } from 'react';
+import React, { useMemo, useContext, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
+import { _cs, isDefined } from '@togglecorp/fujs';
+import { Button, Modal } from '@togglecorp/toggle-ui';
+import { IoFilterOutline, IoClose } from 'react-icons/io5';
 import {
     gql,
     useQuery,
 } from '@apollo/client';
-import { _cs, isDefined } from '@togglecorp/fujs';
-import Map, {
-    MapContainer,
-    MapBounds,
-    MapSource,
-    MapLayer,
-} from '@togglecorp/re-map';
-import {
-    Button,
-    Modal,
-} from '@togglecorp/toggle-ui';
-
-import useOptions from '#hooks/useOptions';
-import { mergeBbox } from '#utils/common';
-import { MarkdownPreview } from '#components/MarkdownEditor';
-import DomainContext from '#components/DomainContext';
-import Container from '#components/Container';
-import PageHeader from '#components/PageHeader';
-import TextBlock from '#components/TextBlock';
-import NumberBlock from '#components/NumberBlock';
-
-import CrisisForm from '#components/forms/CrisisForm';
-import useModalState from '#hooks/useModalState';
 
 import {
     CrisisQuery,
     CrisisQueryVariables,
+    CrisisAggregationsQuery,
+    CrisisAggregationsQueryVariables,
+    ExtractionEntryListFiltersQueryVariables,
 } from '#generated/types';
+import FiguresFilterOutput from '#components/rawTables/useFigureTable/FiguresFilterOutput';
+import { PurgeNull } from '#types';
+import useFilterState from '#hooks/useFilterState';
+import Container from '#components/Container';
+import PageHeader from '#components/PageHeader';
+import useOptions from '#hooks/useOptions';
+import AdvancedFiguresFilter from '#components/rawTables/useFigureTable/AdvancedFiguresFilter';
+import { expandObject, mergeBbox } from '#utils/common';
+import useSidebarLayout from '#hooks/useSidebarLayout';
+import NdChart from '#components/NdChart';
+import IdpChart from '#components/IdpChart';
+import FloatingButton from '#components/FloatingButton';
+import CountriesMap, { Bounds } from '#components/CountriesMap';
+import { MarkdownPreview } from '#components/MarkdownEditor';
+import DomainContext from '#components/DomainContext';
+import TextBlock from '#components/TextBlock';
+import SmartLink from '#components/SmartLink';
+import CrisisForm from '#components/forms/CrisisForm';
+import useModalState from '#hooks/useModalState';
+import Message from '#components/Message';
+import route from '#config/routes';
 
 import CountriesEventsEntriesFiguresTable from './CountriesEventsEntriesFiguresTable';
 import styles from './styles.css';
@@ -52,26 +56,32 @@ const CRISIS = gql`
             id
             name
             startDate
-            totalFlowNdFigures
-            totalStockIdpFigures
-            stockIdpFiguresMaxEndDate
         }
     }
 `;
 
-type Bounds = [number, number, number, number];
-
-const lightStyle = 'mapbox://styles/togglecorp/cl50rwy0a002d14mo6w9zprio';
-
-const countryFillPaint: mapboxgl.FillPaint = {
-    'fill-color': '#354052', // empty color
-    'fill-opacity': 0.2,
-};
-
-const countryLinePaint: mapboxgl.LinePaint = {
-    'line-color': '#334053',
-    'line-width': 1,
-};
+const CRISIS_AGGREGATIONS = gql`
+    query CrisisAggregations($filters: FigureExtractionFilterDataInputType!) {
+        figureAggregations(filters: $filters) {
+            idpsConflictFigures {
+                date
+                value
+            }
+            idpsDisasterFigures {
+                date
+                value
+            }
+            ndsConflictFigures {
+                date
+                value
+            }
+            ndsDisasterFigures {
+                date
+                value
+            }
+        }
+    }
+`;
 
 const now = new Date();
 
@@ -83,18 +93,51 @@ function Crisis(props: CrisisProps) {
     const { className } = props;
 
     const { crisisId } = useParams<{ crisisId: string }>();
+    const { user } = useContext(DomainContext);
     const [, setCrisisOptions] = useOptions('crisis');
 
+    const [
+        shouldShowAddCrisisModal,
+        editableCrisisId,
+        showAddCrisisModal,
+        hideAddCrisisModal,
+    ] = useModalState();
+
+    const figuresFilterState = useFilterState<PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>>({
+        filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
+    });
+    const {
+        filter: figuresFilter,
+        rawFilter: rawFiguresFilter,
+        initialFilter: initialFiguresFilter,
+        setFilter: setFiguresFilter,
+    } = figuresFilterState;
+
     const crisisVariables = useMemo(
-        (): CrisisQueryVariables => ({
-            id: crisisId,
-        }),
+        (): CrisisQueryVariables => ({ id: crisisId }),
         [crisisId],
+    );
+
+    const crisisAggregationsVariables = useMemo(
+        (): CrisisAggregationsQueryVariables | undefined => ({
+            filters: expandObject(
+                figuresFilter,
+                {
+                    filterFigureCrises: [crisisId],
+                },
+            ),
+        }),
+        [crisisId, figuresFilter],
     );
 
     const {
         data: crisisData,
-        loading,
+        loading: crisisDataLoading,
+        // error: crisisDataLoadingError,
     } = useQuery<CrisisQuery, CrisisQueryVariables>(CRISIS, {
         variables: crisisVariables,
         onCompleted: (response) => {
@@ -109,56 +152,80 @@ function Crisis(props: CrisisProps) {
         },
     });
 
-    const { user } = useContext(DomainContext);
+    const {
+        data: crisisAggregations,
+        loading: crisisAggregationsLoading,
+        // error: crisisAggregationsError,
+    } = useQuery<CrisisAggregationsQuery>(CRISIS_AGGREGATIONS, {
+        variables: crisisAggregationsVariables,
+        skip: !crisisAggregationsVariables,
+    });
+
+    const loading = crisisDataLoading || crisisAggregationsLoading;
+    // const errored = !!crisisDataLoadingError || !!crisisAggregationsError;
+    // const disabled = loading || errored;
+
+    const figureHiddenColumns = ['crisis' as const];
+
     const crisisPermissions = user?.permissions?.crisis;
+
     const crisisYear = new Date(
         crisisData?.crisis?.endDate ?? crisisData?.crisis?.startDate ?? now,
     ).getFullYear();
-
-    const [
-        shouldShowAddCrisisModal,
-        editableCrisisId,
-        showAddCrisisModal,
-        hideAddCrisisModal,
-    ] = useModalState();
 
     const bounds = mergeBbox(
         crisisData?.crisis?.countries
             ?.map((country) => country.boundingBox as (GeoJSON.BBox | null | undefined))
             .filter(isDefined),
     );
+    const countries = crisisData?.crisis?.countries;
+
+    const {
+        showSidebar,
+        containerClassName,
+        sidebarClassName,
+        sidebarSpaceReserverElement,
+        setShowSidebarTrue,
+        setShowSidebarFalse,
+    } = useSidebarLayout();
+
+    const floatingButtonVisibility = useCallback(
+        (scroll: number) => scroll >= 80 && !showSidebar,
+        [showSidebar],
+    );
+
+    const narrative = crisisData?.crisis?.crisisNarrative;
 
     return (
-        <div className={_cs(styles.crisis, className)}>
-            <PageHeader
-                title={crisisData?.crisis?.name ?? 'Crisis'}
-                actions={crisisPermissions?.change && (
-                    <Button
-                        name={crisisData?.crisis?.id}
-                        onClick={showAddCrisisModal}
-                        disabled={loading || !crisisData?.crisis?.id}
-                    >
-                        Edit Crisis
-                    </Button>
-                )}
-            />
-            <Container
-                className={styles.extraLargeContainer}
-                contentClassName={styles.details}
-                heading="Details"
-            >
+        <div className={_cs(styles.crisis, containerClassName, className)}>
+            {sidebarSpaceReserverElement}
+            <div className={styles.pageContent}>
+                <PageHeader
+                    title={crisisData?.crisis?.name ?? 'Crisis'}
+                    description={!showSidebar && (
+                        <Button
+                            name={undefined}
+                            onClick={setShowSidebarTrue}
+                            disabled={showSidebar}
+                            icons={<IoFilterOutline />}
+                        >
+                            Filters
+                        </Button>
+                    )}
+                    actions={crisisPermissions?.change && (
+                        <Button
+                            name={undefined}
+                            onClick={showAddCrisisModal}
+                            disabled={loading}
+                        >
+                            Edit Crisis
+                        </Button>
+                    )}
+                />
                 <div className={styles.stats}>
-                    <NumberBlock
-                        label="Internal displacements"
-                        value={crisisData?.crisis?.totalFlowNdFigures}
-                    />
-                    <NumberBlock
-                        label={
-                            crisisData?.crisis?.stockIdpFiguresMaxEndDate
-                                ? `No. of IDPs as of ${crisisData.crisis.stockIdpFiguresMaxEndDate}`
-                                : 'No. of IDPs'
-                        }
-                        value={crisisData?.crisis?.totalStockIdpFigures}
+                    <TextBlock
+                        label="Cause"
+                        value={crisisData?.crisis?.crisisTypeDisplay}
                     />
                     <TextBlock
                         label="Start Date"
@@ -169,67 +236,117 @@ function Crisis(props: CrisisProps) {
                         value={crisisData?.crisis?.endDate}
                     />
                     <TextBlock
-                        label="Cause"
-                        value={crisisData?.crisis?.crisisTypeDisplay}
-                    />
-                    <TextBlock
                         label="Countries"
-                        value={crisisData?.crisis?.countries?.map((country) => country.idmcShortName).join(', ')}
+                        value={countries?.map((country) => (
+                            <SmartLink
+                                key={country.id}
+                                route={route.country}
+                                attrs={{ countryId: country.id }}
+                            >
+                                {country.idmcShortName}
+                            </SmartLink>
+                        ))}
                     />
                 </div>
-                <Map
-                    mapStyle={lightStyle}
-                    mapOptions={{
-                        logoPosition: 'bottom-left',
-                    }}
-                    scaleControlShown
-                    navControlShown
-                >
-                    <MapContainer className={styles.mapContainer} />
-                    <MapBounds
-                        bounds={bounds as Bounds | undefined}
-                        padding={50}
+                <div className={styles.mainContent}>
+                    <FiguresFilterOutput
+                        className={styles.filterOutputs}
+                        filterState={figuresFilterState.rawFilter}
                     />
-                    {crisisData?.crisis?.countries?.map((country) => (!!country.geojsonUrl && (
-                        <MapSource
-                            key={country.id}
-                            sourceKey={`country-${country.id}`}
-                            sourceOptions={{
-                                type: 'geojson',
-                            }}
-                            geoJson={country.geojsonUrl}
+                    <Container
+                        className={styles.map}
+                        compact
+                    >
+                        <CountriesMap
+                            className={styles.mapContainer}
+                            bounds={bounds as Bounds | undefined}
+                            countries={crisisData?.crisis?.countries}
+                        />
+                    </Container>
+                    <div className={styles.charts}>
+                        <NdChart
+                            conflictData={
+                                crisisAggregations
+                                    ?.figureAggregations
+                                    ?.ndsConflictFigures
+                            }
+                            disasterData={
+                                crisisAggregations
+                                    ?.figureAggregations
+                                    ?.ndsDisasterFigures
+                            }
+                        />
+                        <IdpChart
+                            conflictData={
+                                crisisAggregations
+                                    ?.figureAggregations
+                                    ?.idpsConflictFigures
+                            }
+                            disasterData={
+                                crisisAggregations
+                                    ?.figureAggregations
+                                    ?.idpsDisasterFigures
+                            }
+                        />
+                    </div>
+                    <CountriesEventsEntriesFiguresTable
+                        className={styles.countriesEventsEntriesFiguresTable}
+                        crisisId={crisisId}
+                        crisisYear={crisisYear}
+                        figuresFilterState={figuresFilterState}
+                    />
+                    <Container
+                        className={styles.overview}
+                    >
+                        <Container
+                            heading="Narrative"
+                            borderless
                         >
-                            <MapLayer
-                                layerKey="country-fill"
-                                layerOptions={{
-                                    type: 'fill',
-                                    paint: countryFillPaint,
-                                }}
-                            />
-                            <MapLayer
-                                layerKey="country-line"
-                                layerOptions={{
-                                    type: 'line',
-                                    paint: countryLinePaint,
-                                }}
-                            />
-                        </MapSource>
-                    )))}
-                </Map>
-            </Container>
-            <Container
-                className={styles.container}
-                heading="Narrative"
+                            {narrative ? (
+                                <MarkdownPreview
+                                    markdown={narrative}
+                                />
+                            ) : (
+                                <Message
+                                    message="No narrative found."
+                                />
+                            )}
+                        </Container>
+                    </Container>
+                </div>
+                <Container
+                    className={_cs(styles.filters, sidebarClassName)}
+                    heading="Filters"
+                    contentClassName={styles.filtersContent}
+                    headerActions={(
+                        <Button
+                            name={undefined}
+                            onClick={setShowSidebarFalse}
+                            transparent
+                            title="Close"
+                        >
+                            <IoClose />
+                        </Button>
+                    )}
+                >
+                    <AdvancedFiguresFilter
+                        currentFilter={rawFiguresFilter}
+                        initialFilter={initialFiguresFilter}
+                        onFilterChange={setFiguresFilter}
+                        hiddenFields={figureHiddenColumns}
+                        crises={[crisisId]}
+                    />
+                </Container>
+            </div>
+            <FloatingButton
+                name={undefined}
+                onClick={setShowSidebarTrue}
+                icons={<IoFilterOutline />}
+                variant="primary"
+                visibleOn={floatingButtonVisibility}
             >
-                <MarkdownPreview
-                    markdown={crisisData?.crisis?.crisisNarrative ?? 'Narrative not available'}
-                />
-            </Container>
-            <CountriesEventsEntriesFiguresTable
-                className={styles.largeContainer}
-                crisisId={crisisId}
-                crisisYear={crisisYear}
-            />
+                Filters
+            </FloatingButton>
             {shouldShowAddCrisisModal && (
                 <Modal
                     onClose={hideAddCrisisModal}
