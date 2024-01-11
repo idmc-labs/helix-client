@@ -61,8 +61,8 @@ const COUNTRY = gql`
                 summary
             }
             boundingBox
-            iso2
             geojsonUrl
+            iso2
         }
     }
 `;
@@ -158,11 +158,12 @@ function Country(props: CountryProps) {
                     id,
                     idmcShortName,
                     boundingBox,
+                    geojsonUrl,
                     iso2,
                 } = response.country;
                 // NOTE: we are setting this options so that we can use country
                 // option when adding crisis/event on the country page
-                setCountryOptions([{ id, idmcShortName, iso2, boundingBox }]);
+                setCountryOptions([{ id, idmcShortName, iso2, boundingBox, geojsonUrl }]);
             }
         },
     });

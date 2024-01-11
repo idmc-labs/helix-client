@@ -64,7 +64,7 @@ interface Country {
     iso2?: string | null;
     idmcShortName: string;
     boundingBox?: number[] | null;
-    geojsonUrl?: string;
+    geojsonUrl?: string | null;
 }
 
 interface Dragging {

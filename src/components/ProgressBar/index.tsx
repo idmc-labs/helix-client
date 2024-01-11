@@ -1,5 +1,11 @@
 import React, { useMemo } from 'react';
 import { _cs, sum, isDefined, isNotDefined } from '@togglecorp/fujs';
+import {
+    IoSquare,
+} from 'react-icons/io5';
+
+import Tooltip from '#components/Tooltip';
+
 import styles from './styles.css';
 
 export interface ProgressBarProps {
@@ -36,18 +42,31 @@ function ProgressBar(props: ProgressBarProps) {
         ), [data, totalSum],
     );
 
-    const tooltip = useMemo(
-        () => (
-            data.map((datum) => `${datum.title}: ${datum.value ?? 0}`).join('\n')
-        ), [data],
-    );
-
     return (
         <div
             className={_cs(styles.progressWrapper, className)}
             style={{ height: `${barHeight}px` }}
-            title={tooltip}
         >
+            <Tooltip
+                description={(
+                    <div className={styles.items}>
+                        {data.map((datum) => (
+                            <div className={styles.item}>
+                                <IoSquare
+                                    className={styles.icon}
+                                    style={{ color: datum.color ?? 'transparent' }}
+                                />
+                                <div className={styles.title}>
+                                    {datum.title}
+                                </div>
+                                <div className={styles.value}>
+                                    {datum.value ?? 0}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            />
             {avgResult.map((item) => {
                 if (isNotDefined(item.percentage) || item.percentage === 0) {
                     return null;

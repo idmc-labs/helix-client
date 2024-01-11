@@ -9,6 +9,7 @@ export const EVENT_FRAGMENT = gql`
             id
             idmcShortName
             boundingBox
+            geojsonUrl
             iso2
         }
         violenceSubType {
@@ -53,6 +54,7 @@ export const FIGURE_FRAGMENT = gql`
             id
             idmcShortName
             boundingBox
+            geojsonUrl
             iso2
         }
         excerptIdu

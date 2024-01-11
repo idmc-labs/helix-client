@@ -60,6 +60,7 @@ const ME = gql`
                         id
                         idmcShortName
                         boundingBox
+                        geojsonUrl
                         iso2
                     }
                 }

@@ -29,6 +29,7 @@ const COUNTRY = gql`
                 id
                 idmcShortName
                 boundingBox
+                geojsonUrl
                 iso2
             }
         }
