@@ -1,6 +1,5 @@
 .contextual-analysis {
     position: relative;
-    min-height: 12rem;
     overflow-y: auto;
 
     .row {

@@ -1,24 +1,15 @@
-import React, { useMemo, useCallback, useEffect, useState } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import produce from 'immer';
 import { useParams, useHistory } from 'react-router-dom';
-import {
-    _cs,
-    isDefined,
-} from '@togglecorp/fujs';
-import Map, {
-    MapContainer,
-    MapBounds,
-    MapSource,
-    MapLayer,
-} from '@togglecorp/re-map';
-import { Button, Portal } from '@togglecorp/toggle-ui';
+import { _cs, isDefined } from '@togglecorp/fujs';
+import { Button } from '@togglecorp/toggle-ui';
 import { IoFilterOutline, IoClose } from 'react-icons/io5';
-
 import {
     gql,
     useQuery,
     MutationUpdaterFn,
 } from '@apollo/client';
+
 import {
     CountryQuery,
     CountryQueryVariables,
@@ -28,30 +19,29 @@ import {
     CreateContextualAnalysisMutation,
     ExtractionEntryListFiltersQueryVariables,
 } from '#generated/types';
-
 import { PurgeNull } from '#types';
 import useFilterState from '#hooks/useFilterState';
 import useBasicToggle from '#hooks/useBasicToggle';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import route from '#config/routes';
-
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import MyResources from '#components/lists/MyResources';
 import CountrySelectInput from '#components/selections/CountrySelectInput';
 import useOptions from '#hooks/useOptions';
 import AdvancedFiguresFilter from '#components/rawTables/useFigureTable/AdvancedFiguresFilter';
+import FiguresFilterOutput from '#components/rawTables/useFigureTable/FiguresFilterOutput';
 import { expandObject } from '#utils/common';
+import useSidebarLayout from '#hooks/useSidebarLayout';
+import NdChart from '#components/NdChart';
+import IdpChart from '#components/IdpChart';
+import FloatingButton from '#components/FloatingButton';
+import CountriesMap, { Bounds } from '#components/CountriesMap';
 
 import CrisesEventsEntriesFiguresTable from './CrisesEventsEntriesFiguresTable';
 import ContextualAnalysis from './ContextualAnalysis';
 import CountrySummary from './CountrySummary';
 import styles from './styles.css';
-import useSidebarLayout from '#hooks/useSidebarLayout';
-import NdChart from './NdChart';
-import IdpChart from './IdpChart';
-
-type Bounds = [number, number, number, number];
 
 const COUNTRY = gql`
     query Country($id: ID!) {
@@ -71,8 +61,8 @@ const COUNTRY = gql`
                 summary
             }
             boundingBox
-            iso2
             geojsonUrl
+            iso2
         }
     }
 `;
@@ -100,68 +90,6 @@ const COUNTRY_AGGREGATIONS = gql`
     }
 `;
 
-const lightStyle = 'mapbox://styles/togglecorp/cl50rwy0a002d14mo6w9zprio';
-
-const countryFillPaint: mapboxgl.FillPaint = {
-    'fill-color': '#354052', // empty color
-    'fill-opacity': 0.2,
-};
-
-const countryLinePaint: mapboxgl.LinePaint = {
-    'line-color': '#334053',
-    'line-width': 1,
-};
-
-interface FloatingButtonProps {
-    onClick: () => void,
-}
-
-// FIXME: create a separate general component
-function FloatingButton(props: FloatingButtonProps) {
-    const { onClick } = props;
-    const [scroll, setScroll] = useState<number>(
-        document.querySelectorAll('[data-multiplexer-content]')[0]?.scrollTop ?? 0,
-    );
-
-    const handleDocumentScroll = useCallback(
-        (e: Event) => {
-            if (e.target instanceof HTMLElement) {
-                const isMultiplexerContent = e.target.getAttribute('data-multiplexer-content');
-
-                if (isMultiplexerContent) {
-                    setScroll(e.target.scrollTop);
-                }
-            }
-        },
-        [],
-    );
-
-    useEffect(
-        () => {
-            document.addEventListener('scroll', handleDocumentScroll, true);
-
-            return () => {
-                document.removeEventListener('scroll', handleDocumentScroll, true);
-            };
-        },
-        [handleDocumentScroll],
-    );
-
-    return (
-        <Portal>
-            <Button
-                className={_cs(styles.floatingButton, scroll < 80 && styles.hidden)}
-                name={undefined}
-                onClick={onClick}
-                icons={<IoFilterOutline />}
-                variant="primary"
-            >
-                Filters
-            </Button>
-        </Portal>
-    );
-}
-
 interface CountryProps {
     className?: string;
 }
@@ -170,6 +98,8 @@ function Country(props: CountryProps) {
     const { className } = props;
 
     const { countryId } = useParams<{ countryId: string }>();
+    const [, setCountryOptions] = useOptions('country');
+
     const { replace: historyReplace } = useHistory();
 
     const [
@@ -183,8 +113,6 @@ function Country(props: CountryProps) {
         handleSummaryFormOpen,
         handleSummaryFormClose,
     ] = useBasicToggle();
-
-    const [, setCountryOptions] = useOptions('country');
 
     const figuresFilterState = useFilterState<PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>>({
         filter: {},
@@ -230,27 +158,27 @@ function Country(props: CountryProps) {
                     id,
                     idmcShortName,
                     boundingBox,
+                    geojsonUrl,
                     iso2,
                 } = response.country;
                 // NOTE: we are setting this options so that we can use country
                 // option when adding crisis/event on the country page
-                setCountryOptions([{ id, idmcShortName, iso2, boundingBox }]);
+                setCountryOptions([{ id, idmcShortName, iso2, boundingBox, geojsonUrl }]);
             }
         },
     });
 
     const {
         data: countryAggregations,
-        // TODO: Handle error and loading states
-        // loading: countryAggregationsLoading,
-        // error: countryAggregationsError,
+        loading: countryAggregationsLoading,
+        error: countryAggregationsError,
     } = useQuery<CountryAggregationsQuery>(COUNTRY_AGGREGATIONS, {
         variables: countryAggregationsVariables,
         skip: !countryAggregationsVariables,
     });
 
-    const loading = countryDataLoading;
-    const errored = !!countryDataLoadingError;
+    const loading = countryDataLoading || countryAggregationsLoading;
+    const errored = !!countryDataLoadingError || !!countryAggregationsError;
     const disabled = loading || errored;
 
     const handleCountryChange = useCallback(
@@ -339,6 +267,10 @@ function Country(props: CountryProps) {
     const figureHiddenColumns = ['country' as const];
 
     const bounds = countryData?.country?.boundingBox ?? undefined;
+    const countries = useMemo(
+        () => [countryData?.country].filter(isDefined),
+        [countryData],
+    );
 
     const {
         showSidebar,
@@ -348,6 +280,11 @@ function Country(props: CountryProps) {
         setShowSidebarTrue,
         setShowSidebarFalse,
     } = useSidebarLayout();
+
+    const floatingButtonVisibility = useCallback(
+        (scroll: number) => scroll >= 80 && !showSidebar,
+        [showSidebar],
+    );
 
     return (
         <div className={_cs(styles.countries, containerClassName, className)}>
@@ -375,44 +312,20 @@ function Country(props: CountryProps) {
                     )}
                 />
                 <div className={styles.mainContent}>
-                    <Map
-                        mapStyle={lightStyle}
-                        mapOptions={{
-                            logoPosition: 'bottom-left',
-                        }}
-                        scaleControlShown
-                        navControlShown
+                    <FiguresFilterOutput
+                        className={styles.filterOutputs}
+                        filterState={figuresFilterState.rawFilter}
+                    />
+                    <Container
+                        className={styles.map}
+                        compact
                     >
-                        <MapContainer className={styles.mapContainer} />
-                        <MapBounds
+                        <CountriesMap
+                            className={styles.mapContainer}
                             bounds={bounds as Bounds | undefined}
-                            padding={50}
+                            countries={countries}
                         />
-                        {countryData?.country?.geojsonUrl && (
-                            <MapSource
-                                sourceKey="country"
-                                sourceOptions={{
-                                    type: 'geojson',
-                                }}
-                                geoJson={countryData.country.geojsonUrl}
-                            >
-                                <MapLayer
-                                    layerKey="country-fill"
-                                    layerOptions={{
-                                        type: 'fill',
-                                        paint: countryFillPaint,
-                                    }}
-                                />
-                                <MapLayer
-                                    layerKey="country-line"
-                                    layerOptions={{
-                                        type: 'line',
-                                        paint: countryLinePaint,
-                                    }}
-                                />
-                            </MapSource>
-                        )}
-                    </Map>
+                    </Container>
                     <div className={styles.charts}>
                         <NdChart
                             conflictData={
@@ -495,11 +408,15 @@ function Country(props: CountryProps) {
                     />
                 </Container>
             </div>
-            {!showSidebar && (
-                <FloatingButton
-                    onClick={setShowSidebarTrue}
-                />
-            )}
+            <FloatingButton
+                name={undefined}
+                onClick={setShowSidebarTrue}
+                icons={<IoFilterOutline />}
+                variant="primary"
+                visibleOn={floatingButtonVisibility}
+            >
+                Filters
+            </FloatingButton>
         </div>
     );
 }

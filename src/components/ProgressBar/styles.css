@@ -15,3 +15,23 @@
         }
     }
 }
+
+.items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-small);
+
+    .item {
+        display: flex;
+        gap: var(--spacing-small);
+        align-items: center;
+
+        .title {
+            flex-grow: 1;
+        }
+        .value, .icon {
+            flex-shrink: 0;
+        }
+    }
+}
+

@@ -89,7 +89,13 @@ function Status(props: StatusProps) {
         );
     }
 
-    return null;
+    return (
+        <span className={_cs(className, styles.status)}>
+            <IoSquare
+                title="Review not started"
+            />
+        </span>
+    );
 }
 
 export default Status;

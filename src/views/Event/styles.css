@@ -1,43 +1,70 @@
 .event {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-large);
-
-    .event-status {
-        /* Font size for h2 */
-        font-size: 1.5em;
-    }
-
-    .container {
-        min-height: 200px;
-    }
-
-    .large-container {
-        min-height: 400px;
-    }
-
-    .extra-large-container {
-        min-height: 600px;
-    }
-
-    .details {
+    .page-content {
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-medium);
+        flex-grow: 1;
+        gap: var(--spacing-large);
+
+        .event-status {
+            /* Font size for h2 */
+            font-size: 1.5em;
+        }
 
         .stats {
-            display: grid;
-            grid-gap: var(--spacing-medium);
-            grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-medium) var(--spacing-extra-large);
 
             .hidden {
                 display: none;
             }
         }
 
-        .map-container {
-            flex-grow: 1;
-            min-height: 400px;
+        .filters {
+            background-color: var(--color-background);
+
+            .filters-content {
+                flex-grow: 1;
+            }
+        }
+
+        .main-content {
+            display: grid;
+            flex-basis: 100%;
+            grid-template-columns: repeat(auto-fit, minmax(32rem, 1fr));
+            gap: var(--spacing-large);
+
+            .filter-outputs {
+                grid-column: 1 / -1;
+                display: flex;
+                flex-wrap: wrap;
+                gap: var(--spacing-medium) var(--spacing-large);
+            }
+
+            .map {
+                grid-column: 1 / -2;
+            }
+
+            .map-container {
+                height: 100%;
+                min-height: 45rem;
+            }
+
+            .charts {
+                display: flex;
+                flex-direction: column;
+                gap: var(--spacing-medium);
+                grid-column: auto / -1;
+            }
+
+            .countries-entries-figures-table {
+                grid-column: 1 / -1;
+                min-height: 400px;
+            }
+
+            .overview {
+                grid-column: 1 / -2;
+            }
         }
     }
 }

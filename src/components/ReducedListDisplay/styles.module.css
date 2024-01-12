@@ -1,0 +1,21 @@
+.reduced-list-display {
+    display: inline-block;
+}
+
+.reduced-list-label {
+    display: inline-block;
+    padding: 0;
+    text-decoration: underline;
+    color: var(--go-ui-color-blue-90);
+    font-weight: var(--go-ui-font-weight-medium);
+
+    &:hover,
+    &:focus {
+        opacity: 1;
+        color: var(--go-ui-color-primary-red);
+    }
+}
+
+.popup {
+    padding: var(--spacing-medium);
+}

@@ -53,6 +53,7 @@ const LOGIN = gql`
                             id
                             idmcShortName
                             boundingBox
+                            geojsonUrl
                             iso2
                         }
                     }

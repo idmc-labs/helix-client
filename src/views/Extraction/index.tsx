@@ -1,6 +1,6 @@
 import React, { useState, useLayoutEffect, useContext, useRef, useCallback, useMemo } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     Button,
     PopupButton,
@@ -54,6 +54,7 @@ const EXTRACTION_FILTER = gql`
             filterFigureStartAfter
             filterFigureEndBefore
             filterFigureCategories
+            filterFigureCategoryTypes
             filterFigureTags {
                 id
                 name
@@ -362,7 +363,9 @@ function Extraction(props: ExtractionProps) {
                     filterFigureCountries: otherAttrs.filterFigureCountries?.map((c) => c.id),
                     filterFigureCrises: otherAttrs.filterFigureCrises?.map((cr) => cr.id),
                     filterFigureCategories: otherAttrs.filterFigureCategories,
-                    filterFigureCategoryTypes: otherAttrs.filterFigureCategories,
+                    // FIXME: this should not be null in the array
+                    // eslint-disable-next-line max-len
+                    filterFigureCategoryTypes: otherAttrs.filterFigureCategoryTypes?.filter(isDefined),
                     filterFigureTags: otherAttrs.filterFigureTags?.map((ft) => ft.id),
                     filterFigureTerms: otherAttrs.filterFigureTerms,
                     filterFigureRoles: otherAttrs.filterFigureRoles,
@@ -600,7 +603,6 @@ function Extraction(props: ExtractionProps) {
                 />
                 <Container>
                     <AdvancedFiguresFilter
-                        className={styles.container}
                         currentFilter={rawFiguresFilter}
                         initialFilter={initialFiguresFilter}
                         disabled={filterDisabled}

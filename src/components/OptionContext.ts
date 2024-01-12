@@ -27,11 +27,13 @@ type GeographicOption = NonNullable<NonNullable<GetGeographicGroupQuery['geograp
 type RegionOption = NonNullable<NonNullable<GetRegionQuery['countryRegionList']>['results']>[number];
 type ViolenceContextOption = NonNullable<NonNullable<GetViolenceContextQuery['contextOfViolenceList']>['results']>[number];
 
+/*
 interface X {
     [key: string]: { id: string }[] | null | undefined;
 }
+*/
 
-export interface Options extends X {
+export interface Options {
     country?: CountryOption[] | null;
     actor?: ActorOption[] | null;
     event?: EventOption[] | null;

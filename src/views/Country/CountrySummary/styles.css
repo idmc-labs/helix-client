@@ -1,10 +1,5 @@
 .summary {
     position: relative;
-    min-height: 12rem;
-
-    .summary-text {
-        font-size: var(--font-size-large-medium);
-    }
 
     .content {
         display: flex;

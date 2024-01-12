@@ -111,6 +111,7 @@ const CREATE_ORGANIZATION = gql`
                     id
                     idmcShortName
                     boundingBox
+                    geojsonUrl
                     iso2
                 }
             }
@@ -137,6 +138,7 @@ const UPDATE_ORGANIZATION = gql`
                     id
                     idmcShortName
                     boundingBox
+                    geojsonUrl
                     iso2
                 }
             }
@@ -161,6 +163,7 @@ const ORGANIZATION = gql`
                 id
                 idmcShortName
                 boundingBox
+                geojsonUrl
                 iso2
             }
         }

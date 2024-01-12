@@ -99,11 +99,9 @@ function CountrySummary(props: CountrySummaryProps) {
                 </Modal>
             )}
             {summary ? (
-                <div className={styles.summaryText}>
-                    <MarkdownPreview
-                        markdown={summary.summary}
-                    />
-                </div>
+                <MarkdownPreview
+                    markdown={summary.summary}
+                />
             ) : (
                 <Message
                     message="No summary found."
