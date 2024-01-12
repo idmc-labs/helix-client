@@ -92,6 +92,10 @@ function UpdateFigureRoleModal(props: Props) {
             onCompleted: (response) => {
                 const { triggerBulkOperation: figureResponse } = response;
                 if (figureResponse?.ok) {
+                    notify({
+                        children: 'Figures role updating',
+                        variant: 'success',
+                    });
                     onChangeSelectedFigures([]);
                     onChangeMode('SELECT');
                 }
@@ -107,7 +111,6 @@ function UpdateFigureRoleModal(props: Props) {
             },
         },
     );
-    console.log('jhjhjhj', mode, selectedFigures);
 
     const handleRoleUpdate = useCallback(
         () => {
