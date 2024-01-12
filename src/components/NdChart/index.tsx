@@ -21,7 +21,7 @@ const chartOffset = {
     bottom: X_AXIS_HEIGHT,
 };
 
-const NUM_X_AXIS_POINTS = 6;
+const NUM_X_AXIS_POINTS = 5;
 
 interface Data {
     date: string;
@@ -174,6 +174,13 @@ function NdChart(props: Props) {
             const additional = remainder === 0
                 ? 0
                 : NUM_X_AXIS_POINTS - remainder - 1;
+
+            if (minKey === maxKey) {
+                return {
+                    min: minKey - 1,
+                    max: maxKey + 1,
+                };
+            }
 
             return {
                 min: minKey - Math.ceil(additional / 2),

@@ -77,6 +77,7 @@ function useChartData<DATUM>(
     } = options;
 
     const chartSize = useSizeTracking(containerRef);
+    // Afghanistan: Flood - Maidan Wardak (Qir and Jalriz) - 24/06/2023
 
     const xValues = useMemo(
         () => data?.map(xValueSelector) ?? [],
@@ -91,6 +92,7 @@ function useChartData<DATUM>(
         () => xDomain ?? getBounds(xValues),
         [xValues, xDomain],
     );
+
     const yDataBounds = useMemo(
         () => {
             if (isDefined(yDomain)) {
@@ -174,7 +176,7 @@ function useChartData<DATUM>(
             y: yScaleFn(tick),
             label: yAxisLabelSelector
                 ? yAxisLabelSelector(tick, i)
-                : formatNumber(tick, { compact: true, maximumFractionDigits: 0 }) ?? '',
+                : formatNumber(tick, { compact: true }) ?? '',
         })),
         [yDataBounds, yScaleFn, numYAxisTicks, yAxisLabelSelector],
     );

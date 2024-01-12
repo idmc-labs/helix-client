@@ -45,7 +45,7 @@
     .bound-rect {
         fill: var(--color-chart-axes);
         fill-opacity: 0;
-        transition: fill-opacity var(--go-ui-duration-transition-slow) ease-in-out;
+        transition: fill-opacity var(--duration-transition-medium) ease-in-out;
 
         &:hover {
             fill-opacity: 0.2;
