@@ -31,6 +31,11 @@ const BULK_OPERATIONS = gql`
                 createdAt
                 failureCount
                 successCount
+                payload {
+                    figureRole {
+                        role
+                    }
+                }
             }
             totalCount
             page
@@ -60,38 +65,39 @@ function BulkActionDownload() {
     );
 
     const {
-        data: downloadData,
-        loading: downloadDataLoading,
+        data,
+        loading,
     } = useQuery<BulkApiOperationsQuery>(BULK_OPERATIONS, { variables });
 
-    // TODO:
-    const downloadFiles = downloadData?.bulkApiOperations?.results;
-    const totalDownloadFilesCount = downloadData?.bulkApiOperations?.totalCount ?? 0;
+    const bulkOperations = data?.bulkApiOperations?.results;
+    const totalFiguresCount = data?.bulkApiOperations?.totalCount ?? 0;
 
     return (
         <Container contentClassName={styles.exportsContent}>
-            {downloadDataLoading && <Loading absolute />}
-            {downloadFiles?.map((item) => (
+            {loading && <Loading absolute />}
+            {bulkOperations?.map((item) => (
                 <BulkActionDownloadedItem
+                    // TOD: update date once implemented on server
                     key={item.id}
-                    // TODO: once implemented on server
-                    file={undefined}
-                    fileSize={undefined}
+                    createdDate={item.createdAt}
                     startedDate={item.createdAt}
                     completedDate={item.createdAt}
-                    createdDate={item.createdAt}
-                    downloadType={item.actionDisplay}
+                    failedDate={item.createdAt}
                     status={item.status}
+                    figureRole={item.payload.figureRole?.role}
+                    totalFiguresCount={totalFiguresCount}
+                    failedFiguresCount={item.failureCount ?? 0}
+                    successFiguresCount={item.successCount ?? 0}
                 />
             ))}
-            {!downloadDataLoading && totalDownloadFilesCount <= 0 && (
+            {!loading && totalFiguresCount <= 0 && (
                 <Message
                     message="No exports found."
                 />
             )}
             <Pager
                 activePage={rawPage}
-                itemsCount={totalDownloadFilesCount}
+                itemsCount={totalFiguresCount}
                 maxItemsPerPage={rawPageSize}
                 onActivePageChange={setPage}
                 itemsPerPageControlHidden

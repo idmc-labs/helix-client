@@ -1,22 +1,12 @@
 import React from 'react';
-import { _cs, isDefined, isNotDefined } from '@togglecorp/fujs';
-import {
-    DateTime,
-    Numeral,
-} from '@togglecorp/toggle-ui';
-import {
-    IoDocumentOutline,
-    IoInformationCircleOutline,
-} from 'react-icons/io5';
+import { _cs, isDefined } from '@togglecorp/fujs';
+import { DateTime } from '@togglecorp/toggle-ui';
+import { IoInformationCircleOutline } from 'react-icons/io5';
 
+import { diff, formatElapsedTime } from '#utils/common';
 import {
-    diff,
-    formatElapsedTime,
-} from '#utils/common';
-import ButtonLikeExternalLink from '#components/ButtonLikeExternalLink';
-import {
-    Download_Types as DownloadTypes,
     Bulk_Operation_Status as BulkOperationStatus,
+    BulkApiOperationFigureRolePayloadType,
 } from '#generated/types';
 
 import styles from './styles.css';
@@ -24,142 +14,131 @@ import styles from './styles.css';
 // TODO: refactor once confirm with server about file
 interface DownloadedItemProps {
     className?: string;
-    file: string | null | undefined;
-    fileSize: number | null | undefined;
-    startedDate: string | null | undefined;
-    completedDate: string | null | undefined;
     createdDate: string | null | undefined;
-    downloadType: DownloadTypes | null | undefined;
+    startedDate: string | null | undefined;
+    failedDate: string | null | undefined;
+    completedDate: string | null | undefined;
     status: BulkOperationStatus | null | undefined;
-}
-
-interface FilesizeProps {
-    className?: string;
-    value: number | undefined | null,
-    base?: 1024 | 1000,
-}
-
-const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-function Filesize(props: FilesizeProps) {
-    const {
-        value,
-        className,
-        base = 1024,
-    } = props;
-
-    if (isNotDefined(value)) {
-        return null;
-    }
-    if (value === 0) {
-        return (
-            <Numeral
-                className={className}
-                value={0}
-                suffix="B"
-            />
-        );
-    }
-
-    const index = Math.min(
-        Math.floor(Math.log(value) / Math.log(base)),
-        sizes.length - 1,
-    );
-
-    const finalValue = value / (base ** index);
-    const suffix = sizes[index];
-
-    return (
-        <Numeral
-            className={className}
-            value={finalValue}
-            suffix={suffix}
-        />
-    );
+    figureRole: NonNullable<BulkApiOperationFigureRolePayloadType>['role'] | undefined;
+    totalFiguresCount: number;
+    failedFiguresCount: number;
+    successFiguresCount: number;
 }
 
 function BulkActionDownloadedItem(props: DownloadedItemProps) {
     const {
-        file,
-        fileSize,
-        startedDate,
-        completedDate,
         createdDate,
+        startedDate,
+        failedDate,
+        completedDate,
         className,
-        downloadType,
         status,
+        figureRole,
+        totalFiguresCount,
+        failedFiguresCount,
+        successFiguresCount,
     } = props;
 
     const statusText: {
         [key in BulkOperationStatus]: string;
     } = {
-        PENDING: 'The export should start soon.',
-        STARTED: 'The export has started.',
-        FINISHED: 'The export has completed.',
-        CANCELED: 'The export has been cancelled.',
-        FAILED: 'The export has failed.',
+        PENDING: 'Bulk action should start soon.',
+        STARTED: 'Bulk action has started.',
+        FINISHED: 'Bulk action has completed.',
+        CANCELED: 'Bulk action has been cancelled.',
+        FAILED: 'Bulk action has failed.',
     };
 
     return (
         <div
             className={_cs(styles.downloadItem, className)}
         >
-            {status === 'PENDING' ? (
+            {status === 'PENDING' && (
                 <div className={styles.exportItem}>
                     <span>
-                        {`Export for ${downloadType}`}
-                    </span>
-                </div>
-            ) : (
-                <div className={styles.exportItem}>
-                    <span>
-                        {status === 'FINISHED'
-                            ? (`Export for ${downloadType} completed on`)
-                            : (`Export for ${downloadType} started on`
-                            )}
+                        {`Change role of figures to ${figureRole} triggered on`}
                     </span>
                     <DateTime
-                        value={status === 'FINISHED' ? completedDate : startedDate}
+                        value={createdDate}
                         format="datetime"
                     />
+                    <span>
+                        {`${totalFiguresCount} pending`}
+                    </span>
                 </div>
             )}
-            <div className={_cs(styles.exportItem, styles.disabled)}>
-                {completedDate && startedDate && (
+            {status === 'STARTED' && (
+                <div className={styles.exportItem}>
                     <span>
-                        {`Export took ${formatElapsedTime(diff(completedDate, startedDate))}.`}
+                        {`Change role of figures to ${figureRole} started on `}
                     </span>
-                )}
-                {startedDate && createdDate && (
+                    <DateTime
+                        value={startedDate}
+                        format="datetime"
+                    />
+                    <div className={_cs(styles.exportItem, styles.disabled)}>
+                        {createdDate && startedDate && (
+                            <span>
+                                {`Bulk action took ${formatElapsedTime(diff(createdDate, startedDate))}.`}
+                            </span>
+                        )}
+                    </div>
                     <span>
-                        {`Export waited for ${formatElapsedTime(diff(startedDate, createdDate))}.`}
+                        {`${totalFiguresCount} pending`}
                     </span>
-                )}
-            </div>
+                </div>
+            )}
+
+            {(status === 'FAILED' || status === 'CANCELED') && (
+                <div className={styles.exportItem}>
+                    <span>
+                        {`Change role of figures to ${figureRole} failed on `}
+                    </span>
+                    <DateTime
+                        value={failedDate}
+                        format="datetime"
+                    />
+                    <div className={_cs(styles.exportItem, styles.disabled)}>
+                        {failedDate && startedDate && (
+                            <span>
+                                {`Bulk action took ${formatElapsedTime(diff(failedDate, startedDate))}.`}
+                            </span>
+                        )}
+                    </div>
+                    <span>
+                        {`${failedFiguresCount} failed.`}
+                    </span>
+                </div>
+            )}
+
+            {status === 'FINISHED' && (
+                <div className={styles.exportItem}>
+                    <span>
+                        {`Change role of figures to ${figureRole} completedDate on `}
+                    </span>
+                    <DateTime
+                        value={completedDate}
+                        format="datetime"
+                    />
+                    <div className={_cs(styles.exportItem, styles.disabled)}>
+                        {completedDate && startedDate && (
+                            <span>
+                                {`Bulk action took ${formatElapsedTime(diff(completedDate, startedDate))}.`}
+                            </span>
+                        )}
+                    </div>
+                    <span>
+                        {`${failedFiguresCount} failed. ${successFiguresCount} succeeded`}
+                    </span>
+                </div>
+            )}
+
             {status !== 'FINISHED' && isDefined(status) && (
                 <div className={styles.status}>
                     <IoInformationCircleOutline className={styles.icon} />
                     <div className={styles.text}>
                         {statusText[status]}
                     </div>
-                </div>
-            )}
-            {status === 'FINISHED' && (
-                <div className={styles.actions}>
-                    {file && (
-                        <ButtonLikeExternalLink
-                            title="download"
-                            link={file}
-                            icons={<IoDocumentOutline />}
-                            transparent
-                            compact
-                        >
-                            {downloadType}
-                            &nbsp;
-                            <Filesize
-                                value={fileSize}
-                            />
-                        </ButtonLikeExternalLink>
-                    )}
                 </div>
             )}
         </div>
