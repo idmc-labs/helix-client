@@ -77,7 +77,6 @@ function useChartData<DATUM>(
     } = options;
 
     const chartSize = useSizeTracking(containerRef);
-    // Afghanistan: Flood - Maidan Wardak (Qir and Jalriz) - 24/06/2023
 
     const xValues = useMemo(
         () => data?.map(xValueSelector) ?? [],

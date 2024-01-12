@@ -108,7 +108,7 @@ function IdpChart(props: Props) {
                 max: maxTimestamp,
             };
         },
-        [data],
+        [data, numAxisPointsX],
     );
 
     const lastPointWithData = useMemo(
@@ -147,7 +147,7 @@ function IdpChart(props: Props) {
                 max: new Date(maxYear + Math.floor(additional / 2), 11, 31),
             };
         },
-        [data],
+        [data, numAxisPointsX],
     );
 
     const temporalResolution = getSuitableTemporalResolution(
