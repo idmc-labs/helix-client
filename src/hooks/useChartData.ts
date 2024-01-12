@@ -91,6 +91,7 @@ function useChartData<DATUM>(
         () => xDomain ?? getBounds(xValues),
         [xValues, xDomain],
     );
+
     const yDataBounds = useMemo(
         () => {
             if (isDefined(yDomain)) {
@@ -174,7 +175,7 @@ function useChartData<DATUM>(
             y: yScaleFn(tick),
             label: yAxisLabelSelector
                 ? yAxisLabelSelector(tick, i)
-                : formatNumber(tick, { compact: true, maximumFractionDigits: 0 }) ?? '',
+                : formatNumber(tick, { compact: true }) ?? '',
         })),
         [yDataBounds, yScaleFn, numYAxisTicks, yAxisLabelSelector],
     );

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useEffect } from 'react';
-import { SelectInput, TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
+import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import { gql, useQuery } from '@apollo/client';
 import {
@@ -7,12 +7,12 @@ import {
     useForm,
     createSubmitHandler,
 } from '@togglecorp/toggle-form';
-
 import {
     IoSearchOutline,
 } from 'react-icons/io5';
-import NonFieldError from '#components/NonFieldError';
 
+import BooleanInput from '#components/selections/BooleanInput';
+import NonFieldError from '#components/NonFieldError';
 import {
     enumKeySelector,
     enumLabelSelector,
@@ -60,17 +60,6 @@ interface UsersFilterProps {
     currentFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
 }
-
-interface ActiveOption {
-    key: boolean;
-    label: string;
-}
-const isActiveOptions: ActiveOption[] = [
-    { key: true, label: 'Yes' },
-    { key: false, label: 'No' },
-];
-const keySelector = (item: ActiveOption) => item.key;
-const labelSelector = (item: ActiveOption) => item.label;
 
 function UserFilter(props: UsersFilterProps) {
     const {
@@ -161,14 +150,11 @@ function UserFilter(props: UsersFilterProps) {
                     error={error?.fields?.roleIn?.$internal}
                     disabled={rolesOptionsLoading || !!rolesOptionsError}
                 />
-                <SelectInput
+                <BooleanInput
                     className={styles.input}
                     label="Active"
                     name="isActive"
-                    options={isActiveOptions}
                     value={value.isActive}
-                    keySelector={keySelector}
-                    labelSelector={labelSelector}
                     onChange={onValueChange}
                     error={error?.fields?.isActive}
                 />

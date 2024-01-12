@@ -25,7 +25,12 @@
             justify-content: flex-start;
             gap: var(--spacing-large);
             overflow: hidden;
+            overflow-x: auto;
             font-size: var(--font-size-medium);
+
+            &::-webkit-scrollbar {
+                height: 0;
+            }
 
             .link {
                 display: flex;

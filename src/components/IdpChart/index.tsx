@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { compareDate, isDefined, isNotDefined, listToGroupList, mapToList, _cs } from '@togglecorp/fujs';
+import { bound, compareDate, isDefined, isNotDefined, listToGroupList, mapToList, _cs } from '@togglecorp/fujs';
 
 import ChartAxes from '#components/ChartAxes';
 import useChartData from '#hooks/useChartData';
@@ -23,7 +23,8 @@ const chartOffset = {
 const chartPadding = defaultChartPadding;
 const chartMargin = defaultChartMargin;
 
-const NUM_X_AXIS_POINTS = 6;
+const NUM_X_AXIS_POINTS_MAX = 8;
+const NUM_X_AXIS_POINTS_MIN = 3;
 
 interface Data {
     date: string;
@@ -41,7 +42,6 @@ function IdpChart(props: Props) {
 
     const CONFLICT_TYPE = 'conflict';
     const DISASTER_TYPE = 'disaster';
-
     const data = useMemo(
         () => {
             const combinedData = [
@@ -89,12 +89,14 @@ function IdpChart(props: Props) {
         [conflictData, disasterData],
     );
 
+    const numAxisPointsX = bound(data?.length, NUM_X_AXIS_POINTS_MIN, NUM_X_AXIS_POINTS_MAX);
+
     const temporalDomain = useMemo(
         () => {
             const now = new Date();
 
             if (!data || data.length === 0) {
-                return { min: now.getFullYear() - NUM_X_AXIS_POINTS + 1, max: now.getFullYear() };
+                return { min: now.getFullYear() - numAxisPointsX + 1, max: now.getFullYear() };
             }
 
             const timestampList = data.map(({ date }) => new Date(date).getTime());
@@ -106,7 +108,7 @@ function IdpChart(props: Props) {
                 max: maxTimestamp,
             };
         },
-        [data],
+        [data, numAxisPointsX],
     );
 
     const lastPointWithData = useMemo(
@@ -125,7 +127,7 @@ function IdpChart(props: Props) {
             const now = new Date();
             if (!data || data.length === 0) {
                 return {
-                    min: new Date(now.getFullYear() - NUM_X_AXIS_POINTS + 1, 0, 1),
+                    min: new Date(now.getFullYear() - numAxisPointsX + 1, 0, 1),
                     max: new Date(now.getFullYear(), 11, 31),
                 };
             }
@@ -135,22 +137,22 @@ function IdpChart(props: Props) {
             const maxYear = Math.max(...yearList);
 
             const diff = maxYear - minYear;
-            const remainder = diff % (NUM_X_AXIS_POINTS - 1);
+            const remainder = diff % (numAxisPointsX - 1);
             const additional = remainder === 0
                 ? 0
-                : NUM_X_AXIS_POINTS - remainder - 1;
+                : numAxisPointsX - remainder - 1;
 
             return {
                 min: new Date(minYear - Math.ceil(additional / 2), 0, 1),
                 max: new Date(maxYear + Math.floor(additional / 2), 11, 31),
             };
         },
-        [data],
+        [data, numAxisPointsX],
     );
 
     const temporalResolution = getSuitableTemporalResolution(
         temporalDomain,
-        NUM_X_AXIS_POINTS,
+        numAxisPointsX,
     );
 
     const xDomain = useMemo(
@@ -211,7 +213,7 @@ function IdpChart(props: Props) {
             },
             yValueSelector: (datum) => datum.maxDisplacement,
             yAxisStartsFromZero: true,
-            numXAxisTicks: NUM_X_AXIS_POINTS,
+            numXAxisTicks: numAxisPointsX,
             xDomain,
         },
     );

@@ -397,8 +397,6 @@ export function formatNumber(
 
     if (isDefined(maximumFractionDigits)) {
         formattingOptions.maximumFractionDigits = maximumFractionDigits;
-    } else {
-        formattingOptions.maximumFractionDigits = Math.abs(value) >= 1000 ? 0 : 2;
     }
 
     const newValue = new Intl.NumberFormat(language, formattingOptions)
