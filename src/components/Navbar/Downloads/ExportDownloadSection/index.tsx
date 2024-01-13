@@ -46,17 +46,6 @@ const DOWNLOADS = gql`
     }
 `;
 
-// NOTE: exporting this so that other requests can refetch this request
-export const DOWNLOADS_COUNT = gql`
-    query ExcelExportsCount {
-      excelExports(
-        filters: { statusList: ["PENDING", "IN_PROGRESS"] },
-    ) {
-        totalCount
-      }
-    }
-`;
-
 function ExportDownloadSection() {
     const {
         page,
@@ -86,7 +75,10 @@ function ExportDownloadSection() {
     const totalDownloadFilesCount = downloadData?.excelExports?.totalCount ?? 0;
 
     return (
-        <Container contentClassName={styles.exportsContent}>
+        <Container
+            contentClassName={styles.exportsContent}
+            borderless
+        >
             {downloadDataLoading && <Loading absolute />}
             {downloadFiles?.map((item) => (
                 <DownloadedItem

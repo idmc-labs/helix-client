@@ -14,22 +14,28 @@ import {
 
 import Badge from '#components/Badge';
 import {
-    ExcelExportsCountQuery,
-    ExcelExportsCountQueryVariables,
+    PendingOperationsCountQuery,
+    PendingOperationsCountQueryVariables,
 } from '#generated/types';
 
-import BulkActionDownload from './BulkActionDownload';
+import BulkActionSection from './BulkActionSection';
 import ExportDownloadSection from './ExportDownloadSection';
 import styles from './styles.css';
 
 // NOTE: exporting this so that other requests can refetch this request
 export const DOWNLOADS_COUNT = gql`
-    query ExcelExportsCount {
-      excelExports(
-        filters: { statusList: ["PENDING", "IN_PROGRESS"] },
-    ) {
-        totalCount
-      }
+    query PendingOperationsCount {
+        excelExports(
+            filters: { statusList: ["PENDING", "IN_PROGRESS"] },
+        ) {
+            totalCount
+        }
+        bulkApiOperations(
+            # FIXME: Add status filter here
+            filters: {},
+        ) {
+            totalCount
+        }
     }
 `;
 
@@ -48,7 +54,10 @@ function Downloads(props: Props) {
     const [
         start,
         { data, stopPolling },
-    ] = useLazyQuery<ExcelExportsCountQuery, ExcelExportsCountQueryVariables>(DOWNLOADS_COUNT, {
+    ] = useLazyQuery<
+        PendingOperationsCountQuery,
+        PendingOperationsCountQueryVariables
+    >(DOWNLOADS_COUNT, {
         pollInterval: 5_000,
         // NOTE: onCompleted is only called once if the following option is not set
         // https://github.com/apollographql/apollo-client/issues/5531
@@ -56,8 +65,14 @@ function Downloads(props: Props) {
         fetchPolicy: 'network-only',
     });
 
-    const count = data?.excelExports?.totalCount;
-    const allCompleted = isDefined(count) && count <= 0;
+    const exportsCount = data?.excelExports?.totalCount;
+    const bulkApiOperationsCount = data?.bulkApiOperations?.totalCount;
+
+    const totalCount = isDefined(exportsCount) && isDefined(bulkApiOperationsCount) ? (
+        exportsCount + bulkApiOperationsCount
+    ) : undefined;
+
+    const allCompleted = isDefined(totalCount) && totalCount <= 0;
 
     // NOTE: initially fetch query then continue polling until the count is zero
     // This request can be fetched by other requests which will start the
@@ -90,20 +105,24 @@ function Downloads(props: Props) {
                     onChange={setSelectedTab}
                 >
                     <TabList className={styles.tabList}>
-                        <Tab name="Exports"> Exports </Tab>
-                        <Tab name="BulkActions"> Bulk Actions </Tab>
+                        <Tab name="Exports">
+                            Exports
+                        </Tab>
+                        <Tab name="BulkActions">
+                            Bulk Actions
+                        </Tab>
                     </TabList>
                     <TabPanel name="Exports">
                         <ExportDownloadSection />
                     </TabPanel>
                     <TabPanel name="BulkActions">
-                        <BulkActionDownload />
+                        <BulkActionSection />
                     </TabPanel>
                 </Tabs>
             </PopupButton>
             <Badge
                 className={styles.badge}
-                count={count}
+                count={totalCount}
             />
         </div>
     );

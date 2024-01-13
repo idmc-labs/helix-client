@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useContext, useState } from 'react';
+import React, { useMemo, useCallback, useContext, useState, useEffect } from 'react';
 import {
     gql,
     useQuery,
@@ -49,6 +49,28 @@ import styles from './styles.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 const MAX_SELECT_COUNT = 100;
+
+// NOTE: We are using CustomCheckbox because we cannot pass
+// "name" property on the CellRenderer of the table
+// Instead, we are passing nameKey
+interface CustomCheckboxProps {
+    value: boolean | undefined | null;
+    onChange: (value: boolean | undefined, nameKey: string) => void;
+    nameKey: string
+}
+function CustomCheckbox(props: CustomCheckboxProps) {
+    const {
+        nameKey,
+        ...otherProps
+    } = props;
+
+    return (
+        <Checkbox
+            {...otherProps}
+            name={nameKey}
+        />
+    );
+}
 
 export const FIGURE_LIST = gql`
     query ExtractionFigureList(
@@ -146,7 +168,7 @@ type FigureFields = NonNullable<NonNullable<ExtractionFigureListQuery['figureLis
 
 const keySelector = (item: FigureFields) => item.id;
 
-interface NudeFigureTableProps {
+interface Props {
     className?: string;
     filters?: ExtractionEntryListFiltersQueryVariables;
     hiddenColumns?: ('event' | 'crisis' | 'entry' | 'country' | 'createdBy')[];
@@ -157,7 +179,7 @@ interface NudeFigureTableProps {
     pagerPageControlDisabled?: boolean;
 }
 
-function useFigureTable(props: NudeFigureTableProps) {
+function useFigureTable(props: Props) {
     const {
         className,
         filters,
@@ -169,18 +191,8 @@ function useFigureTable(props: NudeFigureTableProps) {
         pagerPageControlDisabled,
     } = props;
 
-    // FIXME: clear selected figures when filters is applied
-    // Need to pass from parent component
     const [selectedFigures, setSelectedFigures] = useState<string[]>([]);
     const [mode, setMode] = useState<'SELECT' | 'DESELECT'>('SELECT');
-
-    const selectedFiguresMapping = useMemo(
-        () => listToMap(
-            selectedFigures,
-            (d) => d,
-            () => true,
-        ), [selectedFigures],
-    );
 
     const [
         roleUpdatedModal, ,
@@ -263,6 +275,24 @@ function useFigureTable(props: NudeFigureTableProps) {
         },
     );
 
+    const figureFilters = filters?.filters;
+
+    useEffect(
+        () => {
+            setSelectedFigures([]);
+            setMode('SELECT');
+        },
+        [figureFilters],
+    );
+
+    const handleRoleUpdateSuccess = useCallback(
+        () => {
+            setSelectedFigures([]);
+            setMode('SELECT');
+        },
+        [],
+    );
+
     const handleFigureDelete = useCallback(
         (id: string) => {
             deleteFigure({
@@ -276,37 +306,38 @@ function useFigureTable(props: NudeFigureTableProps) {
         () => {
             exportFigures({
                 variables: {
-                    filters: filters?.filters ?? {},
+                    filters: figureFilters ?? {},
                 },
             });
         },
-        [exportFigures, filters],
+        [exportFigures, figureFilters],
     );
 
     const { user } = useContext(DomainContext);
     const entryPermissions = user?.permissions?.entry;
 
-    const totalFiguresCount = figuresData?.figureList?.totalCount ?? 0;
-    const selectedFiguresCount = useMemo(
-        () => {
-            if (mode === 'DESELECT') {
-                return (figuresData?.figureList?.totalCount ?? 0) - selectedFigures.length;
-            }
-            return selectedFigures.length;
-        }, [
-            mode,
-            figuresData?.figureList,
+    const selectedFiguresMapping = useMemo(
+        () => listToMap(
             selectedFigures,
-        ],
+            (d) => d,
+            () => true,
+        ),
+        [selectedFigures],
     );
 
+    const totalFiguresCount = figuresData?.figureList?.totalCount ?? 0;
+
+    const selectedFiguresCount = mode === 'DESELECT'
+        ? totalFiguresCount - selectedFigures.length
+        : selectedFigures.length;
+
+    const disableOtherActions = selectedFiguresCount > 0;
+
     const headerCheckboxValue = (
-        selectedFiguresCount === totalFiguresCount
-        && totalFiguresCount !== 0
+        selectedFiguresCount === totalFiguresCount && totalFiguresCount !== 0
     );
     const headerCheckboxIndeterminate = (
-        selectedFiguresCount < totalFiguresCount
-        && selectedFiguresCount > 0
+        selectedFiguresCount > 0 && selectedFiguresCount < totalFiguresCount
     );
 
     const handleHeaderCheckboxClick = useCallback(() => {
@@ -318,8 +349,7 @@ function useFigureTable(props: NudeFigureTableProps) {
         setSelectedFigures([]);
     }, [headerCheckboxValue]);
 
-    const handleCheckboxClick = useCallback((_: boolean, figure: FigureFields) => {
-        const { id } = figure;
+    const handleCheckboxClick = useCallback((_: boolean | undefined, id: string) => {
         setSelectedFigures((oldSelectedFigures) => {
             const index = oldSelectedFigures.findIndex((fig) => fig === id);
             if (index === -1) {
@@ -336,7 +366,7 @@ function useFigureTable(props: NudeFigureTableProps) {
             const selectColumn: TableColumn<
                 FigureFields,
                 string,
-                CheckboxProps<string>,
+                CustomCheckboxProps,
                 CheckboxProps<string>
             > = {
                 id: 'select',
@@ -348,13 +378,13 @@ function useFigureTable(props: NudeFigureTableProps) {
                     onChange: handleHeaderCheckboxClick,
                     indeterminate: headerCheckboxIndeterminate,
                 },
-                cellRenderer: Checkbox,
+                cellRenderer: CustomCheckbox,
                 cellRendererParams: (_, data) => ({
-                    name: data.id,
+                    nameKey: data.id,
                     value: mode === 'SELECT'
                         ? selectedFiguresMapping[data.id]
                         : !selectedFiguresMapping[data.id],
-                    onChange: (newVal) => handleCheckboxClick(newVal, data),
+                    onChange: handleCheckboxClick,
                 }),
                 cellRendererClassName: styles.checkbox,
                 columnWidth: 48,
@@ -543,7 +573,7 @@ function useFigureTable(props: NudeFigureTableProps) {
                         editLinkAttrs: { entryId: datum.entry.id },
                         editHash: '/figures-and-analysis',
                         editSearch: `id=${datum.id}`,
-                        disabled: selectedFigures.length > 0,
+                        disabled: disableOtherActions,
                     }),
                     'action',
                     '',
@@ -562,12 +592,12 @@ function useFigureTable(props: NudeFigureTableProps) {
             headerCheckboxValue,
             selectedFiguresMapping,
             mode,
-            selectedFigures,
+            disableOtherActions,
         ],
     );
 
     return {
-        exportButton: (
+        exportButton: !disableOtherActions ? (
             <ConfirmButton
                 confirmationHeader="Confirm Export"
                 confirmationMessage="Are you sure you want to export this table data?"
@@ -577,17 +607,16 @@ function useFigureTable(props: NudeFigureTableProps) {
             >
                 Export
             </ConfirmButton>
-        ),
-        updateRoleButton: selectedFiguresCount > 0 && (
+        ) : undefined,
+        bulkActions: selectedFiguresCount > 0 && (
             <div className={styles.updateRoleSection}>
-                <div>
+                <span>
                     {`${selectedFiguresCount} figure(s) selected.`}
-                </div>
-                {selectedFiguresCount > MAX_SELECT_COUNT ? (
-                    <div>
-                        {`Only ${MAX_SELECT_COUNT} figures can be selected.`}
-                    </div>
-                ) : (
+                    {selectedFiguresCount > MAX_SELECT_COUNT && (
+                        `Only ${MAX_SELECT_COUNT} figures can be selected.`
+                    )}
+                </span>
+                {selectedFiguresCount <= MAX_SELECT_COUNT && (
                     <Button
                         name={undefined}
                         variant="primary"
@@ -629,11 +658,11 @@ function useFigureTable(props: NudeFigureTableProps) {
                 {roleUpdatedModal && (
                     <UpdateFigureRoleModal
                         mode={mode}
-                        onChangeMode={setMode}
+                        filters={figureFilters}
                         selectedFigures={selectedFigures}
-                        totalFigureSelected={selectedFiguresCount}
+                        totalSelectedFigures={selectedFiguresCount}
                         onClose={hideRoleUpdateModal}
-                        onChangeSelectedFigures={setSelectedFigures}
+                        onSuccess={handleRoleUpdateSuccess}
                     />
                 )}
             </>

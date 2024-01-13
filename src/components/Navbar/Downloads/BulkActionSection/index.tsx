@@ -8,7 +8,7 @@ import Loading from '#components/Loading';
 import Container from '#components/Container';
 import { BulkApiOperationsQuery, BulkApiOperationsQueryVariables } from '#generated/types';
 
-import BulkActionDownloadedItem from './BulkActionDownloadItem';
+import BulkActionItem from './BulkActionItem';
 import styles from './styles.css';
 
 const BULK_OPERATIONS = gql`
@@ -41,10 +41,16 @@ const BULK_OPERATIONS = gql`
             page
             pageSize
         }
+        remainingBulkApiOperations: bulkApiOperations(
+            # FIXME: Add status filter here
+            filters: {},
+        ) {
+            totalCount
+        }
     }
 `;
 
-function BulkActionDownload() {
+function BulkActionSection() {
     const {
         page,
         rawPage,
@@ -73,21 +79,23 @@ function BulkActionDownload() {
     const totalFiguresCount = data?.bulkApiOperations?.totalCount ?? 0;
 
     return (
-        <Container contentClassName={styles.exportsContent}>
+        <Container
+            contentClassName={styles.exportsContent}
+            borderless
+        >
             {loading && <Loading absolute />}
             {bulkOperations?.map((item) => (
-                <BulkActionDownloadedItem
-                    // TOD: update date once implemented on server
+                <BulkActionItem
                     key={item.id}
+                    // FIXME: Add totalCount, startedAt and completedAt
                     createdDate={item.createdAt}
                     startedDate={item.createdAt}
                     completedDate={item.createdAt}
-                    failedDate={item.createdAt}
                     status={item.status}
-                    figureRole={item.payload.figureRole?.role}
-                    totalFiguresCount={totalFiguresCount}
-                    failedFiguresCount={item.failureCount ?? 0}
-                    successFiguresCount={item.successCount ?? 0}
+                    type={item.action}
+                    payload={item.payload}
+                    failedCount={item.failureCount ?? 0}
+                    successCount={item.successCount ?? 0}
                 />
             ))}
             {!loading && totalFiguresCount <= 0 && (
@@ -106,4 +114,4 @@ function BulkActionDownload() {
     );
 }
 
-export default BulkActionDownload;
+export default BulkActionSection;

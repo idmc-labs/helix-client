@@ -3,7 +3,10 @@ import { Button, Modal, SelectInput } from '@togglecorp/toggle-ui';
 import {
     gql, useMutation, useQuery,
 } from '@apollo/client';
+import { getOperationName } from 'apollo-link';
 import { isDefined, _cs } from '@togglecorp/fujs';
+
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import Heading from '#components/Heading';
 import {
     ExtractionEntryListFiltersQueryVariables,
@@ -16,6 +19,8 @@ import { enumKeySelector, enumLabelSelector, GetEnumOptions } from '#utils/commo
 import NotificationContext from '#components/NotificationContext';
 
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const FIGURE_ROLE_OPTIONS = gql`
     query FigureRoleOptions {
@@ -44,13 +49,14 @@ type Role = NonNullable<NonNullable<NonNullable<TriggerBulkOperationMutationVari
 
 interface Props {
     className?: string;
+    filters: ExtractionEntryListFiltersQueryVariables['filters'] | null | undefined;
     mode: 'SELECT' | 'DESELECT';
     selectedFigures: string[];
-    totalFigureSelected?: number | null;
-    filters?: ExtractionEntryListFiltersQueryVariables;
-    onChangeSelectedFigures: React.Dispatch<React.SetStateAction<string[]>>;
-    onChangeMode: React.Dispatch<React.SetStateAction<'SELECT' | 'DESELECT'>>;
+    // NOTE: We cannot take the length of the selectedFigures as the mode might
+    // be deselect
+    totalSelectedFigures?: number | null;
     onClose: () => void;
+    onSuccess: () => void;
 }
 
 function UpdateFigureRoleModal(props: Props) {
@@ -58,14 +64,13 @@ function UpdateFigureRoleModal(props: Props) {
         className,
         mode,
         selectedFigures,
-        totalFigureSelected,
+        totalSelectedFigures,
         filters,
-        onChangeSelectedFigures,
-        onChangeMode,
         onClose,
+        onSuccess,
     } = props;
 
-    const [role, setRole] = useState<Role | null>();
+    const [role, setRole] = useState<Role | undefined>();
 
     const {
         data,
@@ -89,15 +94,16 @@ function UpdateFigureRoleModal(props: Props) {
     ] = useMutation<TriggerBulkOperationMutation, TriggerBulkOperationMutationVariables>(
         FIGURES_ROLE_UPDATE,
         {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
                 const { triggerBulkOperation: figureResponse } = response;
                 if (figureResponse?.ok) {
                     notify({
-                        children: 'Figures role updating',
+                        children: 'Changing role of selected figures started successfully',
                         variant: 'success',
                     });
-                    onChangeSelectedFigures([]);
-                    onChangeMode('SELECT');
+                    onSuccess();
+                    onClose();
                 }
                 if (figureResponse?.errors) {
                     notifyGQLError(figureResponse.errors);
@@ -128,8 +134,12 @@ function UpdateFigureRoleModal(props: Props) {
                                 figureRole: {
                                     figure: {
                                         ...filters,
-                                        filterFigureIds: mode !== 'DESELECT' ? selectedFigures : [],
-                                        filterFigureExcludeIds: mode === 'DESELECT' ? selectedFigures : [],
+                                        filterFigureIds: mode !== 'DESELECT'
+                                            ? selectedFigures
+                                            : [],
+                                        filterFigureExcludeIds: mode === 'DESELECT'
+                                            ? selectedFigures
+                                            : [],
                                     },
                                 },
                             },
@@ -153,7 +163,7 @@ function UpdateFigureRoleModal(props: Props) {
                 className={_cs(className, styles.modal)}
                 heading={(
                     <Heading size="large">
-                        {`Update roles for ${totalFigureSelected} figure(s)`}
+                        {`Change roles for ${totalSelectedFigures} figure(s)`}
                     </Heading>
                 )}
                 onClose={onClose}
@@ -186,7 +196,7 @@ function UpdateFigureRoleModal(props: Props) {
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     onChange={setRole}
-                    disabled={loading}
+                    disabled={loading || figureRoleUpdating}
                     readOnly={loading}
                 />
             </Modal>

@@ -311,6 +311,7 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
         table: figuresTable,
         exportButton: figuresExportButton,
         pager: figuresPager,
+        bulkActions: figuresBulkActions,
     } = useFigureTable({
         className: styles.table,
         filters: figuresVariables,
@@ -338,7 +339,12 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
                 className={_cs(className, styles.entriesTable)}
                 contentClassName={styles.content}
                 headerActions={figuresExportButton}
-                footerContent={figuresPager}
+                footerContent={(
+                    <>
+                        {figuresPager}
+                        {figuresBulkActions}
+                    </>
+                )}
             >
                 <SortContext.Provider value={figuresSortState}>
                     {figuresTable}

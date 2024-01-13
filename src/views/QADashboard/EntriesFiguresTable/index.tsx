@@ -163,6 +163,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
         table: figuresTable,
         exportButton: figuresExportButton,
         pager: figuresPager,
+        bulkActions: figuresBulkActions,
     } = useFigureTable({
         className: styles.table,
         filters: figuresVariables,
@@ -225,7 +226,12 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
                 footerContent={(
                     <>
                         {selectedTab === 'Entries' && entriesPager}
-                        {selectedTab === 'Figures' && figuresPager}
+                        {selectedTab === 'Figures' && (
+                            <>
+                                {figuresPager}
+                                {figuresBulkActions}
+                            </>
+                        )}
                     </>
                 )}
             >

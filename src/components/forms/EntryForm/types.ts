@@ -14,10 +14,11 @@ import { PurgeNull } from '#types';
 export type FormType = CreateEntryMutationVariables['entry'];
 
 type RawFigure = NonNullable<NonNullable<UpdateFiguresMutationVariables['figures']>[number]>;
-export type FigureFormProps = PurgeNull<RawFigure> & {
+export type FigureFormProps = PurgeNull<Omit<RawFigure, 'uuid'>> & {
     id: string,
     stale?: boolean,
     deleted?: boolean,
+    uuid: string,
 };
 
 export type AgeFormProps = NonNullable<NonNullable<FigureFormProps['disaggregationAge']>[number]>;

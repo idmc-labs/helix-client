@@ -112,7 +112,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
     const {
         table: figuresTable,
         exportButton: figuresExportButton,
-        updateRoleButton: updateFiguresRoleButton,
+        bulkActions: figuresBulkActions,
         pager: figuresPager,
     } = useFigureTable({
         filters: figuresVariables,
@@ -158,7 +158,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                         {selectedTab === 'Figures' && (
                             <>
                                 {figuresPager}
-                                {updateFiguresRoleButton}
+                                {figuresBulkActions}
                             </>
                         )}
                     </>
