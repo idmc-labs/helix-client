@@ -1,6 +1,6 @@
 import React, { useMemo, useContext, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { _cs, isDefined } from '@togglecorp/fujs';
+import { _cs, isDefined, mapToList } from '@togglecorp/fujs';
 import { Button, Modal } from '@togglecorp/toggle-ui';
 import { IoFilterOutline, IoClose } from 'react-icons/io5';
 import {
@@ -22,7 +22,7 @@ import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import useOptions from '#hooks/useOptions';
 import AdvancedFiguresFilter from '#components/rawTables/useFigureTable/AdvancedFiguresFilter';
-import { expandObject, mergeBbox } from '#utils/common';
+import { expandObject, mergeBbox, hasNoData } from '#utils/common';
 import useSidebarLayout from '#hooks/useSidebarLayout';
 import NdChart from '#components/NdChart';
 import IdpChart from '#components/IdpChart';
@@ -194,6 +194,11 @@ function Crisis(props: CrisisProps) {
         [showSidebar],
     );
 
+    const appliedFiltersCount = mapToList(
+        figuresFilter,
+        (item) => !hasNoData(item),
+    ).filter(Boolean).length;
+
     const narrative = crisisData?.crisis?.crisisNarrative;
 
     return (
@@ -209,12 +214,12 @@ function Crisis(props: CrisisProps) {
                             disabled={showSidebar}
                             icons={<IoFilterOutline />}
                         >
-                            Filters
+                            {appliedFiltersCount > 0 ? `Filters (${appliedFiltersCount})` : 'Filters'}
                         </Button>
                     )}
                     actions={crisisPermissions?.change && (
                         <Button
-                            name={undefined}
+                            name={crisisId}
                             onClick={showAddCrisisModal}
                             disabled={loading}
                         >
@@ -345,7 +350,7 @@ function Crisis(props: CrisisProps) {
                 variant="primary"
                 visibleOn={floatingButtonVisibility}
             >
-                Filters
+                {appliedFiltersCount > 0 ? `Filters (${appliedFiltersCount})` : 'Filters'}
             </FloatingButton>
             {shouldShowAddCrisisModal && (
                 <Modal

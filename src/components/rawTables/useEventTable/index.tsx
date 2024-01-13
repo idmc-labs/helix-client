@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext, useState } from 'react';
 import {
     gql,
     useQuery,
@@ -16,6 +16,8 @@ import {
     Button,
     Pager,
 } from '@togglecorp/toggle-ui';
+
+import Mounter from '#components/Mounter';
 import {
     createLinkColumn,
     createStatusColumn,
@@ -244,6 +246,8 @@ function useEventTable(props: Props) {
         notifyGQLError,
     } = useContext(NotificationContext);
 
+    const [mounted, setMounted] = useState(false);
+
     const [
         shouldShowAddEventModal,
         editableEventId,
@@ -295,6 +299,7 @@ function useEventTable(props: Props) {
         refetch: refetchEvents,
     } = useQuery<EventListQuery, EventListQueryVariables>(EVENT_LIST, {
         variables: filters,
+        skip: !mounted,
     });
 
     const [
@@ -837,6 +842,9 @@ function useEventTable(props: Props) {
         ),
         table: (
             <>
+                <Mounter
+                    onChange={setMounted}
+                />
                 {totalEventsCount > 0 && (
                     <Table
                         className={className}

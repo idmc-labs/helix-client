@@ -2,11 +2,13 @@ import React from 'react';
 import Map, {
     MapContainer,
     MapBounds,
+    MapCenter,
     MapSource,
     MapLayer,
 } from '@togglecorp/re-map';
 
 export type Bounds = [number, number, number, number];
+export type Centers = [number, number];
 
 const lightStyle = 'mapbox://styles/togglecorp/cl50rwy0a002d14mo6w9zprio';
 
@@ -23,14 +25,18 @@ const countryLinePaint: mapboxgl.LinePaint = {
 interface CountriesMapProps {
     className?: string;
     bounds?: Bounds | undefined;
+    center?: Centers | undefined;
     countries?: { id: string, geojsonUrl?: string | null }[] | null;
+    children?: React.ReactNode;
 }
 
 function CountriesMap(props: CountriesMapProps) {
     const {
         className,
         bounds,
+        center,
         countries,
+        children,
     } = props;
 
     return (
@@ -38,9 +44,12 @@ function CountriesMap(props: CountriesMapProps) {
             mapStyle={lightStyle}
             mapOptions={{
                 logoPosition: 'bottom-left',
+                scrollZoom: false,
             }}
             scaleControlShown
             navControlShown
+            scaleControlPosition="bottom-right"
+            navControlPosition="top-left"
         >
             <MapContainer className={className} />
             {countries?.map((country) => (!!country.geojsonUrl && (
@@ -72,10 +81,21 @@ function CountriesMap(props: CountriesMapProps) {
                     />
                 </MapSource>
             )))}
-            <MapBounds
-                bounds={bounds as Bounds | undefined}
-                padding={50}
-            />
+            {children}
+            {!center && bounds && (
+                <MapBounds
+                    bounds={bounds as Bounds | undefined}
+                    padding={50}
+                />
+            )}
+            {center && (
+                <MapCenter
+                    center={center as Centers | undefined}
+                    centerOptions={{
+                        maxDuration: 1000,
+                    }}
+                />
+            )}
         </Map>
     );
 }

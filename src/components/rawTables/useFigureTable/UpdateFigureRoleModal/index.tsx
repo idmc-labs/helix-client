@@ -99,8 +99,7 @@ function UpdateFigureRoleModal(props: Props) {
                 const { triggerBulkOperation: figureResponse } = response;
                 if (figureResponse?.ok) {
                     notify({
-                        children: 'Changing role of selected figures started successfully',
-                        variant: 'success',
+                        children: 'Change of selected figures\' role started successfully',
                     });
                     onSuccess();
                     onClose();

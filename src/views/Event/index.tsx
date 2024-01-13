@@ -1,6 +1,6 @@
 import React, { useMemo, useContext, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { _cs, isDefined } from '@togglecorp/fujs';
+import { _cs, isDefined, mapToList } from '@togglecorp/fujs';
 import { Button, Modal } from '@togglecorp/toggle-ui';
 import { IoFilterOutline, IoClose } from 'react-icons/io5';
 import {
@@ -23,7 +23,7 @@ import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import useOptions from '#hooks/useOptions';
 import AdvancedFiguresFilter from '#components/rawTables/useFigureTable/AdvancedFiguresFilter';
-import { expandObject, mergeBbox } from '#utils/common';
+import { expandObject, mergeBbox, hasNoData } from '#utils/common';
 import useSidebarLayout from '#hooks/useSidebarLayout';
 import NdChart from '#components/NdChart';
 import IdpChart from '#components/IdpChart';
@@ -240,6 +240,11 @@ function Event(props: EventProps) {
         [showSidebar],
     );
 
+    const appliedFiltersCount = mapToList(
+        figuresFilter,
+        (item) => !hasNoData(item),
+    ).filter(Boolean).length;
+
     // NOTE: show review link if user can sign-off and event is approved/signed-off
     // NOTE: or user can approve and user is the assignee
     const reviewLinkShown = useMemo(
@@ -289,7 +294,7 @@ function Event(props: EventProps) {
                             disabled={showSidebar}
                             icons={<IoFilterOutline />}
                         >
-                            Filters
+                            {appliedFiltersCount > 0 ? `Filters (${appliedFiltersCount})` : 'Filters'}
                         </Button>
                     )}
                     actions={(
@@ -496,7 +501,7 @@ function Event(props: EventProps) {
                 variant="primary"
                 visibleOn={floatingButtonVisibility}
             >
-                Filters
+                {appliedFiltersCount > 0 ? `Filters (${appliedFiltersCount})` : 'Filters'}
             </FloatingButton>
             {shouldShowAddEventModal && (
                 <Modal

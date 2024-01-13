@@ -1009,16 +1009,17 @@ function EventForm(props: EventFormProps) {
             />
             <Section
                 subSection
+                bordered
                 heading="Event Codes"
-                actions={(
+                actions={!readOnly && (
                     <Button
-                        name="addEventCode"
+                        name={undefined}
                         onClick={handleEventCodeAddButtonClick}
-                        disabled={isNotDefined(value.countries)
-                        || (value?.eventCodes?.length ?? 0) > MAX_EVENT_CODES
-                        || readOnly
-                        || disabled}
-                        compact
+                        disabled={(
+                            isNotDefined(value.countries)
+                                || (value?.eventCodes?.length ?? 0) >= MAX_EVENT_CODES
+                                || disabled
+                        )}
                     >
                         Add Event Code
                     </Button>
@@ -1042,9 +1043,11 @@ function EventForm(props: EventFormProps) {
                         // eslint-disable-next-line max-len
                         eventCodeTypeOptions={data?.eventCodeType?.enumValues as EventCodeTypeOptions}
                         error={error?.fields?.eventCodes?.members?.[code.uuid]}
-                        disabled={isNotDefined(value.countries)
-                        || value.countries?.length === 0
-                        || disabled}
+                        disabled={(
+                            isNotDefined(value.countries)
+                            || value.countries?.length === 0
+                            || disabled
+                        )}
                         readOnly={readOnly}
                     />
                 ))}

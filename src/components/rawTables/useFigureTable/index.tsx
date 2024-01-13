@@ -17,6 +17,8 @@ import {
     CheckboxProps,
     Button,
 } from '@togglecorp/toggle-ui';
+
+import Mounter from '#components/Mounter';
 import {
     createLinkColumn,
     createTextColumn,
@@ -191,6 +193,8 @@ function useFigureTable(props: Props) {
         pagerPageControlDisabled,
     } = props;
 
+    const [mounted, setMounted] = useState(false);
+
     const [selectedFigures, setSelectedFigures] = useState<string[]>([]);
     const [mode, setMode] = useState<'SELECT' | 'DESELECT'>('SELECT');
 
@@ -206,6 +210,7 @@ function useFigureTable(props: Props) {
         refetch: refetchFigures,
     } = useQuery<ExtractionFigureListQuery, ExtractionFigureListQueryVariables>(FIGURE_LIST, {
         variables: filters,
+        skip: !mounted,
     });
 
     const {
@@ -639,6 +644,9 @@ function useFigureTable(props: Props) {
         ),
         table: (
             <>
+                <Mounter
+                    onChange={setMounted}
+                />
                 {totalFiguresCount > 0 && (
                     <Table
                         className={className}

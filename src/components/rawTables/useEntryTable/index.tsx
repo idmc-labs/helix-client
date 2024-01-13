@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext, useState } from 'react';
 import {
     gql,
     useQuery,
@@ -11,13 +11,14 @@ import {
     ConfirmButton,
     Pager,
 } from '@togglecorp/toggle-ui';
+
+import Mounter from '#components/Mounter';
 import {
     createTextColumn,
     createLinkColumn,
     createDateColumn,
     createCustomActionColumn,
 } from '#components/tableHelpers';
-
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import Message from '#components/Message';
 import Loading from '#components/Loading';
@@ -126,6 +127,8 @@ function useEntryTable(props: Props) {
         pagerPageControlDisabled,
     } = props;
 
+    const [mounted, setMounted] = useState(false);
+
     const {
         previousData,
         data: entriesData = previousData,
@@ -134,6 +137,7 @@ function useEntryTable(props: Props) {
     // eslint-disable-next-line max-len
     } = useQuery<ExtractionEntryListFiltersQuery, ExtractionEntryListFiltersQueryVariables>(EXTRACTION_ENTRY_LIST, {
         variables: filters,
+        skip: !mounted,
     });
 
     const {
@@ -313,6 +317,9 @@ function useEntryTable(props: Props) {
         ),
         table: (
             <>
+                <Mounter
+                    onChange={setMounted}
+                />
                 {totalEntriesCount > 0 && (
                     <Table
                         className={className}

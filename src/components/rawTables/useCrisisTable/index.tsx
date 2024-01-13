@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext, useState } from 'react';
 import { isDefined } from '@togglecorp/fujs';
 import {
     gql,
@@ -16,6 +16,8 @@ import {
     Button,
     Pager,
 } from '@togglecorp/toggle-ui';
+
+import Mounter from '#components/Mounter';
 import {
     createLinkColumn,
     createTextColumn,
@@ -162,6 +164,7 @@ function useCrisisTable(props: Props) {
     ] = useModalState();
 
     const { user } = useContext(DomainContext);
+    const [mounted, setMounted] = useState(false);
 
     const crisisPermissions = user?.permissions?.crisis;
 
@@ -172,6 +175,7 @@ function useCrisisTable(props: Props) {
         refetch: refetchCrises,
     } = useQuery<CrisesQuery, CrisesQueryVariables>(CRISIS_LIST, {
         variables: filters,
+        skip: !mounted,
     });
 
     const [
@@ -415,6 +419,9 @@ function useCrisisTable(props: Props) {
         ),
         table: (
             <>
+                <Mounter
+                    onChange={setMounted}
+                />
                 {totalCrisesCount > 0 && (
                     <Table
                         className={className}

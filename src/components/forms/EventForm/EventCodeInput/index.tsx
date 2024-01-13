@@ -103,16 +103,18 @@ function EventCodeInput(props: Props) {
                     readOnly={readOnly}
                 />
             </Row>
-            <Button
-                title="Remove"
-                name={index}
-                onClick={onRemove}
-                compact
-                transparent
-                disabled={disabled || readOnly}
-            >
-                <IoTrash />
-            </Button>
+            {!readOnly && (
+                <Button
+                    title="Remove"
+                    name={index}
+                    onClick={onRemove}
+                    compact
+                    transparent
+                    disabled={disabled}
+                >
+                    <IoTrash />
+                </Button>
+            )}
         </Row>
     );
 }
