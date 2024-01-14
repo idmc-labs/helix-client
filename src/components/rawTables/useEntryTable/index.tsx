@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext, useState } from 'react';
 import {
     gql,
     useQuery,
@@ -11,20 +11,20 @@ import {
     ConfirmButton,
     Pager,
 } from '@togglecorp/toggle-ui';
+
+import TableMessage from '#components/TableMessage';
+import Mounter from '#components/Mounter';
 import {
     createTextColumn,
     createLinkColumn,
     createDateColumn,
     createCustomActionColumn,
 } from '#components/tableHelpers';
-
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
-import Message from '#components/Message';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
-
 import {
     ExportEntriesMutation,
     ExportEntriesMutationVariables,
@@ -33,6 +33,7 @@ import {
     DeleteEntryMutation,
     DeleteEntryMutationVariables,
 } from '#generated/types';
+import { hasNoData } from '#utils/common';
 
 import route from '#config/routes';
 
@@ -126,14 +127,18 @@ function useEntryTable(props: Props) {
         pagerPageControlDisabled,
     } = props;
 
+    const [mounted, setMounted] = useState(false);
+
     const {
         previousData,
         data: entriesData = previousData,
         loading: loadingEntries,
         refetch: refetchEntries,
+        error: entriesError,
     // eslint-disable-next-line max-len
     } = useQuery<ExtractionEntryListFiltersQuery, ExtractionEntryListFiltersQueryVariables>(EXTRACTION_ENTRY_LIST, {
         variables: filters,
+        skip: !mounted,
     });
 
     const {
@@ -313,6 +318,10 @@ function useEntryTable(props: Props) {
         ),
         table: (
             <>
+                <Mounter
+                    onChange={setMounted}
+                />
+                {(loadingEntries || deletingEntry) && <Loading absolute />}
                 {totalEntriesCount > 0 && (
                     <Table
                         className={className}
@@ -323,10 +332,14 @@ function useEntryTable(props: Props) {
                         fixedColumnWidth
                     />
                 )}
-                {(loadingEntries || deletingEntry) && <Loading absolute />}
-                {!loadingEntries && totalEntriesCount <= 0 && (
-                    <Message
-                        message="No entries found."
+                {!loadingEntries && (
+                    <TableMessage
+                        errored={!!entriesError}
+                        filtered={!hasNoData(filters?.filters)}
+                        totalItems={totalEntriesCount}
+                        emptyMessage="No entries found"
+                        emptyMessageWithFilters="No entries found with applied filters"
+                        errorMessage="Could not fetch entries"
                     />
                 )}
             </>

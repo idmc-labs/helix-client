@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext, useState } from 'react';
 import {
     gql,
     useQuery,
@@ -16,6 +16,9 @@ import {
     Button,
     Pager,
 } from '@togglecorp/toggle-ui';
+
+import TableMessage from '#components/TableMessage';
+import Mounter from '#components/Mounter';
 import {
     createLinkColumn,
     createStatusColumn,
@@ -24,7 +27,6 @@ import {
     createNumberColumn,
     createCustomActionColumn,
 } from '#components/tableHelpers';
-import Message from '#components/Message';
 import Loading from '#components/Loading';
 import EventForm, { EventFormProps } from '#components/forms/EventForm';
 import StackedProgressCell, { StackedProgressProps } from '#components/tableHelpers/StackedProgress';
@@ -48,9 +50,8 @@ import {
     ExportEventsMutation,
     ExportEventsMutationVariables,
 } from '#generated/types';
-
+import { hasNoData } from '#utils/common';
 import route from '#config/routes';
-
 import EventAssigneeChangeForm from '#components/forms/EventAssigneeChangeForm';
 import EventQaSettingsForm from '#components/forms/EventQaSettingsForm';
 import ActionCell, { ActionProps } from './EventsAction';
@@ -244,6 +245,8 @@ function useEventTable(props: Props) {
         notifyGQLError,
     } = useContext(NotificationContext);
 
+    const [mounted, setMounted] = useState(false);
+
     const [
         shouldShowAddEventModal,
         editableEventId,
@@ -293,8 +296,10 @@ function useEventTable(props: Props) {
         data: eventsData = previousData,
         loading: loadingEvents,
         refetch: refetchEvents,
+        error: eventsError,
     } = useQuery<EventListQuery, EventListQueryVariables>(EVENT_LIST, {
         variables: filters,
+        skip: !mounted,
     });
 
     const [
@@ -837,6 +842,17 @@ function useEventTable(props: Props) {
         ),
         table: (
             <>
+                <Mounter
+                    onChange={setMounted}
+                />
+                {(
+                    loadingEvents
+                    || deletingEvent
+                    || ignoringEvent
+                    || clearingAssigneeFromEvent
+                    || clearingSelfAssigneeFromEvent
+                    || settingSelfAssigneeToEvent
+                ) && <Loading absolute />}
                 {totalEventsCount > 0 && (
                     <Table
                         className={className}
@@ -847,17 +863,14 @@ function useEventTable(props: Props) {
                         fixedColumnWidth
                     />
                 )}
-                {(
-                    loadingEvents
-                    || deletingEvent
-                    || ignoringEvent
-                    || clearingAssigneeFromEvent
-                    || clearingSelfAssigneeFromEvent
-                    || settingSelfAssigneeToEvent
-                ) && <Loading absolute />}
-                {!loadingEvents && totalEventsCount <= 0 && (
-                    <Message
-                        message="No events found."
+                {!loadingEvents && (
+                    <TableMessage
+                        errored={!!eventsError}
+                        filtered={!hasNoData(filters?.filters)}
+                        totalItems={totalEventsCount}
+                        emptyMessage="No events found"
+                        emptyMessageWithFilters="No events found with applied filters"
+                        errorMessage="Could not fetch events"
                     />
                 )}
                 {shouldShowAddEventModal && (

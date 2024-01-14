@@ -10,6 +10,8 @@ import {
     Pager,
     SortContext,
 } from '@togglecorp/toggle-ui';
+
+import TableMessage from '#components/TableMessage';
 import {
     createTextColumn,
     createLinkColumn,
@@ -18,22 +20,20 @@ import {
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
 import useFilterState from '#hooks/useFilterState';
-
-import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
-
 import {
     ContextualUpdatesQuery,
     ContextualUpdatesQueryVariables,
     DeleteContextualUpdateMutation,
     DeleteContextualUpdateMutationVariables,
 } from '#generated/types';
-
 import route from '#config/routes';
+import { hasNoData } from '#utils/common';
+
 import ContextualUpdateFilter from './ContextualUpdateFilter/index';
 import styles from './styles.css';
 
@@ -156,6 +156,7 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
         data: contextualUpdatesData = previousData,
         loading: loadingContextualUpdates,
         refetch: refetchContextualUpdates,
+        error: contextualUpdateError,
     } = useQuery<ContextualUpdatesQuery, ContextualUpdatesQueryVariables>(CONTEXTUAL_UPDATE_LIST, {
         variables: contextualUpdatesVariables,
     });
@@ -300,6 +301,7 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                     />
                 )}
             >
+                {(loadingContextualUpdates || deletingContextualUpdate) && <Loading absolute />}
                 {totalContextualUpdatesCount > 0 && (
                     <SortContext.Provider value={sortState}>
                         <Table
@@ -312,10 +314,14 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                         />
                     </SortContext.Provider>
                 )}
-                {(loadingContextualUpdates || deletingContextualUpdate) && <Loading absolute />}
-                {!loadingContextualUpdates && totalContextualUpdatesCount <= 0 && (
-                    <Message
-                        message="No contextual updates found."
+                {!loadingContextualUpdates && (
+                    <TableMessage
+                        errored={!!contextualUpdateError}
+                        filtered={!hasNoData(filter)}
+                        totalItems={totalContextualUpdatesCount}
+                        emptyMessage="No contextual updates found"
+                        emptyMessageWithFilters="No contextual updates found with applied filters"
+                        errorMessage="Could not fetch contextual updates"
                     />
                 )}
             </Container>

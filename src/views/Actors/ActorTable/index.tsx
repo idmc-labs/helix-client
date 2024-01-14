@@ -11,6 +11,7 @@ import {
 } from '@togglecorp/toggle-ui';
 import { getOperationName } from 'apollo-link';
 
+import TableMessage from '#components/TableMessage';
 import useFilterState from '#hooks/useFilterState';
 import { PurgeNull } from '#types';
 import {
@@ -18,15 +19,11 @@ import {
     createActionColumn,
     createDateColumn,
 } from '#components/tableHelpers';
-
-import Message from '#components/Message';
 import Container from '#components/Container';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 import DomainContext from '#components/DomainContext';
-
 import useModalState from '#hooks/useModalState';
-
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import {
     ActorsListQuery,
@@ -36,6 +33,7 @@ import {
     ExportActorsMutation,
     ExportActorsMutationVariables,
 } from '#generated/types';
+import { hasNoData } from '#utils/common';
 
 import ActorForm from './ActorForm';
 import ActorsFilter from './ActorFilters/index';
@@ -170,6 +168,7 @@ function ActorTable(props: ActorProps) {
         data: actors = previousData,
         loading: actorsLoading,
         refetch: refetchActorList,
+        error: actorsError,
     } = useQuery<ActorsListQuery>(GET_ACTORS_LIST, { variables });
 
     const handleRefetch = useCallback(
@@ -354,6 +353,7 @@ function ActorTable(props: ActorProps) {
                 />
             )}
         >
+            {loading && <Loading absolute />}
             {totalActorsCount > 0 && (
                 <SortContext.Provider value={sortState}>
                     <Table
@@ -366,10 +366,14 @@ function ActorTable(props: ActorProps) {
                     />
                 </SortContext.Provider>
             )}
-            {loading && <Loading absolute />}
-            {!actorsLoading && totalActorsCount <= 0 && (
-                <Message
-                    message="No actors found."
+            {!actorsLoading && (
+                <TableMessage
+                    errored={!!actorsError}
+                    filtered={!hasNoData(filter)}
+                    totalItems={totalActorsCount}
+                    emptyMessage="No actors found"
+                    emptyMessageWithFilters="No actors found with applied filters"
+                    errorMessage="Could not fetch actors"
                 />
             )}
             {shouldShowAddActorModal && (

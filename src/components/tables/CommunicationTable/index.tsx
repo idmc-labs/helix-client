@@ -11,24 +11,21 @@ import {
 import { _cs, isDefined } from '@togglecorp/fujs';
 import { createTextColumn, createActionColumn } from '#components/tableHelpers';
 
+import TableMessage from '#components/TableMessage';
 import useFilterState from '#hooks/useFilterState';
-import { expandObject } from '#utils/common';
+import { expandObject, hasNoData } from '#utils/common';
 import { PurgeNull } from '#types';
-import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
-
 import useModalState from '#hooks/useModalState';
-
 import {
     CommunicationListQuery,
     CommunicationListQueryVariables,
     DeleteCommunicationMutation,
     DeleteCommunicationMutationVariables,
 } from '#generated/types';
-
 import CommunicationForm from '#components/forms/CommunicationForm';
 
 import CommunicationFilter from './CommunicationFilter/index';
@@ -164,6 +161,7 @@ function CommunicationTable(props: CommunicationListProps) {
         data: communications = previousData,
         loading: communicationsLoading,
         refetch: refetchCommunications,
+        error: communicationsError,
     } = useQuery<CommunicationListQuery>(GET_COMMUNICATIONS_LIST, {
         variables: communicationsVariables,
     });
@@ -310,6 +308,7 @@ function CommunicationTable(props: CommunicationListProps) {
                 />
             )}
         >
+            {loadingCommunications && <Loading absolute />}
             {totalCommunicationsCount > 0 && (
                 <SortContext.Provider value={sortState}>
                     <Table
@@ -322,10 +321,14 @@ function CommunicationTable(props: CommunicationListProps) {
                     />
                 </SortContext.Provider>
             )}
-            {loadingCommunications && <Loading absolute />}
-            {!loadingCommunications && totalCommunicationsCount <= 0 && (
-                <Message
-                    message="No communications found."
+            {!loadingCommunications && (
+                <TableMessage
+                    errored={!!communicationsError}
+                    filtered={!hasNoData(filter)}
+                    totalItems={totalCommunicationsCount}
+                    emptyMessage="No communications found"
+                    emptyMessageWithFilters="No communications found with applied filters"
+                    errorMessage="Could not fetch communications"
                 />
             )}
             {shouldShowAddCommunicationModal && (

@@ -1,0 +1,26 @@
+.checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.update-role-section {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    justify-content: end;
+    gap: var(--spacing-medium);
+}
+
+.action-cell, .action-cell-header {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background-color: var(--color-foreground);
+}
+
+.action-cell {
+    border-right: var(--width-separator-thin) solid var(--color-separator);
+    box-shadow: 3px 0 3px -1px rgba(0, 0, 0, 0.05);
+    background-color: var(--color-foreground);
+}

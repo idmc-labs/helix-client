@@ -8,14 +8,11 @@ import {
     IoAddOutline,
     IoSearchOutline,
 } from 'react-icons/io5';
-import Map, {
+import {
     MapTooltip,
-    MapContainer,
-    MapBounds,
     MapLayer,
     MapSource,
     MapImage,
-    MapCenter,
 } from '@togglecorp/re-map';
 import {
     TextInput,
@@ -38,6 +35,7 @@ import {
 } from '#generated/types';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { PartialForm, MakeRequired } from '#types';
+import CountriesMap, { Bounds, Centers } from '#components/CountriesMap';
 
 import image from './arrow.png';
 
@@ -46,9 +44,6 @@ import styles from './styles.css';
 type GeoLocation = PartialForm<GeoLocationFormProps>;
 
 type LookupData = NonNullable<NonNullable<LookupQuery['lookup']>['results']>[0]
-
-type Bounds = [number, number, number, number];
-type Centers = [number, number];
 
 interface HoveredRegion {
     feature: mapboxgl.MapboxGeoJSONFeature;
@@ -61,6 +56,7 @@ interface MovedPoint {
 }
 
 interface Country {
+    id: string;
     iso2?: string | null;
     idmcShortName: string;
     boundingBox?: number[] | null;
@@ -215,8 +211,6 @@ type LocationGeoJson = GeoJSON.FeatureCollection<GeoJSON.Point, {
 }>;
 type LocationLineGeoJson = GeoJSON.FeatureCollection<GeoJSON.LineString>;
 
-const lightStyle = 'mapbox://styles/togglecorp/cl50rwy0a002d14mo6w9zprio';
-
 const arrowImageOptions = {
     sdf: true,
 };
@@ -236,16 +230,6 @@ const sourceColor = '#e84d0e';
 const destinationColor = '#e8a90e';
 const defaultColor = '#333333';
 const pointRadius = 12;
-
-const countryFillPaint: mapboxgl.FillPaint = {
-    'fill-color': '#e0e8f0',
-    'fill-opacity': 1,
-};
-
-const countryLinePaint: mapboxgl.LinePaint = {
-    'line-color': '#3E5963',
-    'line-width': 1.5,
-};
 
 const origin: Identifier = 'ORIGIN';
 const destination: Identifier = 'DESTINATION';
@@ -840,144 +824,99 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
 
     return (
         <div className={_cs(styles.comp, className)}>
-            <Map
-                mapStyle={lightStyle}
-                mapOptions={{
-                    logoPosition: 'bottom-left',
-                }}
-                scaleControlShown
-                navControlShown
-                scaleControlPosition="bottom-right"
-                navControlPosition="top-left"
-            >
-                <div className={styles.container}>
-                    <div className={styles.floating}>
-                        {!readOnly && (
-                            <Button
-                                name={undefined}
-                                onClick={handleSearchShownToggle}
-                                icons={searchShown ? <IoCloseOutline /> : <IoAddOutline />}
-                                disabled={inputDisabled || readOnly}
-                            >
-                                {searchShown ? 'Close' : 'Add location'}
-                            </Button>
-                        )}
-                        {defaultBounds && (
-                            <Button
-                                name={undefined}
-                                onClick={handleSetCountryBounds}
-                            >
-                                Fit to country
-                            </Button>
-                        )}
-                        {value.length > 0 && (
-                            <Button
-                                name={undefined}
-                                onClick={handleSetConvexBounds}
-                            >
-                                Fit to locations
-                            </Button>
-                        )}
-                    </div>
-                    <MapContainer className={styles.mapContainer} />
-                </div>
-                <MapImage
-                    name="equilateral-arrow-icon"
-                    url={image}
-                    imageOptions={arrowImageOptions}
-                    onLoad={handleIconLoad}
-                />
-                {center && (
-                    <MapCenter
-                        center={center}
-                        centerOptions={{
-                            maxDuration: 1000,
-                        }}
-                    />
-                )}
-                {!center && (
-                    <MapBounds
-                        bounds={bounds ?? defaultBounds}
-                        padding={60}
-                    />
-                )}
-                <MapSource
-                    sourceKey="lines"
-                    sourceOptions={sourceOption}
-                    geoJson={geoLines}
-                >
-                    <MapLayer
-                        layerKey="line"
-                        layerOptions={{
-                            type: 'line',
-                            layout: lineLayout,
-                            paint: linePaint,
-                        }}
-                    />
-                    <MapLayer
-                        layerKey="arrows-icon"
-                        layerOptions={{
-                            type: 'symbol',
-                            paint: arrowPaint,
-                            layout: iconReady ? arrowLayout : hiddenLayout,
-                        }}
-                    />
-                </MapSource>
-                <MapSource
-                    sourceKey="points"
-                    sourceOptions={sourceOption}
-                    geoJson={geoPointsWithTempPoint}
-                >
-                    <MapLayer
-                        onDrag={inputDisabled || readOnly ? undefined : handleDrag}
-                        onDragEnd={inputDisabled || readOnly ? undefined : handleDragEnd}
-                        layerKey="points-circle"
-                        layerOptions={{
-                            type: 'circle',
-                            paint: pointCirclePaint,
-                        }}
-                        onMouseEnter={handleMapRegionMouseEnter}
-                        onMouseLeave={handleMapRegionMouseLeave}
-                    />
-                    {hoveredRegionProperties && hoveredRegionProperties.lngLat && (
-                        <MapTooltip
-                            coordinates={hoveredRegionProperties.lngLat}
-                            tooltipOptions={tooltipOptions}
-                            trackPointer
+            <div className={styles.container}>
+                <div className={styles.floating}>
+                    {!readOnly && (
+                        <Button
+                            name={undefined}
+                            onClick={handleSearchShownToggle}
+                            icons={searchShown ? <IoCloseOutline /> : <IoAddOutline />}
+                            disabled={inputDisabled || readOnly}
                         >
-                            {hoveredRegionProperties?.feature?.properties?.name}
-                        </MapTooltip>
+                            {searchShown ? 'Close' : 'Add location'}
+                        </Button>
                     )}
-                </MapSource>
-                {country?.geojsonUrl && (
+                    {defaultBounds && (
+                        <Button
+                            name={undefined}
+                            className={styles.button}
+                            onClick={handleSetCountryBounds}
+                        >
+                            Fit to country
+                        </Button>
+                    )}
+                    {value.length > 0 && (
+                        <Button
+                            name={undefined}
+                            className={styles.button}
+                            onClick={handleSetConvexBounds}
+                        >
+                            Fit to locations
+                        </Button>
+                    )}
+                </div>
+                <CountriesMap
+                    className={styles.mapContainer}
+                    bounds={bounds ?? defaultBounds}
+                    center={center}
+                    countries={country ? [country] : undefined}
+                >
+                    <MapImage
+                        name="equilateral-arrow-icon"
+                        url={image}
+                        imageOptions={arrowImageOptions}
+                        onLoad={handleIconLoad}
+                    />
                     <MapSource
-                        sourceKey="country"
-                        sourceOptions={{
-                            type: 'geojson',
-                        }}
-                        geoJson={country.geojsonUrl}
+                        sourceKey="lines"
+                        sourceOptions={sourceOption}
+                        geoJson={geoLines}
                     >
                         <MapLayer
-                            layerKey="country-fill"
-                            layerOptions={{
-                                type: 'fill',
-                                paint: countryFillPaint,
-                            }}
-                            // NOTE: this is the lowest line layer in mapstyle
-                            beneath="tunnel-street-minor-low"
-                        />
-                        <MapLayer
-                            layerKey="country-line"
+                            layerKey="line"
                             layerOptions={{
                                 type: 'line',
-                                paint: countryLinePaint,
+                                layout: lineLayout,
+                                paint: linePaint,
                             }}
-                            // NOTE: this is the lowest point layer in mapstyle
-                            beneath="road-label"
+                        />
+                        <MapLayer
+                            layerKey="arrows-icon"
+                            layerOptions={{
+                                type: 'symbol',
+                                paint: arrowPaint,
+                                layout: iconReady ? arrowLayout : hiddenLayout,
+                            }}
                         />
                     </MapSource>
-                )}
-            </Map>
+                    <MapSource
+                        sourceKey="points"
+                        sourceOptions={sourceOption}
+                        geoJson={geoPointsWithTempPoint}
+                    >
+                        <MapLayer
+                            onDrag={inputDisabled || readOnly ? undefined : handleDrag}
+                            onDragEnd={inputDisabled || readOnly ? undefined : handleDragEnd}
+                            layerKey="points-circle"
+                            layerOptions={{
+                                type: 'circle',
+                                paint: pointCirclePaint,
+                            }}
+                            onMouseEnter={handleMapRegionMouseEnter}
+                            onMouseLeave={handleMapRegionMouseLeave}
+                        />
+                        {hoveredRegionProperties && hoveredRegionProperties.lngLat && (
+                            <MapTooltip
+                                coordinates={hoveredRegionProperties.lngLat}
+                                tooltipOptions={tooltipOptions}
+                                trackPointer
+                            >
+                                {hoveredRegionProperties?.feature?.properties?.name}
+                            </MapTooltip>
+                        )}
+                    </MapSource>
+                </CountriesMap>
+            </div>
             {!readOnly && searchShown && (
                 <div className={styles.search}>
                     <div className={styles.filter}>

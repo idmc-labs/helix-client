@@ -232,6 +232,7 @@ function UserEmailChangeForm(props: EmailChangeProps) {
                 disabled={disabled}
             />
             <Switch
+                // TODO: Switch does not support "undefined" name
                 name=""
                 label="Update user email"
                 value={emailUpdate}

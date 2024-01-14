@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext, useState } from 'react';
 import { isDefined } from '@togglecorp/fujs';
 import {
     gql,
@@ -16,6 +16,9 @@ import {
     Button,
     Pager,
 } from '@togglecorp/toggle-ui';
+
+import TableMessage from '#components/TableMessage';
+import Mounter from '#components/Mounter';
 import {
     createLinkColumn,
     createTextColumn,
@@ -23,7 +26,6 @@ import {
     createNumberColumn,
     createActionColumn,
 } from '#components/tableHelpers';
-import Message from '#components/Message';
 import Loading from '#components/Loading';
 import CrisisForm, { CrisisFormProps } from '#components/forms/CrisisForm';
 import StackedProgressCell, { StackedProgressProps } from '#components/tableHelpers/StackedProgress';
@@ -39,6 +41,7 @@ import {
     ExportCrisesMutation,
     ExportCrisesMutationVariables,
 } from '#generated/types';
+import { hasNoData } from '#utils/common';
 
 import route from '#config/routes';
 
@@ -162,6 +165,7 @@ function useCrisisTable(props: Props) {
     ] = useModalState();
 
     const { user } = useContext(DomainContext);
+    const [mounted, setMounted] = useState(false);
 
     const crisisPermissions = user?.permissions?.crisis;
 
@@ -170,8 +174,10 @@ function useCrisisTable(props: Props) {
         data: crisesData = previousData,
         loading: loadingCrises,
         refetch: refetchCrises,
+        error: crisesError,
     } = useQuery<CrisesQuery, CrisesQueryVariables>(CRISIS_LIST, {
         variables: filters,
+        skip: !mounted,
     });
 
     const [
@@ -415,6 +421,10 @@ function useCrisisTable(props: Props) {
         ),
         table: (
             <>
+                <Mounter
+                    onChange={setMounted}
+                />
+                {(loadingCrises || deletingCrisis) && <Loading absolute />}
                 {totalCrisesCount > 0 && (
                     <Table
                         className={className}
@@ -425,13 +435,14 @@ function useCrisisTable(props: Props) {
                         fixedColumnWidth
                     />
                 )}
-                {(
-                    loadingCrises
-                    || deletingCrisis
-                ) && <Loading absolute />}
-                {!loadingCrises && totalCrisesCount <= 0 && (
-                    <Message
-                        message="No crises found."
+                {!loadingCrises && (
+                    <TableMessage
+                        errored={!!crisesError}
+                        filtered={!hasNoData(filters?.filters)}
+                        totalItems={totalCrisesCount}
+                        emptyMessage="No crises found"
+                        emptyMessageWithFilters="No crises found with applied filters"
+                        errorMessage="Could not fetch crises"
                     />
                 )}
                 {shouldShowAddCrisisModal && (

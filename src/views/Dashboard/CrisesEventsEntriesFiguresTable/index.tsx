@@ -273,6 +273,7 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
         table: figuresTable,
         exportButton: figuresExportButton,
         pager: figuresPager,
+        bulkActions: figuresBulkActions,
     } = useFigureTable({
         className: styles.table,
         filters: figuresVariables,
@@ -375,7 +376,12 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
                         {selectedTab === 'Crises' && crisesPager}
                         {selectedTab === 'Events' && eventsPager}
                         {selectedTab === 'Entries' && entriesPager}
-                        {selectedTab === 'Figures' && figuresPager}
+                        {selectedTab === 'Figures' && (
+                            <>
+                                {figuresPager}
+                                {figuresBulkActions}
+                            </>
+                        )}
                     </>
                 )}
             >

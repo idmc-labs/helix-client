@@ -61,6 +61,7 @@ function ActionCell(props: ActionProps) {
                     hash={editHash}
                     search={editSearch}
                     transparent
+                    disabled={disabled}
                 >
                     <IoCreateOutline />
                 </QuickActionLink>

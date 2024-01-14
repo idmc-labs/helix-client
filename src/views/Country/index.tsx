@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from 'react';
 import produce from 'immer';
 import { useParams, useHistory } from 'react-router-dom';
-import { _cs, isDefined } from '@togglecorp/fujs';
+import { _cs, isDefined, mapToList } from '@togglecorp/fujs';
 import { Button } from '@togglecorp/toggle-ui';
 import { IoFilterOutline, IoClose } from 'react-icons/io5';
 import {
@@ -31,7 +31,7 @@ import CountrySelectInput from '#components/selections/CountrySelectInput';
 import useOptions from '#hooks/useOptions';
 import AdvancedFiguresFilter from '#components/rawTables/useFigureTable/AdvancedFiguresFilter';
 import FiguresFilterOutput from '#components/rawTables/useFigureTable/FiguresFilterOutput';
-import { expandObject } from '#utils/common';
+import { expandObject, hasNoData } from '#utils/common';
 import useSidebarLayout from '#hooks/useSidebarLayout';
 import NdChart from '#components/NdChart';
 import IdpChart from '#components/IdpChart';
@@ -286,6 +286,11 @@ function Country(props: CountryProps) {
         [showSidebar],
     );
 
+    const appliedFiltersCount = mapToList(
+        figuresFilter,
+        (item) => !hasNoData(item),
+    ).filter(Boolean).length;
+
     return (
         <div className={_cs(styles.countries, containerClassName, className)}>
             {sidebarSpaceReserverElement}
@@ -307,7 +312,7 @@ function Country(props: CountryProps) {
                             disabled={showSidebar}
                             icons={<IoFilterOutline />}
                         >
-                            Filters
+                            {appliedFiltersCount > 0 ? `Filters (${appliedFiltersCount})` : 'Filters'}
                         </Button>
                     )}
                 />
@@ -415,7 +420,7 @@ function Country(props: CountryProps) {
                 variant="primary"
                 visibleOn={floatingButtonVisibility}
             >
-                Filters
+                {appliedFiltersCount > 0 ? `Filters (${appliedFiltersCount})` : 'Filters'}
             </FloatingButton>
         </div>
     );

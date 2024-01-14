@@ -1,13 +1,11 @@
-import React, { useMemo, useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext, useState, useEffect } from 'react';
 import {
     gql,
     useQuery,
     useMutation,
 } from '@apollo/client';
 import { getOperationName } from 'apollo-link';
-import {
-    isDefined,
-} from '@togglecorp/fujs';
+import { isDefined, listToMap } from '@togglecorp/fujs';
 import {
     Table,
     TableColumn,
@@ -15,7 +13,13 @@ import {
     TableHeaderCellProps,
     ConfirmButton,
     Pager,
+    Checkbox,
+    CheckboxProps,
+    Button,
 } from '@togglecorp/toggle-ui';
+
+import Mounter from '#components/Mounter';
+import TableMessage from '#components/TableMessage';
 import {
     createLinkColumn,
     createTextColumn,
@@ -25,7 +29,6 @@ import {
     createCustomActionColumn,
 } from '#components/tableHelpers';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
-import Message from '#components/Message';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
@@ -41,8 +44,36 @@ import {
     ExportFiguresMutationVariables,
 } from '#generated/types';
 import route from '#config/routes';
+import useModalState from '#hooks/useModalState';
+import { hasNoData } from '#utils/common';
+
+import UpdateFigureRoleModal from './UpdateFigureRoleModal';
+import styles from './styles.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
+const MAX_SELECT_COUNT = 100;
+
+// NOTE: We are using CustomCheckbox because we cannot pass
+// "name" property on the CellRenderer of the table
+// Instead, we are passing nameKey
+interface CustomCheckboxProps {
+    value: boolean | undefined | null;
+    onChange: (value: boolean | undefined, nameKey: string) => void;
+    nameKey: string
+}
+function CustomCheckbox(props: CustomCheckboxProps) {
+    const {
+        nameKey,
+        ...otherProps
+    } = props;
+
+    return (
+        <Checkbox
+            {...otherProps}
+            name={nameKey}
+        />
+    );
+}
 
 export const FIGURE_LIST = gql`
     query ExtractionFigureList(
@@ -140,12 +171,10 @@ type FigureFields = NonNullable<NonNullable<ExtractionFigureListQuery['figureLis
 
 const keySelector = (item: FigureFields) => item.id;
 
-interface NudeFigureTableProps {
+interface Props {
     className?: string;
     filters?: ExtractionEntryListFiltersQueryVariables;
-
     hiddenColumns?: ('event' | 'crisis' | 'entry' | 'country' | 'createdBy')[];
-
     page: number;
     pageSize: number;
     onPageChange: (value: number) => void;
@@ -153,12 +182,11 @@ interface NudeFigureTableProps {
     pagerPageControlDisabled?: boolean;
 }
 
-function useFigureTable(props: NudeFigureTableProps) {
+function useFigureTable(props: Props) {
     const {
         className,
         filters,
         hiddenColumns = [],
-
         page,
         pageSize,
         onPageChange,
@@ -166,13 +194,25 @@ function useFigureTable(props: NudeFigureTableProps) {
         pagerPageControlDisabled,
     } = props;
 
+    const [mounted, setMounted] = useState(false);
+
+    const [selectedFigures, setSelectedFigures] = useState<string[]>([]);
+    const [mode, setMode] = useState<'SELECT' | 'DESELECT'>('SELECT');
+
+    const [
+        roleUpdatedModal, ,
+        showRoleUpdateModal,
+        hideRoleUpdateModal,
+    ] = useModalState();
     const {
         previousData,
         data: figuresData = previousData,
         loading: loadingFigures,
         refetch: refetchFigures,
+        error: figuresError,
     } = useQuery<ExtractionFigureListQuery, ExtractionFigureListQueryVariables>(FIGURE_LIST, {
         variables: filters,
+        skip: !mounted,
     });
 
     const {
@@ -242,6 +282,24 @@ function useFigureTable(props: NudeFigureTableProps) {
         },
     );
 
+    const figureFilters = filters?.filters;
+
+    useEffect(
+        () => {
+            setSelectedFigures([]);
+            setMode('SELECT');
+        },
+        [figureFilters],
+    );
+
+    const handleRoleUpdateSuccess = useCallback(
+        () => {
+            setSelectedFigures([]);
+            setMode('SELECT');
+        },
+        [],
+    );
+
     const handleFigureDelete = useCallback(
         (id: string) => {
             deleteFigure({
@@ -255,21 +313,98 @@ function useFigureTable(props: NudeFigureTableProps) {
         () => {
             exportFigures({
                 variables: {
-                    filters: filters?.filters ?? {},
+                    filters: figureFilters ?? {},
                 },
             });
         },
-        [exportFigures, filters],
+        [exportFigures, figureFilters],
     );
 
     const { user } = useContext(DomainContext);
-
     const entryPermissions = user?.permissions?.entry;
+
+    const selectedFiguresMapping = useMemo(
+        () => listToMap(
+            selectedFigures,
+            (d) => d,
+            () => true,
+        ),
+        [selectedFigures],
+    );
+
+    const totalFiguresCount = figuresData?.figureList?.totalCount ?? 0;
+
+    const selectedFiguresCount = mode === 'DESELECT'
+        ? totalFiguresCount - selectedFigures.length
+        : selectedFigures.length;
+
+    const disableOtherActions = selectedFiguresCount > 0;
+
+    const headerCheckboxValue = (
+        selectedFiguresCount === totalFiguresCount && totalFiguresCount !== 0
+    );
+    const headerCheckboxIndeterminate = (
+        selectedFiguresCount > 0 && selectedFiguresCount < totalFiguresCount
+    );
+
+    const handleHeaderCheckboxClick = useCallback(() => {
+        if (headerCheckboxValue) {
+            setMode('SELECT');
+        } else {
+            setMode('DESELECT');
+        }
+        setSelectedFigures([]);
+    }, [headerCheckboxValue]);
+
+    const handleCheckboxClick = useCallback((_: boolean | undefined, id: string) => {
+        setSelectedFigures((oldSelectedFigures) => {
+            const index = oldSelectedFigures.findIndex((fig) => fig === id);
+            if (index === -1) {
+                return [...oldSelectedFigures, id];
+            }
+            return oldSelectedFigures.filter((fig) => fig !== id);
+        });
+    }, []);
+
+    const queryBasedFigureList = figuresData?.figureList?.results;
 
     const columns = useMemo(
         () => {
-            // eslint-disable-next-line max-len
-            const symbolColumn: TableColumn<FigureFields, string, SymbolCellProps, TableHeaderCellProps> = {
+            const selectColumn: TableColumn<
+                FigureFields,
+                string,
+                CustomCheckboxProps,
+                CheckboxProps<string>
+            > = {
+                id: 'select',
+                title: '',
+                headerCellRenderer: Checkbox,
+                headerCellRendererParams: {
+                    value: headerCheckboxValue,
+                    onChange: handleHeaderCheckboxClick,
+                    indeterminate: headerCheckboxIndeterminate,
+                },
+                cellRenderer: CustomCheckbox,
+                cellRendererParams: (_, data) => ({
+                    nameKey: data.id,
+                    value: mode === 'SELECT'
+                        ? selectedFiguresMapping[data.id]
+                        : !selectedFiguresMapping[data.id],
+                    onChange: handleCheckboxClick,
+                }),
+                headerContainerClassName: styles.actionCellHeader,
+                cellContainerClassName: styles.actionCell,
+                headerCellRendererClassName: styles.checkbox,
+                cellRendererClassName: styles.checkbox,
+                columnWidth: 48,
+            };
+
+            const symbolColumn: TableColumn<
+                FigureFields,
+                string,
+                SymbolCellProps,
+                TableHeaderCellProps
+            > = {
                 id: 'sources_reliability',
                 title: 'Sources Reliability',
                 headerCellRenderer: TableHeaderCell,
@@ -283,6 +418,9 @@ function useFigureTable(props: NudeFigureTableProps) {
             };
 
             return [
+                entryPermissions?.change
+                    ? selectColumn
+                    : undefined,
                 createDateColumn<FigureFields, string>(
                     'created_at',
                     'Date Created',
@@ -446,6 +584,7 @@ function useFigureTable(props: NudeFigureTableProps) {
                         editLinkAttrs: { entryId: datum.entry.id },
                         editHash: '/figures-and-analysis',
                         editSearch: `id=${datum.id}`,
+                        disabled: disableOtherActions,
                     }),
                     'action',
                     '',
@@ -458,23 +597,51 @@ function useFigureTable(props: NudeFigureTableProps) {
             handleFigureDelete,
             hiddenColumns,
             entryPermissions?.delete,
+            handleHeaderCheckboxClick,
+            handleCheckboxClick,
+            headerCheckboxIndeterminate,
+            headerCheckboxValue,
+            selectedFiguresMapping,
+            mode,
+            disableOtherActions,
+            entryPermissions?.change,
         ],
     );
 
-    const queryBasedFigureList = figuresData?.figureList?.results;
-    const totalFiguresCount = figuresData?.figureList?.totalCount ?? 0;
-
     return {
-        exportButton: (
+        exportButton: !disableOtherActions ? (
             <ConfirmButton
                 confirmationHeader="Confirm Export"
                 confirmationMessage="Are you sure you want to export this table data?"
                 name={undefined}
                 onConfirm={handleExportTableData}
-                disabled={exportingTableData}
+                disabled={exportingTableData || selectedFigures.length > 0}
             >
                 Export
             </ConfirmButton>
+        ) : undefined,
+        bulkActions: selectedFiguresCount > 0 && (
+            <div className={styles.updateRoleSection}>
+                <div>
+                    <span>
+                        {`${selectedFiguresCount} figures selected. `}
+                    </span>
+                    {selectedFiguresCount > MAX_SELECT_COUNT && (
+                        <span>
+                            {`Only ${MAX_SELECT_COUNT} figures can be selected for bulk action.`}
+                        </span>
+                    )}
+                </div>
+                {selectedFiguresCount <= MAX_SELECT_COUNT && (
+                    <Button
+                        name={undefined}
+                        variant="primary"
+                        onClick={showRoleUpdateModal}
+                    >
+                        Update role
+                    </Button>
+                )}
+            </div>
         ),
         pager: (
             <Pager
@@ -488,6 +655,10 @@ function useFigureTable(props: NudeFigureTableProps) {
         ),
         table: (
             <>
+                <Mounter
+                    onChange={setMounted}
+                />
+                {(loadingFigures || deletingFigure) && <Loading absolute />}
                 {totalFiguresCount > 0 && (
                     <Table
                         className={className}
@@ -498,10 +669,24 @@ function useFigureTable(props: NudeFigureTableProps) {
                         fixedColumnWidth
                     />
                 )}
-                {(loadingFigures || deletingFigure) && <Loading absolute />}
-                {!loadingFigures && totalFiguresCount <= 0 && (
-                    <Message
-                        message="No figures found."
+                {!loadingFigures && (
+                    <TableMessage
+                        errored={!!figuresError}
+                        filtered={!hasNoData(filters?.filters)}
+                        totalItems={totalFiguresCount}
+                        emptyMessage="No figures found"
+                        emptyMessageWithFilters="No figures found with applied filters"
+                        errorMessage="Could not fetch figures"
+                    />
+                )}
+                {roleUpdatedModal && (
+                    <UpdateFigureRoleModal
+                        mode={mode}
+                        filters={figureFilters}
+                        selectedFigures={selectedFigures}
+                        totalSelectedFigures={selectedFiguresCount}
+                        onClose={hideRoleUpdateModal}
+                        onSuccess={handleRoleUpdateSuccess}
                     />
                 )}
             </>

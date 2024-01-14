@@ -391,7 +391,7 @@ export function getNumberOfMonths(start: Date, end: Date) {
 
 export function getNumberOfDays(start: Date, end: Date) {
     let numDays = 0;
-    for (let i = new Date(start); i < end; i.setDate(i.getDate() + 1)) {
+    for (let i = new Date(start); i <= end; i.setDate(i.getDate() + 1)) {
         numDays += 1;
     }
 

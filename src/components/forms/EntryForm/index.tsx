@@ -212,6 +212,7 @@ function getValuesFromFigures(figures: (NonNullable<NonNullable<EntryQuery['entr
         if (!figure) {
             return figure;
         }
+
         // FIXME: removeNull will delete 'null' from the list instead of
         // setting it to undefined
         return removeNull({
@@ -295,7 +296,7 @@ function EntryForm(props: EntryFormProps) {
         NonNullable<NonNullable<UpdateFiguresMutation['bulkUpdateFigures']>['result']>[number],
         { id: string },
         { id: string, uuid: string },
-        NonNullable<UpdateFiguresMutationVariables['figures']>[number]
+        Omit<NonNullable<UpdateFiguresMutationVariables['figures']>[number], 'uuid'> & { uuid: string }
     >();
 
     const {
@@ -567,6 +568,7 @@ function EntryForm(props: EntryFormProps) {
                 const key = request.uuid;
                 return { key, value: item, new: !request.id };
             }).filter(isDefined);
+
             const savedFiguresMapping = listToMap(
                 savedFigures,
                 (item) => item.key,

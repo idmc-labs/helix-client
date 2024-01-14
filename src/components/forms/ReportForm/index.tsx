@@ -618,8 +618,7 @@ function ReportForm(props: ReportFormProps) {
                 onChange={onValueChange}
                 value={value.isGiddReport}
                 name="isGiddReport"
-                // FIXME: add error prop on Switch
-                // error={error?.fields?.isConfidential}
+                error={error?.fields?.isGiddReport}
                 disabled={disabled}
             />
             {value.isGiddReport ? (

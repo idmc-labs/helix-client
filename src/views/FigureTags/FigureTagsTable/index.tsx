@@ -12,22 +12,19 @@ import {
     Button,
     SortContext,
 } from '@togglecorp/toggle-ui';
+
+import TableMessage from '#components/TableMessage';
 import { PurgeNull } from '#types';
 import {
     createTextColumn,
     createActionColumn,
     createDateColumn,
 } from '#components/tableHelpers';
-
-import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
-
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
-
 import useModalState from '#hooks/useModalState';
-
 import {
     FigureTagListQuery,
     FigureTagListQueryVariables,
@@ -35,6 +32,7 @@ import {
     DeleteFigureTagMutationVariables,
 } from '#generated/types';
 import useFilterState from '#hooks/useFilterState';
+import { hasNoData } from '#utils/common';
 
 import FigureTagForm from './FigureTagForm';
 import TagsFilter from '../TagsFilter';
@@ -149,6 +147,7 @@ function FigureTagsTable(props: FigureTagsProps) {
         data: figureTagsData = previousData,
         loading: loadingFigureTags,
         refetch: refetchFigureTags,
+        error: figureTagsError,
     } = useQuery<FigureTagListQuery, FigureTagListQueryVariables>(FIGURE_TAG_LIST, {
         variables,
     });
@@ -276,6 +275,7 @@ function FigureTagsTable(props: FigureTagsProps) {
                 />
             )}
         >
+            {(loadingFigureTags || deletingFigureTag) && <Loading absolute />}
             {totalFigureTagsCount > 0 && (
                 <SortContext.Provider value={sortState}>
                     <Table
@@ -288,10 +288,14 @@ function FigureTagsTable(props: FigureTagsProps) {
                     />
                 </SortContext.Provider>
             )}
-            {(loadingFigureTags || deletingFigureTag) && <Loading absolute />}
-            {!loadingFigureTags && totalFigureTagsCount <= 0 && (
-                <Message
-                    message="No tag found."
+            {!loadingFigureTags && (
+                <TableMessage
+                    errored={!!figureTagsError}
+                    filtered={!hasNoData(filter)}
+                    totalItems={totalFigureTagsCount}
+                    emptyMessage="No tags found"
+                    emptyMessageWithFilters="No tags found with applied filters"
+                    errorMessage="Could not fetch tags"
                 />
             )}
             {shouldShowAddFigureTagModal && (

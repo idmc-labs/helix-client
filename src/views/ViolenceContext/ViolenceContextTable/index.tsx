@@ -11,22 +11,19 @@ import {
     Button,
     SortContext,
 } from '@togglecorp/toggle-ui';
+
+import TableMessage from '#components/TableMessage';
 import { PurgeNull } from '#types';
 import {
     createTextColumn,
     createActionColumn,
     createDateColumn,
 } from '#components/tableHelpers';
-
-import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
-
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
-
 import useModalState from '#hooks/useModalState';
-
 import useFilterState from '#hooks/useFilterState';
 import {
     ContextOfViolenceListQuery,
@@ -34,6 +31,7 @@ import {
     DeleteContextOfViolenceMutation,
     DeleteContextOfViolenceMutationVariables,
 } from '#generated/types';
+import { hasNoData } from '#utils/common';
 
 import ViolenceContextForm from './ViolenceContextForm';
 import ViolenceContextFilter from '../ViolenceContextFilter';
@@ -132,6 +130,7 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
         data: violenceContextData = previousData,
         loading: loadingViolenceContext,
         refetch: refetchViolenceContext,
+        error: totalViolenceContextError,
     } = useQuery<ContextOfViolenceListQuery, ContextOfViolenceListQueryVariables>(
         CONTEXT_OF_VIOLENCE_LIST,
         {
@@ -260,6 +259,7 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
                 />
             )}
         >
+            {(loadingViolenceContext || deletingViolenceContext) && <Loading absolute />}
             {totalViolenceContextCount > 0 && (
                 <SortContext.Provider value={sortState}>
                     <Table
@@ -272,10 +272,14 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
                     />
                 </SortContext.Provider>
             )}
-            {(loadingViolenceContext || deletingViolenceContext) && <Loading absolute />}
-            {!loadingViolenceContext && totalViolenceContextCount <= 0 && (
-                <Message
-                    message="No Context of Violence found."
+            {!loadingViolenceContext && (
+                <TableMessage
+                    errored={!!totalViolenceContextError}
+                    filtered={!hasNoData(filter)}
+                    totalItems={totalViolenceContextCount}
+                    emptyMessage="No context of violences found"
+                    emptyMessageWithFilters="No context of violences found with applied filters"
+                    errorMessage="Could not fetch context of violences"
                 />
             )}
             {shouldShowViolenceContextModal && (

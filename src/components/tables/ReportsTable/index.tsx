@@ -16,6 +16,7 @@ import {
 } from '@togglecorp/toggle-ui';
 import { getOperationName } from 'apollo-link';
 
+import TableMessage from '#components/TableMessage';
 import {
     createTextColumn,
     createStatusColumn,
@@ -24,13 +25,11 @@ import {
     createNumberColumn,
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
-
 import useFilterState from '#hooks/useFilterState';
-import { expandObject } from '#utils/common';
+import { expandObject, hasNoData } from '#utils/common';
 import useModalState from '#hooks/useModalState';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
-import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
@@ -203,6 +202,7 @@ function ReportsTable(props: ReportsProps) {
         data: reportsData = previousData,
         loading: loadingReports,
         refetch: refetchReports,
+        error: reportsError,
     } = useQuery<ReportsQuery, ReportsQueryVariables>(REPORT_LIST, {
         variables: reportsVariables,
     });
@@ -446,6 +446,7 @@ function ReportsTable(props: ReportsProps) {
                 />
             )}
         >
+            {(loadingReports || deletingReport) && <Loading absolute />}
             {totalReportsCount > 0 && (
                 <SortContext.Provider value={sortState}>
                     <Table
@@ -458,10 +459,14 @@ function ReportsTable(props: ReportsProps) {
                     />
                 </SortContext.Provider>
             )}
-            {(loadingReports || deletingReport) && <Loading absolute />}
-            {!loadingReports && totalReportsCount <= 0 && (
-                <Message
-                    message="No reports found."
+            {!loadingReports && (
+                <TableMessage
+                    errored={!!reportsError}
+                    filtered={!hasNoData(filter)}
+                    totalItems={totalReportsCount}
+                    emptyMessage="No reports found"
+                    emptyMessageWithFilters="No reports found with applied filters"
+                    errorMessage="Could not fetch reports"
                 />
             )}
             {shouldShowAddReportModal && (

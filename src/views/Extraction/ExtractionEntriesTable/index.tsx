@@ -112,6 +112,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
     const {
         table: figuresTable,
         exportButton: figuresExportButton,
+        bulkActions: figuresBulkActions,
         pager: figuresPager,
     } = useFigureTable({
         filters: figuresVariables,
@@ -154,7 +155,12 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                 footerContent={(
                     <>
                         {selectedTab === 'Entries' && entriesPager}
-                        {selectedTab === 'Figures' && figuresPager}
+                        {selectedTab === 'Figures' && (
+                            <>
+                                {figuresPager}
+                                {figuresBulkActions}
+                            </>
+                        )}
                     </>
                 )}
             >

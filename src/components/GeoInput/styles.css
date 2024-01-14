@@ -11,6 +11,7 @@
     display: flex;
     position: relative;
     gap: var(--spacing-medium);
+    height: 30em;
 
     .container {
         display: flex;
@@ -25,20 +26,24 @@
             right: var(--spacing-small);
             align-items: flex-end;
             flex-direction: column;
-            opacity: 0.5;
             z-index: 1;
             gap: var(--spacing-small);
+
+            .button {
+                opacity: 0.5;
+            }
         }
 
         &:hover {
             .floating {
-                opacity: 1;
+                .button {
+                    opacity: 1;
+                }
             }
         }
 
         .map-container {
             flex-grow: 1;
-            min-height: 26rem;
         }
     }
 

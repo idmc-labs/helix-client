@@ -52,6 +52,7 @@ import {
 } from 'react-icons/io5';
 
 import useOptions from '#hooks/useOptions';
+import Message from '#components/Message';
 import { EVENT_FRAGMENT } from '#components/forms/EntryForm/queries';
 import Status from '#components/tableHelpers/Status';
 import OrganizationMultiSelectInput from '#components/selections/OrganizationMultiSelectInput';
@@ -412,12 +413,11 @@ function FigureInput(props: FigureInputProps) {
     const {
         notify,
         notifyGQLError,
+
     } = useContext(NotificationContext);
     const { user } = useContext(DomainContext);
 
     const [, setViolenceContextOptions] = useOptions('contextOfViolence');
-
-    const figurePermission = user?.permissions?.figure;
 
     const elementRef = useRef<HTMLDivElement>(null);
 
@@ -1123,6 +1123,8 @@ function FigureInput(props: FigureInputProps) {
         [reRequestReviewFigure],
     );
 
+    const figurePermission = user?.permissions?.figure;
+
     const sectionActions = (
         <>
             {editMode && (
@@ -1209,8 +1211,6 @@ function FigureInput(props: FigureInputProps) {
         </>
     );
 
-    const figureAlreadySavedOnce = !!value.id;
-
     return (
         <CollapsibleContent
             elementRef={elementRef}
@@ -1275,7 +1275,7 @@ function FigureInput(props: FigureInputProps) {
                         value={value.event}
                         onChange={handleEventChange}
                         disabled={disabled || figureOptionsDisabled}
-                        readOnly={!editMode || !!value.country || figureAlreadySavedOnce}
+                        readOnly={!editMode || !!value.country}
                         actions={(
                             <>
                                 {value.event && (
@@ -1304,7 +1304,6 @@ function FigureInput(props: FigureInputProps) {
                                     user?.permissions?.event?.add
                                     && editMode
                                     && !value.country
-                                    && !figureAlreadySavedOnce
                                 ) && (
                                     <Button
                                         name={undefined}
@@ -1312,7 +1311,7 @@ function FigureInput(props: FigureInputProps) {
                                         disabled={disabled}
                                         compact
                                         transparent
-                                        label="Add Event"
+                                        title="Add Event"
                                     >
                                         <IoAddOutline />
                                     </Button>
@@ -1337,12 +1336,18 @@ function FigureInput(props: FigureInputProps) {
                     </Modal>
                 )}
                 {value.event && eventDetailsShown && (
-                    <EventForm
-                        id={value.event}
-                        disabled={disabled}
-                        readOnly
-                        eventHiddenWhileReadonly
-                    />
+                    <Section
+                        heading="Event"
+                        subSection
+                        bordered
+                    >
+                        <EventForm
+                            id={value.event}
+                            disabled={disabled}
+                            readOnly
+                            eventHiddenWhileReadonly
+                        />
+                    </Section>
                 )}
                 <Row>
                     <SelectInput
@@ -1469,6 +1474,7 @@ function FigureInput(props: FigureInputProps) {
                 <Section
                     contentClassName={styles.block}
                     subSection
+                    bordered
                     heading="Geospatial"
                     headerClassName={_cs(geospatialErrored && styles.errored)}
                 >
@@ -1807,18 +1813,15 @@ function FigureInput(props: FigureInputProps) {
                         />
                     )}
                     {isHousingTerm(currentTerm) && (
-                        <div className={styles.housingDestroyedContainer}>
-                            <Switch
-                                label="Housing destruction (recommended estimate for this entry)"
-                                name="isHousingDestruction"
-                                value={value.isHousingDestruction}
-                                onChange={onValueChange}
-                                // FIXME: add error prop on Switch
-                                // error={error?.fields?.isHousingDestruction}
-                                disabled={disabled || eventNotChosen}
-                                readOnly={!editMode}
-                            />
-                        </div>
+                        <Switch
+                            label="Housing destruction (recommended estimate for this entry)"
+                            name="isHousingDestruction"
+                            value={value.isHousingDestruction}
+                            onChange={onValueChange}
+                            error={error?.fields?.isHousingDestruction}
+                            disabled={disabled || eventNotChosen}
+                            readOnly={!editMode}
+                        />
                     )}
                     <FigureTagMultiSelectInput
                         name="tags"
@@ -1898,8 +1901,7 @@ function FigureInput(props: FigureInputProps) {
                         name="isDisaggregated"
                         value={value.isDisaggregated}
                         onChange={onValueChange}
-                        // FIXME: add error prop on Switch
-                        // error={error?.fields?.isDisaggregated}
+                        error={error?.fields?.isDisaggregated}
                         disabled={disabled || eventNotChosen}
                         readOnly={!editMode}
                     />
@@ -1969,6 +1971,7 @@ function FigureInput(props: FigureInputProps) {
                         <Section
                             contentClassName={styles.block}
                             subSection
+                            bordered
                             heading="Age & Gender"
                             actions={editMode && (
                                 <Button
@@ -1994,9 +1997,9 @@ function FigureInput(props: FigureInputProps) {
                                 </NonFieldWarning>
                             )}
                             {value.disaggregationAge?.length === 0 ? (
-                                <div className={styles.emptyMessage}>
-                                    No disaggregation by age & gender.
-                                </div>
+                                <Message
+                                    message="No disaggregation by age & gender found."
+                                />
                             ) : value.disaggregationAge?.map((age, i) => (
                                 <AgeInput
                                     key={age.uuid}
@@ -2042,7 +2045,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.includeIdu}
                     onChange={onValueChange}
                     disabled={disabled || eventNotChosen}
-                    // FIXME: add error prop on Switch
+                    error={error?.fields?.includeIdu}
                     readOnly={!editMode}
                 />
                 {value.includeIdu && (
