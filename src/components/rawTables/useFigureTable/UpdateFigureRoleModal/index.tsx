@@ -162,7 +162,7 @@ function UpdateFigureRoleModal(props: Props) {
                 className={_cs(className, styles.modal)}
                 heading={(
                     <Heading size="large">
-                        {`Change roles for ${totalSelectedFigures} figure(s)`}
+                        {`Change roles for ${totalSelectedFigures} figures`}
                     </Heading>
                 )}
                 onClose={onClose}

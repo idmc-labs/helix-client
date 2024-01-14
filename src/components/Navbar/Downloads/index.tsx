@@ -31,8 +31,7 @@ export const DOWNLOADS_COUNT = gql`
             totalCount
         }
         bulkApiOperations(
-            # FIXME: Add status filter here
-            filters: {},
+            filters: { statusList: [PENDING, IN_PROGRESS] },
         ) {
             totalCount
         }
@@ -112,10 +111,16 @@ function Downloads(props: Props) {
                             Bulk Actions
                         </Tab>
                     </TabList>
-                    <TabPanel name="Exports">
+                    <TabPanel
+                        className={styles.panel}
+                        name="Exports"
+                    >
                         <ExportDownloadSection />
                     </TabPanel>
-                    <TabPanel name="BulkActions">
+                    <TabPanel
+                        className={styles.panel}
+                        name="BulkActions"
+                    >
                         <BulkActionSection />
                     </TabPanel>
                 </Tabs>

@@ -28,6 +28,8 @@ const BULK_OPERATIONS = gql`
                 statusDisplay
                 action
                 actionDisplay
+                startedAt
+                completedAt
                 createdAt
                 failureCount
                 successCount
@@ -42,8 +44,7 @@ const BULK_OPERATIONS = gql`
             pageSize
         }
         remainingBulkApiOperations: bulkApiOperations(
-            # FIXME: Add status filter here
-            filters: {},
+            filters: { statusList: [PENDING, IN_PROGRESS] },
         ) {
             totalCount
         }
@@ -88,9 +89,10 @@ function BulkActionSection() {
                 <BulkActionItem
                     key={item.id}
                     // FIXME: Add totalCount, startedAt and completedAt
+                    id={item.id}
                     createdDate={item.createdAt}
-                    startedDate={item.createdAt}
-                    completedDate={item.createdAt}
+                    startedDate={item.startedAt}
+                    completedDate={item.completedAt}
                     status={item.status}
                     type={item.action}
                     payload={item.payload}
@@ -100,7 +102,7 @@ function BulkActionSection() {
             ))}
             {!loading && totalFiguresCount <= 0 && (
                 <Message
-                    message="No exports found."
+                    message="No bulk actions found."
                 />
             )}
             <Pager

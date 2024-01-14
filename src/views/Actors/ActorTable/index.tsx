@@ -366,7 +366,7 @@ function ActorTable(props: ActorProps) {
                     />
                 </SortContext.Provider>
             )}
-            {!loadingActors && (
+            {!actorsLoading && (
                 <TableMessage
                     errored={!!actorsError}
                     filtered={!hasNoData(filter)}

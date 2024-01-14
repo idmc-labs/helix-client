@@ -5,7 +5,7 @@ import styles from './styles.css';
 
 interface LoadingProps {
     className?: string;
-    message?: string;
+    message?: string | null;
     delay?: number;
     absolute?: boolean;
 }
@@ -48,9 +48,11 @@ function Loading(props: LoadingProps) {
                         <div className={styles.particle} />
                         <div className={styles.particle} />
                     </div>
-                    <div className={styles.message}>
-                        {message}
-                    </div>
+                    {message && (
+                        <div className={styles.message}>
+                            {message}
+                        </div>
+                    )}
                 </>
             )}
         </div>

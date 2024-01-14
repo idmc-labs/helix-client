@@ -604,6 +604,7 @@ function useFigureTable(props: Props) {
             selectedFiguresMapping,
             mode,
             disableOtherActions,
+            entryPermissions?.change,
         ],
     );
 
@@ -623,11 +624,11 @@ function useFigureTable(props: Props) {
             <div className={styles.updateRoleSection}>
                 <div>
                     <span>
-                        {`${selectedFiguresCount} figure(s) selected.`}
+                        {`${selectedFiguresCount} figures selected. `}
                     </span>
                     {selectedFiguresCount > MAX_SELECT_COUNT && (
                         <span>
-                            {` Only ${MAX_SELECT_COUNT} figures can updated at once.`}
+                            {`Only ${MAX_SELECT_COUNT} figures can be selected for bulk action.`}
                         </span>
                     )}
                 </div>

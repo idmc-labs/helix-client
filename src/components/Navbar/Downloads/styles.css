@@ -10,21 +10,25 @@
 
 .popup {
     width: 360px;
-    min-height: 360px;
-}
 
-.popup-content {
-    display: flex;
-    position: relative;
-}
+    .popup-content {
+        display: flex;
+        flex-direction: column;
+        min-height: 360px;
 
-.tab-list {
-    display: flex;
-    flex-shrink: 0;
+        .tab-list {
+            display: flex;
+            flex-shrink: 0;
 
-    >* {
-        flex-basis: 0;
-        flex-grow: 1;
+            >* {
+                flex-basis: 0;
+                flex-grow: 1;
+            }
+        }
+
+        .panel {
+            position: relative;
+            flex-grow: 1;
+        }
     }
-
 }

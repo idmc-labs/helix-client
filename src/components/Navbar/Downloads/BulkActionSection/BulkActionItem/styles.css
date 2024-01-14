@@ -6,6 +6,14 @@
     .actions {
         display: flex;
         gap: var(--spacing-small);
+
+        .details-button {
+            padding: 0;
+
+            .details-button-children {
+                padding: 0;
+            }
+        }
     }
 
     .status {

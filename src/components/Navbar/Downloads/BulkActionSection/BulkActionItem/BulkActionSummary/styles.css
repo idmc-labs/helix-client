@@ -1,0 +1,28 @@
+.bulk-action-summary {
+    display: grid;
+    position: relative;
+    grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr));
+    gap: var(--spacing-extra-small);
+    min-height: 2rem;
+
+    .item {
+        display: flex;
+        gap: var(--spacing-extra-small);
+        align-items: center;
+        font-size: var(--font-size-small);
+
+        .success-icon {
+            flex-shrink: 0;
+            color: var(--color-success);
+        }
+
+        .failure-icon {
+            flex-shrink: 0;
+            color: var(--color-failure);
+        }
+
+        .title {
+            flex-grow: 1;
+        }
+    }
+}
