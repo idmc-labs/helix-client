@@ -16,27 +16,27 @@ import {
     SortContext,
     ConfirmButton,
 } from '@togglecorp/toggle-ui';
+
+import TableMessage from '#components/TableMessage';
 import {
     createTextColumn,
     createExternalLinkColumn,
     createDateColumn,
     createNumberColumn,
 } from '#components/tableHelpers';
-import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 import NotificationContext from '#components/NotificationContext';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import useFilterState from '#hooks/useFilterState';
-
 import { PurgeNull } from '#types';
-
 import {
     ClientTrackInformationListQuery,
     ClientTrackInformationListQueryVariables,
     ExportTrackingDataMutation,
     ExportTrackingDataMutationVariables,
 } from '#generated/types';
+import { hasNoData } from '#utils/common';
 
 import ApiRecordsFilter from './ApiRecordsFilters';
 import styles from './styles.css';
@@ -158,8 +158,9 @@ function ApiRecordsTable(props: ApiRecordProps) {
 
     const {
         previousData,
-        data: ApiData = previousData,
+        data: apiData = previousData,
         loading: loadingApiData,
+        error: apiError,
     } = useQuery<ClientTrackInformationListQuery,
         ClientTrackInformationListQueryVariables>(CLIENT_TRACK_INFORMATION_LIST, {
             variables: apiVariables,
@@ -210,8 +211,8 @@ function ApiRecordsTable(props: ApiRecordProps) {
         ],
     );
 
-    const totalApiCount = ApiData?.clientTrackInformationList?.totalCount ?? 0;
-    const apiRecords = ApiData?.clientTrackInformationList?.results;
+    const totalApiCount = apiData?.clientTrackInformationList?.totalCount ?? 0;
+    const apiRecords = apiData?.clientTrackInformationList?.results;
 
     const columns = useMemo(
         () => ([
@@ -305,6 +306,7 @@ function ApiRecordsTable(props: ApiRecordProps) {
                 />
             )}
         >
+            {loadingApiData && <Loading absolute />}
             <SortContext.Provider value={sortState}>
                 {totalApiCount > 0 && (
                     <Table
@@ -316,10 +318,14 @@ function ApiRecordsTable(props: ApiRecordProps) {
                     />
                 )}
             </SortContext.Provider>
-            {loadingApiData && <Loading absolute />}
-            {!loadingApiData && totalApiCount <= 0 && (
-                <Message
-                    message="No logs found."
+            {!loadingApiData && (
+                <TableMessage
+                    errored={!!apiError}
+                    filtered={!hasNoData(filter)}
+                    totalItems={totalApiCount}
+                    emptyMessage="No logs found"
+                    emptyMessageWithFilters="No logs found with applied filters"
+                    errorMessage="Could not fetch logs"
                 />
             )}
         </Container>

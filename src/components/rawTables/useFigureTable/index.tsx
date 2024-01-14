@@ -19,6 +19,7 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import Mounter from '#components/Mounter';
+import TableMessage from '#components/TableMessage';
 import {
     createLinkColumn,
     createTextColumn,
@@ -28,7 +29,6 @@ import {
     createCustomActionColumn,
 } from '#components/tableHelpers';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
-import Message from '#components/Message';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
@@ -45,6 +45,7 @@ import {
 } from '#generated/types';
 import route from '#config/routes';
 import useModalState from '#hooks/useModalState';
+import { hasNoData } from '#utils/common';
 
 import UpdateFigureRoleModal from './UpdateFigureRoleModal';
 import styles from './styles.css';
@@ -208,6 +209,7 @@ function useFigureTable(props: Props) {
         data: figuresData = previousData,
         loading: loadingFigures,
         refetch: refetchFigures,
+        error: figuresError,
     } = useQuery<ExtractionFigureListQuery, ExtractionFigureListQueryVariables>(FIGURE_LIST, {
         variables: filters,
         skip: !mounted,
@@ -377,7 +379,6 @@ function useFigureTable(props: Props) {
                 id: 'select',
                 title: '',
                 headerCellRenderer: Checkbox,
-                headerCellRendererClassName: styles.checkbox,
                 headerCellRendererParams: {
                     value: headerCheckboxValue,
                     onChange: handleHeaderCheckboxClick,
@@ -391,6 +392,9 @@ function useFigureTable(props: Props) {
                         : !selectedFiguresMapping[data.id],
                     onChange: handleCheckboxClick,
                 }),
+                headerContainerClassName: styles.actionCellHeader,
+                cellContainerClassName: styles.actionCell,
+                headerCellRendererClassName: styles.checkbox,
                 cellRendererClassName: styles.checkbox,
                 columnWidth: 48,
             };
@@ -414,7 +418,9 @@ function useFigureTable(props: Props) {
             };
 
             return [
-                selectColumn,
+                entryPermissions?.change
+                    ? selectColumn
+                    : undefined,
                 createDateColumn<FigureFields, string>(
                     'created_at',
                     'Date Created',
@@ -615,12 +621,16 @@ function useFigureTable(props: Props) {
         ) : undefined,
         bulkActions: selectedFiguresCount > 0 && (
             <div className={styles.updateRoleSection}>
-                <span>
-                    {`${selectedFiguresCount} figure(s) selected.`}
+                <div>
+                    <span>
+                        {`${selectedFiguresCount} figure(s) selected.`}
+                    </span>
                     {selectedFiguresCount > MAX_SELECT_COUNT && (
-                        `Only ${MAX_SELECT_COUNT} figures can be selected.`
+                        <span>
+                            {` Only ${MAX_SELECT_COUNT} figures can updated at once.`}
+                        </span>
                     )}
-                </span>
+                </div>
                 {selectedFiguresCount <= MAX_SELECT_COUNT && (
                     <Button
                         name={undefined}
@@ -647,6 +657,7 @@ function useFigureTable(props: Props) {
                 <Mounter
                     onChange={setMounted}
                 />
+                {(loadingFigures || deletingFigure) && <Loading absolute />}
                 {totalFiguresCount > 0 && (
                     <Table
                         className={className}
@@ -657,10 +668,14 @@ function useFigureTable(props: Props) {
                         fixedColumnWidth
                     />
                 )}
-                {(loadingFigures || deletingFigure) && <Loading absolute />}
-                {!loadingFigures && totalFiguresCount <= 0 && (
-                    <Message
-                        message="No figures found."
+                {!loadingFigures && (
+                    <TableMessage
+                        errored={!!figuresError}
+                        filtered={!hasNoData(filters?.filters)}
+                        totalItems={totalFiguresCount}
+                        emptyMessage="No figures found"
+                        emptyMessageWithFilters="No figures found with applied filters"
+                        errorMessage="Could not fetch figures"
                     />
                 )}
                 {roleUpdatedModal && (

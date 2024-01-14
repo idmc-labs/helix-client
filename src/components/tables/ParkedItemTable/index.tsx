@@ -12,6 +12,8 @@ import {
     Button,
     SortContext,
 } from '@togglecorp/toggle-ui';
+
+import TableMessage from '#components/TableMessage';
 import { PurgeNull } from '#types';
 import {
     createTextColumn,
@@ -19,9 +21,7 @@ import {
     createDateColumn,
     createCustomActionColumn,
 } from '#components/tableHelpers';
-
-import { expandObject } from '#utils/common';
-import Message from '#components/Message';
+import { expandObject, hasNoData } from '#utils/common';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 import ActionCell, { ActionProps } from './Action';
@@ -182,6 +182,7 @@ function ParkedItemTable(props: ParkedItemProps) {
         data: parkedItemData = previousData,
         loading: loadingParkedItem,
         refetch: refetchParkedItem,
+        error: parkedItemError,
     } = useQuery<ParkedItemListQuery, ParkedItemListQueryVariables>(PARKING_LOT_LIST, {
         variables,
     });
@@ -358,6 +359,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                 />
             )}
         >
+            {(loadingParkedItem || deletingParkedItem) && <Loading absolute />}
             {totalParkedItemCount > 0 && (
                 <SortContext.Provider value={sortState}>
                     <Table
@@ -370,10 +372,14 @@ function ParkedItemTable(props: ParkedItemProps) {
                     />
                 </SortContext.Provider>
             )}
-            {(loadingParkedItem || deletingParkedItem) && <Loading absolute />}
-            {!loadingParkedItem && totalParkedItemCount <= 0 && (
-                <Message
-                    message="No parked items found."
+            {!loadingParkedItem && (
+                <TableMessage
+                    errored={!!parkedItemError}
+                    filtered={!hasNoData(filter)}
+                    totalItems={totalParkedItemCount}
+                    emptyMessage="No parked items found"
+                    emptyMessageWithFilters="No parked items found with applied filters"
+                    errorMessage="Could not fetch parked items"
                 />
             )}
             {shouldShowAddParkedItemModal && (

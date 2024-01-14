@@ -17,11 +17,11 @@ import {
     createYesNoColumn,
 } from '@togglecorp/toggle-ui';
 
+import TableMessage from '#components/TableMessage';
 import {
     createTextColumn,
     createActionColumn,
 } from '#components/tableHelpers';
-import Message from '#components/Message';
 import Loading from '#components/Loading';
 import useModalState from '#hooks/useModalState';
 import Container from '#components/Container';
@@ -29,6 +29,7 @@ import DomainContext from '#components/DomainContext';
 import ClientRecordForm from '#components/forms/ClientRecordForm';
 import useFilterState from '#hooks/useFilterState';
 import { PurgeNull } from '#types';
+import { hasNoData } from '#utils/common';
 
 import ClientRecordsFilter from './ClientRecordsFilters';
 
@@ -144,6 +145,7 @@ function ClientRecordsTable(props: ClientRecordProps) {
         data: clientListData = previousData,
         loading: loadingClientData,
         refetch: refetchClientRecords,
+        error: clientError,
     } = useQuery<ClientListQuery, ClientListQueryVariables>(CLIENT_LIST, {
         variables: clientVariables,
     });
@@ -246,6 +248,7 @@ function ClientRecordsTable(props: ClientRecordProps) {
                 />
             )}
         >
+            {loadingClientData && <Loading absolute />}
             <SortContext.Provider value={sortState}>
                 {totalClientCount > 0 && (
                     <Table
@@ -258,10 +261,14 @@ function ClientRecordsTable(props: ClientRecordProps) {
                     />
                 )}
             </SortContext.Provider>
-            {loadingClientData && <Loading absolute />}
-            {!loadingClientData && totalClientCount <= 0 && (
-                <Message
-                    message="No clients found."
+            {!loadingClientData && (
+                <TableMessage
+                    errored={!!clientError}
+                    filtered={!hasNoData(filter)}
+                    totalItems={totalClientCount}
+                    emptyMessage="No clients found"
+                    emptyMessageWithFilters="No clients found with applied filters"
+                    errorMessage="Could not fetch clients"
                 />
             )}
             {shouldShowClientAddModal && (

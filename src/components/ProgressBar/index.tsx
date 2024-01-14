@@ -51,7 +51,10 @@ function ProgressBar(props: ProgressBarProps) {
                 description={(
                     <div className={styles.items}>
                         {data.map((datum) => (
-                            <div className={styles.item}>
+                            <div
+                                className={styles.item}
+                                key={datum.title}
+                            >
                                 <IoSquare
                                     className={styles.icon}
                                     style={{ color: datum.color ?? 'transparent' }}

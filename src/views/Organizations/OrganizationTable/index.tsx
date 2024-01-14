@@ -11,23 +11,20 @@ import {
 } from '@togglecorp/toggle-ui';
 import { getOperationName } from 'apollo-link';
 
+import TableMessage from '#components/TableMessage';
 import { PurgeNull } from '#types';
 import {
     createTextColumn,
     createActionColumn,
     createDateColumn,
 } from '#components/tableHelpers';
-
-import Message from '#components/Message';
 import Container from '#components/Container';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 import DomainContext from '#components/DomainContext';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
-
 import useModalState from '#hooks/useModalState';
 import useFilterState from '#hooks/useFilterState';
-
 import {
     OrganizationsListQuery,
     OrganizationsListQueryVariables,
@@ -36,8 +33,9 @@ import {
     ExportOrganizationsMutation,
     ExportOrganizationsMutationVariables,
 } from '#generated/types';
-
 import OrganizationForm from '#components/forms/OrganizationForm';
+import { hasNoData } from '#utils/common';
+
 import OrganizationFilter from './OrganizationFilter/index';
 import styles from './styles.css';
 
@@ -176,6 +174,7 @@ function OrganizationTable(props: OrganizationProps) {
         data: organizations = previousData,
         loading: organizationsLoading,
         refetch: refetchOrganizationList,
+        error: organizationsError,
     } = useQuery<OrganizationsListQuery>(
         GET_ORGANIZATIONS_LIST,
         { variables: organizationVariables },
@@ -377,6 +376,7 @@ function OrganizationTable(props: OrganizationProps) {
                 />
             )}
         >
+            {loading && <Loading absolute />}
             {totalOrganizationsCount > 0 && (
                 <SortContext.Provider value={sortState}>
                     <Table
@@ -389,10 +389,14 @@ function OrganizationTable(props: OrganizationProps) {
                     />
                 </SortContext.Provider>
             )}
-            {loading && <Loading absolute />}
-            {!organizationsLoading && totalOrganizationsCount <= 0 && (
-                <Message
-                    message="No organizations found."
+            {!organizationsLoading && (
+                <TableMessage
+                    errored={!!organizationsError}
+                    filtered={!hasNoData(filter)}
+                    totalItems={totalOrganizationsCount}
+                    emptyMessage="No organizations found"
+                    emptyMessageWithFilters="No organizations found with applied filters"
+                    errorMessage="Could not fetch organizations"
                 />
             )}
             {shouldShowAddOrganizationModal && (

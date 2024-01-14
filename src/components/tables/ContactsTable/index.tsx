@@ -12,6 +12,8 @@ import {
     ConfirmButton,
     useTableRowExpansion,
 } from '@togglecorp/toggle-ui';
+
+import TableMessage from '#components/TableMessage';
 import { PurgeNull } from '#types';
 import {
     createTextColumn,
@@ -19,9 +21,7 @@ import {
     createDateColumn,
     createNumberColumn,
 } from '#components/tableHelpers';
-
-import { expandObject } from '#utils/common';
-import Message from '#components/Message';
+import { expandObject, hasNoData } from '#utils/common';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
 import DomainContext from '#components/DomainContext';
@@ -203,6 +203,7 @@ function ContactsTable(props: ContactsTableProps) {
         data: contacts = previousData,
         loading: contactsLoading,
         refetch: refetchContact,
+        error: contactsError,
     } = useQuery<ContactListQuery>(GET_CONTACTS_LIST, {
         variables: contactsVariables,
     });
@@ -408,6 +409,7 @@ function ContactsTable(props: ContactsTableProps) {
                 />
             )}
         >
+            {loadingContacts && <Loading absolute />}
             {totalContactsCount > 0 && (
                 <SortContext.Provider value={sortState}>
                     <Table
@@ -421,10 +423,14 @@ function ContactsTable(props: ContactsTableProps) {
                     />
                 </SortContext.Provider>
             )}
-            {loadingContacts && <Loading absolute />}
-            {!loadingContacts && totalContactsCount <= 0 && (
-                <Message
-                    message="No contacts found."
+            {!loadingContacts && (
+                <TableMessage
+                    errored={!!contactsError}
+                    filtered={!hasNoData(filter)}
+                    totalItems={totalContactsCount}
+                    emptyMessage="No contacts found"
+                    emptyMessageWithFilters="No contacts found with applied filters"
+                    errorMessage="Could not fetch contacts"
                 />
             )}
             {shouldShowAddContactModal && (

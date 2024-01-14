@@ -16,6 +16,7 @@ import {
     Table,
 } from '@togglecorp/toggle-ui';
 
+import TableMessage from '#components/TableMessage';
 import useFilterState from '#hooks/useFilterState';
 import {
     NotificationsQuery,
@@ -36,9 +37,9 @@ import BasicItem from '#components/BasicItem';
 import NotificationContext from '#components/NotificationContext';
 import DomainContext from '#components/DomainContext';
 import Loading from '#components/Loading';
-import Message from '#components/Message';
 import PageHeader from '#components/PageHeader';
 import Container from '#components/Container';
+import { hasNoData } from '#utils/common';
 
 import NotificationContent, { Props as NotificationContentProps } from './NotificationContent';
 import ActionCell, { ActionProps } from './Action';
@@ -281,6 +282,7 @@ function Notifications(props: NotificationsProps) {
         previousData: previousNotificationCounts,
         data: notificationCountsData = previousNotificationCounts,
         refetch: refetchNotificationCounts,
+        error: notificationsError,
     } = useQuery<NotificationCountsQuery, NotificationCountsQueryVariables>(NOTIFICATION_COUNTS, {
         skip: !notificationCountsVariables,
         variables: notificationCountsVariables,
@@ -539,16 +541,21 @@ function Notifications(props: NotificationsProps) {
                         />
                     )}
                 >
+                    {loading && <Loading absolute />}
                     <Table
                         data={notifications}
                         keySelector={keySelector}
                         columns={notificationListColumn}
                         headersHidden
                     />
-                    {loading && <Loading absolute />}
-                    {!loading && totalNotificationsCount <= 0 && (
-                        <Message
-                            message="No notifications found."
+                    {!loading && (
+                        <TableMessage
+                            errored={!!notificationsError}
+                            filtered={!hasNoData(filter)}
+                            totalItems={totalNotificationsCount}
+                            emptyMessage="No notifications found"
+                            emptyMessageWithFilters="No notifications found with applied filters"
+                            errorMessage="Could not fetch notifications"
                         />
                     )}
                 </Container>

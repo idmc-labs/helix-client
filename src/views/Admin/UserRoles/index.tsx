@@ -8,6 +8,8 @@ import {
     SortContext,
     createYesNoColumn,
 } from '@togglecorp/toggle-ui';
+
+import TableMessage from '#components/TableMessage';
 import {
     createTextColumn,
     createDateColumn,
@@ -15,7 +17,6 @@ import {
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
 import useFilterState from '#hooks/useFilterState';
-
 import {
     UserListQuery,
     UserListQueryVariables,
@@ -29,17 +30,15 @@ import {
     ToggleUserReportingTeamStatusMutationVariables,
 } from '#generated/types';
 import useModalState from '#hooks/useModalState';
-import { expandObject } from '#utils/common';
-
-import Message from '#components/Message';
+import { expandObject, hasNoData } from '#utils/common';
 import NotificationContext from '#components/NotificationContext';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
+import UserEmailChangeForm from '#components/forms/UserEmailChangeForm';
 
 import ActionCell, { ActionProps } from './UserActions';
 import UserFilter from './UserFilter/index';
 import styles from './styles.css';
-import UserEmailChangeForm from '#components/forms/UserEmailChangeForm';
 
 const GET_USERS_LIST = gql`
     query UserList(
@@ -198,8 +197,9 @@ function UserRoles(props: UserRolesProps) {
 
     const {
         previousData,
-        data: userList = previousData,
+        data: users = previousData,
         loading: usersLoading,
+        error: usersError,
     } = useQuery<UserListQuery, UserListQueryVariables>(GET_USERS_LIST, {
         variables: usersVariables,
     });
@@ -463,7 +463,7 @@ function UserRoles(props: UserRolesProps) {
         ],
     );
 
-    const totalUsersCount = userList?.users?.totalCount ?? 0;
+    const totalUsersCount = users?.users?.totalCount ?? 0;
 
     return (
         <Container
@@ -488,11 +488,12 @@ function UserRoles(props: UserRolesProps) {
                 />
             )}
         >
+            {loadingUsers && <Loading absolute />}
             {totalUsersCount > 0 && (
                 <SortContext.Provider value={sortState}>
                     <Table
                         className={styles.table}
-                        data={userList?.users?.results}
+                        data={users?.users?.results}
                         keySelector={keySelector}
                         columns={usersColumn}
                         resizableColumn
@@ -500,10 +501,14 @@ function UserRoles(props: UserRolesProps) {
                     />
                 </SortContext.Provider>
             )}
-            {loadingUsers && <Loading absolute />}
-            {!loadingUsers && totalUsersCount <= 0 && (
-                <Message
-                    message="No users found."
+            {!loadingUsers && (
+                <TableMessage
+                    errored={!!usersError}
+                    filtered={!hasNoData(filter)}
+                    totalItems={totalUsersCount}
+                    emptyMessage="No users found"
+                    emptyMessageWithFilters="No users found with applied filters"
+                    errorMessage="Could not fetch users"
                 />
             )}
             {shouldShowEmailEditModal && (

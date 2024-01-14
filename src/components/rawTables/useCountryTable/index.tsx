@@ -10,13 +10,15 @@ import {
     ConfirmButton,
     Pager,
 } from '@togglecorp/toggle-ui';
+
+import TableMessage from '#components/TableMessage';
 import {
     createLinkColumn,
     createTextColumn,
     createNumberColumn,
 } from '#components/tableHelpers';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
-import Message from '#components/Message';
+import { hasNoData } from '#utils/common';
 import Loading from '#components/Loading';
 import Mounter from '#components/Mounter';
 import NotificationContext from '#components/NotificationContext';
@@ -113,6 +115,7 @@ function useCountryTable(props: Props) {
         previousData,
         data: countriesData = previousData,
         loading: loadingCountries,
+        error: countriesError,
     } = useQuery<CountriesQuery, CountriesQueryVariables>(COUNTRY_LIST, {
         variables: filters,
         skip: !mounted,
@@ -262,6 +265,7 @@ function useCountryTable(props: Props) {
                 <Mounter
                     onChange={setMounted}
                 />
+                {loadingCountries && <Loading absolute />}
                 {totalCountriesCount > 0 && (
                     <Table
                         className={className}
@@ -272,10 +276,14 @@ function useCountryTable(props: Props) {
                         fixedColumnWidth
                     />
                 )}
-                {loadingCountries && <Loading absolute />}
-                {!loadingCountries && totalCountriesCount <= 0 && (
-                    <Message
-                        message="No countries found."
+                {!loadingCountries && (
+                    <TableMessage
+                        errored={!!countriesError}
+                        filtered={!hasNoData(filters?.filters)}
+                        totalItems={totalCountriesCount}
+                        emptyMessage="No countries found"
+                        emptyMessageWithFilters="No countries found with applied filters"
+                        errorMessage="Could not fetch countries"
                     />
                 )}
             </>

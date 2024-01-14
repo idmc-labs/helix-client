@@ -12,23 +12,23 @@ import {
     Modal,
     SortContext,
 } from '@togglecorp/toggle-ui';
+
+import TableMessage from '#components/TableMessage';
+import Loading from '#components/Loading';
 import {
     createTextColumn,
     createNumberColumn,
 } from '#components/tableHelpers';
-
 import useFilterState from '#hooks/useFilterState';
 import DomainContext from '#components/DomainContext';
-import Message from '#components/Message';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-
 import useModalState from '#hooks/useModalState';
-
 import {
     MonitoringRegionsQuery,
     MonitoringRegionsQueryVariables,
 } from '#generated/types';
+import { hasNoData } from '#utils/common';
 
 import ActionCell, { ActionProps } from './Action';
 import RegionalCoordinatorForm from './RegionalCoordinatorForm';
@@ -79,6 +79,8 @@ function MonitoringRegions(props: MonitoringRegionProps) {
     const {
         ordering,
         sortState,
+
+        filter,
     } = useFilterState<MonitoringRegionsQueryVariables>({
         filter: {},
         ordering: {
@@ -112,6 +114,7 @@ function MonitoringRegions(props: MonitoringRegionProps) {
         previousData,
         data: regionsData = previousData,
         loading: loadingRegions,
+        error: regionsError,
     } = useQuery<MonitoringRegionsQuery, MonitoringRegionsQueryVariables>(REGION_LIST, {
         variables: regionsVariables,
     });
@@ -198,6 +201,7 @@ function MonitoringRegions(props: MonitoringRegionProps) {
                 className={styles.container}
                 contentClassName={styles.content}
             >
+                {loadingRegions && <Loading absolute />}
                 {totalRegionsCount > 0 && (
                     <SortContext.Provider value={sortState}>
                         <Table
@@ -211,8 +215,13 @@ function MonitoringRegions(props: MonitoringRegionProps) {
                     </SortContext.Provider>
                 )}
                 {!loadingRegions && totalRegionsCount <= 0 && (
-                    <Message
-                        message="No monitoring regions found."
+                    <TableMessage
+                        errored={!!regionsError}
+                        filtered={!hasNoData(filter)}
+                        totalItems={totalRegionsCount}
+                        emptyMessage="No monitoring regions found"
+                        emptyMessageWithFilters="No monitoring regions found with applied filters"
+                        errorMessage="Could not fetch monitoring regions"
                     />
                 )}
                 {shouldShowRegionCoordinatorForm && (
