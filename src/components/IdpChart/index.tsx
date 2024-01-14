@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { bound, compareDate, isDefined, isNotDefined, listToGroupList, mapToList, _cs } from '@togglecorp/fujs';
+import { bound, compareDate, compareNumber, isDefined, isNotDefined, listToGroupList, mapToList, _cs } from '@togglecorp/fujs';
 
 import ChartAxes from '#components/ChartAxes';
 import useChartData from '#hooks/useChartData';
-import { defaultChartMargin, defaultChartPadding, getNumberOfDays, getPathData, getSuitableTemporalResolution } from '#utils/chart';
+import { defaultChartMargin, defaultChartPadding, getNumberOfDays, getNumberOfMonths, getPathData, getSuitableTemporalResolution } from '#utils/chart';
 
 import styles from './styles.css';
 import { sumSafe } from '#utils/common';
@@ -23,7 +23,7 @@ const chartOffset = {
 const chartPadding = defaultChartPadding;
 const chartMargin = defaultChartMargin;
 
-const NUM_X_AXIS_POINTS_MAX = 8;
+const NUM_X_AXIS_POINTS_MAX = 7;
 const NUM_X_AXIS_POINTS_MIN = 3;
 
 interface Data {
@@ -89,26 +89,151 @@ function IdpChart(props: Props) {
         [conflictData, disasterData],
     );
 
-    const numAxisPointsX = bound(data?.length, NUM_X_AXIS_POINTS_MIN, NUM_X_AXIS_POINTS_MAX);
+    // const numAxisPointsX = bound(data?.length, NUM_X_AXIS_POINTS_MIN, NUM_X_AXIS_POINTS_MAX);
+    const numDataPoints = (data?.length ?? 0);
+
+    const numAxisPointsX = useMemo(
+        () => {
+            const tickRange = NUM_X_AXIS_POINTS_MAX - NUM_X_AXIS_POINTS_MIN;
+            const numTicksList = Array.from(Array(tickRange + 1).keys()).map(
+                (key) => NUM_X_AXIS_POINTS_MIN + key,
+            );
+
+            const potentialTicks = numTicksList.reverse().map(
+                (numTicks) => {
+                    const tickDiff = Math.ceil(numDataPoints / numTicks);
+                    const offset = numTicks * tickDiff - numDataPoints;
+
+                    return {
+                        numTicks,
+                        offset,
+                    };
+                },
+            );
+
+            const tickWithLowestOffset = [...potentialTicks].sort(
+                (a, b) => (
+                    (b.numTicks - a.numTicks) * 0.75 + (a.offset - b.offset)
+                ),
+            )[0];
+
+            return bound(
+                tickWithLowestOffset.numTicks,
+                NUM_X_AXIS_POINTS_MIN,
+                NUM_X_AXIS_POINTS_MAX,
+            );
+        },
+        [numDataPoints],
+    );
 
     const temporalDomain = useMemo(
         () => {
-            const now = new Date();
-
             if (!data || data.length === 0) {
-                return { min: now.getFullYear() - numAxisPointsX + 1, max: now.getFullYear() };
+                const now = new Date();
+                return {
+                    min: new Date(now.getFullYear() - numAxisPointsX + 1, 0, 1),
+                    max: new Date(now.getFullYear(), 0, 1),
+                };
             }
 
             const timestampList = data.map(({ date }) => new Date(date).getTime());
             const minTimestamp = Math.min(...timestampList);
             const maxTimestamp = Math.max(...timestampList);
 
+            const minDate = new Date(minTimestamp);
+            const maxDate = new Date(maxTimestamp);
+
             return {
-                min: minTimestamp,
-                max: maxTimestamp,
+                min: minDate,
+                max: maxDate,
             };
         },
         [data, numAxisPointsX],
+    );
+
+    const temporalResolution = getSuitableTemporalResolution(
+        {
+            min: temporalDomain.min.getTime(),
+            max: temporalDomain.max.getTime(),
+        },
+        numAxisPointsX,
+    );
+
+    const dateRange = useMemo(
+        () => {
+            const minYear = temporalDomain.min.getFullYear();
+            const maxYear = temporalDomain.max.getFullYear();
+
+            if (temporalResolution === 'year') {
+                const diff = maxYear - minYear;
+                const remainder = diff % (numAxisPointsX - 1);
+                const additional = remainder === 0
+                    ? 0
+                    : numAxisPointsX - remainder - 1;
+
+                return {
+                    min: new Date(minYear, 0, 1),
+                    max: new Date(maxYear + additional, 0, 1),
+                };
+            }
+
+            if (temporalResolution === 'month') {
+                const maxMonth = temporalDomain.max.getFullYear() * 12
+                    + temporalDomain.max.getMonth();
+                const minMonth = temporalDomain.min.getFullYear() * 12
+                    + temporalDomain.min.getMonth();
+                const diff = maxMonth - minMonth;
+                const remainder = diff % (numAxisPointsX - 1);
+                const additional = remainder === 0
+                    ? 0
+                    : numAxisPointsX - remainder - 1;
+
+                return {
+                    min: new Date(
+                        minYear,
+                        temporalDomain.min.getMonth(),
+                        1,
+                    ),
+                    max: new Date(
+                        maxYear,
+                        temporalDomain.max.getMonth() + additional,
+                        1,
+                    ),
+                };
+            }
+
+            const diff = Math.max(
+                numAxisPointsX,
+                getNumberOfDays(temporalDomain.min, temporalDomain.max),
+            );
+
+            const remainder = diff % (numAxisPointsX - 1);
+            const additional = remainder === 0
+                ? 0
+                : numAxisPointsX - remainder - 1;
+
+            return {
+                min: new Date(
+                    minYear,
+                    temporalDomain.min.getMonth(),
+                    temporalDomain.min.getDate(),
+                ),
+                max: new Date(
+                    maxYear,
+                    temporalDomain.max.getMonth(),
+                    temporalDomain.max.getDate() + additional,
+                ),
+            };
+        },
+        [numAxisPointsX, temporalDomain, temporalResolution],
+    );
+
+    const xDomain = useMemo(
+        () => ({
+            min: 0,
+            max: getNumberOfDays(dateRange.min, dateRange.max),
+        }),
+        [dateRange],
     );
 
     const lastPointWithData = useMemo(
@@ -122,53 +247,13 @@ function IdpChart(props: Props) {
         [data],
     );
 
-    const dateRange = useMemo(
-        () => {
-            const now = new Date();
-            if (!data || data.length === 0) {
-                return {
-                    min: new Date(now.getFullYear() - numAxisPointsX + 1, 0, 1),
-                    max: new Date(now.getFullYear(), 11, 31),
-                };
-            }
-
-            const yearList = data.map(({ date }) => new Date(date).getFullYear());
-            const minYear = Math.min(...yearList);
-            const maxYear = Math.max(...yearList);
-
-            const diff = maxYear - minYear;
-            const remainder = diff % (numAxisPointsX - 1);
-            const additional = remainder === 0
-                ? 0
-                : numAxisPointsX - remainder - 1;
-
-            return {
-                min: new Date(minYear - Math.ceil(additional / 2), 0, 1),
-                max: new Date(maxYear + Math.floor(additional / 2), 11, 31),
-            };
-        },
-        [data, numAxisPointsX],
-    );
-
-    const temporalResolution = getSuitableTemporalResolution(
-        temporalDomain,
-        numAxisPointsX,
-    );
-
-    const xDomain = useMemo(
-        () => ({
-            min: 0,
-            max: getNumberOfDays(dateRange.min, dateRange.max),
-        }),
-        [dateRange],
-    );
-
     const {
         dataPoints,
         chartSize,
-        xAxisTicks,
+        // xAxisTicks,
         yAxisTicks,
         yScaleFn,
+        xScaleFn,
         renderableHeight,
     } = useChartData(
         data,
@@ -183,39 +268,94 @@ function IdpChart(props: Props) {
                 const date = new Date(datum.date);
                 return getNumberOfDays(dateRange.min, date);
             },
-            xAxisLabelSelector: (diff) => {
-                const startDate = new Date(dateRange.min);
-                const currentDate = new Date(startDate.getTime());
-                currentDate.setDate(currentDate.getDate() + diff);
-
-                if (temporalResolution === 'year') {
-                    return currentDate.getFullYear();
-                }
-
-                if (temporalResolution === 'month') {
-                    return currentDate.toLocaleString(
-                        navigator.language,
-                        {
-                            year: 'numeric',
-                            month: 'short',
-                        },
-                    );
-                }
-
-                return currentDate.toLocaleString(
-                    navigator.language,
-                    {
-                        year: 'numeric',
-                        month: 'short',
-                        day: '2-digit',
-                    },
-                );
-            },
+            xAxisLabelSelector: (diff) => diff,
             yValueSelector: (datum) => datum.maxDisplacement,
             yAxisStartsFromZero: true,
             numXAxisTicks: numAxisPointsX,
             xDomain,
         },
+    );
+
+    const xAxisTicks = useMemo(
+        () => {
+            let diff = 0;
+            if (temporalResolution === 'year') {
+                diff = dateRange.max.getFullYear() - dateRange.min.getFullYear();
+            } else if (temporalResolution === 'month') {
+                diff = getNumberOfMonths(dateRange.min, dateRange.max);
+            } else {
+                diff = getNumberOfDays(dateRange.min, dateRange.max);
+            }
+
+            const step = Math.ceil(diff / (numAxisPointsX - 1));
+            const ticks = Array.from(Array(step * numAxisPointsX).keys()).map(
+                (key) => key * step,
+            );
+
+            if (temporalResolution === 'year') {
+                return ticks.map(
+                    (tick) => {
+                        const date = new Date(dateRange.min.getFullYear() + tick, 0, 1);
+                        const numDays = getNumberOfDays(dateRange.min, date);
+
+                        return {
+                            key: tick,
+                            x: xScaleFn(numDays),
+                            label: date.getFullYear(),
+                        };
+                    },
+                );
+            }
+
+            if (temporalResolution === 'month') {
+                return ticks.map(
+                    (tick) => {
+                        const date = new Date(
+                            dateRange.min.getFullYear(),
+                            dateRange.min.getMonth() + tick,
+                            1,
+                        );
+                        const numDays = getNumberOfDays(dateRange.min, date);
+
+                        return {
+                            key: tick,
+                            x: xScaleFn(numDays),
+                            label: date.toLocaleString(
+                                navigator.language,
+                                {
+                                    year: 'numeric',
+                                    month: 'short',
+                                },
+                            ),
+                        };
+                    },
+                );
+            }
+
+            return ticks.map(
+                (tick) => {
+                    const date = new Date(
+                        dateRange.min.getFullYear(),
+                        dateRange.min.getMonth(),
+                        dateRange.min.getDate() + tick,
+                    );
+
+                    return {
+                        key: tick,
+                        x: xScaleFn(tick),
+                        label: date.toLocaleString(
+                            navigator.language,
+                            {
+                                year: 'numeric',
+                                month: 'short',
+                                day: '2-digit',
+                            },
+                        ),
+                    };
+                },
+            );
+        },
+        [xScaleFn, dateRange, numAxisPointsX, temporalResolution],
     );
 
     const hoverOutTimeoutRef = useRef<number | undefined>();

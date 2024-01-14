@@ -15,6 +15,13 @@
             }
         }
     }
+
+    /* NOTE: professional stuff, don't touch */
+    div[class^='styles_items-per-page'] {
+        >div {
+            width: 8rem !important;
+        }
+    }
 }
 
 :root {
@@ -33,7 +40,7 @@
     --width-separator-medium: 2px;
     --width-separator-thick: 4px;
 
-    --width-sidebar: 24rem;
+    --width-sidebar: 18rem;
 
     --height-navbar: 58px;
 
