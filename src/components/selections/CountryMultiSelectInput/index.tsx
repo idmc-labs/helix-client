@@ -10,30 +10,26 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
+import useOptions from '#hooks/useOptions';
 import { GetCountriesQuery, GetCountriesQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
 
 const COUNTRIES = gql`
     query GetCountries(
-        $search: String,
-        $regions: [String!],
-        $events: [ID!],
-        $crises: [ID!],
         $ordering: String,
+        $filters: CountryFilterDataInputType,
     ) {
         countryList(
-            countryName: $search,
-            regionByIds: $regions,
             ordering: $ordering,
-            events: $events,
-            crises: $crises,
+            filters: $filters,
         ) {
             totalCount
             results {
                 id
                 idmcShortName
                 boundingBox
+                geojsonUrl
                 iso2
             }
         }
@@ -53,19 +49,19 @@ type SelectInputProps<
     K,
     CountryOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
 > & {
-    defaultRegions?: string[],
-    defaultEvents?: string[];
-    defaultCrises?: string[];
+    regions?: string[] | null,
+    events?: string[] | null;
+    crises?: string[] | null;
 };
 
 function CountryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
-        defaultRegions,
-        defaultEvents,
-        defaultCrises,
+        regions,
+        events,
+        crises,
         ...otherProps
     } = props;
 
@@ -78,20 +74,24 @@ function CountryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
         (): GetCountriesQueryVariables => {
             if (!debouncedSearchText) {
                 return {
-                    ordering: 'idmcShortName',
-                    regions: defaultRegions ?? undefined,
-                    events: defaultEvents,
-                    crises: defaultCrises,
+                    ordering: 'idmc_short_name',
+                    filters: {
+                        regionByIds: regions ?? undefined,
+                        events,
+                        crises,
+                    },
                 };
             }
             return {
-                search: debouncedSearchText,
-                regions: defaultRegions ?? undefined,
-                events: defaultEvents,
-                crises: defaultCrises,
+                filters: {
+                    countryName: debouncedSearchText,
+                    regionByIds: regions ?? undefined,
+                    events,
+                    crises,
+                },
             };
         },
-        [debouncedSearchText, defaultRegions, defaultEvents, defaultCrises],
+        [debouncedSearchText, regions, events, crises],
     );
 
     const {
@@ -106,6 +106,8 @@ function CountryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const searchOptions = data?.countryList?.results;
     const totalOptionsCount = data?.countryList?.totalCount;
 
+    const [options, setOptions] = useOptions('country');
+
     return (
         <SearchMultiSelectInput
             {...otherProps}
@@ -117,6 +119,8 @@ function CountryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
+            options={options}
+            onOptionsChange={setOptions}
         />
     );
 }

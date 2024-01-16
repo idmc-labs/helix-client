@@ -1,20 +1,21 @@
-import React, { useMemo, useState, useCallback, useContext } from 'react';
-import {
-    useSortState,
-    SortContext,
-} from '@togglecorp/toggle-ui';
+import React, { useMemo, useContext, useEffect } from 'react';
+import { SortContext } from '@togglecorp/toggle-ui';
+import { isDefined } from '@togglecorp/fujs';
+import { PurgeNull } from '@togglecorp/toggle-form';
 
-import EventsFilter from '#components/rawTables/EventsTable/EventsFilter';
-import useEventTable from '#components/rawTables/EventsTable';
+import EventsFilter from '#components/rawTables/useEventTable/EventsFilter';
+import useEventTable from '#components/rawTables/useEventTable';
 import Container from '#components/Container';
 import {
     EventListQueryVariables,
     Qa_Rule_Type as QaRuleType,
     User_Role as UserRole,
 } from '#generated/types';
+import useFilterState from '#hooks/useFilterState';
 import DomainContext from '#components/DomainContext';
-import useDebouncedValue from '#hooks/useDebouncedValue';
 import { User } from '#types';
+import { expandObject } from '#utils/common';
+import useOptions from '#hooks/useOptions';
 
 import styles from './styles.css';
 
@@ -30,13 +31,6 @@ function isUserMonitoringExpert(userInfo: User | undefined): userInfo is User {
 function isUserRegionalCoordinator(userInfo: User | undefined): userInfo is User {
     return userInfo?.portfolioRole === regionalCoordinator;
 }
-
-const defaultSorting = {
-    name: 'created_at',
-    direction: 'dsc',
-};
-
-// const keySelector = (item: EventFields) => item.id;
 
 interface EventsProps {
     className?: string;
@@ -55,16 +49,6 @@ function EventsTable(props: EventsProps) {
         assignee,
         reviewStatus,
     } = props;
-
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting || defaultSorting;
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-    const debouncedPage = useDebouncedValue(page);
 
     const { user } = useContext(DomainContext);
 
@@ -95,6 +79,21 @@ function EventsTable(props: EventsProps) {
         [user, qaMode],
     );
 
+    const [, setCountryOptions] = useOptions('country');
+    const [, setUserOptions] = useOptions('user');
+    useEffect(
+        () => {
+            setCountryOptions(regionalCoordinatorCountryOptions);
+        },
+        [setCountryOptions, regionalCoordinatorCountryOptions],
+    );
+    useEffect(
+        () => {
+            setUserOptions(createdByOptions);
+        },
+        [setUserOptions, createdByOptions],
+    );
+
     const qaRule: QaRuleType | undefined = useMemo(
         () => {
             if (qaMode === 'MULTIPLE_RF') {
@@ -112,54 +111,63 @@ function EventsTable(props: EventsProps) {
         ? qaMode === 'IGNORE_QA'
         : undefined;
 
-    const [
-        eventQueryFilters,
-        setEventQueryFilters,
-    ] = useState<EventListQueryVariables | undefined>({
-        createdByIds,
-        countries: regionalCoordinatorCountryIds,
+    const {
+        page,
+        rawPage,
+        setPage,
+
+        ordering,
+        sortState,
+
+        rawFilter,
+        initialFilter,
+        filter,
+        setFilter,
+
+        pageSize,
+        rawPageSize,
+        setPageSize,
+    } = useFilterState<PurgeNull<NonNullable<EventListQueryVariables['filters']>>>({
+        filter: {
+            createdByIds,
+            countries: regionalCoordinatorCountryIds,
+        },
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
     });
 
-    const onFilterChange = React.useCallback(
-        (value: EventListQueryVariables) => {
-            setEventQueryFilters(value);
-            setPage(1);
-        },
-        [],
-    );
-
-    const handlePageSizeChange = useCallback(
-        (value: number) => {
-            setPageSize(value);
-            setPage(1);
-        },
-        [],
-    );
-
     const eventsVariables = useMemo(
-        (): EventListQueryVariables => ({
+        () => ({
             ordering,
-            page: debouncedPage,
+            page,
             pageSize,
-            qaRule,
-            ignoreQa,
-            ...eventQueryFilters,
-            reviewStatus: reviewStatus ?? eventQueryFilters?.reviewStatus,
-            assignees: assignee
-                ? [assignee]
-                : eventQueryFilters?.assignees,
+            filters: expandObject<NonNullable<EventListQueryVariables['filters']>>(
+                filter,
+                {
+                    qaRule,
+                    ignoreQa,
+                    reviewStatus,
+                    assignees: assignee ? [assignee] : undefined,
+                },
+            ),
         }),
         [
             ordering,
-            assignee,
-            debouncedPage,
+            page,
             pageSize,
+            filter,
+            assignee,
             qaRule,
             reviewStatus,
             ignoreQa,
-            eventQueryFilters,
         ],
     );
+
+    const hiddenFields = [
+        reviewStatus ? 'reviewStatus' as const : undefined,
+    ].filter(isDefined);
 
     const {
         table: eventsTable,
@@ -170,10 +178,10 @@ function EventsTable(props: EventsProps) {
         className: styles.table,
         qaMode,
         filters: eventsVariables,
-        page,
-        pageSize,
+        page: rawPage,
+        pageSize: rawPageSize,
         onPageChange: setPage,
-        onPageSizeChange: handlePageSizeChange,
+        onPageSizeChange: setPageSize,
     });
 
     return (
@@ -191,15 +199,10 @@ function EventsTable(props: EventsProps) {
             footerContent={eventsPager}
             description={(
                 <EventsFilter
-                    onFilterChange={onFilterChange}
-                    crisisSelectionDisabled={false}
-                    reviewStatusSelectionDisabled={!!reviewStatus}
-                    createdBySelectionDisabled={false}
-                    countriesSelectionDisabled={false}
-                    defaultCreatedByIds={createdByIds}
-                    defaultCountries={regionalCoordinatorCountryIds}
-                    defaultCreatedByOptions={createdByOptions}
-                    defaultCountriesOptions={regionalCoordinatorCountryOptions}
+                    currentFilter={rawFilter}
+                    initialFilter={initialFilter}
+                    onFilterChange={setFilter}
+                    hiddenFields={hiddenFields}
                 />
             )}
         >

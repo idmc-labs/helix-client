@@ -1,6 +1,6 @@
 .badge {
     border-radius: 1rem;
-    background-color: var(--tui-color-primary);
+    background-color: var(--tui-color-danger);
     padding: 0 var(--spacing-small);
     line-height: 1.50;
     color: var(--tui-color-text-button-dark);

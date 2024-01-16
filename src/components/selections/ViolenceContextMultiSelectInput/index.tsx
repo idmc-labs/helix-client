@@ -10,14 +10,21 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
+import useOptions from '#hooks/useOptions';
 import { GetViolenceContextQuery, GetViolenceContextQueryVariables } from '#generated/types';
 import SearchMultiSelectInputWithChip from '#components/SearchMultiSelectInputWithChip';
 
 import styles from './styles.css';
 
 const VIOLENCE_CONTEXT = gql`
-    query GetViolenceContext($name_Icontains: String, $ordering: String) {
-        contextOfViolenceList(name_Icontains: $name_Icontains, ordering: $ordering) {
+    query GetViolenceContext(
+        $name_Icontains: String,
+        $ordering: String,
+    ) {
+        contextOfViolenceList(
+            ordering: $ordering,
+            filters: { name_Icontains: $name_Icontains },
+        ) {
             totalCount
             results {
                 id
@@ -40,7 +47,7 @@ type MultiSelectInputProps<
         K,
         ViolenceContextOption,
         Def,
-        'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+        'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
     > & { chip?: boolean };
 
 function ViolenceContextMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
@@ -57,7 +64,7 @@ function ViolenceContextMultiSelectInput<K extends string>(props: MultiSelectInp
 
     const searchVariable = useMemo(
         (): GetViolenceContextQueryVariables => (
-            debouncedSearchText ? { name_Icontains: debouncedSearchText } : { ordering: '-createdAt' }
+            debouncedSearchText ? { name_Icontains: debouncedSearchText } : { ordering: '-created_at' }
         ),
         [debouncedSearchText],
     );
@@ -73,6 +80,7 @@ function ViolenceContextMultiSelectInput<K extends string>(props: MultiSelectInp
 
     const searchOptions = data?.contextOfViolenceList?.results;
     const totalOptionsCount = data?.contextOfViolenceList?.totalCount;
+    const [options, setOptions] = useOptions('contextOfViolence');
 
     if (chip) {
         return (
@@ -87,6 +95,8 @@ function ViolenceContextMultiSelectInput<K extends string>(props: MultiSelectInp
                 searchOptions={searchOptions}
                 optionsPending={loading}
                 totalOptionsCount={totalOptionsCount ?? undefined}
+                options={options}
+                onOptionsChange={setOptions}
             />
         );
     }
@@ -103,6 +113,8 @@ function ViolenceContextMultiSelectInput<K extends string>(props: MultiSelectInp
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
+            options={options}
+            onOptionsChange={setOptions}
         />
     );
 }

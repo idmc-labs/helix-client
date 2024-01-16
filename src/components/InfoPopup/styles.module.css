@@ -1,0 +1,18 @@
+.info-popup {
+    .label {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--spacing-extra-small);
+
+        .icon {
+            display: inline-flex;
+        }
+    }
+
+}
+
+.dropdown-container {
+    padding: 0;
+    min-width: min(20rem, 100vw);
+    max-width: 25rem;
+}

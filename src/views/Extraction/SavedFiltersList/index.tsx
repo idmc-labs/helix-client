@@ -8,6 +8,7 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 
+import useFilterState from '#hooks/useFilterState';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
@@ -23,8 +24,18 @@ import FilterItem from './FilterItem';
 import styles from './styles.css';
 
 export const GET_SAVED_QUERY_LIST = gql`
-    query ExtractionQueryList($search: String, $ordering: String, $page: Int, $pageSize: Int) {
-        extractionQueryList(name_Unaccent_Icontains: $search, ordering: $ordering, page: $page, pageSize: $pageSize) {
+    query ExtractionQueryList(
+        $search: String,
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+    ) {
+        extractionQueryList(
+            filters: { name_Unaccent_Icontains: $search },
+            ordering: $ordering,
+            page: $page,
+            pageSize: $pageSize,
+        ) {
             results {
                 id
                 name
@@ -39,8 +50,6 @@ export const GET_SAVED_QUERY_LIST = gql`
 interface SavedFiltersListProps {
     className?: string;
     selectedQueryId?: string;
-    queryListFilters: ExtractionQueryListQueryVariables;
-    setQueryListFilters: React.Dispatch<React.SetStateAction<ExtractionQueryListQueryVariables>>;
     onDelete: (id: string) => void;
 }
 
@@ -48,45 +57,48 @@ function SavedFiltersList(props: SavedFiltersListProps) {
     const {
         className,
         selectedQueryId,
-        queryListFilters,
-        setQueryListFilters,
         onDelete,
     } = props;
 
-    const onResetSearchText = useCallback(() => {
-        setQueryListFilters({
-            ...queryListFilters,
-            search: undefined,
-        });
-    }, [queryListFilters, setQueryListFilters]);
+    const {
+        page,
+        rawPage,
+        setPage,
 
-    const onChangeSearchText = useCallback((text: string | undefined | null) => {
-        setQueryListFilters({
-            ...queryListFilters,
-            search: text,
-        });
-    }, [queryListFilters, setQueryListFilters]);
+        ordering,
+
+        rawFilter,
+        filter,
+        setFilterField,
+        resetFilter,
+
+        rawPageSize,
+        pageSize,
+    } = useFilterState<NonNullable<ExtractionQueryListQueryVariables>>({
+        filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
+    });
 
     const [
         searchFieldOpened,
         handleSearchFieldOpen,
         handleSearchFieldClose,
-    ] = useBasicToggle(onResetSearchText);
-
-    const onActivePageChange = useCallback((page) => {
-        // FIXME: we need to debounce setting page
-        setQueryListFilters({
-            ...queryListFilters,
-            page,
-        });
-    }, [queryListFilters, setQueryListFilters]);
+    ] = useBasicToggle(resetFilter);
 
     const {
         data: extractionQueries,
         loading: extractionQueriesLoading,
         refetch: refetchExtractionQueries,
     } = useQuery<ExtractionQueryListQuery>(GET_SAVED_QUERY_LIST, {
-        variables: queryListFilters,
+        variables: {
+            ordering,
+            page,
+            pageSize,
+            ...filter,
+        },
     });
 
     // NOTE: cannot pass refetchExtractionQueries to query.update
@@ -119,18 +131,18 @@ function SavedFiltersList(props: SavedFiltersListProps) {
             )}
             footerContent={(
                 <Pager
-                    activePage={queryListFilters.page ?? 1}
+                    activePage={rawPage}
                     itemsCount={totalQueryCount}
-                    maxItemsPerPage={queryListFilters.pageSize ?? 10}
-                    onActivePageChange={onActivePageChange}
+                    maxItemsPerPage={rawPageSize}
+                    onActivePageChange={setPage}
                     itemsPerPageControlHidden
                 />
             )}
             description={searchFieldOpened && (
                 <TextInput
                     name="search"
-                    value={queryListFilters.search}
-                    onChange={onChangeSearchText}
+                    value={rawFilter.search}
+                    onChange={setFilterField}
                     icons={<IoSearchOutline />}
                     actions={(
                         <Button

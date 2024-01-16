@@ -68,8 +68,34 @@ function Status(props: StatusProps) {
             </span>
         );
     }
+    if (status === 'APPROVED_BUT_CHANGED') {
+        return (
+            <span className={_cs(className, styles.status)}>
+                <IoSquare
+                    title="Review in-progress (previously approved)"
+                    className={styles.reviewInprogressIcon}
+                />
+            </span>
+        );
+    }
+    if (status === 'SIGNED_OFF_BUT_CHANGED') {
+        return (
+            <span className={_cs(className, styles.status)}>
+                <IoSquare
+                    title="Review in-progress (previously signed-off)"
+                    className={styles.reviewInprogressIcon}
+                />
+            </span>
+        );
+    }
 
-    return null;
+    return (
+        <span className={_cs(className, styles.status)}>
+            <IoSquare
+                title="Review not started"
+            />
+        </span>
+    );
 }
 
 export default Status;

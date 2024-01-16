@@ -10,13 +10,20 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
+import useOptions from '#hooks/useOptions';
 import { GetCrisesQuery, GetCrisesQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
 
 const CRISES = gql`
-    query GetCrises($search: String, $countries: [String!], $ordering: String) {
-        crisisList(name: $search, countries: $countries, ordering: $ordering) {
+    query GetCrises(
+        $filters: CrisisFilterDataInputType,
+        $ordering: String,
+    ) {
+        crisisList(
+            ordering: $ordering,
+            filters: $filters,
+        ) {
             totalCount
             results {
                 id
@@ -39,15 +46,15 @@ type SelectInputProps<
     K,
     CrisisOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
 > & {
-    defaultCountries?: string[],
+    countries?: string[] | null,
 };
 
 function CrisisMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
-        defaultCountries,
+        countries,
         ...otherProps
     } = props;
 
@@ -60,16 +67,20 @@ function CrisisMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
         (): GetCrisesQueryVariables => {
             if (!debouncedSearchText) {
                 return {
-                    ordering: '-createdAt',
-                    countries: defaultCountries ?? undefined,
+                    ordering: '-created_at',
+                    filters: {
+                        countries: countries ?? undefined,
+                    },
                 };
             }
             return {
-                search: debouncedSearchText,
-                countries: defaultCountries ?? undefined,
+                filters: {
+                    name: debouncedSearchText,
+                    countries: countries ?? undefined,
+                },
             };
         },
-        [debouncedSearchText, defaultCountries],
+        [debouncedSearchText, countries],
     );
 
     const {
@@ -84,6 +95,8 @@ function CrisisMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const searchOptions = data?.crisisList?.results;
     const totalOptionsCount = data?.crisisList?.totalCount;
 
+    const [options, setOptions] = useOptions('crisis');
+
     return (
         <SearchMultiSelectInput
             {...otherProps}
@@ -95,6 +108,8 @@ function CrisisMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
+            options={options}
+            onOptionsChange={setOptions}
         />
     );
 }

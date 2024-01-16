@@ -10,25 +10,25 @@ import {
     TableHeaderCell,
     TableHeaderCellProps,
     Modal,
-    useSortState,
     SortContext,
 } from '@togglecorp/toggle-ui';
+
+import TableMessage from '#components/TableMessage';
+import Loading from '#components/Loading';
 import {
     createTextColumn,
     createNumberColumn,
 } from '#components/tableHelpers';
-
+import useFilterState from '#hooks/useFilterState';
 import DomainContext from '#components/DomainContext';
-import Message from '#components/Message';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-
 import useModalState from '#hooks/useModalState';
-
 import {
     MonitoringRegionsQuery,
     MonitoringRegionsQueryVariables,
 } from '#generated/types';
+import { hasNoData } from '#utils/common';
 
 import ActionCell, { ActionProps } from './Action';
 import RegionalCoordinatorForm from './RegionalCoordinatorForm';
@@ -38,8 +38,14 @@ import styles from './styles.css';
 type RegionFields = NonNullable<NonNullable<MonitoringRegionsQuery['monitoringSubRegionList']>['results']>[number];
 
 const REGION_LIST = gql`
-    query monitoringRegions($name: String, $ordering: String) {
-        monitoringSubRegionList(name: $name, ordering: $ordering) {
+    query monitoringRegions(
+        $name: String,
+        $ordering: String,
+    ) {
+        monitoringSubRegionList(
+            ordering: $ordering,
+            filters: { name: $name },
+        ) {
             pageSize
             page
             totalCount
@@ -61,11 +67,6 @@ const REGION_LIST = gql`
     }
 `;
 
-const defaultSorting = {
-    name: 'name',
-    direction: 'asc',
-};
-
 const keySelector = (item: RegionFields) => item.id;
 
 interface MonitoringRegionProps {
@@ -75,12 +76,18 @@ interface MonitoringRegionProps {
 function MonitoringRegions(props: MonitoringRegionProps) {
     const { className } = props;
 
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting || defaultSorting;
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
+    const {
+        ordering,
+        sortState,
+
+        filter,
+    } = useFilterState<MonitoringRegionsQueryVariables>({
+        filter: {},
+        ordering: {
+            name: 'name',
+            direction: 'asc',
+        },
+    });
 
     const [
         shouldShowRegionCoordinatorForm,
@@ -107,6 +114,7 @@ function MonitoringRegions(props: MonitoringRegionProps) {
         previousData,
         data: regionsData = previousData,
         loading: loadingRegions,
+        error: regionsError,
     } = useQuery<MonitoringRegionsQuery, MonitoringRegionsQueryVariables>(REGION_LIST, {
         variables: regionsVariables,
     });
@@ -193,6 +201,7 @@ function MonitoringRegions(props: MonitoringRegionProps) {
                 className={styles.container}
                 contentClassName={styles.content}
             >
+                {loadingRegions && <Loading absolute />}
                 {totalRegionsCount > 0 && (
                     <SortContext.Provider value={sortState}>
                         <Table
@@ -206,8 +215,13 @@ function MonitoringRegions(props: MonitoringRegionProps) {
                     </SortContext.Provider>
                 )}
                 {!loadingRegions && totalRegionsCount <= 0 && (
-                    <Message
-                        message="No monitoring regions found."
+                    <TableMessage
+                        errored={!!regionsError}
+                        filtered={!hasNoData(filter)}
+                        totalItems={totalRegionsCount}
+                        emptyMessage="No monitoring regions found"
+                        emptyMessageWithFilters="No monitoring regions found with applied filters"
+                        errorMessage="Could not fetch monitoring regions"
                     />
                 )}
                 {shouldShowRegionCoordinatorForm && (

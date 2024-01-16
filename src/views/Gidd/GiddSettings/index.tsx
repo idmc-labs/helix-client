@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useCallback } from 'react';
 import {
     NumberInput,
     Button,
@@ -162,7 +162,7 @@ function GiddSettings(props: GiddSettingsProps) {
     const errored = !!releaseMetadataError;
     const disabled = loading || errored;
 
-    const handleSubmit = React.useCallback(
+    const handleSubmit = useCallback(
         (finalValues: PartialForm<FormType>) => {
             updateReleaseMetaData({
                 variables: {

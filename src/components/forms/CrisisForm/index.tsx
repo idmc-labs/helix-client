@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo, useCallback } from 'react';
+import React, { useContext, useMemo, useCallback } from 'react';
 import {
     TextInput,
     SelectInput,
@@ -25,8 +25,9 @@ import {
 import { IoCalculatorOutline } from 'react-icons/io5';
 
 import Row from '#components/Row';
+import useOptions from '#hooks/useOptions';
 import NonFieldError from '#components/NonFieldError';
-import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
+import CountryMultiSelectInput from '#components/selections/CountryMultiSelectInput';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 import MarkdownEditor from '#components/MarkdownEditor';
@@ -166,12 +167,13 @@ const schema: FormSchema = {
     }),
 };
 
-const defaultFormValues: PartialForm<FormType> = {};
-
-interface CrisisFormProps {
-    id?: string;
+export interface CrisisFormProps {
     onCrisisCreate?: (result: NonNullable<NonNullable<CreateCrisisMutation['createCrisis']>['result']>) => void;
     onCrisisFormCancel: () => void;
+
+    id?: string;
+    disabledFields?: ('countries')[];
+    defaultFormValue?: PartialForm<FormType>;
 }
 
 function CrisisForm(props: CrisisFormProps) {
@@ -179,9 +181,11 @@ function CrisisForm(props: CrisisFormProps) {
         id,
         onCrisisCreate,
         onCrisisFormCancel,
+        defaultFormValue = {},
+        disabledFields = [],
     } = props;
 
-    const [countries, setCountries] = useState<CountryOption[] | null | undefined>();
+    const [countries, setCountries] = useOptions('country');
 
     const {
         pristine,
@@ -192,7 +196,7 @@ function CrisisForm(props: CrisisFormProps) {
         onErrorSet,
         onValueSet,
         onPristineSet,
-    } = useForm(defaultFormValues, schema);
+    } = useForm(defaultFormValue, schema);
 
     const {
         notify,
@@ -311,7 +315,7 @@ function CrisisForm(props: CrisisFormProps) {
         },
     );
 
-    const handleSubmit = React.useCallback((finalValues: FormType) => {
+    const handleSubmit = useCallback((finalValues: FormType) => {
         if (finalValues.id) {
             updateCrisis({
                 variables: {
@@ -412,14 +416,13 @@ function CrisisForm(props: CrisisFormProps) {
                 disabled={disabled || crisisOptionsLoading || !!crisisOptionsError}
             />
             <CountryMultiSelectInput
-                options={countries}
-                onOptionsChange={setCountries}
                 label="Countries *"
                 name="countries"
                 value={value.countries}
                 onChange={onValueChange}
                 error={error?.fields?.countries?.$internal}
                 disabled={disabled}
+                readOnly={disabledFields.includes('countries')}
             />
             <Row>
                 <DateInput

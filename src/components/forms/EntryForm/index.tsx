@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useContext, useRef, useMemo } from 'react';
+import React, { useCallback, useState, useContext, useRef, useMemo, useEffect } from 'react';
 import { Prompt, Redirect, useLocation } from 'react-router-dom';
 import {
     _cs,
@@ -28,6 +28,8 @@ import {
     useMutation,
 } from '@apollo/client';
 
+import { transformToFormError } from '#utils/errorTransform';
+import useBulkSaveRegister from '#hooks/useBulkSaveRegister';
 import Portal from '#components/Portal';
 import { EventListOption } from '#components/selections/EventListSelectInput';
 import Loading from '#components/Loading';
@@ -37,7 +39,7 @@ import { OrganizationOption } from '#components/selections/OrganizationSelectInp
 import Section from '#components/Section';
 import route from '#config/routes';
 import { reverseRoute } from '#hooks/useRouteMatching';
-import { WithId } from '#utils/common';
+import { WithId, ghost } from '#utils/common';
 
 import {
     CreateEntryMutation,
@@ -48,6 +50,8 @@ import {
     CreateSourcePreviewMutationVariables,
     UpdateEntryMutation,
     UpdateEntryMutationVariables,
+    UpdateFiguresMutation,
+    UpdateFiguresMutationVariables,
     EntryQuery,
     EntryQueryVariables,
     FigureOptionsForEntryFormQuery,
@@ -56,8 +60,7 @@ import {
     Date_Accuracy as DateAccuracy,
     Displacement_Occurred as DisplacementOccurred,
 } from '#generated/types';
-import { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
-import { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
+import useOptions from '#hooks/useOptions';
 
 import {
     ENTRY,
@@ -67,15 +70,13 @@ import {
     UPDATE_ENTRY,
     FIGURE_OPTIONS,
     PARKED_ITEM_FOR_ENTRY,
+    UPDATE_FIGURES,
 } from './queries';
 import FigureInput from './FigureInput';
 import DetailsInput from './DetailsInput';
 import AnalysisInput from './AnalysisInput';
 import { schema, initialFormValues } from './schema';
-import {
-    transformErrorForEntry,
-    ghost,
-} from './utils';
+import { transformErrorForEntry } from './utils';
 import {
     Attachment,
     FigureFormProps,
@@ -97,9 +98,155 @@ import {
 
 import styles from './styles.css';
 
+// TODO: move this to utils
+function useWatchDog(
+    stop: boolean,
+    watchdogTimer: number,
+    callback: () => void,
+) {
+    const [run, setRun] = useState(0);
+
+    const watchdogTimerRef = useRef(watchdogTimer);
+    useEffect(
+        () => {
+            watchdogTimerRef.current = watchdogTimer;
+        },
+        [watchdogTimer],
+    );
+
+    const callbackRef = useRef(callback);
+    useEffect(
+        () => {
+            callbackRef.current = callback;
+        },
+        [callback],
+    );
+
+    useEffect(
+        () => {
+            if (stop) {
+                return undefined;
+            }
+            // FIXME: check if still mounted
+            const t = setTimeout(
+                () => {
+                    callbackRef.current();
+
+                    setRun((item) => item + 1);
+                },
+                watchdogTimerRef.current,
+            );
+
+            return () => {
+                clearTimeout(t);
+            };
+        },
+        [stop, run],
+    );
+
+    const reset = useCallback(
+        () => {
+            setRun((item) => item + 1);
+        },
+        [],
+    );
+
+    return reset;
+}
+
 type EntryFormFields = CreateEntryMutationVariables['entry'];
+
 type PartialFormValues = PartialForm<FormValues>;
 type PartialFigureValues = PartialForm<FigureFormProps>;
+
+function getValuesFromEntry(entry: Omit<NonNullable<EntryQuery['entry']>, 'figures'>) {
+    const organizationsFromEntry: OrganizationOption[] = entry.publishers?.results ?? [];
+
+    const entryForState = removeNull({
+        details: {
+            associatedParkedItem: entry.associatedParkedItem?.id,
+            articleTitle: entry.articleTitle,
+            publishDate: entry.publishDate,
+            publishers: entry.publishers?.results?.map((item) => item.id),
+            url: entry.url,
+            documentUrl: entry.documentUrl,
+            document: entry.document?.id,
+            preview: entry.preview?.id,
+            isConfidential: entry.isConfidential,
+        },
+        analysis: {
+            idmcAnalysis: entry.idmcAnalysis,
+        },
+    });
+
+    return {
+        organizationsForState: organizationsFromEntry,
+        entryForState,
+    };
+}
+
+function getValuesFromFigures(figures: (NonNullable<NonNullable<EntryQuery['entry']>['figures']>[number] | null | undefined)[]) {
+    const organizationsFromEntry: OrganizationOption[] = [];
+    organizationsFromEntry.push(
+        ...(figures
+            ?.flatMap((item) => item?.sources?.results)
+            .filter(isDefined) ?? []),
+    );
+    const organizationsForState = unique(
+        organizationsFromEntry,
+        (o) => o.id,
+    );
+
+    const eventsForState = figures
+        ?.map((item) => item?.event)
+        .filter(isDefined);
+    const tagOptionsForState = figures
+        ?.flatMap((item) => item?.tags)
+        .filter(isDefined);
+
+    const violenceContextOptionsForState = figures
+        ?.flatMap((item) => item?.contextOfViolence)
+        .filter(isDefined);
+
+    const figuresForState = figures?.map((figure) => {
+        if (!figure) {
+            return figure;
+        }
+
+        // FIXME: removeNull will delete 'null' from the list instead of
+        // setting it to undefined
+        return removeNull({
+            ...figure,
+            entry: figure.entry?.id,
+            event: figure.event?.id,
+            country: figure.country?.id,
+            geoLocations: figure.geoLocations?.results,
+            category: figure.category,
+            term: figure.term,
+            tags: figure.tags?.map((tag) => tag.id),
+            sources: figure.sources?.results?.map((item) => item.id),
+            disaggregationAge: figure.disaggregationAge?.results?.map((item) => ({
+                ...item,
+            })),
+
+            figureCause: figure.figureCause,
+
+            disasterSubType: figure.disasterSubType?.id,
+            violenceSubType: figure.violenceSubType?.id,
+            osvSubType: figure.osvSubType?.id,
+            otherSubType: figure.otherSubType?.id,
+            contextOfViolence: figure.contextOfViolence?.map((c) => c.id),
+        });
+    });
+
+    return {
+        organizationsForState,
+        eventsForState,
+        tagOptionsForState,
+        violenceContextOptionsForState,
+        figuresForState,
+    };
+}
 
 interface EntryFormProps {
     className?: string;
@@ -139,6 +286,20 @@ function EntryForm(props: EntryFormProps) {
     const entryFormRef = useRef<HTMLFormElement>(null);
 
     const {
+        pending,
+        start,
+        end,
+        getNextRequests,
+        updateResponses,
+    } = useBulkSaveRegister<
+        NonNullable<NonNullable<UpdateFiguresMutation['bulkUpdateFigures']>['errors']>[number],
+        NonNullable<NonNullable<UpdateFiguresMutation['bulkUpdateFigures']>['result']>[number],
+        { id: string },
+        { id: string, uuid: string },
+        Omit<NonNullable<UpdateFiguresMutationVariables['figures']>[number], 'uuid'> & { uuid: string }
+    >(25);
+
+    const {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
@@ -166,22 +327,24 @@ function EntryForm(props: EntryFormProps) {
 
     const [redirectId, setRedirectId] = useState<string | undefined>();
 
-    const [
-        organizations,
-        setOrganizations,
-    ] = useState<OrganizationOption[] | null | undefined>([]);
+    // NOTE: we are not using useOptions as this event has more details
     const [
         events,
         setEvents,
     ] = useState<EventListOption[] | null | undefined>([]);
+    type FigureResponse = NonNullable<NonNullable<EntryQuery['entry']>['figures']>[number];
+    type FigureMapping = Pick<FigureResponse, 'role' | 'reviewStatus'> & {
+        fieldStatuses: FigureResponse['lastReviewCommentStatus']
+    };
     const [
-        tagOptions,
-        setTagOptions,
-    ] = useState<FigureTagOption[] | undefined | null>();
-    const [
-        violenceContextOptions,
-        setViolenceContextOptions,
-    ] = useState<ViolenceContextOption[] | null | undefined>();
+        figureMapping,
+        setFigureMapping,
+    ] = useState<{
+        [key: string]: FigureMapping,
+    }>({});
+    const [, setOrganizations] = useOptions('organization');
+    const [, setTagOptions] = useOptions('tag');
+    const [, setViolenceContextOptions] = useOptions('contextOfViolence');
 
     const {
         data: figureOptionsData,
@@ -193,88 +356,12 @@ function EntryForm(props: EntryFormProps) {
         pristine,
         value,
         error,
-        onValueChange,
+        onValueChange: onValueChangeFromForm,
         onValueSet,
         onErrorSet,
         validate,
         onPristineSet,
     } = useForm(initialFormValues, schema);
-
-    const getValuesFromResponse = useCallback(
-        (entry: NonNullable<EntryQuery['entry']>) => {
-            const organizationsFromEntry: OrganizationOption[] = [];
-            organizationsFromEntry.push(
-                ...(entry.figures
-                    ?.flatMap((item) => item.sources?.results)
-                    .filter(isDefined) ?? []),
-            );
-            if (entry.publishers?.results) {
-                organizationsFromEntry.push(...entry.publishers.results);
-            }
-            const organizationsForState = unique(
-                organizationsFromEntry,
-                (o) => o.id,
-            );
-
-            // FIXME: server should always pass event
-            const eventsForState = entry.figures
-                ?.map((item) => item.event)
-                .filter(isDefined);
-            const tagOptionsForState = entry.figures
-                ?.flatMap((item) => item.tags)
-                .filter(isDefined);
-            const violenceContextOptionsForState = entry.figures
-                ?.flatMap((item) => item.contextOfViolence)
-                .filter(isDefined);
-
-            const entryForState = removeNull({
-                details: {
-                    associatedParkedItem: entry.associatedParkedItem?.id,
-                    articleTitle: entry.articleTitle,
-                    publishDate: entry.publishDate,
-                    publishers: entry.publishers?.results?.map((item) => item.id),
-                    url: entry.url,
-                    documentUrl: entry.documentUrl,
-                    document: entry.document?.id,
-                    preview: entry.preview?.id,
-                    isConfidential: entry.isConfidential,
-                },
-                analysis: {
-                    idmcAnalysis: entry.idmcAnalysis,
-                },
-                figures: entry.figures?.map((figure) => ({
-                    ...figure,
-                    event: figure.event?.id,
-                    country: figure.country?.id,
-                    geoLocations: figure.geoLocations?.results,
-                    category: figure.category,
-                    term: figure.term,
-                    tags: figure.tags?.map((tag) => tag.id),
-                    sources: figure.sources?.results?.map((item) => item.id),
-                    disaggregationAge: figure.disaggregationAge?.results?.map((item) => ({
-                        ...item,
-                    })),
-
-                    figureCause: figure.figureCause,
-
-                    disasterSubType: figure.disasterSubType?.id,
-                    violenceSubType: figure.violenceSubType?.id,
-                    osvSubType: figure.osvSubType?.id,
-                    otherSubType: figure.otherSubType?.id,
-                    contextOfViolence: figure.contextOfViolence?.map((c) => c.id),
-                })).sort((foo, bar) => compareStringAsNumber(foo.id, bar.id)),
-            });
-
-            return {
-                organizationsForState,
-                eventsForState,
-                tagOptionsForState,
-                violenceContextOptionsForState,
-                entryForState,
-            };
-        },
-        [],
-    );
 
     const parkedItemVariables = useMemo(
         (): ParkedItemForEntryQueryVariables | undefined => (
@@ -408,8 +495,8 @@ function EntryForm(props: EntryFormProps) {
                 }
                 if (result) {
                     // NOTE: we do not need to set state as we are re-directing to next page
-
                     onPristineSet(true);
+
                     notify({
                         children: 'New entry created successfully!',
                         variant: 'success',
@@ -430,6 +517,300 @@ function EntryForm(props: EntryFormProps) {
         },
     );
 
+    const handleBulkSaveEnd = useCallback(
+        ({ entrySaved, noFigures }: { entrySaved: boolean, noFigures: boolean }) => {
+            if (entrySaved) {
+                notify({
+                    children: 'Entry saved successfully!',
+                    variant: 'success',
+                });
+                if (noFigures) {
+                    onPristineSet(true);
+                }
+            } else {
+                notify({
+                    children: 'Could not save entry',
+                    variant: 'error',
+                });
+            }
+
+            const {
+                deleteRequests,
+                saveRequests,
+
+                deleteResponses,
+                saveResponses,
+                errorResponses,
+            } = end();
+
+            if (noFigures) {
+                return;
+            }
+
+            // NOTE: getValuesFromFigures should not filter or sort the figures
+            const {
+                organizationsForState,
+                eventsForState,
+                tagOptionsForState,
+                violenceContextOptionsForState,
+                figuresForState,
+            } = getValuesFromFigures(saveResponses ?? []);
+
+            const savedFigures = figuresForState?.map((item, index) => {
+                if (!item) {
+                    return undefined;
+                }
+                // NOTE: We can improve this by using uuid instead of an index
+                const request = saveRequests[index];
+                if (!request) {
+                    return undefined;
+                }
+                const key = request.uuid;
+                return { key, value: item, new: !request.id };
+            }).filter(isDefined);
+
+            const savedFiguresMapping = listToMap(
+                savedFigures,
+                (item) => item.key,
+                (item) => item,
+            );
+
+            const deletedFigures = deleteResponses?.map((item) => {
+                if (!item) {
+                    return undefined;
+                }
+                // NOTE: we can improve performance here using a hashmap
+                const key = deleteRequests.find((request) => request.id === item.id)?.uuid;
+                if (!key) {
+                    return undefined;
+                }
+                return { key };
+            }).filter(isDefined);
+            const deletedFiguresMapping = listToMap(
+                deletedFigures,
+                (item) => item.key,
+                () => true,
+            );
+
+            const erroredFigures = errorResponses?.map((item, index) => {
+                if (!item) {
+                    return undefined;
+                }
+                // NOTE: We can improve this by using uuid instead of an index
+                const key = saveRequests[index]?.uuid;
+                if (!key) {
+                    return undefined;
+                }
+                return { key, value: item };
+            }).filter(isDefined);
+            const erroredFiguresMapping = listToMap(
+                erroredFigures,
+                (item) => item.key,
+                () => true,
+            );
+            const errors = listToMap(
+                erroredFigures,
+                (err) => err.key,
+                (err) => transformToFormError(removeNull(err.value)),
+            );
+
+            // NOTE:
+            // Figures that are not present in saveResponses but in saveRequests
+            // and that are not present in errorResponses
+            const skippedSaveFigures = saveRequests.filter(isDefined).filter((item) => {
+                const skipped = (
+                    !savedFiguresMapping[item.uuid]
+                    && !erroredFiguresMapping[item.uuid]
+                );
+                return skipped;
+            }).map((item) => item.uuid);
+            const skippedSaveFiguresErrors = listToMap(
+                skippedSaveFigures,
+                (key) => key,
+                () => ({
+                    $internal: 'Could not save figure',
+                }),
+            );
+
+            // NOTE:
+            // Figures that are not present in deleteResponses but in deleteRequests
+            // and that are not present in errorResponses
+            const skippedDeleteFigures = deleteRequests.filter(isDefined).filter((item) => {
+                const skipped = (
+                    !deletedFiguresMapping[item.uuid]
+                    && !erroredFiguresMapping[item.uuid]
+                );
+                return skipped;
+            }).map((item) => item.uuid);
+            const skippedDeleteFiguresErrors = listToMap(
+                skippedDeleteFigures,
+                (key) => key,
+                () => ({
+                    $internal: 'Could not delete figure',
+                }),
+            );
+
+            setOrganizations(organizationsForState);
+            // NOTE: We need to add to the event state and not remove anything
+            setEvents(eventsForState);
+            setTagOptions(tagOptionsForState);
+            setViolenceContextOptions(violenceContextOptionsForState);
+
+            // NOTE: Not updating the figures yet
+            onValueSet((oldValue) => {
+                const updatedFigures = oldValue?.figures?.map((figure) => {
+                    if (deletedFiguresMapping[figure.uuid]) {
+                        return undefined;
+                    }
+                    // NOTE: We do no need to change the stale field
+                    if (savedFiguresMapping[figure.uuid]) {
+                        return savedFiguresMapping[figure.uuid].value;
+                    }
+                    return figure;
+                }).filter(isDefined) ?? [];
+
+                /*
+                FIXME: Remove this comment once we are sure we don't need this
+                const newFigures = savedFigures
+                    .filter((item) => item.new)
+                    .map((item) => item.value)
+                    .sort((foo, bar) => compareStringAsNumber(foo.id, bar.id));
+                 */
+
+                return ({
+                    ...oldValue,
+                    figures: updatedFigures,
+                });
+            });
+            const mapping = listToMap(
+                savedFigures,
+                (figure) => figure.value.uuid,
+                (figure) => ({
+                    role: figure.value.role,
+                    reviewStatus: figure.value.reviewStatus,
+                    fieldStatuses: figure.value.lastReviewCommentStatus,
+                }),
+            );
+            setFigureMapping((oldMapping) => ({
+                ...oldMapping,
+                ...mapping,
+            }));
+
+            // NOTE: onValueSet clears errors so setting this later
+            onErrorSet({
+                fields: {
+                    figures: {
+                        $internal: undefined,
+                        members: {
+                            ...skippedDeleteFiguresErrors,
+                            ...skippedSaveFiguresErrors,
+                            ...errors,
+                        },
+                    },
+                },
+            });
+
+            // NOTE: Not sure if onValueSet also sets pristine value
+            onPristineSet(true);
+
+            const saveCount = savedFigures.length;
+            const deleteCount = deletedFigures.length;
+
+            const saveFailedCount = saveRequests.length - saveCount;
+            const deleteFailedCount = deleteRequests.length - deleteCount;
+
+            if (saveCount > 0) {
+                notify({
+                    children: `${saveCount} figures saved successfully!`,
+                    variant: 'success',
+                });
+            }
+            if (saveFailedCount > 0) {
+                notify({
+                    children: `Failed to save ${saveFailedCount} figures!`,
+                    variant: 'error',
+                });
+            }
+            if (deleteCount > 0) {
+                notify({
+                    children: `${deleteCount} figures deleted successfully!`,
+                    variant: 'success',
+                });
+            }
+            if (deleteFailedCount > 0) {
+                notify({
+                    children: `Failed to delete ${deleteFailedCount} figures!`,
+                    variant: 'error',
+                });
+            }
+        },
+        [
+            end,
+            notify,
+            onPristineSet,
+            onErrorSet,
+            onValueSet,
+            setOrganizations,
+            setTagOptions,
+            setViolenceContextOptions,
+        ],
+    );
+
+    const [
+        updateFigures,
+        { loading: updateFiguresLoading },
+    ] = useMutation<UpdateFiguresMutation, UpdateFiguresMutationVariables>(
+        UPDATE_FIGURES,
+        {
+            onCompleted: (response) => {
+                const { bulkUpdateFigures: bulkUpdateFiguresRes } = response;
+                if (!bulkUpdateFiguresRes) {
+                    handleBulkSaveEnd({ entrySaved: true, noFigures: false });
+                    return;
+                }
+
+                const { errors, result, deletedResult } = bulkUpdateFiguresRes;
+                // NOTE: We do not need to make sure that the no. of items in
+                // deleteIds is equal to deleteResponses
+                // NOTE: We need to make sure that the no. of items in
+                // errorResponses and deleteResponses is equal to figures
+                updateResponses({
+                    errorResponses: errors,
+                    saveResponses: result,
+                    deleteResponses: deletedResult,
+                });
+                const {
+                    deleteRequests: nextDeleteRequests,
+                    saveRequests: nextSaveRequests,
+                    isEmpty,
+                } = getNextRequests();
+
+                if (!isEmpty) {
+                    updateFigures({
+                        variables: {
+                            figures: nextSaveRequests,
+                            deleteIds: nextDeleteRequests.map((item) => item.id),
+                        },
+                    });
+                    return;
+                }
+
+                handleBulkSaveEnd({ entrySaved: true, noFigures: false });
+            },
+            onError: (errors) => {
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
+                onErrorSet({
+                    $internal: errors.message,
+                });
+
+                handleBulkSaveEnd({ entrySaved: true, noFigures: false });
+            },
+        },
+    );
+
     const [
         updateEntry,
         { loading: updateLoading },
@@ -439,6 +820,7 @@ function EntryForm(props: EntryFormProps) {
             onCompleted: (response) => {
                 const { updateEntry: updateEntryRes } = response;
                 if (!updateEntryRes) {
+                    handleBulkSaveEnd({ entrySaved: false, noFigures: true });
                     return;
                 }
                 const { errors, result } = updateEntryRes;
@@ -446,30 +828,43 @@ function EntryForm(props: EntryFormProps) {
                     const newError = transformErrorForEntry(errors);
                     notifyGQLError(errors);
                     onErrorSet(newError);
+                    handleBulkSaveEnd({ entrySaved: false, noFigures: true });
+                    return;
                 }
                 if (result) {
                     const {
                         organizationsForState,
-                        eventsForState,
-                        tagOptionsForState,
-                        violenceContextOptionsForState,
                         entryForState,
-                    } = getValuesFromResponse(result);
+                    } = getValuesFromEntry(result);
 
                     setOrganizations(organizationsForState);
-                    setEvents(eventsForState);
-                    setTagOptions(tagOptionsForState);
-                    setViolenceContextOptions(violenceContextOptionsForState);
                     setSourcePreview(result.preview ?? undefined);
                     setAttachment(result.document ?? undefined);
 
-                    onValueSet(entryForState);
+                    // NOTE: Not updating the figures yet
+                    onValueSet((oldValue) => ({
+                        ...entryForState,
+                        figures: oldValue.figures,
+                    }));
 
-                    onPristineSet(true);
-                    notify({
-                        children: 'Entry updated successfully!',
-                        variant: 'success',
-                    });
+                    const {
+                        isEmpty,
+                        deleteRequests: nextDeleteRequests,
+                        saveRequests: nextSaveRequests,
+                    } = getNextRequests();
+
+                    if (isEmpty) {
+                        // Only call this if there are not figures to save
+                        onPristineSet(true);
+                        handleBulkSaveEnd({ entrySaved: true, noFigures: true });
+                    } else {
+                        updateFigures({
+                            variables: {
+                                figures: nextSaveRequests,
+                                deleteIds: nextDeleteRequests.map((item) => item.id),
+                            },
+                        });
+                    }
                 }
             },
             onError: (errors) => {
@@ -480,6 +875,7 @@ function EntryForm(props: EntryFormProps) {
                 onErrorSet({
                     $internal: errors.message,
                 });
+                end();
             },
         },
     );
@@ -501,8 +897,6 @@ function EntryForm(props: EntryFormProps) {
         variables,
         onCompleted: (response) => {
             const { entry } = removeNull(response);
-            // FIXME: when entry is null, the onCompleted shouldn't be called at all
-            // Handle this differently
             if (!entry) {
                 setEntryFetchFailed(true);
                 return;
@@ -510,31 +904,39 @@ function EntryForm(props: EntryFormProps) {
 
             const {
                 organizationsForState,
+                entryForState,
+            } = getValuesFromEntry(entry);
+            const {
+                organizationsForState: organizationsForState2,
                 eventsForState,
+                figuresForState,
                 tagOptionsForState,
                 violenceContextOptionsForState,
-                entryForState,
-            } = getValuesFromResponse(entry);
+            } = getValuesFromFigures(entry.figures ?? []);
 
-            setOrganizations(organizationsForState);
-            setEvents(eventsForState);
-            setTagOptions(tagOptionsForState);
-            setViolenceContextOptions(violenceContextOptionsForState);
             setSourcePreview(entry.preview);
             setAttachment(entry.document);
 
-            onValueSet(entryForState);
+            setEvents(eventsForState);
+            setTagOptions(tagOptionsForState);
+            setViolenceContextOptions(violenceContextOptionsForState);
+
+            setOrganizations(organizationsForState);
+            setOrganizations(organizationsForState2);
+
+            onValueSet({
+                ...entryForState,
+                figures: figuresForState
+                    .filter(isDefined)
+                    .sort((foo, bar) => compareStringAsNumber(foo.id, bar.id)),
+            });
 
             const mainFigure = entry.figures?.find((element) => (
                 element.id === initialFigureId
             ));
             setSelectedFigure(mainFigure?.uuid);
             setSelectedFieldType(initialFieldType ?? undefined);
-        },
-    });
 
-    const figureMapping = useMemo(
-        () => {
             const figures = entryData?.entry?.figures;
             const mapping = listToMap(
                 figures,
@@ -545,24 +947,79 @@ function EntryForm(props: EntryFormProps) {
                     fieldStatuses: figure.lastReviewCommentStatus,
                 }),
             );
-            return mapping;
+            setFigureMapping(mapping);
         },
-        [entryData],
+    });
+
+    const loading = (
+        getEntryLoading
+        || pending
+        || saveLoading
+        || updateLoading
+        || updateFiguresLoading
+        || createAttachmentLoading
+        || parkedItemDataLoading
+        || createSourcePreviewLoading
     );
 
-    // eslint-disable-next-line max-len
-    const loading = getEntryLoading || saveLoading || updateLoading || createAttachmentLoading || parkedItemDataLoading || createSourcePreviewLoading;
+    const resetWatchdog = useWatchDog(
+        pending || pristine,
+        30 * 1000,
+        () => {
+            notify({
+                children: 'You have some unsaved changes. Make sure to save your progress!',
+                variant: 'default',
+            });
+        },
+    );
+
+    const onValueChange: typeof onValueChangeFromForm = useCallback(
+        (...args) => {
+            onValueChangeFromForm(...args);
+            resetWatchdog();
+        },
+        [onValueChangeFromForm, resetWatchdog],
+    );
 
     const handleSubmit = useCallback((finalValue: PartialFormValues) => {
+        const figuresToDelete = finalValue?.figures
+            ?.map((item) => {
+                if (!item.deleted) {
+                    return undefined;
+                }
+                if (!item.id) {
+                    return undefined;
+                }
+
+                return {
+                    id: item.id,
+                    uuid: item.uuid,
+                };
+            })
+            .filter(isDefined);
+        const figuresToCreateOrUpdate = finalValue?.figures?.filter(
+            (item) => !item.deleted && item.stale,
+        ).map((item) => {
+            const returnValue = { ...item };
+            delete returnValue.stale;
+            delete returnValue.deleted;
+            return returnValue;
+        });
+
+        // NOTE: This will also start the pending state
+        start({
+            deleteRequests: figuresToDelete ?? [],
+            saveRequests: (figuresToCreateOrUpdate ?? []) as FormValues['figures'],
+        });
+
         const completeValue = finalValue as FormValues;
         if (entryId) {
             const entry = {
                 id: entryId,
-                figures: completeValue.figures,
+                figures: undefined,
                 ...completeValue.analysis,
                 ...completeValue.details,
             } as WithId<EntryFormFields>;
-
             updateEntry({
                 variables: {
                     entry,
@@ -570,18 +1027,17 @@ function EntryForm(props: EntryFormProps) {
             });
         } else {
             const entry = {
-                figures: completeValue.figures,
+                figures: undefined,
                 ...completeValue.analysis,
                 ...completeValue.details,
             } as EntryFormFields;
-
             createEntry({
                 variables: {
                     entry: entry as FormType,
                 },
             });
         }
-    }, [createEntry, updateEntry, entryId]);
+    }, [createEntry, updateEntry, entryId, start]);
 
     const handleUrlProcess = useCallback(
         (url: string) => {
@@ -639,6 +1095,43 @@ function EntryForm(props: EntryFormProps) {
         onValueRemove: onFigureRemove,
     } = useFormArray<'figures', PartialFigureValues>('figures', onValueChange);
 
+    const handleFigureChange: typeof onFigureChange = useCallback(
+        (val, otherName) => {
+            onFigureChange(
+                (oldValue) => {
+                    const newVal = typeof val === 'function'
+                        ? val(oldValue)
+                        : val;
+                    return { ...newVal, stale: true };
+                },
+                otherName,
+            );
+        },
+        [onFigureChange],
+    );
+
+    const handleFigureRemove: typeof onFigureRemove = useCallback(
+        (index) => {
+            onValueChange(
+                (oldFigures: PartialFormValues['figures'] = []) => {
+                    const figure = oldFigures[index];
+                    if (!figure) {
+                        return oldFigures;
+                    }
+                    const newFigures = [...oldFigures];
+                    if (figure.id) {
+                        newFigures.splice(index, 1, { ...figure, deleted: true });
+                    } else {
+                        newFigures.splice(index, 1);
+                    }
+                    return newFigures;
+                },
+                'figures',
+            );
+        },
+        [onValueChange],
+    );
+
     const handleFigureAdd = useCallback(
         () => {
             const uuid = uuidv4();
@@ -654,6 +1147,7 @@ function EntryForm(props: EntryFormProps) {
                 endDateAccuracy: dayAccuracy,
                 displacementOccurred: unknownDisplacement,
                 sources: [],
+                entry: entryId,
             };
             handleSelectedFigureChange(newFigure.uuid);
             onValueChange(
@@ -665,7 +1159,7 @@ function EntryForm(props: EntryFormProps) {
                 variant: 'default',
             });
         },
-        [onValueChange, value, notify, handleSelectedFigureChange],
+        [onValueChange, value, notify, handleSelectedFigureChange, entryId],
     );
 
     const handleFigureClone = useCallback(
@@ -706,6 +1200,8 @@ function EntryForm(props: EntryFormProps) {
                 role: undefined,
 
                 wasSubfact: undefined,
+
+                stale: true,
             };
             handleSelectedFigureChange(newFigure.uuid);
             onValueChange(
@@ -833,8 +1329,6 @@ function EntryForm(props: EntryFormProps) {
                             onRemoveAttachment={handleAttachmentRemove}
                             onUrlProcess={handleUrlProcess}
                             onRemoveUrl={handleRemoveUrl}
-                            organizations={organizations}
-                            setOrganizations={setOrganizations}
                             mode={mode}
                         />
                     </TabPanel>
@@ -842,7 +1336,7 @@ function EntryForm(props: EntryFormProps) {
                         className={styles.analysisAndFigures}
                         name="figures-and-analysis"
                     >
-                        {/* FIXME: Trends and patterns input element
+                        {/* NOTE: Trends and patterns input element
                             temporarily hidden until further notice */}
                         <Section
                             className={styles.hidden}
@@ -860,7 +1354,7 @@ function EntryForm(props: EntryFormProps) {
                         <Section
                             heading="Figures"
                             contentClassName={styles.figuresContent}
-                            actions={editMode && (
+                            actions={editMode && entryId && (
                                 <Button
                                     name={undefined}
                                     onClick={handleFigureAdd}
@@ -878,61 +1372,61 @@ function EntryForm(props: EntryFormProps) {
                                     No figures yet
                                 </div>
                             ) : value.figures?.map((fig, index) => (
-                                <FigureInput
-                                    key={fig.uuid}
-                                    selectedFigure={selectedFigure}
-                                    setSelectedFigure={handleSelectedFigureChange}
-                                    index={index}
-                                    value={fig}
-                                    onChange={onFigureChange}
-                                    onRemove={onFigureRemove}
-                                    error={error?.fields?.figures?.members?.[fig.uuid]}
-                                    disabled={loading || !processed}
-                                    mode={mode}
-                                    optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
-                                    tagOptions={tagOptions}
-                                    setTagOptions={setTagOptions}
-                                    violenceContextOptions={violenceContextOptions}
-                                    setViolenceContextOptions={setViolenceContextOptions}
-                                    events={events}
-                                    setEvents={setEvents}
-                                    // eslint-disable-next-line max-len
-                                    causeOptions={figureOptionsData?.crisisType?.enumValues as CauseOptions}
-                                    // eslint-disable-next-line max-len
-                                    accuracyOptions={figureOptionsData?.accuracyList?.enumValues as AccuracyOptions}
-                                    // eslint-disable-next-line max-len
-                                    categoryOptions={figureOptionsData?.figureCategoryList?.enumValues as CategoryOptions}
-                                    // eslint-disable-next-line max-len
-                                    unitOptions={figureOptionsData?.unitList?.enumValues as UnitOptions}
-                                    // eslint-disable-next-line max-len
-                                    termOptions={figureOptionsData?.figureTermList?.enumValues as TermOptions}
-                                    // eslint-disable-next-line max-len
-                                    roleOptions={figureOptionsData?.roleList?.enumValues as RoleOptions}
-                                    // eslint-disable-next-line max-len
-                                    displacementOptions={figureOptionsData?.displacementOccurence?.enumValues as DisplacementOptions}
-                                    // eslint-disable-next-line max-len
-                                    identifierOptions={figureOptionsData?.identifierList?.enumValues as IdentifierOptions}
-                                    // eslint-disable-next-line max-len
-                                    genderCategoryOptions={figureOptionsData?.disaggregatedGenderList?.enumValues as GenderOptions}
-                                    // eslint-disable-next-line max-len
-                                    quantifierOptions={figureOptionsData?.quantifierList?.enumValues as QuantifierOptions}
-                                    // eslint-disable-next-line max-len
-                                    dateAccuracyOptions={figureOptionsData?.dateAccuracy?.enumValues as DateAccuracyOptions}
-                                    // eslint-disable-next-line max-len
-                                    disasterCategoryOptions={figureOptionsData?.disasterCategoryList}
-                                    violenceCategoryOptions={figureOptionsData?.violenceList}
-                                    osvSubTypeOptions={figureOptionsData?.osvSubTypeList}
-                                    // eslint-disable-next-line max-len
-                                    otherSubTypeOptions={figureOptionsData?.otherSubTypeList}
-                                    trafficLightShown={trafficLightShown}
-                                    organizations={organizations}
-                                    setOrganizations={setOrganizations}
-                                    onFigureClone={handleFigureClone}
-                                    isRecommended={figureMapping[fig.uuid]?.role === 'RECOMMENDED'}
-                                    reviewStatus={figureMapping[fig.uuid]?.reviewStatus}
-                                    fieldStatuses={figureMapping[fig.uuid]?.fieldStatuses}
-                                    defaultShownField={selectedFieldType}
-                                />
+                                fig.deleted
+                                    ? null
+                                    : (
+                                        <FigureInput
+                                            key={fig.uuid}
+                                            selectedFigure={selectedFigure}
+                                            setSelectedFigure={handleSelectedFigureChange}
+                                            index={index}
+                                            value={fig}
+                                            onChange={handleFigureChange}
+                                            onRemove={handleFigureRemove}
+                                            error={error?.fields?.figures?.members?.[fig.uuid]}
+                                            disabled={loading || !processed}
+                                            mode={mode}
+                                            // eslint-disable-next-line max-len
+                                            optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
+                                            events={events}
+                                            setEvents={setEvents}
+                                            // eslint-disable-next-line max-len
+                                            causeOptions={figureOptionsData?.crisisType?.enumValues as CauseOptions}
+                                            // eslint-disable-next-line max-len
+                                            accuracyOptions={figureOptionsData?.accuracyList?.enumValues as AccuracyOptions}
+                                            // eslint-disable-next-line max-len
+                                            categoryOptions={figureOptionsData?.figureCategoryList?.enumValues as CategoryOptions}
+                                            // eslint-disable-next-line max-len
+                                            unitOptions={figureOptionsData?.unitList?.enumValues as UnitOptions}
+                                            // eslint-disable-next-line max-len
+                                            termOptions={figureOptionsData?.figureTermList?.enumValues as TermOptions}
+                                            // eslint-disable-next-line max-len
+                                            roleOptions={figureOptionsData?.roleList?.enumValues as RoleOptions}
+                                            // eslint-disable-next-line max-len
+                                            displacementOptions={figureOptionsData?.displacementOccurence?.enumValues as DisplacementOptions}
+                                            // eslint-disable-next-line max-len
+                                            identifierOptions={figureOptionsData?.identifierList?.enumValues as IdentifierOptions}
+                                            // eslint-disable-next-line max-len
+                                            genderCategoryOptions={figureOptionsData?.disaggregatedGenderList?.enumValues as GenderOptions}
+                                            // eslint-disable-next-line max-len
+                                            quantifierOptions={figureOptionsData?.quantifierList?.enumValues as QuantifierOptions}
+                                            // eslint-disable-next-line max-len
+                                            dateAccuracyOptions={figureOptionsData?.dateAccuracy?.enumValues as DateAccuracyOptions}
+                                            // eslint-disable-next-line max-len
+                                            disasterCategoryOptions={figureOptionsData?.disasterCategoryList}
+                                            // eslint-disable-next-line max-len
+                                            violenceCategoryOptions={figureOptionsData?.violenceList}
+                                            osvSubTypeOptions={figureOptionsData?.osvSubTypeList}
+                                            // eslint-disable-next-line max-len
+                                            otherSubTypeOptions={figureOptionsData?.otherSubTypeList}
+                                            trafficLightShown={trafficLightShown}
+                                            onFigureClone={handleFigureClone}
+                                            isRecommended={figureMapping[fig.uuid]?.role === 'RECOMMENDED'}
+                                            reviewStatus={figureMapping[fig.uuid]?.reviewStatus}
+                                            fieldStatuses={figureMapping[fig.uuid]?.fieldStatuses}
+                                            defaultShownField={selectedFieldType}
+                                        />
+                                    )
                             ))}
                         </Section>
                     </TabPanel>

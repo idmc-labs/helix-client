@@ -1,5 +1,6 @@
 import {
     CreateEntryMutationVariables,
+    UpdateFiguresMutationVariables,
     CreateAttachmentMutation,
     CreateSourcePreviewMutation,
     FigureOptionsForEntryFormQuery,
@@ -12,9 +13,13 @@ import { PurgeNull } from '#types';
 // NOTE: change info for FormType
 export type FormType = CreateEntryMutationVariables['entry'];
 
-type RawFigure = NonNullable<NonNullable<FormType['figures']>[number]>;
-// FIXME: use WithID
-export type FigureFormProps = PurgeNull<RawFigure> & { id: string };
+type RawFigure = NonNullable<NonNullable<UpdateFiguresMutationVariables['figures']>[number]>;
+export type FigureFormProps = PurgeNull<Omit<RawFigure, 'uuid'>> & {
+    id: string,
+    stale?: boolean,
+    deleted?: boolean,
+    uuid: string,
+};
 
 export type AgeFormProps = NonNullable<NonNullable<FigureFormProps['disaggregationAge']>[number]>;
 export type GeoLocationFormProps = NonNullable<NonNullable<FigureFormProps['geoLocations']>[number]>;

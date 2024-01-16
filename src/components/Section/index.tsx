@@ -13,6 +13,7 @@ interface SectionProps {
     headerClassName?: string;
     contentClassName?: string;
     subSection?: boolean;
+    bordered?: boolean;
     elementRef?: React.RefObject<HTMLDivElement>;
 }
 
@@ -25,13 +26,18 @@ function Section(props: SectionProps) {
         headerClassName,
         contentClassName,
         subSection,
+        bordered,
         elementRef,
     } = props;
 
     return (
         <section
             ref={elementRef}
-            className={_cs(className, styles.section)}
+            className={_cs(
+                className,
+                styles.section,
+                bordered && styles.bordered,
+            )}
         >
             <Header
                 className={_cs(

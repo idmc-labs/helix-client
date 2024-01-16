@@ -1,21 +1,22 @@
-import React, { useState, useMemo, useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
-    useSortState,
     Pager,
     Modal,
     SortContext,
     createYesNoColumn,
 } from '@togglecorp/toggle-ui';
+
+import TableMessage from '#components/TableMessage';
 import {
     createTextColumn,
     createDateColumn,
     createCustomActionColumn,
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
-
+import useFilterState from '#hooks/useFilterState';
 import {
     UserListQuery,
     UserListQueryVariables,
@@ -28,36 +29,29 @@ import {
     ToggleUserReportingTeamStatusMutation,
     ToggleUserReportingTeamStatusMutationVariables,
 } from '#generated/types';
-import useDebouncedValue from '#hooks/useDebouncedValue';
 import useModalState from '#hooks/useModalState';
-
-import Message from '#components/Message';
+import { expandObject, hasNoData } from '#utils/common';
 import NotificationContext from '#components/NotificationContext';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
+import UserEmailChangeForm from '#components/forms/UserEmailChangeForm';
 
 import ActionCell, { ActionProps } from './UserActions';
 import UserFilter from './UserFilter/index';
 import styles from './styles.css';
-import UserEmailChangeForm from '#components/forms/UserEmailChangeForm';
 
 const GET_USERS_LIST = gql`
     query UserList(
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $fullName: String,
-        $roleIn: [String!],
-        $isActive: Boolean,
+        $filters: UserFilterDataInputType,
     ) {
         users(
-            includeInactive: true,
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            fullName: $fullName,
-            roleIn: $roleIn,
-            isActive: $isActive,
+            filters: $filters,
         ) {
             results {
                 dateJoined
@@ -134,11 +128,6 @@ const TOGGLE_USER_REPORTING_TEAM_STATUS = gql`
     }
 `;
 
-const defaultSorting = {
-    name: 'date_joined',
-    direction: 'dsc',
-};
-
 type UserRolesField = NonNullable<NonNullable<UserListQuery['users']>['results']>[number];
 
 const keySelector = (item: UserRolesField) => item.id;
@@ -152,22 +141,29 @@ function UserRoles(props: UserRolesProps) {
         className,
     } = props;
 
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting || defaultSorting;
+    const {
+        page,
+        rawPage,
+        setPage,
 
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
+        ordering,
+        sortState,
 
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-    const debouncedPage = useDebouncedValue(page);
+        rawFilter,
+        initialFilter,
+        filter,
+        setFilter,
 
-    const [
-        usersQueryFilters,
-        setUsersQueryFilters,
-    ] = useState<PurgeNull<UserListQueryVariables>>();
+        pageSize,
+        rawPageSize,
+        setPageSize,
+    } = useFilterState<PurgeNull<NonNullable<UserListQueryVariables['filters']>>>({
+        filter: {},
+        ordering: {
+            name: 'date_joined',
+            direction: 'dsc',
+        },
+    });
 
     const [
         shouldShowEmailEditModal,
@@ -176,34 +172,21 @@ function UserRoles(props: UserRolesProps) {
         hideEmailEditModal,
     ] = useModalState();
 
-    const onFilterChange = React.useCallback(
-        (value: PurgeNull<UserListQueryVariables>) => {
-            setUsersQueryFilters(value);
-            setPage(1);
-        },
-        [],
-    );
-
-    const handlePageSizeChange = useCallback(
-        (value: number) => {
-            setPageSize(value);
-            setPage(1);
-        },
-        [],
-    );
-
     const usersVariables = useMemo(
         (): UserListQueryVariables => ({
             ordering,
-            page: debouncedPage,
+            page,
             pageSize,
-            ...usersQueryFilters,
+            filters: expandObject<NonNullable<UserListQueryVariables['filters']>>(
+                filter,
+                { includeInactive: true },
+            ),
         }),
         [
             ordering,
-            debouncedPage,
+            page,
             pageSize,
-            usersQueryFilters,
+            filter,
         ],
     );
 
@@ -214,8 +197,9 @@ function UserRoles(props: UserRolesProps) {
 
     const {
         previousData,
-        data: userList = previousData,
+        data: users = previousData,
         loading: usersLoading,
+        error: usersError,
     } = useQuery<UserListQuery, UserListQueryVariables>(GET_USERS_LIST, {
         variables: usersVariables,
     });
@@ -479,7 +463,7 @@ function UserRoles(props: UserRolesProps) {
         ],
     );
 
-    const totalUsersCount = userList?.users?.totalCount ?? 0;
+    const totalUsersCount = users?.users?.totalCount ?? 0;
 
     return (
         <Container
@@ -489,24 +473,27 @@ function UserRoles(props: UserRolesProps) {
             className={_cs(className, styles.userContainer)}
             footerContent={(
                 <Pager
-                    activePage={page}
+                    activePage={rawPage}
                     itemsCount={totalUsersCount}
-                    maxItemsPerPage={pageSize}
+                    maxItemsPerPage={rawPageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={handlePageSizeChange}
+                    onItemsPerPageChange={setPageSize}
                 />
             )}
             description={(
                 <UserFilter
-                    onFilterChange={onFilterChange}
+                    currentFilter={rawFilter}
+                    initialFilter={initialFilter}
+                    onFilterChange={setFilter}
                 />
             )}
         >
+            {loadingUsers && <Loading absolute />}
             {totalUsersCount > 0 && (
                 <SortContext.Provider value={sortState}>
                     <Table
                         className={styles.table}
-                        data={userList?.users?.results}
+                        data={users?.users?.results}
                         keySelector={keySelector}
                         columns={usersColumn}
                         resizableColumn
@@ -514,10 +501,14 @@ function UserRoles(props: UserRolesProps) {
                     />
                 </SortContext.Provider>
             )}
-            {loadingUsers && <Loading absolute />}
-            {!loadingUsers && totalUsersCount <= 0 && (
-                <Message
-                    message="No users found."
+            {!loadingUsers && (
+                <TableMessage
+                    errored={!!usersError}
+                    filtered={!hasNoData(filter)}
+                    totalItems={totalUsersCount}
+                    emptyMessage="No users found"
+                    emptyMessageWithFilters="No users found with applied filters"
+                    errorMessage="Could not fetch users"
                 />
             )}
             {shouldShowEmailEditModal && (

@@ -4,7 +4,6 @@ import ProgressBar from '#components/ProgressBar';
 
 import styles from './styles.css';
 
-// FIXME: move outside
 export interface StackedProgressProps {
     className?: string;
     barHeight?: number;
@@ -29,8 +28,14 @@ function StackedProgress(props: StackedProgressProps) {
         () => [
             {
                 title: 'Approved',
-                color: 'var(--color-accent)',
+                // FIXME: We should use a different color/color-name
+                color: 'var(--color-disaster)',
                 value: approved,
+            },
+            {
+                title: 'Re-requested',
+                color: 'var(--color-primary)',
+                value: reRequested,
             },
             {
                 title: 'In Progress',
@@ -38,13 +43,8 @@ function StackedProgress(props: StackedProgressProps) {
                 value: inProgress,
             },
             {
-                title: 'Re-requested',
-                color: 'var(--color-danger)',
-                value: reRequested,
-            },
-            {
                 title: 'To be Reviewed',
-                color: 'var(--color-primary)',
+                color: 'var(--tui-color-background-input-section-light)',
                 value: notStarted,
             },
         ],

@@ -10,13 +10,20 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
+import useOptions from '#hooks/useOptions';
 import { GetUserQuery, GetUserQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
 
 const USER = gql`
-    query GetUser($search: String, $ordering: String, $permissions: [String!]) {
-        users(fullName: $search, ordering: $ordering, permissions: $permissions) {
+    query GetUser(
+        $ordering: String,
+        $filters: UserFilterDataInputType,
+    ) {
+        users(
+            ordering: $ordering,
+            filters: $filters,
+        ) {
             totalCount
             results {
                 id
@@ -45,9 +52,11 @@ type MultiSelectInputProps<
     K,
     UserOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
 > & {
-    permissions?: string[];
+    // TODO: Make permissions typesafe after updating typescript
+    // permissions?: `${PermissionAction}_${PermissionEntity}`[];
+    permissions?: string[] | null;
 };
 
 function UserMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
@@ -65,11 +74,15 @@ function UserMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>)
     const searchVariable = useMemo(
         (): GetUserQueryVariables => (
             debouncedSearchText ? {
-                search: debouncedSearchText,
-                permissions,
+                filters: {
+                    fullName: debouncedSearchText,
+                    permissions,
+                },
             } : {
-                ordering: 'fullName',
-                permissions,
+                ordering: 'full_name',
+                filters: {
+                    permissions,
+                },
             }
         ),
         [debouncedSearchText, permissions],
@@ -87,6 +100,8 @@ function UserMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>)
     const searchOptions = data?.users?.results;
     const totalOptionsCount = data?.users?.totalCount;
 
+    const [options, setOptions] = useOptions('user');
+
     return (
         <SearchMultiSelectInput
             {...otherProps}
@@ -98,6 +113,8 @@ function UserMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>)
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
+            options={options}
+            onOptionsChange={setOptions}
         />
     );
 }

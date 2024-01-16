@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
     IoChevronForwardOutline,
     IoChevronDownOutline,
@@ -40,7 +40,7 @@ function CollapsibleContent<N>(props: Props<N>) {
         contentClassName,
     } = props;
 
-    const handleHeaderClick = React.useCallback(() => {
+    const handleHeaderClick = useCallback(() => {
         if (onExpansionChange) {
             onExpansionChange(!isExpanded, name);
         }

@@ -30,23 +30,9 @@
         gap: var(--spacing-medium);
     }
 
-    .housing-destroyed-container {
-        display: flex;
-    }
-
-    .empty-message {
-        /* FIXME: use approparite color token */
-        color: rgba(0, 0, 0, .3);
-    }
-
     .traffic-light {
         align-self: center;
         flex-basis: unset !important;
         flex-grow: unset !important;
     }
-
-    .geo-input {
-        height: 300px;
-    }
-
 }

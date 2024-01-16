@@ -1,33 +1,45 @@
 import React, { useMemo, useContext, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
+import { _cs, isDefined, mapToList } from '@togglecorp/fujs';
+import { Button, Modal } from '@togglecorp/toggle-ui';
+import { IoFilterOutline, IoClose } from 'react-icons/io5';
 import {
     gql,
     useQuery,
 } from '@apollo/client';
-import { _cs } from '@togglecorp/fujs';
-import {
-    Button,
-    Modal,
-} from '@togglecorp/toggle-ui';
-
-import { MarkdownPreview } from '#components/MarkdownEditor';
-import DomainContext from '#components/DomainContext';
-import Container from '#components/Container';
-import TextBlock from '#components/TextBlock';
-import NumberBlock from '#components/NumberBlock';
-import PageHeader from '#components/PageHeader';
-import EventForm from '#components/forms/EventForm';
-import useModalState from '#hooks/useModalState';
-import EntriesFiguresTable from '#components/tables/EntriesFiguresTable';
-import Status from '#components/tableHelpers/Status';
-import ButtonLikeLink from '#components/ButtonLikeLink';
-import route from '#config/routes';
 
 import {
     EventSummaryQuery,
     EventSummaryQueryVariables,
+    EventAggregationsQuery,
+    EventAggregationsQueryVariables,
+    ExtractionEntryListFiltersQueryVariables,
 } from '#generated/types';
+import FiguresFilterOutput from '#components/rawTables/useFigureTable/FiguresFilterOutput';
+import SmartLink from '#components/SmartLink';
+import { PurgeNull } from '#types';
+import useFilterState from '#hooks/useFilterState';
+import Container from '#components/Container';
+import PageHeader from '#components/PageHeader';
+import useOptions from '#hooks/useOptions';
+import AdvancedFiguresFilter from '#components/rawTables/useFigureTable/AdvancedFiguresFilter';
+import { expandObject, mergeBbox, hasNoData } from '#utils/common';
+import useSidebarLayout from '#hooks/useSidebarLayout';
+import NdChart from '#components/NdChart';
+import IdpChart from '#components/IdpChart';
+import FloatingButton from '#components/FloatingButton';
+import CountriesMap, { Bounds } from '#components/CountriesMap';
+import { MarkdownPreview } from '#components/MarkdownEditor';
+import DomainContext from '#components/DomainContext';
+import TextBlock from '#components/TextBlock';
+import ButtonLikeLink from '#components/ButtonLikeLink';
+import Status from '#components/tableHelpers/Status';
+import EventForm from '#components/forms/EventForm';
+import useModalState from '#hooks/useModalState';
+import Message from '#components/Message';
+import route from '#config/routes';
 
+import CountriesEntriesFiguresTable from './CountriesEntriesFiguresTable';
 import styles from './styles.css';
 
 const EVENT = gql`
@@ -54,8 +66,9 @@ const EVENT = gql`
             countries {
                 id
                 idmcShortName
+                boundingBox
+                geojsonUrl
             }
-            glideNumbers
             eventNarrative
             violence {
                 id
@@ -81,9 +94,38 @@ const EVENT = gql`
                 id
                 username
             }
+            eventCodes {
+                id
+                eventCode
+            }
         }
     }
 `;
+
+const EVENT_AGGREGATIONS = gql`
+    query EventAggregations($filters: FigureExtractionFilterDataInputType!) {
+        figureAggregations(filters: $filters) {
+            idpsConflictFigures {
+                date
+                value
+            }
+            idpsDisasterFigures {
+                date
+                value
+            }
+            ndsConflictFigures {
+                date
+                value
+            }
+            ndsDisasterFigures {
+                date
+                value
+            }
+        }
+    }
+`;
+
+const now = new Date();
 
 interface EventProps {
     className?: string;
@@ -93,24 +135,8 @@ function Event(props: EventProps) {
     const { className } = props;
 
     const { eventId } = useParams<{ eventId: string }>();
-
-    const eventVariables = useMemo(
-        (): EventSummaryQueryVariables => ({
-            id: eventId,
-        }),
-        [eventId],
-    );
-
-    const {
-        data: eventData,
-        loading,
-    } = useQuery<EventSummaryQuery, EventSummaryQueryVariables>(EVENT, {
-        variables: eventVariables,
-    });
-
     const { user } = useContext(DomainContext);
-    const eventPermissions = user?.permissions?.event;
-    const figurePermissions = user?.permissions?.figure;
+    const [, setEventOptions] = useOptions('event');
 
     const [
         shouldShowAddEventModal,
@@ -119,12 +145,105 @@ function Event(props: EventProps) {
         hideAddEventModal,
     ] = useModalState<{ id: string, clone?: boolean }>();
 
-    let title = 'Event';
-    if (eventData?.event) {
-        const crisisName = eventData.event.crisis?.name;
-        const { name } = eventData.event;
-        title = crisisName ? `${crisisName} › ${name}` : name;
-    }
+    const figuresFilterState = useFilterState<PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>>({
+        filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
+    });
+    const {
+        filter: figuresFilter,
+        rawFilter: rawFiguresFilter,
+        initialFilter: initialFiguresFilter,
+        setFilter: setFiguresFilter,
+    } = figuresFilterState;
+
+    const eventVariables = useMemo(
+        (): EventSummaryQueryVariables => ({ id: eventId }),
+        [eventId],
+    );
+
+    const eventAggregationsVariables = useMemo(
+        (): EventAggregationsQueryVariables | undefined => ({
+            filters: expandObject(
+                figuresFilter,
+                {
+                    filterFigureEvents: [eventId],
+                },
+            ),
+        }),
+        [eventId, figuresFilter],
+    );
+
+    const {
+        data: eventData,
+        loading: eventDataLoading,
+        // error: eventDataLoadingError,
+    } = useQuery<EventSummaryQuery, EventSummaryQueryVariables>(EVENT, {
+        variables: eventVariables,
+        onCompleted: (response) => {
+            const { event: eventRes } = response;
+            if (!eventRes) {
+                return;
+            }
+            // NOTE: we are setting this options so that we can use event
+            // option when adding event on the event page
+            const { id, name } = eventRes;
+            setEventOptions([{ id, name }]);
+        },
+    });
+
+    const {
+        data: eventAggregations,
+        loading: eventAggregationsLoading,
+        // error: eventAggregationsError,
+    } = useQuery<EventAggregationsQuery>(EVENT_AGGREGATIONS, {
+        variables: eventAggregationsVariables,
+        skip: !eventAggregationsVariables,
+    });
+
+    const loading = eventDataLoading || eventAggregationsLoading;
+    // const errored = !!eventDataLoadingError || !!eventAggregationsError;
+    // const disabled = loading || errored;
+
+    const figureHiddenColumns = ['crisis' as const, 'event' as const];
+
+    const eventPermissions = user?.permissions?.event;
+    const figurePermissions = user?.permissions?.figure;
+
+    const eventYear = new Date(
+        eventData?.event?.endDate ?? eventData?.event?.startDate ?? now,
+    ).getFullYear();
+
+    const eventStatus = eventData?.event?.reviewStatus;
+
+    const bounds = mergeBbox(
+        eventData?.event?.countries
+            ?.map((country) => country.boundingBox as (GeoJSON.BBox | null | undefined))
+            .filter(isDefined),
+    );
+
+    const countries = eventData?.event?.countries;
+
+    const {
+        showSidebar,
+        containerClassName,
+        sidebarClassName,
+        sidebarSpaceReserverElement,
+        setShowSidebarTrue,
+        setShowSidebarFalse,
+    } = useSidebarLayout();
+
+    const floatingButtonVisibility = useCallback(
+        (scroll: number) => scroll >= 80 && !showSidebar,
+        [showSidebar],
+    );
+
+    const appliedFiltersCount = mapToList(
+        figuresFilter,
+        (item) => !hasNoData(item),
+    ).filter(Boolean).length;
 
     // NOTE: show review link if user can sign-off and event is approved/signed-off
     // NOTE: or user can approve and user is the assignee
@@ -154,161 +273,236 @@ function Event(props: EventProps) {
         [showAddEventModal],
     );
 
-    const eventStatus = eventData?.event?.reviewStatus;
+    const narrative = eventData?.event?.eventNarrative;
 
     return (
-        <div className={_cs(styles.event, className)}>
-            <PageHeader
-                title={title}
-                icons={eventStatus && (
-                    <Status
-                        className={styles.eventStatus}
-                        status={eventStatus}
-                    />
-                )}
-                actions={eventData?.event?.id && (
-                    <>
-                        {reviewLinkShown && (
-                            <ButtonLikeLink
-                                title="Review"
-                                route={route.eventReview}
-                                attrs={{ eventId }}
-                            >
-                                Review Event
-                            </ButtonLikeLink>
-                        )}
-                        {eventPermissions?.add && (
-                            <Button
-                                name={eventData.event.id}
-                                onClick={handleEventClone}
-                                disabled={loading}
-                            >
-                                Clone Event
-                            </Button>
-                        )}
-                        {eventPermissions?.change && (
-                            <Button
-                                name={eventData.event.id}
-                                onClick={handleEventEdit}
-                                disabled={loading}
-                            >
-                                Edit Event
-                            </Button>
-                        )}
-                    </>
-                )}
-            />
-            <Container
-                className={styles.container}
-                contentClassName={styles.details}
-                heading="Details"
-            >
-                {eventData ? (
-                    <>
-                        <div className={styles.stats}>
-                            <TextBlock
-                                label="Cause"
-                                value={eventData?.event?.eventTypeDisplay}
-                            />
-                            <NumberBlock
-                                label="Internal displacements"
-                                value={eventData?.event?.totalFlowNdFigures}
-                            />
-                            <NumberBlock
-                                label={
-                                    eventData?.event?.stockIdpFiguresMaxEndDate
-                                        ? `No. of IDPs as of ${eventData.event.stockIdpFiguresMaxEndDate}`
-                                        : 'No. of IDPs'
-                                }
-                                value={eventData?.event?.totalStockIdpFigures}
-                            />
-                            <TextBlock
-                                label="Event Codes"
-                                value={eventData?.event?.glideNumbers?.map((glideID) => glideID).join(', ')}
-                            />
-                            <TextBlock
-                                label="Start Date"
-                                value={eventData?.event?.startDate}
-                            />
-                            <TextBlock
-                                label="End Date"
-                                value={eventData?.event?.endDate}
-                            />
-
-                            <TextBlock
-                                label="Countries"
-                                value={eventData?.event?.countries?.map((country) => country.idmcShortName).join(', ')}
-                            />
-                            {eventData?.event?.eventType === 'CONFLICT' && (
-                                <>
-                                    <TextBlock
-                                        // NOTE: This block is hidden
-                                        className={styles.hidden}
-                                        label="Actor"
-                                        value={eventData?.event?.actor?.name}
-                                    />
-                                    <TextBlock
-                                        label="Violence Type"
-                                        value={eventData?.event?.violence?.name}
-                                    />
-                                    <TextBlock
-                                        label="Violence Subtype"
-                                        value={eventData?.event?.violenceSubType?.name}
-                                    />
-                                    <TextBlock
-                                        label="Context of Violence"
-                                        value={eventData?.event?.contextOfViolence?.map((context) => context.name).join(', ')}
-                                    />
-                                    <div />
-                                    <div />
-                                </>
+        <div className={_cs(styles.event, containerClassName, className)}>
+            {sidebarSpaceReserverElement}
+            <div className={styles.pageContent}>
+                <PageHeader
+                    title={eventData?.event?.name ?? 'Event'}
+                    icons={!!eventStatus && (
+                        <Status
+                            className={styles.eventStatus}
+                            status={eventStatus}
+                        />
+                    )}
+                    description={!showSidebar && (
+                        <Button
+                            name={undefined}
+                            onClick={setShowSidebarTrue}
+                            disabled={showSidebar}
+                            icons={<IoFilterOutline />}
+                        >
+                            {appliedFiltersCount > 0 ? `Filters (${appliedFiltersCount})` : 'Filters'}
+                        </Button>
+                    )}
+                    actions={(
+                        <>
+                            {reviewLinkShown && (
+                                <ButtonLikeLink
+                                    title="Review"
+                                    route={route.eventReview}
+                                    attrs={{ eventId }}
+                                >
+                                    Review Event
+                                </ButtonLikeLink>
                             )}
-                            {eventData?.event?.eventType === 'DISASTER' && (
-                                <>
-                                    <TextBlock
-                                        label="Hazard Subtype"
-                                        value={eventData?.event?.disasterSubType?.name}
-                                    />
-                                    <div />
-                                    <div />
-                                    <div />
-                                    <div />
-                                    <div />
-                                </>
+                            {eventPermissions?.add && (
+                                <Button
+                                    name={eventId}
+                                    onClick={handleEventClone}
+                                    disabled={loading}
+                                >
+                                    Clone Event
+                                </Button>
                             )}
-                            {eventData?.event?.eventType === 'OTHER' && (
-                                <>
-                                    <TextBlock
-                                        label="Subtype"
-                                        value={eventData?.event?.otherSubType?.name}
-                                    />
-                                    <div />
-                                    <div />
-                                    <div />
-                                    <div />
-                                    <div />
-                                </>
+                            {eventPermissions?.change && (
+                                <Button
+                                    name={eventId}
+                                    onClick={handleEventEdit}
+                                    disabled={loading}
+                                >
+                                    Edit Event
+                                </Button>
                             )}
-                        </div>
-                    </>
-                ) : (
-                    'Details not available'
-                )}
-            </Container>
-            <Container
-                className={styles.container}
-                heading="Narrative"
-            >
-                <MarkdownPreview
-                    markdown={eventData?.event?.eventNarrative ?? 'Narrative not available'}
+                        </>
+                    )}
                 />
-            </Container>
-            <EntriesFiguresTable
-                className={styles.largeContainer}
-                eventColumnHidden
-                crisisColumnHidden
-                eventId={eventId}
-            />
+                <div className={styles.stats}>
+                    <TextBlock
+                        label="Cause"
+                        value={eventData?.event?.eventTypeDisplay}
+                    />
+                    <TextBlock
+                        label="Start Date"
+                        value={eventData?.event?.startDate}
+                    />
+                    <TextBlock
+                        label="End Date"
+                        value={eventData?.event?.endDate}
+                    />
+                    {eventData?.event?.eventType === 'CONFLICT' && (
+                        <>
+                            <TextBlock
+                                // NOTE: This block is hidden
+                                className={styles.hidden}
+                                label="Actor"
+                                value={eventData?.event?.actor?.name}
+                            />
+                            <TextBlock
+                                label="Violence Type"
+                                value={eventData?.event?.violence?.name}
+                            />
+                            <TextBlock
+                                label="Violence Subtype"
+                                value={eventData?.event?.violenceSubType?.name}
+                            />
+                            <TextBlock
+                                label="Context of Violence"
+                                value={eventData?.event?.contextOfViolence?.map((context) => context.name).join(', ')}
+                            />
+                        </>
+                    )}
+                    {eventData?.event?.eventType === 'DISASTER' && (
+                        <TextBlock
+                            label="Hazard Subtype"
+                            value={eventData?.event?.disasterSubType?.name}
+                        />
+                    )}
+                    {eventData?.event?.eventType === 'OTHER' && (
+                        <TextBlock
+                            label="Subtype"
+                            value={eventData?.event?.otherSubType?.name}
+                        />
+                    )}
+                    <TextBlock
+                        label="Event Codes"
+                        value={eventData?.event?.eventCodes?.map((code) => code.eventCode).join(', ')}
+                    />
+                    <TextBlock
+                        label="Countries"
+                        value={countries?.map((country) => (
+                            <SmartLink
+                                key={country.id}
+                                route={route.country}
+                                attrs={{ countryId: country.id }}
+                            >
+                                {country.idmcShortName}
+                            </SmartLink>
+                        ))}
+                    />
+                    <TextBlock
+                        label="Crisis"
+                        value={eventData?.event?.crisis && (
+                            <SmartLink
+                                route={route.crisis}
+                                attrs={{ crisisId: eventData.event.crisis.id }}
+                            >
+                                {eventData.event.crisis.name}
+                            </SmartLink>
+                        )}
+                    />
+                </div>
+                <div className={styles.mainContent}>
+                    <FiguresFilterOutput
+                        className={styles.filterOutputs}
+                        filterState={figuresFilterState.rawFilter}
+                    />
+                    <Container
+                        className={styles.mapSection}
+                        compact
+                    >
+                        <CountriesMap
+                            className={styles.mapContainer}
+                            bounds={bounds as Bounds | undefined}
+                            countries={eventData?.event?.countries}
+                        />
+                    </Container>
+                    <div className={styles.charts}>
+                        <NdChart
+                            conflictData={
+                                eventAggregations
+                                    ?.figureAggregations
+                                    ?.ndsConflictFigures
+                            }
+                            disasterData={
+                                eventAggregations
+                                    ?.figureAggregations
+                                    ?.ndsDisasterFigures
+                            }
+                        />
+                        <IdpChart
+                            conflictData={
+                                eventAggregations
+                                    ?.figureAggregations
+                                    ?.idpsConflictFigures
+                            }
+                            disasterData={
+                                eventAggregations
+                                    ?.figureAggregations
+                                    ?.idpsDisasterFigures
+                            }
+                        />
+                    </div>
+                    <CountriesEntriesFiguresTable
+                        className={styles.countriesEntriesFiguresTable}
+                        eventId={eventId}
+                        eventYear={eventYear}
+                        figuresFilterState={figuresFilterState}
+                    />
+                    <Container
+                        className={styles.overview}
+                    >
+                        <Container
+                            heading="Narrative"
+                            borderless
+                        >
+                            {narrative ? (
+                                <MarkdownPreview
+                                    markdown={narrative}
+                                />
+                            ) : (
+                                <Message
+                                    message="No narrative found."
+                                />
+                            )}
+                        </Container>
+                    </Container>
+                </div>
+                <Container
+                    className={_cs(styles.filters, sidebarClassName)}
+                    heading="Filters"
+                    contentClassName={styles.filtersContent}
+                    headerActions={(
+                        <Button
+                            name={undefined}
+                            onClick={setShowSidebarFalse}
+                            transparent
+                            title="Close"
+                        >
+                            <IoClose />
+                        </Button>
+                    )}
+                >
+                    <AdvancedFiguresFilter
+                        currentFilter={rawFiguresFilter}
+                        initialFilter={initialFiguresFilter}
+                        onFilterChange={setFiguresFilter}
+                        hiddenFields={figureHiddenColumns}
+                        events={[eventId]}
+                    />
+                </Container>
+            </div>
+            <FloatingButton
+                name={undefined}
+                onClick={setShowSidebarTrue}
+                icons={<IoFilterOutline />}
+                variant="primary"
+                visibleOn={floatingButtonVisibility}
+            >
+                {appliedFiltersCount > 0 ? `Filters (${appliedFiltersCount})` : 'Filters'}
+            </FloatingButton>
             {shouldShowAddEventModal && (
                 <Modal
                     onClose={hideAddEventModal}

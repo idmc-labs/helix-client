@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useMemo, useCallback } from 'react';
 import {
     TextInput,
     SelectInput,
@@ -24,8 +24,9 @@ import {
     MutationUpdaterFn,
 } from '@apollo/client';
 
+import useOptions from '#hooks/useOptions';
 import MarkdownEditor from '#components/MarkdownEditor';
-import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
+import CountryMultiSelectInput from '#components/selections/CountryMultiSelectInput';
 import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
@@ -80,8 +81,8 @@ const GET_ORGANIZATIONS_LIST = gql`
         $pageSize: Int,
     ) {
         organizationList(
-            name_Unaccent_Icontains: $name,
             pageSize: $pageSize,
+            filters: { name_Unaccent_Icontains: $name },
         ) {
             results {
                 id
@@ -110,6 +111,7 @@ const CREATE_ORGANIZATION = gql`
                     id
                     idmcShortName
                     boundingBox
+                    geojsonUrl
                     iso2
                 }
             }
@@ -136,6 +138,7 @@ const UPDATE_ORGANIZATION = gql`
                     id
                     idmcShortName
                     boundingBox
+                    geojsonUrl
                     iso2
                 }
             }
@@ -160,6 +163,7 @@ const ORGANIZATION = gql`
                 id
                 idmcShortName
                 boundingBox
+                geojsonUrl
                 iso2
             }
         }
@@ -214,10 +218,7 @@ function OrganizationForm(props: OrganizationFormProps) {
         notifyGQLError,
     } = useContext(NotificationContext);
 
-    const [
-        countries,
-        setCountries,
-    ] = useState<CountryOption[] | null | undefined>();
+    const [, setCountries] = useOptions('country');
 
     // NOTE: no need to query if on edit mode
     const debouncedSearchText = useDebouncedValue(id ? undefined : value?.name);
@@ -374,7 +375,7 @@ function OrganizationForm(props: OrganizationFormProps) {
     const errored = !!organizationDataError;
     const disabled = loading || errored;
 
-    const handleSubmit = React.useCallback(
+    const handleSubmit = useCallback(
         (finalValues: PartialForm<FormType>) => {
             if (finalValues.id) {
                 updateOrganization({
@@ -463,8 +464,6 @@ function OrganizationForm(props: OrganizationFormProps) {
             <CountryMultiSelectInput
                 label="Countries"
                 name="countries"
-                options={countries}
-                onOptionsChange={setCountries}
                 value={value.countries}
                 onChange={onValueChange}
                 error={error?.fields?.countries?.$internal}

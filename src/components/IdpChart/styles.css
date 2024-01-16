@@ -1,0 +1,81 @@
+.idp-chart {
+    .content {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-large);
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+            gap: var(--spacing-medium);
+
+            .conflict-block {
+                color: var(--color-conflict);
+            }
+
+            .disaster-block {
+                color: var(--color-disaster);
+            }
+        }
+
+        .chart-container {
+            height: 14rem;
+
+            .svg {
+                width: 100%;
+                height: 100%;
+
+                .rect {
+                    fill: currentColor;
+                }
+
+                .circle {
+                    stroke: currentColor;
+                    fill: var(--color-foreground);
+                    r: 2pt;
+                    stroke-width: 1pt;
+                    transition: r var(--duration-transition-medium) ease-in-out, fill var(--duration-transition-medium) ease-in-out;
+
+                    &.hovered {
+                        r: 3pt;
+                        fill: currentColor;
+                    }
+                }
+
+                .path {
+                    fill: none;
+                    stroke: currentColor;
+                    stroke-width: 2pt;
+                }
+
+                .background-bars {
+                    color: var(--color-axes);
+
+                    .rect {
+                        opacity: 0;
+
+                        &:hover {
+                            opacity: 0.2;
+                        }
+                    }
+                }
+
+                .total-displacement {
+                    color: var(--color-disaster);
+                    pointer-events: none;
+                }
+
+                .conflict {
+                    pointer-events: none;
+                    color: var(--color-conflict);
+                }
+            }
+        }
+    }
+}
+
+.tooltip-content {
+    display: flex;
+    gap: var(--spacing-medium);
+    flex-direction: column;
+}

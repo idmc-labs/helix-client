@@ -1,9 +1,14 @@
 import React from 'react';
-import { ApolloClient, ApolloProvider, InMemoryCache, ApolloLink as ApolloLinkFromClient } from '@apollo/client';
+import {
+    ApolloClient,
+    ApolloProvider,
+    InMemoryCache,
+    ApolloLink as ApolloLinkFromClient,
+    HttpLink,
+} from '@apollo/client';
 import { ApolloLink } from 'apollo-link';
 import { RetryLink } from 'apollo-link-retry';
 import { RestLink } from 'apollo-link-rest';
-import { BatchHttpLink } from 'apollo-link-batch-http';
 import { createUploadLink } from 'apollo-upload-client';
 import { isDefined } from '@togglecorp/fujs';
 
@@ -36,16 +41,10 @@ const client = new ApolloClient({
                 new RestLink({
                     uri: 'https://osmnames.idmcdb.org',
                 }) as unknown as ApolloLink,
-                new BatchHttpLink({
+                new HttpLink({
                     uri: GRAPHQL_ENDPOINT,
                     credentials: 'include',
-                }),
-                /*
-                createHttpLink({
-                    uri: GRAPHQL_ENDPOINT,
-                    credentials: 'include',
-                }),
-                */
+                }) as unknown as ApolloLink,
             ]),
         ),
     ]) as unknown as ApolloLinkFromClient,

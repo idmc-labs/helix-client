@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useEffect } from 'react';
 import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import { gql, useQuery } from '@apollo/client';
@@ -7,12 +7,12 @@ import {
     useForm,
     createSubmitHandler,
 } from '@togglecorp/toggle-form';
-
 import {
     IoSearchOutline,
 } from 'react-icons/io5';
-import NonFieldError from '#components/NonFieldError';
 
+import BooleanInput from '#components/selections/BooleanInput';
+import NonFieldError from '#components/NonFieldError';
 import {
     enumKeySelector,
     enumLabelSelector,
@@ -29,8 +29,7 @@ import styles from './styles.css';
 const regionalCoordinator: UserRole = 'REGIONAL_COORDINATOR';
 const monitoringExpert: UserRole = 'MONITORING_EXPERT';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type UserFilterFields = Omit<UserListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type UserFilterFields = NonNullable<UserListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<UserFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -51,44 +50,22 @@ const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         fullName: [],
         roleIn: [],
-        // isActive: [],
+        isActive: [],
     }),
 };
 
-const defaultFormValues: PartialForm<FormType> = {
-    fullName: undefined,
-    roleIn: undefined,
-    // isActive: undefined,
-};
-
-/*
-const isActiveOptions = [
-    { id: 'true', name: 'Yes' },
-    { id: 'false', name: 'No' },
-];
-*/
-
 interface UsersFilterProps {
     className?: string;
-    onFilterChange: (value: PurgeNull<UserListQueryVariables>) => void;
+    initialFilter: PartialForm<FormType>;
+    currentFilter: PartialForm<FormType>;
+    onFilterChange: (value: PartialForm<FormType>) => void;
 }
-
-/*
-interface ActiveOption {
-    key: boolean;
-    label: string;
-}
-const isActiveOptions: ActiveOption[] = [
-    { key: true, label: 'Yes' },
-    { key: false, label: 'No' },
-];
-const keySelector = (item: ActiveOption) => item.key;
-const labelSelector = (item: ActiveOption) => item.label;
-*/
 
 function UserFilter(props: UsersFilterProps) {
     const {
         className,
+        initialFilter,
+        currentFilter,
         onFilterChange,
     } = props;
 
@@ -100,7 +77,18 @@ function UserFilter(props: UsersFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(defaultFormValues, schema);
+    } = useForm(currentFilter, schema);
+    // NOTE: Set the form value when initialFilter and currentFilter is changed on parent
+    // We cannot only use initialFilter as it will change the form value when
+    // currentFilter != initialFilter on mount
+    useEffect(
+        () => {
+            if (initialFilter === currentFilter) {
+                onValueSet(initialFilter);
+            }
+        },
+        [currentFilter, initialFilter, onValueSet],
+    );
 
     const {
         data: rolesOptions,
@@ -110,10 +98,10 @@ function UserFilter(props: UsersFilterProps) {
 
     const onResetFilters = useCallback(
         () => {
-            onValueSet(defaultFormValues);
-            onFilterChange(defaultFormValues);
+            onValueSet(initialFilter);
+            onFilterChange(initialFilter);
         },
-        [onValueSet, onFilterChange],
+        [onValueSet, onFilterChange, initialFilter],
     );
 
     const handleSubmit = useCallback((finalValues: FormType) => {
@@ -121,7 +109,7 @@ function UserFilter(props: UsersFilterProps) {
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
 
-    const filterChanged = defaultFormValues !== value;
+    const filterChanged = initialFilter !== value;
 
     const roleOptionsForPortfolio = useMemo(
         () => rolesOptions
@@ -162,19 +150,14 @@ function UserFilter(props: UsersFilterProps) {
                     error={error?.fields?.roleIn?.$internal}
                     disabled={rolesOptionsLoading || !!rolesOptionsError}
                 />
-                {/*
-                <SelectInput
+                <BooleanInput
                     className={styles.input}
                     label="Active"
                     name="isActive"
-                    options={isActiveOptions}
                     value={value.isActive}
-                    keySelector={keySelector}
-                    labelSelector={labelSelector}
                     onChange={onValueChange}
                     error={error?.fields?.isActive}
                 />
-                */}
                 <div className={styles.formButtons}>
                     <Button
                         name={undefined}

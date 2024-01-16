@@ -1,5 +1,5 @@
-import React, { useState, useContext, useCallback, useMemo } from 'react';
-import { _cs, isDefined } from '@togglecorp/fujs';
+import React, { useContext, useCallback, useMemo } from 'react';
+import { _cs, isDefined, isNotDefined, ReturnType } from '@togglecorp/fujs';
 import {
     TextInput,
     SelectInput,
@@ -18,8 +18,10 @@ import {
     idCondition,
     nullCondition,
     arrayCondition,
-    PartialForm,
     PurgeNull,
+    useFormArray,
+    ArraySchema,
+    PartialForm,
 } from '@togglecorp/toggle-form';
 import { IoCalculatorOutline, IoAddOutline } from 'react-icons/io5';
 import {
@@ -27,20 +29,21 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
+import { v4 as uuidv4 } from 'uuid';
 
+import useOptions from '#hooks/useOptions';
 import DomainContext from '#components/DomainContext';
 import Row from '#components/Row';
-import TagInput from '#components/TagInput';
 import NonFieldError from '#components/NonFieldError';
 import CrisisForm from '#components/forms/CrisisForm';
-import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
+import CountryMultiSelectInput from '#components/selections/CountryMultiSelectInput';
 import NotificationContext from '#components/NotificationContext';
 import CrisisSelectInput, { CrisisOption } from '#components/selections/CrisisSelectInput';
-import ViolenceContextMultiSelectInput, {
-    ViolenceContextOption,
-} from '#components/selections/ViolenceContextMultiSelectInput';
+import ViolenceContextMultiSelectInput from '#components/selections/ViolenceContextMultiSelectInput';
 import Loading from '#components/Loading';
-import ActorSelectInput, { ActorOption } from '#components/selections/ActorSelectInput';
+import ActorSelectInput from '#components/selections/ActorSelectInput';
+import Section from '#components/Section';
+import Message from '#components/Message';
 import MarkdownEditor from '#components/MarkdownEditor';
 import useModalState from '#hooks/useModalState';
 import { transformToFormError } from '#utils/errorTransform';
@@ -52,6 +55,7 @@ import {
     WithId,
     formatDateYmd,
     GetEnumOptions,
+    ghost,
 } from '#utils/common';
 
 import {
@@ -64,10 +68,17 @@ import {
     UpdateEventMutationVariables,
     Crisis_Type as CrisisType,
 } from '#generated/types';
+import EventCodeInput from './EventCodeInput';
 import styles from './styles.css';
 
 const EVENT_OPTIONS = gql`
     query EventOptions {
+        eventCodeType: __type(name: "EVENT_CODE_TYPE") {
+            enumValues {
+                name
+                description
+            }
+        }
         eventType: __type(name: "CRISIS_TYPE") {
             enumValues {
                 name
@@ -161,7 +172,6 @@ const EVENT = gql`
             endDateAccuracy
             eventNarrative
             eventType
-            glideNumbers
             id
             name
             startDate
@@ -183,6 +193,16 @@ const EVENT = gql`
                 name
             }
             includeTriangulationInQa
+            eventCodes {
+                uuid
+                id
+                eventCodeType
+                eventCodeDisplay
+                eventCode
+                country {
+                    id
+                }
+            }
         }
     }
 `;
@@ -211,7 +231,6 @@ const CREATE_EVENT = gql`
                 endDateAccuracy
                 eventNarrative
                 eventType
-                glideNumbers
                 id
                 name
                 startDate
@@ -233,6 +252,16 @@ const CREATE_EVENT = gql`
                     name
                 }
                 includeTriangulationInQa
+                eventCodes {
+                    uuid
+                    id
+                    eventCodeType
+                    eventCodeDisplay
+                    eventCode
+                    country {
+                        id
+                    }
+                }
             }
             errors
         }
@@ -263,7 +292,6 @@ const UPDATE_EVENT = gql`
                 endDateAccuracy
                 eventNarrative
                 eventType
-                glideNumbers
                 id
                 name
                 startDate
@@ -285,6 +313,16 @@ const UPDATE_EVENT = gql`
                     name
                 }
                 includeTriangulationInQa
+                eventCodes {
+                    uuid
+                    id
+                    eventCodeType
+                    eventCodeDisplay
+                    eventCode
+                    country {
+                        id
+                    }
+                }
             }
             errors
         }
@@ -319,18 +357,32 @@ function generateDisasterEventName(
     return `${countryField}: ${violenceBox} - ${adminField} - ${startDateField}`;
 }
 
-// FIXME: the comparison should be type-safe but
+// NOTE: the comparison should be type-safe but
 // we are currently downcasting string literals to string
 const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
 const other: CrisisType = 'OTHER';
+const MAX_EVENT_CODES = 50;
 
 type EventFormFields = CreateEventMutationVariables['event'];
+
 type FormType = PurgeNull<PartialForm<WithId<EventFormFields>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
+type EventCode = NonNullable<NonNullable<FormType['eventCodes']>[number]>;
+
+type EventCodeSchema = ObjectSchema<PartialForm<EventCode>>;
+type EventCodeSchemaField = ReturnType<EventCodeSchema['fields']>;
+
+type EventCodesSchema = ArraySchema<PartialForm<EventCode>>;
+type EventCodesSchemaMember = ReturnType<EventCodesSchema['member']>;
+
+type EventCodeTypeOptions = GetEnumOptions<
+    NonNullable<EventOptionsQuery['eventCodeType']>['enumValues'],
+    NonNullable<EventCode['eventCodeType']>
+>;
 const schema: FormSchema = {
     fields: (value): FormSchemaFields => {
         const basicFields: FormSchemaFields = {
@@ -341,7 +393,6 @@ const schema: FormSchema = {
             startDateAccuracy: [],
             endDateAccuracy: [],
             eventType: [requiredStringCondition],
-            glideNumbers: [arrayCondition],
             name: [requiredStringCondition],
             crisis: [],
             eventNarrative: [requiredStringCondition],
@@ -352,6 +403,23 @@ const schema: FormSchema = {
             osvSubType: [nullCondition],
             actor: [nullCondition],
             otherSubType: [nullCondition],
+            eventCodes: {
+                keySelector: (c) => c.uuid,
+                member: (): EventCodesSchemaMember => ({
+                    fields: (): EventCodeSchemaField => ({
+                        uuid: [],
+                        country: [requiredCondition],
+                        eventCodeType: [requiredCondition],
+                        eventCode: [requiredStringCondition],
+                    }),
+                }),
+                validation: (val) => {
+                    if (isDefined(val) && val.length > MAX_EVENT_CODES) {
+                        return `Cannot add more than ${MAX_EVENT_CODES} event codes.`;
+                    }
+                    return undefined;
+                },
+            },
         };
         if (value?.eventType === conflict) {
             return {
@@ -404,17 +472,18 @@ const disasterGroupLabelSelector = (item: DisasterOption) => (
     `${item.disasterCategoryName} › ${item.disasterSubCategoryName} › ${item.disasterTypeName}`
 );
 
-interface EventFormProps {
+export interface EventFormProps {
     className?: string;
     onEventCreate?: (result: NonNullable<NonNullable<CreateEventMutation['createEvent']>['result']>) => void;
-    id?: string;
-    readOnly?: boolean;
-    eventHiddenWhileReadonly?: boolean;
     onEventFormCancel?: () => void;
-    defaultCrisis?: CrisisOption | null | undefined;
-    defaultCountry?: CountryOption | null | undefined;
+    readOnly?: boolean;
     disabled?: boolean;
     clone?: boolean;
+    eventHiddenWhileReadonly?: boolean;
+
+    id?: string;
+    disabledFields?: ('crisis' | 'countries')[];
+    defaultFormValue?: PartialForm<FormType>;
 }
 
 function EventForm(props: EventFormProps) {
@@ -426,9 +495,9 @@ function EventForm(props: EventFormProps) {
         disabled: disabledFromProps,
         className,
         onEventFormCancel,
-        defaultCrisis,
-        defaultCountry,
         clone,
+        defaultFormValue = {},
+        disabledFields = [],
     } = props;
 
     const { user } = useContext(DomainContext);
@@ -441,28 +510,9 @@ function EventForm(props: EventFormProps) {
         hideAddCrisisModal,
     ] = useModalState();
 
-    const [
-        countries,
-        setCountries,
-    ] = useState<CountryOption[] | null | undefined>(defaultCountry ? [defaultCountry] : undefined);
-    const [
-        crises,
-        setCrises,
-    ] = useState<CrisisOption[] | null | undefined>(defaultCrisis ? [defaultCrisis] : undefined);
-    const [
-        actors,
-        setActors,
-    ] = useState<ActorOption[] | null | undefined>();
-
-    const [
-        violenceContextOptions,
-        setViolenceContextOptions,
-    ] = useState<ViolenceContextOption[] | null | undefined>();
-
-    const defaultFormValues: PartialForm<FormType> = {
-        crisis: defaultCrisis?.id,
-        countries: defaultCountry ? [defaultCountry.id] : undefined,
-    };
+    const [countries, setCountries] = useOptions('country');
+    const [, setCrises] = useOptions('crisis');
+    const [, setViolenceContextOptions] = useOptions('contextOfViolence');
 
     const {
         pristine,
@@ -473,12 +523,14 @@ function EventForm(props: EventFormProps) {
         onErrorSet,
         onValueSet,
         onPristineSet,
-    } = useForm(defaultFormValues, schema);
+    } = useForm(defaultFormValue, schema);
 
     const {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
+
+    const [, setActors] = useOptions('actor');
 
     const eventVariables = useMemo(
         (): EventQueryVariables | undefined => (
@@ -519,7 +571,6 @@ function EventForm(props: EventFormProps) {
 
                 const sanitizedValue = clone ? {
                     ...event,
-                    // FIXME: the typing error should be fixed on the server
                     countries: event.countries?.map((item) => item.id),
                     actor: event.actor?.id,
                     crisis: event.crisis?.id,
@@ -530,9 +581,14 @@ function EventForm(props: EventFormProps) {
                     contextOfViolence: event.contextOfViolence?.map((item) => item.id),
                     id: undefined,
                     name: undefined,
+                    eventCodes: event.eventCodes?.map(
+                        (eventCode) => ({
+                            ...ghost(eventCode),
+                            country: eventCode.country.id,
+                        }),
+                    ),
                 } : {
                     ...event,
-                    // FIXME: the typing error should be fixed on the server
                     countries: event.countries?.map((item) => item.id),
                     actor: event.actor?.id,
                     crisis: event.crisis?.id,
@@ -541,6 +597,12 @@ function EventForm(props: EventFormProps) {
                     otherSubType: event.otherSubType?.id,
                     disasterSubType: event.disasterSubType?.id,
                     contextOfViolence: event.contextOfViolence?.map((item) => item.id),
+                    eventCodes: event.eventCodes?.map(
+                        (eventCode) => ({
+                            ...eventCode,
+                            country: eventCode.country.id,
+                        }),
+                    ),
                 };
                 onValueSet(removeNull(sanitizedValue));
             },
@@ -639,7 +701,7 @@ function EventForm(props: EventFormProps) {
             onValueChange(newCrisis.id, 'crisis' as const);
             hideAddCrisisModal();
         },
-        [onValueChange, hideAddCrisisModal],
+        [onValueChange, hideAddCrisisModal, setCrises],
     );
 
     const handleSubmit = useCallback((finalValues: FormType) => {
@@ -683,8 +745,9 @@ function EventForm(props: EventFormProps) {
         ),
         [value.violenceSubType, violenceSubTypeOptions],
     );
-    // FIXME: don't use comparison with string
-    // FIXME: pass this data to schema as well
+
+    // FIXME: do not directly use enum labels
+    // TODO: pass this data to schema as well
     const osvMode = selectedViolenceSubTypeOption
         && selectedViolenceSubTypeOption?.violenceTypeName.toLocaleLowerCase() === 'other situations of violence (osv)';
 
@@ -716,15 +779,15 @@ function EventForm(props: EventFormProps) {
 
     const autoGenerateEventName = useCallback(() => {
         const countryNames = countries
-            ?.filter((country) => value.countries?.includes(country.id))
-            .map((country) => country.idmcShortName)
+            ?.filter((c) => value.countries?.includes(c.id))
+            .map((c) => c.idmcShortName)
             .join(', ');
 
         const adminName = undefined;
         const startDateInfo = formatDateYmd(value.startDate);
 
-        // FIXME: do not directly use enum values
         if (value.eventType === 'CONFLICT') {
+            // FIXME: do not directly use enum labels
             const violenceName = violenceSubTypeOptions
                 ?.find((v) => v.id === value.violenceSubType)?.name;
             const conflictText = generateConflictEventName(
@@ -732,7 +795,7 @@ function EventForm(props: EventFormProps) {
             );
             onValueChange(conflictText, 'name' as const);
         } else if (value.eventType === 'DISASTER') {
-            // FIXME: do not directly use enum values
+            // FIXME: do not directly use enum labels
             const disasterName = disasterSubTypeOptions
                 ?.find((d) => d.id === value.disasterSubType)?.name;
             const disasterText = generateDisasterEventName(
@@ -763,6 +826,46 @@ function EventForm(props: EventFormProps) {
         typeof dateAccuracies,
         NonNullable<typeof value.startDateAccuracy>
     >;
+
+    const {
+        onValueChange: onEventCodeChange,
+        onValueRemove: onEventCodeRemove,
+    } = useFormArray<'eventCodes', PartialForm<EventCode>>('eventCodes', onValueChange);
+
+    const handleEventCodeAddButtonClick = useCallback(
+        () => {
+            const newEventCodeItem : PartialForm<EventCode> = {
+                uuid: uuidv4(),
+            };
+
+            onValueChange(
+                (oldValue: PartialForm<EventCode[]> | undefined) => (
+                    [...(oldValue ?? []), newEventCodeItem]
+                ),
+                'eventCodes' as const,
+            );
+        }, [onValueChange],
+    );
+
+    const handleCountryChange = useCallback(
+        (countryIds: PartialForm<FormType['countries']>) => {
+            onValueChange(countryIds ?? [], 'countries' as const);
+            onValueChange(
+                (oldValue: PartialForm<EventCode[]>| undefined) => {
+                    const filterEventCodeByCountry = oldValue?.filter(
+                        (c) => isDefined(c.country) && countryIds?.includes(c.country),
+                    );
+                    return filterEventCodeByCountry;
+                },
+                'eventCodes' as const,
+            );
+        },
+        [onValueChange],
+    );
+    const eventCodeCountryOptions = useMemo(
+        () => countries?.filter((country) => value.countries?.includes(country.id)),
+        [countries, value.countries],
+    );
 
     const children = (
         <>
@@ -843,12 +946,10 @@ function EventForm(props: EventFormProps) {
                         )}
                     </Row>
                     <ViolenceContextMultiSelectInput
-                        options={violenceContextOptions}
                         label="Context of Violence"
                         name="contextOfViolence"
                         value={value.contextOfViolence}
                         onChange={onValueChange}
-                        onOptionsChange={setViolenceContextOptions}
                         error={error?.fields?.contextOfViolence?.$internal}
                         readOnly={readOnly}
                         disabled={disabled}
@@ -856,14 +957,12 @@ function EventForm(props: EventFormProps) {
                     <ActorSelectInput
                         // NOTE: This input is hidden
                         className={styles.hidden}
-                        options={actors}
                         label="Actor"
                         name="actor"
                         error={error?.fields?.actor}
                         value={value.actor}
                         onChange={onValueChange}
                         disabled={disabled || eventOptionsDisabled}
-                        onOptionsChange={setActors}
                         readOnly={readOnly}
                     />
                 </>
@@ -899,26 +998,60 @@ function EventForm(props: EventFormProps) {
                     readOnly={readOnly}
                 />
             )}
-            <TagInput
-                label="Event Codes"
-                name="glideNumbers"
-                value={value.glideNumbers}
-                onChange={onValueChange}
-                // error={error?.fields?.glideNumbers?.$internal}
-                disabled={disabled}
-                readOnly={readOnly}
-            />
             <CountryMultiSelectInput
-                options={countries}
-                onOptionsChange={setCountries}
                 label="Countries *"
                 name="countries"
                 value={value.countries}
-                onChange={onValueChange}
+                onChange={handleCountryChange}
                 error={error?.fields?.countries?.$internal}
                 disabled={disabled}
-                readOnly={readOnly}
+                readOnly={disabledFields.includes('countries') || readOnly}
             />
+            <Section
+                subSection
+                bordered
+                heading="Event Codes"
+                actions={!readOnly && (
+                    <Button
+                        name={undefined}
+                        onClick={handleEventCodeAddButtonClick}
+                        disabled={(
+                            isNotDefined(value.countries)
+                                || (value?.eventCodes?.length ?? 0) >= MAX_EVENT_CODES
+                                || disabled
+                        )}
+                    >
+                        Add Event Code
+                    </Button>
+                )}
+            >
+                <NonFieldError>
+                    {error?.fields?.eventCodes?.$internal}
+                </NonFieldError>
+                {(isNotDefined(value.eventCodes) || (value.eventCodes?.length === 0)) ? (
+                    <Message
+                        message="No event code found."
+                    />
+                ) : value.eventCodes?.map((code, index) => (
+                    <EventCodeInput
+                        key={code.uuid}
+                        index={index}
+                        value={code}
+                        onChange={onEventCodeChange}
+                        onRemove={onEventCodeRemove}
+                        countryOptions={eventCodeCountryOptions}
+                        // eslint-disable-next-line max-len
+                        eventCodeTypeOptions={data?.eventCodeType?.enumValues as EventCodeTypeOptions}
+                        error={error?.fields?.eventCodes?.members?.[code.uuid]}
+                        disabled={(
+                            isNotDefined(value.countries)
+                            || value.countries?.length === 0
+                            || disabled
+                        )}
+                        readOnly={readOnly}
+                    />
+                ))}
+            </Section>
             <Row>
                 <DateInput
                     label="Start Date*"
@@ -975,16 +1108,14 @@ function EventForm(props: EventFormProps) {
                 readOnly={readOnly}
             />
             <CrisisSelectInput
-                options={crises}
                 label="Crisis"
                 name="crisis"
                 error={error?.fields?.crisis}
                 value={value.crisis}
                 onChange={onValueChange}
                 disabled={disabled}
-                onOptionsChange={setCrises}
-                readOnly={!!defaultCrisis?.id || readOnly}
-                actions={!defaultCrisis?.id && !readOnly && crisisPermissions?.add && (
+                readOnly={disabledFields.includes('crisis') || readOnly}
+                actions={!disabledFields.includes('crisis') && !readOnly && crisisPermissions?.add && (
                     <Button
                         name={undefined}
                         onClick={showAddCrisisModal}

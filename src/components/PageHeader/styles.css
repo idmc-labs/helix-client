@@ -1,18 +1,27 @@
 .header {
     display: flex;
+    /* NOTE: we cannot use gap */
 
     .heading-section {
         display: flex;
         align-items: center;
         flex-shrink: 0;
         border-bottom: var(--width-separator-medium) solid var(--color-accent);
-        padding: var(--spacing-medium);
+        padding: var(--spacing-medium) 0;
         gap: var(--spacing-medium);
 
         .icons {
             display: flex;
             align-items: center;
         }
+    }
+
+    .description {
+        display: flex;
+        align-items: center;
+        border-bottom: var(--width-separator-thin) solid var(--color-separator);
+        padding-right: var(--spacing-large);
+        padding-left: var(--spacing-large);
     }
 
     .dummy-section {

@@ -18,6 +18,7 @@ import {
     Button,
     ConfirmButton,
     Modal,
+    Chip,
 } from '@togglecorp/toggle-ui';
 import {
     isDefined,
@@ -50,9 +51,11 @@ import {
     IoOpenOutline,
 } from 'react-icons/io5';
 
+import useOptions from '#hooks/useOptions';
+import Message from '#components/Message';
 import { EVENT_FRAGMENT } from '#components/forms/EntryForm/queries';
 import Status from '#components/tableHelpers/Status';
-import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
+import OrganizationMultiSelectInput from '#components/selections/OrganizationMultiSelectInput';
 import CollapsibleContent from '#components/CollapsibleContent';
 import MarkdownEditor from '#components/MarkdownEditor';
 import NotificationContext from '#components/NotificationContext';
@@ -65,9 +68,9 @@ import useModalState from '#hooks/useModalState';
 import EventForm from '#components/forms/EventForm';
 import DomainContext from '#components/DomainContext';
 import TrafficLightInput from '#components/TrafficLightInput';
-import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
+import FigureTagMultiSelectInput from '#components/selections/FigureTagMultiSelectInput';
 import EventListSelectInput, { EventListOption } from '#components/selections/EventListSelectInput';
-import ViolenceContextMultiSelectInput, { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
+import ViolenceContextMultiSelectInput from '#components/selections/ViolenceContextMultiSelectInput';
 import {
     enumKeySelector,
     enumLabelSelector,
@@ -117,7 +120,6 @@ import {
     FigureFormProps,
     AgeFormProps,
 
-    TagOptions,
     CauseOptions,
     AccuracyOptions,
     UnitOptions,
@@ -136,7 +138,7 @@ import {
 } from '../types';
 import styles from './styles.css';
 
-// FIXME: the comparison should be type-safe but
+// NOTE: the comparison should be type-safe but
 // we are currently downcasting string literals to string
 const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
@@ -319,18 +321,11 @@ interface FigureInputProps {
     mode: 'view' | 'edit';
     trafficLightShown: boolean;
 
-    organizations: OrganizationOption[] | null | undefined;
-    setOrganizations: React.Dispatch<React.SetStateAction<OrganizationOption[] | null | undefined>>;
-
     selectedFigure?: string;
     setSelectedFigure: React.Dispatch<React.SetStateAction<string | undefined>>;
 
     events: EventListOption[] | null | undefined;
     setEvents: Dispatch<SetStateAction<EventListOption[] | null | undefined>>;
-    tagOptions: TagOptions;
-    setTagOptions: Dispatch<SetStateAction<FigureTagOption[] | null | undefined>>;
-    violenceContextOptions: ViolenceContextOption[] | null | undefined;
-    setViolenceContextOptions: Dispatch<SetStateAction<ViolenceContextOption[] | null | undefined>>;
     causeOptions: CauseOptions;
     optionsDisabled: boolean;
     accuracyOptions: AccuracyOptions;
@@ -350,7 +345,6 @@ interface FigureInputProps {
     osvSubTypeOptions: OsvSubTypeOptions | null | undefined,
     onFigureClone?: (item: FigureInputValue) => void;
 
-    entryId?: string;
     reviewStatus?: FigureReviewStatus | null | undefined;
     fieldStatuses?: FigureLastReviewCommentStatusType[] | null | undefined;
     isRecommended?: boolean;
@@ -390,10 +384,6 @@ function FigureInput(props: FigureInputProps) {
         setSelectedFigure,
 
         optionsDisabled: figureOptionsDisabled,
-        violenceContextOptions,
-        setViolenceContextOptions,
-        tagOptions,
-        setTagOptions,
         setEvents,
         accuracyOptions,
         identifierOptions,
@@ -408,9 +398,6 @@ function FigureInput(props: FigureInputProps) {
         genderCategoryOptions,
         causeOptions,
 
-        organizations,
-        setOrganizations,
-
         disasterCategoryOptions,
         violenceCategoryOptions,
         osvSubTypeOptions,
@@ -418,7 +405,6 @@ function FigureInput(props: FigureInputProps) {
         onFigureClone,
 
         reviewStatus,
-        entryId,
 
         fieldStatuses,
         isRecommended,
@@ -427,10 +413,11 @@ function FigureInput(props: FigureInputProps) {
     const {
         notify,
         notifyGQLError,
+
     } = useContext(NotificationContext);
     const { user } = useContext(DomainContext);
 
-    const figurePermission = user?.permissions?.figure;
+    const [, setViolenceContextOptions] = useOptions('contextOfViolence');
 
     const elementRef = useRef<HTMLDivElement>(null);
 
@@ -522,6 +509,7 @@ function FigureInput(props: FigureInputProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
+                    // FIXME: we need to move this behavior to the parent
                     setEvents((oldEvents) => unique([
                         result.event,
                         ...(oldEvents ?? []),
@@ -557,6 +545,7 @@ function FigureInput(props: FigureInputProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
+                    // FIXME: we need to move this behavior to the parent
                     setEvents((oldEvents) => unique([
                         result.event,
                         ...(oldEvents ?? []),
@@ -592,6 +581,7 @@ function FigureInput(props: FigureInputProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
+                    // FIXME: we need to move this behavior to the parent
                     setEvents((oldEvents) => unique([
                         result.event,
                         ...(oldEvents ?? []),
@@ -648,6 +638,8 @@ function FigureInput(props: FigureInputProps) {
 
     const onValueChange = useFormObject(index, onChange, defaultValue);
 
+    const [organizations] = useOptions('organization');
+
     const selectedSources = useMemo(
         () => {
             const mapping = listToMap(
@@ -671,7 +663,6 @@ function FigureInput(props: FigureInputProps) {
     );
     const isUserAssignee = eventAssignee === user?.id;
 
-    // FIXME: The type of value should have be FigureInputValueWithId instead.
     const { id: figureId, event: eventId } = value;
 
     const isFigureToReview = useMemo(
@@ -682,7 +673,6 @@ function FigureInput(props: FigureInputProps) {
         [selectedEvent, isRecommended],
     );
 
-    // FIXME: The value "countries" of selectedEvent needs to be handled from server.
     const currentCountry = useMemo(
         () => selectedEvent?.countries.find((item) => item.id === value.country),
         [selectedEvent, value.country],
@@ -913,11 +903,7 @@ function FigureInput(props: FigureInputProps) {
                 otherSubType: safeOption.otherSubType?.id,
             };
         }, index);
-
-        setViolenceContextOptions((oldVal) => (unique(
-            [...(oldVal ?? []), ...safeOption.contextOfViolence],
-            (v) => v.id,
-        )));
+        setViolenceContextOptions(safeOption.contextOfViolence);
     }, [
         onChange,
         index,
@@ -926,6 +912,7 @@ function FigureInput(props: FigureInputProps) {
 
     const handleEventCreate = useCallback(
         (newEvent: EventListOption) => {
+            // FIXME: we need to move this behavior to the parent
             setEvents((oldEvents) => [...(oldEvents ?? []), newEvent]);
             handleEventChange(newEvent.id, 'event', newEvent);
             hideEventModal();
@@ -1140,6 +1127,8 @@ function FigureInput(props: FigureInputProps) {
         [reRequestReviewFigure],
     );
 
+    const figurePermission = user?.permissions?.figure;
+
     const sectionActions = (
         <>
             {editMode && (
@@ -1169,10 +1158,10 @@ function FigureInput(props: FigureInputProps) {
             )}
             {figureId && reviewMode && (
                 <>
-                    {entryId && (
+                    {value.entry && (
                         <ButtonLikeLink
                             route={route.entryEdit}
-                            attrs={{ entryId }}
+                            attrs={{ entryId: value.entry }}
                             hash="/figures-and-analysis"
                             search={`id=${figureId}`}
                         >
@@ -1226,8 +1215,6 @@ function FigureInput(props: FigureInputProps) {
         </>
     );
 
-    const figureAlreadySavedOnce = !!value.id;
-
     return (
         <CollapsibleContent
             elementRef={elementRef}
@@ -1241,8 +1228,23 @@ function FigureInput(props: FigureInputProps) {
                     status={reviewStatus}
                 />
             )}
+            actions={value.stale && (
+                <Chip>
+                    Unsaved
+                </Chip>
+            )}
             contentClassName={styles.content}
         >
+            {selectedEvent?.reviewStatus === 'APPROVED_BUT_CHANGED' && (
+                <div className={styles.info}>
+                    The event previously was approved!
+                </div>
+            )}
+            {selectedEvent?.reviewStatus === 'SIGNED_OFF_BUT_CHANGED' && (
+                <div className={styles.info}>
+                    The event previously was signed off!
+                </div>
+            )}
             {selectedEvent?.reviewStatus === 'APPROVED' && (
                 <div className={styles.info}>
                     The event has already been approved!
@@ -1269,15 +1271,15 @@ function FigureInput(props: FigureInputProps) {
                 </NonFieldError>
                 <Row>
                     <EventListSelectInput
+                        options={events}
+                        onOptionsChange={setEvents}
                         error={error?.fields?.event}
                         label="Event *"
                         name="event"
-                        options={events}
                         value={value.event}
                         onChange={handleEventChange}
-                        onOptionsChange={setEvents}
                         disabled={disabled || figureOptionsDisabled}
-                        readOnly={!editMode || !!value.country || figureAlreadySavedOnce}
+                        readOnly={!editMode || !!value.country}
                         actions={(
                             <>
                                 {value.event && (
@@ -1306,7 +1308,6 @@ function FigureInput(props: FigureInputProps) {
                                     user?.permissions?.event?.add
                                     && editMode
                                     && !value.country
-                                    && !figureAlreadySavedOnce
                                 ) && (
                                     <Button
                                         name={undefined}
@@ -1314,7 +1315,7 @@ function FigureInput(props: FigureInputProps) {
                                         disabled={disabled}
                                         compact
                                         transparent
-                                        label="Add Event"
+                                        title="Add Event"
                                     >
                                         <IoAddOutline />
                                     </Button>
@@ -1339,12 +1340,18 @@ function FigureInput(props: FigureInputProps) {
                     </Modal>
                 )}
                 {value.event && eventDetailsShown && (
-                    <EventForm
-                        id={value.event}
-                        disabled={disabled}
-                        readOnly
-                        eventHiddenWhileReadonly
-                    />
+                    <Section
+                        heading="Event"
+                        subSection
+                        bordered
+                    >
+                        <EventForm
+                            id={value.event}
+                            disabled={disabled}
+                            readOnly
+                            eventHiddenWhileReadonly
+                        />
+                    </Section>
                 )}
                 <Row>
                     <SelectInput
@@ -1402,12 +1409,10 @@ function FigureInput(props: FigureInputProps) {
                                 disabled={disabled || figureOptionsDisabled || eventNotChosen}
                             />
                             <ViolenceContextMultiSelectInput
-                                options={violenceContextOptions}
                                 label="Context of Violence"
                                 name="contextOfViolence"
                                 value={value.contextOfViolence}
                                 onChange={onValueChange}
-                                onOptionsChange={setViolenceContextOptions}
                                 error={error?.fields?.contextOfViolence?.$internal}
                                 readOnly={!editMode}
                                 disabled={disabled || figureOptionsDisabled || eventNotChosen}
@@ -1473,6 +1478,7 @@ function FigureInput(props: FigureInputProps) {
                 <Section
                     contentClassName={styles.block}
                     subSection
+                    bordered
                     heading="Geospatial"
                     headerClassName={_cs(geospatialErrored && styles.errored)}
                 >
@@ -1515,7 +1521,6 @@ function FigureInput(props: FigureInputProps) {
                     />
                     {value.country && locationsShown && (
                         <GeoInput
-                            className={styles.geoInput}
                             name="geoLocations"
                             value={value.geoLocations}
                             onChange={onValueChange}
@@ -1812,21 +1817,17 @@ function FigureInput(props: FigureInputProps) {
                         />
                     )}
                     {isHousingTerm(currentTerm) && (
-                        <div className={styles.housingDestroyedContainer}>
-                            <Switch
-                                label="Housing destruction (recommended estimate for this entry)"
-                                name="isHousingDestruction"
-                                // FIXME: typings of toggle-ui
-                                value={value.isHousingDestruction}
-                                onChange={onValueChange}
-                                // error={error?.fields?.isHousingDestruction}
-                                disabled={disabled || eventNotChosen}
-                                readOnly={!editMode}
-                            />
-                        </div>
+                        <Switch
+                            label="Housing destruction (recommended estimate for this entry)"
+                            name="isHousingDestruction"
+                            value={value.isHousingDestruction}
+                            onChange={onValueChange}
+                            error={error?.fields?.isHousingDestruction}
+                            disabled={disabled || eventNotChosen}
+                            readOnly={!editMode}
+                        />
                     )}
                     <FigureTagMultiSelectInput
-                        options={tagOptions}
                         name="tags"
                         label="Tags"
                         onChange={onValueChange}
@@ -1834,7 +1835,6 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.tags?.$internal}
                         disabled={disabled || figureOptionsDisabled || eventNotChosen}
                         readOnly={!editMode}
-                        onOptionsChange={setTagOptions}
                     />
                 </Row>
                 <Row>
@@ -1846,8 +1846,6 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.sources?.$internal}
                         disabled={disabled || figureOptionsDisabled || eventNotChosen}
                         country={value.country}
-                        options={organizations}
-                        onOptionsChange={setOrganizations}
                         readOnly={!editMode}
                         icons={trafficLightShown && figureId && eventId && (
                             <TrafficLightInput
@@ -1905,10 +1903,9 @@ function FigureInput(props: FigureInputProps) {
                     <Switch
                         label="Disaggregated Data"
                         name="isDisaggregated"
-                        // FIXME: typings of toggle-ui
                         value={value.isDisaggregated}
                         onChange={onValueChange}
-                        // error={error?.fields?.isDisaggregated}
+                        error={error?.fields?.isDisaggregated}
                         disabled={disabled || eventNotChosen}
                         readOnly={!editMode}
                     />
@@ -1978,6 +1975,7 @@ function FigureInput(props: FigureInputProps) {
                         <Section
                             contentClassName={styles.block}
                             subSection
+                            bordered
                             heading="Age & Gender"
                             actions={editMode && (
                                 <Button
@@ -2003,9 +2001,9 @@ function FigureInput(props: FigureInputProps) {
                                 </NonFieldWarning>
                             )}
                             {value.disaggregationAge?.length === 0 ? (
-                                <div className={styles.emptyMessage}>
-                                    No disaggregation by age & gender.
-                                </div>
+                                <Message
+                                    message="No disaggregation by age & gender found."
+                                />
                             ) : value.disaggregationAge?.map((age, i) => (
                                 <AgeInput
                                     key={age.uuid}
@@ -2051,6 +2049,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.includeIdu}
                     onChange={onValueChange}
                     disabled={disabled || eventNotChosen}
+                    error={error?.fields?.includeIdu}
                     readOnly={!editMode}
                 />
                 {value.includeIdu && (

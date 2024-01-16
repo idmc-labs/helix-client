@@ -1,5 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react';
-
+import React, { useContext, useMemo, useCallback } from 'react';
 import {
     TextInput,
     Button,
@@ -27,7 +26,8 @@ import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 
-import CountrySelectInput, { CountryOption } from '#components/selections/CountrySelectInput';
+import useOptions from '#hooks/useOptions';
+import CountrySelectInput from '#components/selections/CountrySelectInput';
 
 import { transformToFormError } from '#utils/errorTransform';
 
@@ -124,10 +124,7 @@ function ActorForm(props: ActorFormProps) {
         onHideAddActorModal,
     } = props;
 
-    const [
-        countryOptions,
-        setCountryOptions,
-    ] = useState<CountryOption[] | undefined | null>();
+    const [, setCountryOptions] = useOptions('country');
 
     const {
         pristine,
@@ -257,7 +254,7 @@ function ActorForm(props: ActorFormProps) {
     const errored = !!actorDataError;
     const disabled = loading || errored;
 
-    const handleSubmit = React.useCallback(
+    const handleSubmit = useCallback(
         (finalValues: PartialForm<FormType>) => {
             if (finalValues.id) {
                 updateActor({
@@ -295,9 +292,7 @@ function ActorForm(props: ActorFormProps) {
             />
             <CountrySelectInput
                 label="Country *"
-                options={countryOptions}
                 name="country"
-                onOptionsChange={setCountryOptions}
                 onChange={onValueChange}
                 value={value.country}
                 error={error?.fields?.country}

@@ -1,87 +1,70 @@
 .countries {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-large);
-
-    .container {
-        min-height: 200px;
-    }
-
-    .large-container {
-        min-height: 400px;
-    }
-
-    .extra-large-container {
-        min-height: 600px;
-    }
-
-    .content {
-        display: flex;
-        gap: var(--spacing-large);
-
-        .left-content {
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-            gap: var(--spacing-large);
-
-            .middle {
-                display: flex;
-                gap: var(--spacing-large);
-
-                >* {
-                    flex-basis: 0;
-                    flex-grow: 1;
-                }
-            }
-
-            .top {
-                display: flex;
-                gap: var(--spacing-large);
-
-                >* {
-                    flex-basis: 0;
-                    flex-grow: 1;
-                }
-
-                .idp-map {
-                    display: flex;
-                    flex-direction: column;
-                    gap: var(--spacing-medium);
-
-                    .stats {
-                        display: flex;
-                        flex-wrap: wrap;
-                        justify-content: space-between;
-                        gap: var(--spacing-medium);
-
-                        >* {
-                            flex-basis: 0;
-                            flex-grow: 1;
-                            min-width: 16rem;
-                        }
-                    }
-
-                    .map-container {
-                        flex-grow: 1;
-                    }
-                }
-            }
-
-        }
-
-        .side-content {
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-            width: calc(160px + 10vw);
-            gap: var(--spacing-large);
-        }
-    }
-
-    .full-width {
+    .page-content {
         display: flex;
         flex-direction: column;
+        flex-grow: 1;
         gap: var(--spacing-large);
+        overflow-x: auto;
+
+        .filters {
+            background-color: var(--color-background);
+
+            .filters-content {
+                flex-grow: 1;
+            }
+        }
+
+        .main-content {
+            display: flex;
+            flex-basis: 100%;
+            flex-wrap: wrap;
+            gap: var(--spacing-large);
+            overflow-x: auto;
+
+            .filter-outputs {
+                display: flex;
+                flex-basis: 100%;
+                flex-wrap: wrap;
+                gap: var(--spacing-medium) var(--spacing-large);
+            }
+
+            .map-section {
+                flex-basis: 50%;
+                flex-grow: 1;
+                min-width: 20rem;
+
+                .map-container {
+                    height: 100%;
+                    min-height: 45rem;
+                }
+            }
+
+            .charts {
+                display: flex;
+                flex-basis: calc(50% - var(--spacing-large));
+                flex-direction: column;
+                flex-grow: 1;
+                min-width: 20rem;
+                gap: var(--spacing-medium);
+            }
+
+            .events-entries-figures-table {
+                flex-basis: 100%;
+                min-height: 400px;
+                overflow-x: auto;
+            }
+
+            .overview {
+                flex-basis: 50%;
+                flex-grow: 1;
+                min-width: 20rem;
+            }
+
+            .resources {
+                flex-basis: calc(50% - var(--spacing-large));
+                flex-grow: 1;
+                min-width: 20rem;
+            }
+        }
     }
 }

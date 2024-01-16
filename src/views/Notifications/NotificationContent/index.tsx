@@ -97,7 +97,7 @@ function NotificationContent(props: Props) {
         );
     }
 
-    // FIXME: we should make separate enum for assignee and others
+    // TODO: we should make separate enum for assignee and others
     // EVENT_ASSIGNEE_CLEARED
     // EVENT_ASSIGNEE_SELF_CLEARED
     // or, we introduce concept of actor and patient
@@ -194,7 +194,7 @@ function NotificationContent(props: Props) {
         return (
             <div className={styles.notification}>
                 {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-                A figure in {entryLink} was deleted in approved event {eventLink}
+                A figure in {entryLink} was removed in approved event {eventLink}
             </div>
         );
     }
@@ -221,7 +221,7 @@ function NotificationContent(props: Props) {
         return (
             <div className={styles.notification}>
                 {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-                A figure in {entryLink} was deleted in signed off event {eventLink}
+                A figure in {entryLink} was removed in signed off event {eventLink}
             </div>
         );
     }

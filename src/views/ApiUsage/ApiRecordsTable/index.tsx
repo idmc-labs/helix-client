@@ -1,7 +1,6 @@
 import React, {
     useMemo,
     useCallback,
-    useState,
     useContext,
 } from 'react';
 import { _cs } from '@togglecorp/fujs';
@@ -14,31 +13,30 @@ import { getOperationName } from 'apollo-link';
 import {
     Table,
     Pager,
-    useSortState,
     SortContext,
     ConfirmButton,
 } from '@togglecorp/toggle-ui';
+
+import TableMessage from '#components/TableMessage';
 import {
     createTextColumn,
     createExternalLinkColumn,
     createDateColumn,
     createNumberColumn,
 } from '#components/tableHelpers';
-import Message from '#components/Message';
 import Loading from '#components/Loading';
-import useDebouncedValue from '#hooks/useDebouncedValue';
 import Container from '#components/Container';
 import NotificationContext from '#components/NotificationContext';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
-
+import useFilterState from '#hooks/useFilterState';
 import { PurgeNull } from '#types';
-
 import {
     ClientTrackInformationListQuery,
     ClientTrackInformationListQueryVariables,
     ExportTrackingDataMutation,
     ExportTrackingDataMutationVariables,
 } from '#generated/types';
+import { hasNoData } from '#utils/common';
 
 import ApiRecordsFilter from './ApiRecordsFilters';
 import styles from './styles.css';
@@ -50,19 +48,13 @@ const CLIENT_TRACK_INFORMATION_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $apiType: [String!],
-        $clientCodes: [String!],
-        $endTrackDate: Date,
-        $startTrackDate: Date,
+        $filters: ClientTrackInfoFilterDataInputType,
     ) {
         clientTrackInformationList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            apiType: $apiType,
-            clientCodes: $clientCodes,
-            endTrackDate: $endTrackDate,
-            startTrackDate: $startTrackDate,
+            filters: $filters,
         ) {
             page
             pageSize
@@ -88,16 +80,10 @@ const CLIENT_TRACK_INFORMATION_LIST = gql`
 
 const API_LIST_EXPORT = gql`
     mutation ExportTrackingData(
-        $clientCodes: [String!],
-        $apiType: [String!],
-        $startTrackDate: Date,
-        $endTrackDate: Date,
+        $filters: ClientTrackInfoFilterDataInputType!,
     ) {
         exportTrackingData(
-            clientCodes: $clientCodes,
-            apiType: $apiType,
-            startTrackDate: $startTrackDate,
-            endTrackDate: $endTrackDate,
+            filters: $filters,
         ) {
             errors
             ok
@@ -108,11 +94,6 @@ const API_LIST_EXPORT = gql`
 type ApiFields = NonNullable<NonNullable<ClientTrackInformationListQuery['clientTrackInformationList']>['results']>[number];
 
 const keySelector = (item: ApiFields) => item.id;
-
-const defaultSorting = {
-    name: 'trackedDate',
-    direction: 'dsc',
-};
 
 interface ApiRecordProps {
     className?: string;
@@ -131,62 +112,55 @@ function ApiRecordsTable(props: ApiRecordProps) {
         pagerPageControlDisabled,
     } = props;
 
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting || defaultSorting;
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-
-    const debouncedPage = useDebouncedValue(page);
-
     const {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
 
-    const [
-        apiQueryFilters,
-        setApiQueryFilters,
-    ] = useState<PurgeNull<ClientTrackInformationListQueryVariables>>();
+    const {
+        page,
+        rawPage,
+        setPage,
 
-    const handlePageSizeChange = useCallback(
-        (value: number) => {
-            setPageSize(value);
-            setPage(1);
-        },
-        [],
-    );
+        ordering,
+        sortState,
 
-    const onFilterChange = useCallback(
-        (value: PurgeNull<ClientTrackInformationListQueryVariables>) => {
-            setApiQueryFilters(value);
-            setPageSize(10);
+        rawFilter,
+        initialFilter,
+        filter,
+        setFilter,
+
+        pageSize,
+        rawPageSize,
+        setPageSize,
+    } = useFilterState<PurgeNull<NonNullable<ClientTrackInformationListQueryVariables['filters']>>>({
+        filter: {},
+        ordering: {
+            name: 'tracked_date',
+            direction: 'dsc',
         },
-        [],
-    );
+    });
 
     const apiVariables = useMemo(
         (): ClientTrackInformationListQueryVariables => ({
             ordering,
-            page: debouncedPage,
+            page,
             pageSize,
-            ...apiQueryFilters,
+            filters: filter,
         }),
         [
             ordering,
-            debouncedPage,
+            page,
             pageSize,
-            apiQueryFilters,
+            filter,
         ],
     );
 
     const {
         previousData,
-        data: ApiData = previousData,
+        data: apiData = previousData,
         loading: loadingApiData,
+        error: apiError,
     } = useQuery<ClientTrackInformationListQuery,
         ClientTrackInformationListQueryVariables>(CLIENT_TRACK_INFORMATION_LIST, {
             variables: apiVariables,
@@ -226,17 +200,19 @@ function ApiRecordsTable(props: ApiRecordProps) {
     const handleExportTableData = useCallback(
         () => {
             exportApiRecords({
-                variables: apiQueryFilters,
+                variables: {
+                    filters: apiVariables?.filters ?? {},
+                },
             });
         },
         [
             exportApiRecords,
-            apiQueryFilters,
+            apiVariables,
         ],
     );
 
-    const totalApiCount = ApiData?.clientTrackInformationList?.totalCount ?? 0;
-    const apiRecords = ApiData?.clientTrackInformationList?.results;
+    const totalApiCount = apiData?.clientTrackInformationList?.totalCount ?? 0;
+    const apiRecords = apiData?.clientTrackInformationList?.results;
 
     const columns = useMemo(
         () => ([
@@ -314,20 +290,23 @@ function ApiRecordsTable(props: ApiRecordProps) {
             )}
             footerContent={!pagerDisabled && (
                 <Pager
-                    activePage={page}
+                    activePage={rawPage}
                     itemsCount={totalApiCount}
-                    maxItemsPerPage={pageSize}
+                    maxItemsPerPage={rawPageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={handlePageSizeChange}
+                    onItemsPerPageChange={setPageSize}
                     itemsPerPageControlHidden={pagerPageControlDisabled}
                 />
             )}
             description={(
                 <ApiRecordsFilter
-                    onFilterChange={onFilterChange}
+                    currentFilter={rawFilter}
+                    initialFilter={initialFilter}
+                    onFilterChange={setFilter}
                 />
             )}
         >
+            {loadingApiData && <Loading absolute />}
             <SortContext.Provider value={sortState}>
                 {totalApiCount > 0 && (
                     <Table
@@ -339,10 +318,14 @@ function ApiRecordsTable(props: ApiRecordProps) {
                     />
                 )}
             </SortContext.Provider>
-            {loadingApiData && <Loading absolute />}
-            {!loadingApiData && totalApiCount <= 0 && (
-                <Message
-                    message="No logs found."
+            {!loadingApiData && (
+                <TableMessage
+                    errored={!!apiError}
+                    filtered={!hasNoData(filter)}
+                    totalItems={totalApiCount}
+                    emptyMessage="No logs found"
+                    emptyMessageWithFilters="No logs found with applied filters"
+                    errorMessage="Could not fetch logs"
                 />
             )}
         </Container>

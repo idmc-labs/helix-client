@@ -48,7 +48,7 @@ function pastDateCondition(value: string | null | undefined) {
     return 'Date should not be in the future';
 }
 
-// FIXME: the comparison should be type-safe but
+// NOTE: the comparison should be type-safe but
 // we are currently downcasting string literals to string
 const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
@@ -152,7 +152,6 @@ type GeoLocationsField = ReturnType<GeoLocations['member']>;
 const geoLocations: GeoLocations = {
     keySelector: (a) => a.uuid,
     member: (): GeoLocationsField => geoLocation,
-    // FIXME: the typings is not correct. need to update library
     validation: (value) => {
         if ((value?.length ?? 0) <= 0) {
             return 'At least one location should be added.';
@@ -165,7 +164,22 @@ type Figure = ObjectSchema<PartialForm<FigureFormProps>>;
 type FigureField = ReturnType<Figure['fields']>;
 const figure: Figure = {
     fields: (value): FigureField => {
+        if (!value?.stale) {
+            // NOTE: we do not validate nor update any figure that is not stale
+            // or deleted
+            return {
+                stale: [],
+                deleted: [],
+                uuid: [],
+                id: [idCondition],
+            };
+        }
+
         let basicFields: FigureField = {
+            // NOTE: We do not send this to the server
+            stale: [],
+            deleted: [],
+
             uuid: [],
             id: [idCondition],
             calculationLogic: [requiredStringCondition],
@@ -185,6 +199,7 @@ const figure: Figure = {
             unit: [requiredCondition],
             figureCause: [requiredCondition],
             event: [requiredCondition],
+            entry: [requiredCondition],
             sources: [requiredListCondition, arrayCondition],
             geoLocations,
 

@@ -1,110 +1,89 @@
-.reports {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-large);
-
-    .container {
-        min-height: 200px;
-    }
-
-    .large-container {
-        min-height: 400px;
-    }
-
-    .extra-large-container {
+.report {
+    .page-content {
         display: flex;
         flex-direction: column;
-    }
-
-    .content {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-medium);
-    }
-
-    .full-width {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .comments {
         flex-grow: 1;
-    }
-
-    .generation-item {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-extra-small);
-
-        .actions {
-            display: flex;
-            gap: var(--spacing-small);
-        }
-
-        .status {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-small);
-
-            .icon {
-                flex-shrink: 0;
-                font-size: var(--font-size-medium);
-            }
-
-            .text {
-                flex-grow: 1;
-            }
-        }
-
-        .export-item {
-            /* stylelint-disable-next-line no-descending-specificity */
-            >* {
-                &:not(:first-child) {
-                    margin-left: var(--spacing-extra-small);
-                }
-            }
-
-            .name {
-                font-weight: var(--font-weight-bold);
-            }
-        }
-    }
-
-    .main-content {
-        display: flex;
         gap: var(--spacing-large);
 
-        .left-content {
+        .stats {
             display: flex;
-            flex-basis: 70%;
-            flex-direction: column;
-            overflow: auto;
+            flex-wrap: wrap;
+            gap: var(--spacing-medium) var(--spacing-extra-large);
+        }
+
+        .main-content {
+            display: flex;
+            flex-basis: 100%;
+            flex-wrap: wrap;
             gap: var(--spacing-large);
+            overflow-x: auto;
 
-            .idp-map {
-                .stats {
-                    display: flex;
-                    flex-wrap: wrap;
-                    justify-content: space-between;
-                    gap: var(--spacing-medium);
+            .filter-outputs {
+                display: flex;
+                flex-basis: 100%;
+                flex-wrap: wrap;
+                gap: var(--spacing-medium) var(--spacing-large);
+            }
 
-                    >* {
-                        flex-basis: 0;
-                        flex-grow: 1;
-                        min-width: 16rem;
-                    }
+            .map-section {
+                flex-basis: 50%;
+                flex-grow: 1;
+                min-width: 20rem;
+
+                .map-container {
+                    height: 100%;
+                    min-height: 45rem;
+                }
+            }
+
+            .charts {
+                display: flex;
+                flex-basis: calc(50% - var(--spacing-large));
+                flex-direction: column;
+                flex-grow: 1;
+                min-width: 20rem;
+                gap: var(--spacing-medium);
+            }
+
+            .countries-crises-events-entries-figures-table {
+                flex-basis: 100%;
+                min-height: 400px;
+                overflow-x: auto;
+            }
+
+            .overview {
+                flex-basis: 50%;
+                flex-grow: 1;
+                min-width: 20rem;
+            }
+
+            .side-content {
+                display: flex;
+                align-content: flex-start;
+                flex-basis: calc(50% - var(--spacing-large));
+                flex-direction: column;
+                flex-grow: 1;
+                min-width: 20rem;
+                gap: var(--spacing-medium);
+
+                .status {
+                    min-height: 10rem;
+                }
+
+                .history {
+                    min-height: 10rem;
+                }
+
+                .masterFactInfo {
+                    min-height: 10rem;
+                }
+
+                .comments {
+                    min-height: 10rem;
                 }
             }
         }
 
-        .side-content {
-            display: flex;
-            flex-basis: 30%;
-            flex-direction: column;
-            flex-shrink: 0;
-            width: calc(160px + 10vw);
-            gap: var(--spacing-large);
-        }
     }
 }
 

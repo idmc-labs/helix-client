@@ -1,6 +1,15 @@
 .text-block {
     .value {
         font-size: var(--font-size-extra-large);
+
+        a {
+            font-weight: var(--font-weight-medium);
+        }
+
+
+        &>*:not(:first-child)::before {
+            content: ", ";
+        }
     }
 
     .na {

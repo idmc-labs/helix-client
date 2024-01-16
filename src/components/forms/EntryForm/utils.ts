@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { Error, removeNull } from '@togglecorp/toggle-form';
 
 import { transformToFormError } from '#utils/errorTransform';
@@ -15,7 +14,6 @@ import {
 
 type PartialFormValues = PartialForm<FormValues>;
 
-// FIXME: check all error transformations
 export function transformErrorForEntry(
     errors: NonNullable<CreateEntryMutation['createEntry']>['errors'],
 ) {
@@ -44,7 +42,6 @@ export function transformErrorForEntry(
     const newError = {
         $internal: formError.$internal,
         fields: {
-            figures: formError?.fields?.figures,
             details: detailsError,
             analysis: analysisError,
         },
@@ -60,7 +57,6 @@ const AGE_KEY = 'age';
 const GEOLOCATION_KEY = 'geoLocation';
 
 // [...'ram:12;shyam:14,kiran:12'.matchAll(/(\w+):([\d\w-]+)/g)]
-
 function getReviewInputName({
     figure,
     age,
@@ -131,14 +127,5 @@ export function getGeoLocationReviewProps(
 
     return {
         name,
-    };
-}
-
-// Remove id and generate new uuid
-export function ghost<T extends { id?: string; uuid: string }>(value: T): T {
-    return {
-        ...value,
-        id: undefined,
-        uuid: uuidv4(),
     };
 }

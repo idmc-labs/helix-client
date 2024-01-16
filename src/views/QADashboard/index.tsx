@@ -12,7 +12,8 @@ import EventsTable from '#components/tables/EventsTable';
 import DomainContext from '#components/DomainContext';
 import PageHeader from '#components/PageHeader';
 import Heading from '#components/Heading';
-import EntriesFiguresTable from '#components/tables/EntriesFiguresTable';
+
+import EntriesFiguresTable from './EntriesFiguresTable';
 
 import styles from './styles.css';
 
@@ -28,7 +29,7 @@ function TabRedux(props: TabReduxProps) {
         name,
         children,
     } = props;
-    const context = React.useContext(TabsContext);
+    const context = useContext(TabsContext);
 
     const handleClick = useCallback(
         (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -164,6 +165,9 @@ function QADashboard(props: QAProps) {
                         <EventsTable
                             className={styles.container}
                             title="Assigned events"
+                            // NOTE: We do not need to pass
+                            // APPROVED_BUT_CHANGED and SIGNED_OFF_BUT_CHANGED
+                            // as it's inferred on the server
                             reviewStatus={['REVIEW_IN_PROGRESS', 'REVIEW_NOT_STARTED']}
                             assignee={user?.id}
                         />
@@ -182,8 +186,8 @@ function QADashboard(props: QAProps) {
                     >
                         <EntriesFiguresTable
                             className={styles.container}
-                            userId={user?.id}
-                            reviewStatus="REVIEW_RE_REQUESTED"
+                            figureCreatedBy={user?.id}
+                            figureReviewStatus="REVIEW_RE_REQUESTED"
                         />
                     </TabPanel>
                     <TabPanel

@@ -1,0 +1,18 @@
+.reduced-list-display {
+    display: inline-block;
+}
+
+.reduced-list-label {
+    display: inline-block;
+    padding: 0;
+    text-decoration: underline;
+
+    &:hover,
+    &:focus {
+        opacity: 1;
+    }
+}
+
+.popup {
+    padding: var(--spacing-medium);
+}

@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState, useCallback } from 'react';
 import { _cs, isTruthyString } from '@togglecorp/fujs';
 import { TextInput, Button, Switch } from '@togglecorp/toggle-ui';
 import {
@@ -191,7 +191,7 @@ function UserEmailChangeForm(props: EmailChangeProps) {
         },
     );
 
-    const handleSubmit = React.useCallback((finalValues: FormType) => {
+    const handleSubmit = useCallback((finalValues: FormType) => {
         const sanitizedValues = { ...finalValues };
         delete sanitizedValues.confirmEmail;
 
@@ -232,6 +232,7 @@ function UserEmailChangeForm(props: EmailChangeProps) {
                 disabled={disabled}
             />
             <Switch
+                // TODO: Switch does not support "undefined" name
                 name=""
                 label="Update user email"
                 value={emailUpdate}

@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext } from 'react';
 import {
     gql,
     useQuery,
@@ -7,12 +7,13 @@ import {
 import { isDefined } from '@togglecorp/fujs';
 import {
     Table,
-    useSortState,
     Pager,
     Modal,
     Button,
     SortContext,
 } from '@togglecorp/toggle-ui';
+
+import TableMessage from '#components/TableMessage';
 import { PurgeNull } from '#types';
 import {
     createTextColumn,
@@ -20,17 +21,16 @@ import {
     createDateColumn,
     createCustomActionColumn,
 } from '#components/tableHelpers';
-
-import Message from '#components/Message';
+import { expandObject, hasNoData } from '#utils/common';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 import ActionCell, { ActionProps } from './Action';
 
+import useFilterState from '#hooks/useFilterState';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
 import useModalState from '#hooks/useModalState';
-import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import {
     ParkedItemListQuery,
@@ -47,8 +47,19 @@ import styles from './styles.css';
 type ParkedItemFields = NonNullable<NonNullable<ParkedItemListQuery['parkedItemList']>['results']>[number];
 
 const PARKING_LOT_LIST = gql`
-    query ParkedItemList($ordering: String, $page: Int, $pageSize: Int, $title: String, $statusIn: [String!], $assignedToIn: [String!]) {
-        parkedItemList(ordering: $ordering, page: $page, pageSize: $pageSize, title_Unaccent_Icontains: $title, statusIn: $statusIn, assignedToIn: $assignedToIn) {
+    query ParkedItemList(
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+        $filters: ParkingLotFilterDataInputType,
+    ) {
+        parkedItemList(
+            ordering: $ordering,
+            page: $page,
+            pageSize: $pageSize,
+            filters: $filters,
+            # check title_Unaccent_Icontains: $title,
+        ) {
             totalCount
             page
             pageSize
@@ -88,52 +99,48 @@ const PARKING_LOT_DELETE = gql`
     }
 `;
 
-const defaultSorting = {
-    name: 'created_at',
-    direction: 'dsc',
-};
-
 const keySelector = (item: ParkedItemFields) => item.id;
 
 interface ParkedItemProps {
     className?: string;
     headerActions?: JSX.Element;
-    defaultUser?: string;
-    defaultStatus?: string;
-    detailsHidden?: boolean;
-    searchHidden?: boolean;
-    addButtonHidden?: boolean;
-    actionsHidden?: boolean;
-    pageChangeHidden?: boolean;
+
+    assignedUser?: string;
+    status?: string;
 }
 
 function ParkedItemTable(props: ParkedItemProps) {
     const {
         className,
         headerActions,
-        defaultStatus,
-        defaultUser,
-        detailsHidden,
-        searchHidden,
-        addButtonHidden,
-        actionsHidden,
-        pageChangeHidden,
+
+        assignedUser,
+        status,
     } = props;
 
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting || defaultSorting;
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-    const debouncedPage = useDebouncedValue(page);
+    const {
+        page,
+        rawPage,
+        setPage,
 
-    const [
-        parkedItemQueryFilters,
-        setParkedItemQueryFilters,
-    ] = useState<PurgeNull<ParkedItemListQueryVariables>>();
+        ordering,
+        sortState,
+
+        rawFilter,
+        initialFilter,
+        filter,
+        setFilter,
+
+        rawPageSize,
+        pageSize,
+        setPageSize,
+    } = useFilterState<PurgeNull<NonNullable<ParkedItemListQueryVariables['filters']>>>({
+        filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
+    });
 
     const {
         notify,
@@ -147,37 +154,26 @@ function ParkedItemTable(props: ParkedItemProps) {
         hideAddParkedItemModal,
     ] = useModalState();
 
-    const onFilterChange = React.useCallback(
-        (value: PurgeNull<ParkedItemListQueryVariables>) => {
-            setParkedItemQueryFilters(value);
-            setPage(1);
-        }, [],
-    );
-
-    const handlePageSizeChange = useCallback(
-        (value: number) => {
-            setPageSize(value);
-            setPage(1);
-        },
-        [],
-    );
-
     const variables = useMemo(
         () => ({
             ordering,
-            page: debouncedPage,
+            page,
             pageSize,
-            statusIn: defaultStatus ? [defaultStatus] : undefined,
-            assignedToIn: defaultUser ? [defaultUser] : undefined,
-            ...parkedItemQueryFilters,
+            filters: expandObject<NonNullable<ParkedItemListQueryVariables['filters']>>(
+                filter,
+                {
+                    statusIn: status ? [status] : undefined,
+                    assignedToIn: assignedUser ? [assignedUser] : undefined,
+                },
+            ),
         }),
         [
             ordering,
-            debouncedPage,
+            page,
             pageSize,
-            defaultStatus,
-            defaultUser,
-            parkedItemQueryFilters,
+            filter,
+            status,
+            assignedUser,
         ],
     );
 
@@ -186,6 +182,7 @@ function ParkedItemTable(props: ParkedItemProps) {
         data: parkedItemData = previousData,
         loading: loadingParkedItem,
         refetch: refetchParkedItem,
+        error: parkedItemError,
     } = useQuery<ParkedItemListQuery, ParkedItemListQueryVariables>(PARKING_LOT_LIST, {
         variables,
     });
@@ -222,7 +219,7 @@ function ParkedItemTable(props: ParkedItemProps) {
         },
     );
 
-    const handleParkedItemCreate = React.useCallback(() => {
+    const handleParkedItemCreate = useCallback(() => {
         refetchParkedItem(variables);
         hideAddParkedItemModal();
     }, [refetchParkedItem, variables, hideAddParkedItemModal]);
@@ -236,8 +233,8 @@ function ParkedItemTable(props: ParkedItemProps) {
         [deleteParkedItem],
     );
 
-    const { user } = useContext(DomainContext);
-    const parkedItemPermissions = user?.permissions?.parkeditem;
+    const { user: userFromDomain } = useContext(DomainContext);
+    const parkedItemPermissions = userFromDomain?.permissions?.parkeditem;
 
     const columns = useMemo(
         () => ([
@@ -253,7 +250,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                 (item) => item.createdBy?.fullName,
                 { sortable: true },
             ),
-            detailsHidden
+            assignedUser
                 ? undefined
                 : createTextColumn<ParkedItemFields, string>(
                     'assigned_to__full_name',
@@ -268,7 +265,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                 { sortable: true },
                 'large',
             ),
-            detailsHidden
+            status
                 ? undefined
                 : createTextColumn<ParkedItemFields, string>(
                     'status',
@@ -286,15 +283,13 @@ function ParkedItemTable(props: ParkedItemProps) {
                 }),
                 { sortable: true },
             ),
-            detailsHidden
-                ? undefined
-                : createTextColumn<ParkedItemFields, string>(
-                    'comments',
-                    'Comments',
-                    (item) => item.comments,
-                    { sortable: true },
-                    'large',
-                ),
+            createTextColumn<ParkedItemFields, string>(
+                'comments',
+                'Comments',
+                (item) => item.comments,
+                { sortable: true },
+                'large',
+            ),
             createCustomActionColumn<ParkedItemFields, string, ActionProps>(
                 ActionCell,
                 (_, datum) => ({
@@ -306,7 +301,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                         ? showAddParkedItemModal
                         : undefined,
                     parkedItemStatus: datum.status,
-                    actionsHidden,
+                    actionsHidden: false,
                 }),
                 'action',
                 '',
@@ -315,8 +310,8 @@ function ParkedItemTable(props: ParkedItemProps) {
             ),
         ].filter(isDefined)),
         [
-            detailsHidden,
-            actionsHidden,
+            assignedUser,
+            status,
             showAddParkedItemModal,
             handleParkedItemDelete,
             parkedItemPermissions?.delete,
@@ -334,7 +329,7 @@ function ParkedItemTable(props: ParkedItemProps) {
             headerActions={(
                 <>
                     {headerActions}
-                    {!addButtonHidden && parkedItemPermissions?.add && (
+                    {parkedItemPermissions?.add && (
                         <Button
                             name={undefined}
                             onClick={showAddParkedItemModal}
@@ -345,22 +340,26 @@ function ParkedItemTable(props: ParkedItemProps) {
                     )}
                 </>
             )}
-            description={!searchHidden && (
+            description={(
                 <ParkedItemFilter
-                    onFilterChange={onFilterChange}
+                    currentFilter={rawFilter}
+                    initialFilter={initialFilter}
+                    onFilterChange={setFilter}
+                    status={status}
+                    assignedUser={assignedUser}
                 />
             )}
             footerContent={(
                 <Pager
-                    activePage={page}
+                    activePage={rawPage}
                     itemsCount={totalParkedItemCount}
-                    maxItemsPerPage={pageSize}
+                    maxItemsPerPage={rawPageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={handlePageSizeChange}
-                    itemsPerPageControlHidden={pageChangeHidden}
+                    onItemsPerPageChange={setPageSize}
                 />
             )}
         >
+            {(loadingParkedItem || deletingParkedItem) && <Loading absolute />}
             {totalParkedItemCount > 0 && (
                 <SortContext.Provider value={sortState}>
                     <Table
@@ -373,10 +372,14 @@ function ParkedItemTable(props: ParkedItemProps) {
                     />
                 </SortContext.Provider>
             )}
-            {(loadingParkedItem || deletingParkedItem) && <Loading absolute />}
-            {!loadingParkedItem && totalParkedItemCount <= 0 && (
-                <Message
-                    message="No parked items found."
+            {!loadingParkedItem && (
+                <TableMessage
+                    errored={!!parkedItemError}
+                    filtered={!hasNoData(filter)}
+                    totalItems={totalParkedItemCount}
+                    emptyMessage="No parked items found"
+                    emptyMessageWithFilters="No parked items found with applied filters"
+                    errorMessage="Could not fetch parked items"
                 />
             )}
             {shouldShowAddParkedItemModal && (

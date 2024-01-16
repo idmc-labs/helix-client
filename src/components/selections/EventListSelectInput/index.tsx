@@ -20,16 +20,12 @@ import styles from './styles.css';
 const EVENT_LIST = gql`
     ${EVENT_FRAGMENT}
     query GetEventList(
-        $search: String,
-        $crises: [ID!],
-        $countries: [ID!],
+        $filters: EventFilterDataInputType,
         $ordering: String,
     ) {
         eventList(
-            name: $search,
             ordering: $ordering,
-            crisisByIds: $crises,
-            countries: $countries,
+            filters: $filters,
         ) {
             totalCount
             results {
@@ -54,18 +50,18 @@ type SelectInputProps<
     Def,
     'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
 > & {
-    defaultCountries?: string[];
-    defaultCrises?: string[];
+    countries?: string[] | null;
+    crises?: string[] | null;
 };
 
-function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
+function EventListSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
         value,
         options,
         disabled,
-        defaultCountries,
-        defaultCrises,
+        countries,
+        crises,
         ...otherProps
     } = props;
 
@@ -77,16 +73,20 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
     const searchVariable = useMemo(
         (): GetEventListQueryVariables => (
             debouncedSearchText ? {
-                search: debouncedSearchText,
-                countries: defaultCountries,
-                crises: defaultCrises,
+                filters: {
+                    name: debouncedSearchText,
+                    countries,
+                    crisisByIds: crises,
+                },
             } : {
-                ordering: '-createdAt',
-                countries: defaultCountries,
-                crises: defaultCrises,
+                ordering: '-created_at',
+                filters: {
+                    countries,
+                    crisisByIds: crises,
+                },
             }
         ),
-        [debouncedSearchText, defaultCountries, defaultCrises],
+        [debouncedSearchText, countries, crises],
     );
 
     const {
@@ -167,4 +167,4 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
     );
 }
 
-export default EventSelectInput;
+export default EventListSelectInput;

@@ -10,13 +10,20 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
+import useOptions from '#hooks/useOptions';
 import { GetGeographicGroupQuery, GetGeographicGroupQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
 
 const GEOGRAPHIC_GROUP = gql`
-    query GetGeographicGroup($search: String, $ordering: String) {
-        geographicalGroupList(name: $search, ordering: $ordering) {
+    query GetGeographicGroup(
+        $search: String,
+        $ordering: String,
+    ) {
+        geographicalGroupList(
+            ordering: $ordering,
+            filters: { name: $search },
+        ) {
             totalCount
             results {
                 id
@@ -39,7 +46,7 @@ type SelectInputProps<
     K,
     GeographicOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'options' | 'onOptionsChange'
 >;
 
 function GeographicMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -72,6 +79,8 @@ function GeographicMultiSelectInput<K extends string>(props: SelectInputProps<K>
     const searchOptions = data?.geographicalGroupList?.results;
     const totalOptionsCount = data?.geographicalGroupList?.totalCount;
 
+    const [options, setOptions] = useOptions('geographicGroup');
+
     return (
         <SearchMultiSelectInput
             {...otherProps}
@@ -83,6 +92,8 @@ function GeographicMultiSelectInput<K extends string>(props: SelectInputProps<K>
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
+            options={options}
+            onOptionsChange={setOptions}
         />
     );
 }

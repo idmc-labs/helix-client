@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useCallback } from 'react';
 import { ConfirmButton } from '@togglecorp/toggle-ui';
 import { getOperationName } from 'apollo-link';
 import { _cs, isDefined } from '@togglecorp/fujs';
@@ -26,7 +26,7 @@ import styles from './styles.css';
 // NOTE: exporting this so that other requests can refetch this request
 export const PENDING_STATUS_LOGS = gql`
     query PendingGiddLogs {
-        giddLogs(ordering: "-triggeredAt", page: 1) {
+        giddLogs(ordering: "-triggered_at", page: 1) {
             results {
                 id
                 completedAt
@@ -148,7 +148,7 @@ function Gidd(props: GiddProps) {
         },
     );
 
-    const handleTrigger = React.useCallback(
+    const handleTrigger = useCallback(
         () => {
             updateData();
         }, [updateData],
@@ -173,12 +173,12 @@ function Gidd(props: GiddProps) {
                 <ReportsTable
                     title="GIDD Reports"
                     className={styles.largeContainer}
-                    onlyGiddReports
+                    isGiddReport
                 />
                 <ReportsTable
                     title="Reports with Public Figure Analysis"
                     className={styles.largeContainer}
-                    onlyPFAVisibleReports
+                    isPfaVisibleInGidd
                 />
             </div>
             <div className={styles.sideContent}>

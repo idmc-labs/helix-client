@@ -15,6 +15,13 @@
             }
         }
     }
+
+    /* NOTE: professional stuff, don't touch */
+    div[class^='styles_items-per-page'] {
+        >div {
+            width: 8rem !important;
+        }
+    }
 }
 
 :root {
@@ -32,6 +39,8 @@
     --width-separator-thin: 1px;
     --width-separator-medium: 2px;
     --width-separator-thick: 4px;
+
+    --width-sidebar: 18rem;
 
     --height-navbar: 58px;
 
@@ -52,14 +61,16 @@
     --font-weight-bold: 700;
 
     /* COLOR PALETTE */
-    --color-navbar: rgb(51, 64, 83);
+    --color-navbar: var(--color-primary);
     --color-text-on-navbar: rgba(255, 255, 255, .9);
 
-    --color-primary: rgb(33, 105, 187);
-    --color-accent: rgb(91, 192, 222);
-    --color-danger: rgb(187, 33, 36);
-    --color-success: rgb(34, 187, 51);
-    --color-warning: rgb(240, 173, 78);
+    --color-primary: #3E5963; /* dark-blue-ish */
+    --color-accent: #3C88A3; /* teal-ish */
+    --color-danger: rgb(187, 33, 36); /* red-ish */
+    --color-success: rgb(34, 187, 51); /* green-ish */
+    --color-warning: rgb(240, 173, 78); /* orange-ish */
+    --color-disaster: #018eca; /* blue-ish */
+    --color-conflict: #ef7d00; /* orange-ish */
 
     /* COLOR SEPARATOR */
     --color-separator: rgb(184, 194, 205);
@@ -70,7 +81,6 @@
     --radius-button: 4px;
     --radius-input: 4px;
     --radius-modal: 8px;
-
 
     /* COLOR GENERAL */
     --color-foreground: rgb(255, 255, 255);
@@ -86,14 +96,18 @@
     --color-text-on-warning: rgba(0, 0, 0, .9);
 
     --color-text-disabled: rgba(0, 0, 0, .3);
-
     --color-text-watermark: rgba(0, 0, 0, .3);
-
+    --color-chart-axes: #717171;
 
     --color-separator: rgba(0, 0, 0, .1);
     --color-link: var(--color-primary);
 
-    --tui-color-primary: var(--color-primary);
+    --duration-transition-slow: .5s;
+    --duration-transition-medium: .3s;
+    --duration-transition-fast: .15s;
+
+    /* --tui-color-primary: var(--color-primary); */
+    --tui-color-primary: var(--color-accent);
     --tui-color-accent: var(--color-accent);
     --tui-color-danger: var(--color-danger);
     --tui-color-success: var(--color-success);

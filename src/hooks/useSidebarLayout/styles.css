@@ -1,0 +1,30 @@
+.sidebar {
+    position: fixed;
+    top: var(--height-navbar);
+    left: -100%;
+    transition: left var(--duration-transition-medium) ease-in-out;
+    width: var(--width-sidebar);
+    height: calc(100% - var(--height-navbar));
+    overflow: auto;
+
+    &.shown {
+        left: 0;
+    }
+}
+
+.content {
+    display: flex;
+
+    .sidebar-reserved-space {
+        flex-basis: 0;
+        flex-shrink: 0;
+        transition: flex-basis var(--duration-transition-medium) ease-in-out;
+    }
+
+    &.sidebar-shown {
+        .sidebar-reserved-space {
+            flex-basis: var(--width-sidebar);
+            opacity: 1;
+        }
+    }
+}

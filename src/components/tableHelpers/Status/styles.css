@@ -1,16 +1,18 @@
 .status {
     padding: 0px;
+    color: var(--tui-color-background-input-section-light);
 
     .signed-off-icon {
         color: var(--color-success);
     }
 
     .approved-icon {
-        color: var(--color-accent);
+        /* FIXME: We should use a different color/color-name */
+        color: var(--color-disaster);
     }
 
     .review-rerequested-icon {
-        color: var(--color-danger);
+        color: var(--color-primary);
     },
 
     .review-inprogress-icon {

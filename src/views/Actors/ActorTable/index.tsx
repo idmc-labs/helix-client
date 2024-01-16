@@ -1,9 +1,8 @@
-import React, { useCallback, useState, useMemo, useContext } from 'react';
+import React, { useCallback, useMemo, useContext } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
-    useSortState,
     SortContext,
     Pager,
     Modal,
@@ -12,22 +11,19 @@ import {
 } from '@togglecorp/toggle-ui';
 import { getOperationName } from 'apollo-link';
 
+import TableMessage from '#components/TableMessage';
+import useFilterState from '#hooks/useFilterState';
 import { PurgeNull } from '#types';
 import {
     createTextColumn,
     createActionColumn,
     createDateColumn,
 } from '#components/tableHelpers';
-
-import Message from '#components/Message';
 import Container from '#components/Container';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 import DomainContext from '#components/DomainContext';
-
 import useModalState from '#hooks/useModalState';
-import useDebouncedValue from '#hooks/useDebouncedValue';
-
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import {
     ActorsListQuery,
@@ -37,6 +33,7 @@ import {
     ExportActorsMutation,
     ExportActorsMutationVariables,
 } from '#generated/types';
+import { hasNoData } from '#utils/common';
 
 import ActorForm from './ActorForm';
 import ActorsFilter from './ActorFilters/index';
@@ -49,13 +46,13 @@ const GET_ACTORS_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $name: String,
+        $filters: ActorFilterDataInputType,
     ) {
         actorList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            name_Unaccent_Icontains: $name,
+            filters: $filters,
         ) {
             results {
                 id
@@ -87,20 +84,17 @@ const DELETE_ACTOR = gql`
 `;
 
 const ACTORS_DOWNLOAD = gql`
-    mutation ExportActors($name: String) {
+    mutation ExportActors(
+        $filters: ActorFilterDataInputType!,
+    ) {
         exportActors(
-            name_Unaccent_Icontains: $name,
+            filters: $filters,
         ) {
             errors
             ok
         }
     }
 `;
-
-const defaultSorting = {
-    name: 'created_at',
-    direction: 'dsc',
-};
 
 type ActorFields = NonNullable<NonNullable<ActorsListQuery['actorList']>['results']>[number];
 
@@ -115,22 +109,29 @@ function ActorTable(props: ActorProps) {
         className,
     } = props;
 
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting || defaultSorting;
+    const {
+        page,
+        rawPage,
+        setPage,
 
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
+        ordering,
+        sortState,
 
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-    const debouncedPage = useDebouncedValue(page);
+        rawFilter,
+        initialFilter,
+        filter,
+        setFilter,
 
-    const [
-        actorsQueryFilters,
-        setActorsQueryFilters,
-    ] = useState<PurgeNull<ActorsListQueryVariables>>();
+        rawPageSize,
+        pageSize,
+        setPageSize,
+    } = useFilterState<PurgeNull<NonNullable<ActorsListQueryVariables['filters']>>>({
+        filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
+    });
 
     const {
         notify,
@@ -147,33 +148,18 @@ function ActorTable(props: ActorProps) {
         hideAddActorModal,
     ] = useModalState();
 
-    const onFilterChange = React.useCallback(
-        (value: PurgeNull<ActorsListQueryVariables>) => {
-            setActorsQueryFilters(value);
-            setPage(1);
-        }, [],
-    );
-
-    const handlePageSizeChange = useCallback(
-        (value: number) => {
-            setPageSize(value);
-            setPage(1);
-        },
-        [],
-    );
-
     const variables = useMemo(
         (): ActorsListQueryVariables => ({
             ordering,
-            page: debouncedPage,
+            page,
             pageSize,
-            ...actorsQueryFilters,
+            filters: filter,
         }),
         [
             ordering,
-            debouncedPage,
+            page,
             pageSize,
-            actorsQueryFilters,
+            filter,
         ],
     );
 
@@ -182,7 +168,7 @@ function ActorTable(props: ActorProps) {
         data: actors = previousData,
         loading: actorsLoading,
         refetch: refetchActorList,
-        // TODO: handle error
+        error: actorsError,
     } = useQuery<ActorsListQuery>(GET_ACTORS_LIST, { variables });
 
     const handleRefetch = useCallback(
@@ -230,13 +216,6 @@ function ActorTable(props: ActorProps) {
         });
     }, [deleteActor]);
 
-    const actorsExportVariables = useMemo(
-        (): ExportActorsMutationVariables => ({
-            ...actorsQueryFilters,
-        }),
-        [actorsQueryFilters],
-    );
-
     const [
         exportActors,
         { loading: exportingActors },
@@ -271,10 +250,12 @@ function ActorTable(props: ActorProps) {
     const handleExportTableData = useCallback(
         () => {
             exportActors({
-                variables: actorsExportVariables,
+                variables: {
+                    filters: variables?.filters ?? {},
+                },
             });
         },
-        [exportActors, actorsExportVariables],
+        [exportActors, variables],
     );
 
     const loading = actorsLoading || deleteActorLoading;
@@ -357,19 +338,22 @@ function ActorTable(props: ActorProps) {
             )}
             description={(
                 <ActorsFilter
-                    onFilterChange={onFilterChange}
+                    currentFilter={rawFilter}
+                    initialFilter={initialFilter}
+                    onFilterChange={setFilter}
                 />
             )}
             footerContent={(
                 <Pager
-                    activePage={page}
+                    activePage={rawPage}
                     itemsCount={totalActorsCount}
-                    maxItemsPerPage={pageSize}
+                    maxItemsPerPage={rawPageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={handlePageSizeChange}
+                    onItemsPerPageChange={setPageSize}
                 />
             )}
         >
+            {loading && <Loading absolute />}
             {totalActorsCount > 0 && (
                 <SortContext.Provider value={sortState}>
                     <Table
@@ -382,10 +366,14 @@ function ActorTable(props: ActorProps) {
                     />
                 </SortContext.Provider>
             )}
-            {loading && <Loading absolute />}
-            {!actorsLoading && totalActorsCount <= 0 && (
-                <Message
-                    message="No actors found."
+            {!actorsLoading && (
+                <TableMessage
+                    errored={!!actorsError}
+                    filtered={!hasNoData(filter)}
+                    totalItems={totalActorsCount}
+                    emptyMessage="No actors found"
+                    emptyMessageWithFilters="No actors found with applied filters"
+                    errorMessage="Could not fetch actors"
                 />
             )}
             {shouldShowAddActorModal && (

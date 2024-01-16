@@ -1,0 +1,38 @@
+.query-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: var(--spacing-medium);
+
+    .non-field-error {
+        grid-column: 1 / -1;
+    }
+
+    .search-input {
+        grid-column: 1 / -1;
+    }
+
+    .column {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-medium);
+
+        .label {
+            font-weight: var(--font-weight-bold);
+        }
+    }
+
+    .additional-filters-switch {
+        grid-column: 1 / -1;
+    }
+
+    .actions {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: flex-end;
+        gap: var(--spacing-medium);
+    }
+
+    .hidden {
+        display: none;
+    }
+}

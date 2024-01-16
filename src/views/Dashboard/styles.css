@@ -2,11 +2,10 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-large);
-
     width: 100%;
 
     .container {
-        min-height: 200px;
+        min-height: 400px;
     }
 
     .large-container {
@@ -48,7 +47,7 @@
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
-            width: calc(160px + 10vw);
+            width: calc(160px + 16vw);
             gap: var(--spacing-large);
         }
     }

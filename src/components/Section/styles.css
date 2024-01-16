@@ -3,6 +3,12 @@
     flex-direction: column;
     gap: var(--spacing-medium);
 
+    &.bordered {
+        border: var(--width-separator-thin) solid var(--color-separator);
+        border-radius: var(--spacing-small);
+        padding: var(--spacing-medium);
+    }
+
     .section-header {
         padding: var(--spacing-medium) 0;
     }

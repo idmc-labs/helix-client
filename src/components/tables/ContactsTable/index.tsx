@@ -4,7 +4,6 @@ import { getOperationName } from 'apollo-link';
 import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     Table,
-    useSortState,
     Pager,
     Modal,
     Button,
@@ -13,6 +12,8 @@ import {
     ConfirmButton,
     useTableRowExpansion,
 } from '@togglecorp/toggle-ui';
+
+import TableMessage from '#components/TableMessage';
 import { PurgeNull } from '#types';
 import {
     createTextColumn,
@@ -20,10 +21,8 @@ import {
     createDateColumn,
     createNumberColumn,
 } from '#components/tableHelpers';
-
-import Message from '#components/Message';
+import { expandObject, hasNoData } from '#utils/common';
 import Container from '#components/Container';
-import { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import Loading from '#components/Loading';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
@@ -40,10 +39,10 @@ import {
 } from '#generated/types';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 
+import useFilterState from '#hooks/useFilterState';
 import ContactForm from '#components/forms/ContactForm';
-import useDebouncedValue from '#hooks/useDebouncedValue';
+import CommunicationTable from '#components/tables/CommunicationTable';
 import ContactsFilter from './ContactsFilter/index';
-import CommunicationTable from './CommunicationTable';
 import styles from './styles.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
@@ -53,16 +52,13 @@ const GET_CONTACTS_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-
-        $name: String,
-        $countriesOfOperation: [String!],
+        $filters: ContactFilterDataInputType,
     ) {
         contactList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            nameContains: $name,
-            countriesOfOperation: $countriesOfOperation,
+            filters: $filters,
         ) {
             results {
                 id
@@ -105,12 +101,10 @@ const DELETE_CONTACT = gql`
 
 const CONTACTS_DOWNLOAD = gql`
     mutation ExportContacts(
-        $name: String,
-        $countriesOfOperation: [String!],
+        $filters: ContactFilterDataInputType!,
     ) {
         exportContacts(
-            nameContains: $name,
-            countriesOfOperation: $countriesOfOperation,
+            filters: $filters,
         ) {
             errors
             ok
@@ -118,36 +112,42 @@ const CONTACTS_DOWNLOAD = gql`
     }
 `;
 
-const contactDefaultSorting = {
-    name: 'created_at',
-    direction: 'dsc',
-};
-
 type ContactFields = NonNullable<NonNullable<ContactListQuery['contactList']>['results']>[number];
 
 const keySelector = (item: ContactFields) => item.id;
 
 interface ContactsTableProps {
     className?: string;
-    defaultCountryOption?: CountryOption | undefined | null;
 }
 
 function ContactsTable(props: ContactsTableProps) {
     const {
         className,
-        defaultCountryOption,
     } = props;
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validContactSorting = sorting || contactDefaultSorting;
 
-    const contactOrdering = validContactSorting.direction === 'asc'
-        ? validContactSorting.name
-        : `-${validContactSorting.name}`;
+    const {
+        page,
+        rawPage,
+        setPage,
 
-    const [contactPage, setContactPage] = useState(1);
-    const [contactPageSize, setContactPageSize] = useState(10);
-    const debouncedPage = useDebouncedValue(contactPage);
+        ordering,
+        sortState,
+
+        rawFilter,
+        initialFilter,
+        filter,
+        setFilter,
+
+        rawPageSize,
+        pageSize,
+        setPageSize,
+    } = useFilterState<PurgeNull<NonNullable<ContactListQueryVariables['filters']>>>({
+        filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
+    });
 
     const {
         notify,
@@ -157,18 +157,13 @@ function ContactsTable(props: ContactsTableProps) {
     const [expandedRow, setExpandedRow] = useState<string | undefined>();
 
     const [
-        contactsQueryFilters,
-        setContactsQueryFilters,
-    ] = useState<PurgeNull<ContactListQueryVariables>>();
-
-    const [
         shouldShowAddContactModal,
         editableContactId,
         showAddContactModal,
         hideAddContactModal,
     ] = useModalState();
 
-    const handleRowExpand = React.useCallback(
+    const handleRowExpand = useCallback(
         (rowId: string) => {
             setExpandedRow((previousExpandedId) => (
                 previousExpandedId === rowId ? undefined : rowId
@@ -181,50 +176,26 @@ function ContactsTable(props: ContactsTableProps) {
         ({ datum }) => (
             <CommunicationTable
                 contact={datum.id}
-                defaultCountry={defaultCountryOption}
-                // compact
             />
         ),
     );
 
-    const onFilterChange = React.useCallback(
-        (value: PurgeNull<ContactListQueryVariables>) => {
-            setContactsQueryFilters(value);
-            setContactPage(1);
-        }, [],
-    );
-
-    const handlePageSizeChange = useCallback(
-        (value: number) => {
-            setContactPageSize(value);
-            setContactPage(1);
-        },
-        [],
-    );
-
     const contactsVariables = useMemo(
         (): ContactListQueryVariables => ({
-            ordering: contactOrdering,
-            page: debouncedPage,
-            pageSize: contactPageSize,
-            countriesOfOperation: defaultCountryOption ? [defaultCountryOption.id] : undefined,
-            ...contactsQueryFilters,
+            ordering,
+            page,
+            pageSize,
+            filters: expandObject<NonNullable<ContactListQueryVariables['filters']>>(
+                filter,
+                {},
+            ),
         }),
         [
-            contactOrdering,
-            debouncedPage,
-            contactPageSize,
-            defaultCountryOption,
-            contactsQueryFilters,
+            ordering,
+            page,
+            pageSize,
+            filter,
         ],
-    );
-
-    const contactsExportVariables = useMemo(
-        (): ExportContactsMutationVariables => ({
-            countriesOfOperation: defaultCountryOption ? [defaultCountryOption.id] : undefined,
-            ...contactsQueryFilters,
-        }),
-        [contactsQueryFilters, defaultCountryOption],
     );
 
     const {
@@ -232,6 +203,7 @@ function ContactsTable(props: ContactsTableProps) {
         data: contacts = previousData,
         loading: contactsLoading,
         refetch: refetchContact,
+        error: contactsError,
     } = useQuery<ContactListQuery>(GET_CONTACTS_LIST, {
         variables: contactsVariables,
     });
@@ -315,10 +287,12 @@ function ContactsTable(props: ContactsTableProps) {
     const handleExportTableData = useCallback(
         () => {
             exportContacts({
-                variables: contactsExportVariables,
+                variables: {
+                    filters: contactsVariables?.filters ?? {},
+                },
             });
         },
-        [exportContacts, contactsExportVariables],
+        [exportContacts, contactsVariables],
     );
 
     const loadingContacts = contactsLoading || deleteContactLoading;
@@ -332,7 +306,7 @@ function ContactsTable(props: ContactsTableProps) {
                 'expand-button',
                 '',
                 handleRowExpand,
-                // FIXME: should pass this using context
+                // TODO: should pass this using context
                 expandedRow,
             ),
             createDateColumn<ContactFields, string>(
@@ -355,22 +329,18 @@ function ContactsTable(props: ContactsTableProps) {
                 { sortable: true },
                 'large',
             ),
-            defaultCountryOption
-                ? undefined
-                : createTextColumn<ContactFields, string>(
-                    'countries_of_operation__idmc_short_name',
-                    'Countries of Operation',
-                    (item) => item.countriesOfOperation?.map((c) => c.idmcShortName).join(', '),
-                    { sortable: true },
-                    'large',
-                ),
-            defaultCountryOption
-                ? undefined
-                : createNumberColumn<ContactFields, string>(
-                    'communications',
-                    'Communications',
-                    (item) => item.communications?.totalCount,
-                ),
+            createTextColumn<ContactFields, string>(
+                'countries_of_operation__idmc_short_name',
+                'Countries of Operation',
+                (item) => item.countriesOfOperation?.map((c) => c.idmcShortName).join(', '),
+                { sortable: true },
+                'large',
+            ),
+            createNumberColumn<ContactFields, string>(
+                'communications',
+                'Communications',
+                (item) => item.communications?.totalCount,
+            ),
             createActionColumn<ContactFields, string>(
                 'action',
                 '',
@@ -384,7 +354,6 @@ function ContactsTable(props: ContactsTableProps) {
             ),
         ].filter(isDefined)),
         [
-            defaultCountryOption,
             handleContactDelete,
             showAddContactModal,
             expandedRow,
@@ -425,19 +394,22 @@ function ContactsTable(props: ContactsTableProps) {
             )}
             description={(
                 <ContactsFilter
-                    onFilterChange={onFilterChange}
+                    currentFilter={rawFilter}
+                    initialFilter={initialFilter}
+                    onFilterChange={setFilter}
                 />
             )}
             footerContent={(
                 <Pager
-                    activePage={contactPage}
+                    activePage={rawPage}
                     itemsCount={totalContactsCount}
-                    maxItemsPerPage={contactPageSize}
-                    onActivePageChange={setContactPage}
-                    onItemsPerPageChange={handlePageSizeChange}
+                    maxItemsPerPage={rawPageSize}
+                    onActivePageChange={setPage}
+                    onItemsPerPageChange={setPageSize}
                 />
             )}
         >
+            {loadingContacts && <Loading absolute />}
             {totalContactsCount > 0 && (
                 <SortContext.Provider value={sortState}>
                     <Table
@@ -451,10 +423,14 @@ function ContactsTable(props: ContactsTableProps) {
                     />
                 </SortContext.Provider>
             )}
-            {loadingContacts && <Loading absolute />}
-            {!loadingContacts && totalContactsCount <= 0 && (
-                <Message
-                    message="No contacts found."
+            {!loadingContacts && (
+                <TableMessage
+                    errored={!!contactsError}
+                    filtered={!hasNoData(filter)}
+                    totalItems={totalContactsCount}
+                    emptyMessage="No contacts found"
+                    emptyMessageWithFilters="No contacts found with applied filters"
+                    errorMessage="Could not fetch contacts"
                 />
             )}
             {shouldShowAddContactModal && (
@@ -468,7 +444,6 @@ function ContactsTable(props: ContactsTableProps) {
                         id={editableContactId}
                         onAddContactCache={handleRefetch}
                         onHideAddContactModal={hideAddContactModal}
-                        defaultCountryOption={defaultCountryOption}
                     />
                 </Modal>
             )}

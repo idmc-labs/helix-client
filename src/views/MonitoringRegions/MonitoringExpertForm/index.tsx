@@ -28,7 +28,7 @@ import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
-import UserSelectInput, { UserOption } from '#components/selections/UserSelectInput';
+import UserSelectInput from '#components/selections/UserSelectInput';
 
 import { transformToFormError } from '#utils/errorTransform';
 import {
@@ -36,6 +36,7 @@ import {
     basicEntityLabelSelector,
 } from '#utils/common';
 
+import useOptions from '#hooks/useOptions';
 import {
     ManageMonitoringExpertQuery,
     ManageMonitoringExpertQueryVariables,
@@ -118,12 +119,10 @@ interface PortfolioInputProps {
         value: StateArg<PartialForm<PortfolioType, { country: string }>>, index: number
     ) => void;
     countryList: CountryListOption[] | null | undefined,
-    assignedToOptions: UserOption[] | null | undefined,
-    setAssignedToOptions: React.Dispatch<React.SetStateAction<UserOption[] | null | undefined>>,
 }
 
 const defaultCollectionValue: PartialForm<PortfolioType, { country: string }> = {
-    country: '0',
+    country: '-1',
 };
 
 interface RegionOption {
@@ -142,8 +141,6 @@ function PortfolioInput(props: PortfolioInputProps) {
         error,
         index,
         countryList,
-        assignedToOptions,
-        setAssignedToOptions,
         onChange,
         disabled,
     } = props;
@@ -169,12 +166,10 @@ function PortfolioInput(props: PortfolioInputProps) {
                     disabled={disabled}
                 />
                 <UserSelectInput
-                    options={assignedToOptions}
                     label="Monitoring Expert *"
                     name="user"
                     value={value.user}
                     onChange={onValueChange}
-                    onOptionsChange={setAssignedToOptions}
                     error={error?.fields?.user}
                     disabled={disabled}
                 />
@@ -210,20 +205,17 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
         notifyGQLError,
     } = useContext(NotificationContext);
 
+    // NOTE: We do not use useOptions as this is filtered options
     const [
         regionList,
         setRegionList,
     ] = useState<RegionOption[] | null | undefined>();
-
-    const [
-        assignedToOptions,
-        setAssignedToOptions,
-    ] = useState<UserOption[] | null | undefined>();
-
     const [
         countryList,
         setCountryList,
     ] = useState<CountryListOption[] | null | undefined>();
+
+    const [, setAssignedToOptions] = useOptions('user');
 
     const manageMonitoringExpertVariables = useMemo(
         (): ManageMonitoringExpertQueryVariables | undefined => (
@@ -368,8 +360,6 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
                     onChange={onPortfolioChange}
                     error={error?.fields?.portfolios?.members?.[portfolio.country]}
                     countryList={countryList}
-                    assignedToOptions={assignedToOptions}
-                    setAssignedToOptions={setAssignedToOptions}
                     disabled={disabled}
                 />
             ))}

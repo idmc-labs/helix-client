@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useLayoutEffect, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
     TabList,
@@ -6,123 +6,95 @@ import {
     Tabs,
     TabPanel,
     SortContext,
-    TableSortDirection,
-    useSortState,
 } from '@togglecorp/toggle-ui';
 
 import {
     ExtractionEntryListFiltersQueryVariables,
 } from '#generated/types';
-import useDebouncedValue from '#hooks/useDebouncedValue';
-
+import { PurgeNull } from '#types';
 import Container from '#components/Container';
+import { FilterStateResponse } from '#hooks/useFilterState';
+import useEntryTable from '#components/rawTables/useEntryTable';
+import useFigureTable from '#components/rawTables/useFigureTable';
 
-import useEntryTable from '#components/rawTables/EntriesTable';
-import useFigureTable from '#components/rawTables/FiguresTable';
 import styles from './styles.css';
 
 type Tabs = 'Entries' | 'Figures';
 
-interface TableSortParameter {
-    name: string;
-    direction: TableSortDirection;
-}
-
-const defaultSorting: TableSortParameter = {
-    name: 'created_at',
-    direction: 'dsc',
-};
+type Filter = PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>;
+type FilterState = FilterStateResponse<Filter>;
 
 interface ExtractionEntriesTableProps {
     headingActions?: React.ReactNode;
     className?: string;
-    filters?: ExtractionEntryListFiltersQueryVariables;
+    entriesFilterState: FilterState,
+    figuresFilterState: FilterState,
 }
 
 function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
     const {
         headingActions,
         className,
-        filters,
+        entriesFilterState,
+        figuresFilterState,
     } = props;
 
     const [selectedTab, setSelectedTab] = useState<'Entries' | 'Figures' | undefined>('Figures');
 
-    const [entriesPage, setEntriesPage] = useState(1);
-    const [entriesPageSize, setEntriesPageSize] = useState(10);
-    const debouncedEntriesPage = useDebouncedValue(entriesPage);
+    const {
+        page: entriesPage,
+        setPage: setEntriesPage,
 
-    const [figuresPage, setFiguresPage] = useState(1);
-    const [figuresPageSize, setFiguresPageSize] = useState(10);
-    const debouncedFiguresPage = useDebouncedValue(figuresPage);
+        ordering: entriesOrdering,
+        sortState: entriesSortState,
 
-    const entriesSortState = useSortState();
-    const { sorting: entriesSorting } = entriesSortState;
-    const validEntriesSorting = entriesSorting ?? defaultSorting;
-    const entriesOrdering = validEntriesSorting.direction === 'asc'
-        ? validEntriesSorting.name
-        : `-${validEntriesSorting.name}`;
+        filter: entriesFilter,
 
-    const figuresSortState = useSortState();
-    const { sorting: figuresSorting } = figuresSortState;
-    const validFiguresSorting = figuresSorting ?? defaultSorting;
-    const figuresOrdering = validFiguresSorting.direction === 'asc'
-        ? validFiguresSorting.name
-        : `-${validFiguresSorting.name}`;
+        pageSize: entriesPageSize,
+        setPageSize: setEntriesPageSize,
+    } = entriesFilterState;
 
-    // NOTE: reset current page when filter is changed
-    useLayoutEffect(
-        () => {
-            setEntriesPage(1);
-            setFiguresPage(1);
-        },
-        [filters, entriesPageSize, figuresPageSize],
-    );
+    const {
+        page: figuresPage,
+        setPage: setFiguresPage,
+
+        ordering: figuresOrdering,
+        sortState: figuresSortState,
+
+        filter: figuresFilter,
+
+        pageSize: figuresPageSize,
+        setPageSize: setFiguresPageSize,
+    } = figuresFilterState;
 
     const entriesVariables = useMemo(
         (): ExtractionEntryListFiltersQueryVariables => ({
             ordering: entriesOrdering,
-            page: debouncedEntriesPage,
+            page: entriesPage,
             pageSize: entriesPageSize,
-            ...filters,
+            filters: entriesFilter,
         }),
         [
             entriesOrdering,
-            debouncedEntriesPage,
+            entriesPage,
             entriesPageSize,
-            filters,
+            entriesFilter,
         ],
     );
 
     const figuresVariables = useMemo(
         (): ExtractionEntryListFiltersQueryVariables => ({
             ordering: figuresOrdering,
-            page: debouncedFiguresPage,
+            page: figuresPage,
             pageSize: figuresPageSize,
-            ...filters,
+            filters: figuresFilter,
         }),
         [
             figuresOrdering,
-            debouncedFiguresPage,
+            figuresPage,
             figuresPageSize,
-            filters,
+            figuresFilter,
         ],
-    );
-
-    const handleEntriesPageSizeChange = useCallback(
-        (value: number) => {
-            setEntriesPageSize(value);
-            setEntriesPage(1);
-        },
-        [],
-    );
-
-    const handleFiguresPageSizeChange = useCallback(
-        (value: number) => {
-            setFiguresPageSize(value);
-            setFiguresPage(1);
-        },
-        [],
     );
 
     const {
@@ -134,19 +106,20 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         page: entriesPage,
         pageSize: entriesPageSize,
         onPageChange: setEntriesPage,
-        onPageSizeChange: handleEntriesPageSizeChange,
+        onPageSizeChange: setEntriesPageSize,
     });
 
     const {
         table: figuresTable,
         exportButton: figuresExportButton,
+        bulkActions: figuresBulkActions,
         pager: figuresPager,
     } = useFigureTable({
         filters: figuresVariables,
         page: figuresPage,
         pageSize: figuresPageSize,
         onPageChange: setFiguresPage,
-        onPageSizeChange: handleFiguresPageSizeChange,
+        onPageSizeChange: setFiguresPageSize,
     });
 
     return (
@@ -182,7 +155,12 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                 footerContent={(
                     <>
                         {selectedTab === 'Entries' && entriesPager}
-                        {selectedTab === 'Figures' && figuresPager}
+                        {selectedTab === 'Figures' && (
+                            <>
+                                {figuresPager}
+                                {figuresBulkActions}
+                            </>
+                        )}
                     </>
                 )}
             >

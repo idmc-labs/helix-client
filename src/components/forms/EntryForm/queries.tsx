@@ -9,6 +9,7 @@ export const EVENT_FRAGMENT = gql`
             id
             idmcShortName
             boundingBox
+            geojsonUrl
             iso2
         }
         violenceSubType {
@@ -46,10 +47,14 @@ export const EVENT_FRAGMENT = gql`
 export const FIGURE_FRAGMENT = gql`
     ${EVENT_FRAGMENT}
     fragment FigureResponse on FigureType {
+        entry {
+            id
+        }
         country {
             id
             idmcShortName
             boundingBox
+            geojsonUrl
             iso2
         }
         excerptIdu
@@ -183,13 +188,9 @@ export const FIGURE_FRAGMENT = gql`
 `;
 
 export const ENTRY_FRAGMENT = gql`
-    ${FIGURE_FRAGMENT}
     fragment EntryResponse on EntryType {
         associatedParkedItem {
             id
-        }
-        figures {
-            ...FigureResponse
         }
         articleTitle
         document {
@@ -230,9 +231,13 @@ export const ENTRY_FRAGMENT = gql`
 
 export const ENTRY = gql`
     ${ENTRY_FRAGMENT}
+    ${FIGURE_FRAGMENT}
     query Entry($id: ID!) {
         entry(id: $id) {
             ...EntryResponse
+            figures {
+                ...FigureResponse
+            }
         }
     }
 `;
@@ -257,6 +262,24 @@ export const UPDATE_ENTRY = gql`
                 ...EntryResponse
             }
             errors
+        }
+    }
+`;
+
+export const UPDATE_FIGURES = gql`
+    ${FIGURE_FRAGMENT}
+    mutation UpdateFigures(
+        $figures: [FigureUpdateInputType!],
+        $deleteIds: [ID!],
+    ) {
+        bulkUpdateFigures(items: $figures, deleteIds: $deleteIds) {
+            errors
+            result {
+                ...FigureResponse
+            }
+            deletedResult {
+                id
+            }
         }
     }
 `;
@@ -438,16 +461,18 @@ export const PARKED_ITEM_FOR_ENTRY = gql`
 export const FIGURE_LIST = gql`
     ${FIGURE_FRAGMENT}
     query FigureList(
-        $eventId: String,
+        $eventId: [ID!],
         $page: Int,
         $pageSize: Int,
     ) {
         figureList(
-            event: $eventId,
             page: $page,
             pageSize: $pageSize,
             ordering: "role,created_at",
-            filterIsFigureToBeReviewed: true,
+            filters: {
+                filterFigureEvents: $eventId,
+                filterFigureIsToBeReviewed: true,
+            },
         ) {
             results {
                 ...FigureResponse

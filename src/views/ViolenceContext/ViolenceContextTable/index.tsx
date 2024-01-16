@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext } from 'react';
 import {
     gql,
     useQuery,
@@ -7,35 +7,31 @@ import {
 import { isDefined } from '@togglecorp/fujs';
 import {
     Table,
-    useSortState,
-    Pager,
     Modal,
     Button,
     SortContext,
 } from '@togglecorp/toggle-ui';
+
+import TableMessage from '#components/TableMessage';
 import { PurgeNull } from '#types';
 import {
     createTextColumn,
     createActionColumn,
     createDateColumn,
 } from '#components/tableHelpers';
-
-import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
-
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
-
 import useModalState from '#hooks/useModalState';
-import useDebouncedValue from '#hooks/useDebouncedValue';
-
+import useFilterState from '#hooks/useFilterState';
 import {
     ContextOfViolenceListQuery,
     ContextOfViolenceListQueryVariables,
     DeleteContextOfViolenceMutation,
     DeleteContextOfViolenceMutationVariables,
 } from '#generated/types';
+import { hasNoData } from '#utils/common';
 
 import ViolenceContextForm from './ViolenceContextForm';
 import ViolenceContextFilter from '../ViolenceContextFilter';
@@ -44,8 +40,14 @@ import styles from './styles.css';
 type ViolenceContextFields = NonNullable<NonNullable<ContextOfViolenceListQuery['contextOfViolenceList']>['results']>[number];
 
 const CONTEXT_OF_VIOLENCE_LIST = gql`
-    query ContextOfViolenceList($ordering: String, $name_Icontains: String) {
-        contextOfViolenceList(name_Icontains: $name_Icontains, ordering: $ordering) {
+    query ContextOfViolenceList(
+        $ordering: String,
+        $filters: ContextOfViolenceFilterDataInputType,
+    ) {
+        contextOfViolenceList(
+            ordering: $ordering,
+            filters: $filters,
+        ) {
             page
             pageSize
             totalCount
@@ -73,11 +75,6 @@ const CONTEXT_OF_VIOLENCE_DELETE = gql`
     }
 `;
 
-const defaultSorting = {
-    name: 'created_at',
-    direction: 'dsc',
-};
-
 const keySelector = (item: ViolenceContextFields) => item.id;
 
 interface ContextOfViolenceProps {
@@ -89,25 +86,26 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
         className,
     } = props;
 
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting || defaultSorting;
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-    const debouncedPage = useDebouncedValue(page);
+    const {
+        ordering,
+        sortState,
+
+        rawFilter,
+        initialFilter,
+        filter,
+        setFilter,
+    } = useFilterState<PurgeNull<NonNullable<ContextOfViolenceListQueryVariables['filters']>>>({
+        filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
+    });
 
     const {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
-
-    const [
-        violenceContextQueryFilters,
-        setViolenceContextQueryFilters,
-    ] = useState<PurgeNull<ContextOfViolenceListQueryVariables>>();
 
     const [
         shouldShowViolenceContextModal,
@@ -116,33 +114,14 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
         hideViolenceContextModal,
     ] = useModalState();
 
-    const onFilterChange = React.useCallback(
-        (value: PurgeNull<ContextOfViolenceListQueryVariables>) => {
-            setViolenceContextQueryFilters(value);
-            setPage(1);
-        }, [],
-    );
-
-    const handlePageSizeChange = useCallback(
-        (value: number) => {
-            setPageSize(value);
-            setPage(1);
-        },
-        [],
-    );
-
-    const variables = useMemo(
+    const variables: ContextOfViolenceListQueryVariables = useMemo(
         () => ({
             ordering,
-            page: debouncedPage,
-            pageSize,
-            ...violenceContextQueryFilters,
+            filters: filter,
         }),
         [
             ordering,
-            debouncedPage,
-            pageSize,
-            violenceContextQueryFilters,
+            filter,
         ],
     );
 
@@ -151,6 +130,7 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
         data: violenceContextData = previousData,
         loading: loadingViolenceContext,
         refetch: refetchViolenceContext,
+        error: totalViolenceContextError,
     } = useQuery<ContextOfViolenceListQuery, ContextOfViolenceListQueryVariables>(
         CONTEXT_OF_VIOLENCE_LIST,
         {
@@ -190,7 +170,7 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
         },
     );
 
-    const handleViolenceContextCreate = React.useCallback(() => {
+    const handleViolenceContextCreate = useCallback(() => {
         hideViolenceContextModal();
 
         refetchViolenceContext(variables);
@@ -273,19 +253,13 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
             )}
             description={(
                 <ViolenceContextFilter
-                    onFilterChange={onFilterChange}
-                />
-            )}
-            footerContent={(
-                <Pager
-                    activePage={page}
-                    itemsCount={totalViolenceContextCount}
-                    maxItemsPerPage={pageSize}
-                    onActivePageChange={setPage}
-                    onItemsPerPageChange={handlePageSizeChange}
+                    currentFilter={rawFilter}
+                    initialFilter={initialFilter}
+                    onFilterChange={setFilter}
                 />
             )}
         >
+            {(loadingViolenceContext || deletingViolenceContext) && <Loading absolute />}
             {totalViolenceContextCount > 0 && (
                 <SortContext.Provider value={sortState}>
                     <Table
@@ -298,10 +272,14 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
                     />
                 </SortContext.Provider>
             )}
-            {(loadingViolenceContext || deletingViolenceContext) && <Loading absolute />}
-            {!loadingViolenceContext && totalViolenceContextCount <= 0 && (
-                <Message
-                    message="No Context of Violence found."
+            {!loadingViolenceContext && (
+                <TableMessage
+                    errored={!!totalViolenceContextError}
+                    filtered={!hasNoData(filter)}
+                    totalItems={totalViolenceContextCount}
+                    emptyMessage="No context of violences found"
+                    emptyMessageWithFilters="No context of violences found with applied filters"
+                    errorMessage="Could not fetch context of violences"
                 />
             )}
             {shouldShowViolenceContextModal && (

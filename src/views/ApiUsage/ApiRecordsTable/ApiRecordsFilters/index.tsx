@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
     Button,
     MultiSelectInput,
@@ -15,7 +15,7 @@ import {
 import { gql, useQuery } from '@apollo/client';
 
 import NonFieldError from '#components/NonFieldError';
-import ClientMultiSelectInput, { ClientCodeOption } from '#components/selections/ClientMultiSelectInput';
+import ClientMultiSelectInput from '#components/selections/ClientMultiSelectInput';
 
 import {
     enumKeySelector,
@@ -38,7 +38,7 @@ const API_TYPE_OPTIONS = gql`
     }
 `;
 
-type ApiFilterFields = Omit<ClientTrackInformationListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type ApiFilterFields = NonNullable<ClientTrackInformationListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<ApiFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -53,21 +53,18 @@ const schema: FormSchema = {
     }),
 };
 
-const defaultFormValues: PartialForm<FormType> = {
-    apiType: undefined,
-    clientCodes: undefined,
-    startTrackDate: undefined,
-    endTrackDate: undefined,
-};
-
 interface ApiFilterProps {
     className?: string;
-    onFilterChange: (value: PurgeNull<ClientTrackInformationListQueryVariables>) => void;
+    initialFilter: PartialForm<FormType>;
+    currentFilter: PartialForm<FormType>;
+    onFilterChange: (value: PartialForm<FormType>) => void;
 }
 
 function ApiRecordsFilter(props: ApiFilterProps) {
     const {
         className,
+        initialFilter,
+        currentFilter,
         onFilterChange,
     } = props;
 
@@ -79,12 +76,18 @@ function ApiRecordsFilter(props: ApiFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(defaultFormValues, schema);
-
-    const [
-        clientCodeOptions,
-        setClientCodeOptions,
-    ] = useState<ClientCodeOption[] | undefined | null>();
+    } = useForm(currentFilter, schema);
+    // NOTE: Set the form value when initialFilter and currentFilter is changed on parent
+    // We cannot only use initialFilter as it will change the form value when
+    // currentFilter != initialFilter on mount
+    useEffect(
+        () => {
+            if (initialFilter === currentFilter) {
+                onValueSet(initialFilter);
+            }
+        },
+        [currentFilter, initialFilter, onValueSet],
+    );
 
     const {
         data: apiTypeData,
@@ -94,18 +97,18 @@ function ApiRecordsFilter(props: ApiFilterProps) {
 
     const onResetFilters = useCallback(
         () => {
-            onValueSet(defaultFormValues);
-            onFilterChange(defaultFormValues);
+            onValueSet(initialFilter);
+            onFilterChange(initialFilter);
         },
-        [onValueSet, onFilterChange],
+        [onValueSet, onFilterChange, initialFilter],
     );
 
-    const handleSubmit = React.useCallback((finalValues: FormType) => {
+    const handleSubmit = useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
 
-    const filterChanged = defaultFormValues !== value;
+    const filterChanged = initialFilter !== value;
 
     return (
         <form
@@ -134,8 +137,6 @@ function ApiRecordsFilter(props: ApiFilterProps) {
                     name="clientCodes"
                     value={value.clientCodes}
                     onChange={onValueChange}
-                    options={clientCodeOptions}
-                    onOptionsChange={setClientCodeOptions}
                     error={error?.fields?.clientCodes?.$internal}
                 />
                 <DateRangeDualInput

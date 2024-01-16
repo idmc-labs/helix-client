@@ -6,6 +6,7 @@ import styles from './styles.css';
 interface Props {
     className?: string;
     title: React.ReactNode;
+    description?: React.ReactNode;
     status?: React.ReactNode;
     actions?: React.ReactNode;
     icons?: React.ReactNode;
@@ -17,6 +18,7 @@ function PageHeader(props: Props) {
         className,
         title,
         actions,
+        description,
         icons,
         iconsClassName,
         status,
@@ -34,6 +36,11 @@ function PageHeader(props: Props) {
                     { title }
                 </h2>
             </div>
+            {description && (
+                <div className={styles.description}>
+                    {description}
+                </div>
+            )}
             <div className={styles.dummySection} />
             {status && (
                 <div className={styles.statusSection}>
