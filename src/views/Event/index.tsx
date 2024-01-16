@@ -410,7 +410,7 @@ function Event(props: EventProps) {
                         filterState={figuresFilterState.rawFilter}
                     />
                     <Container
-                        className={styles.map}
+                        className={styles.mapSection}
                         compact
                     >
                         <CountriesMap

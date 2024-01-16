@@ -12,55 +12,75 @@
         }
 
         .main-content {
-            display: grid;
+            display: flex;
             flex-basis: 100%;
-            grid-template-columns: repeat(auto-fit, minmax(32rem, 1fr));
+            flex-wrap: wrap;
             gap: var(--spacing-large);
+            overflow-x: auto;
 
             .filter-outputs {
-                grid-column: 1 / -1;
                 display: flex;
+                flex-basis: 100%;
                 flex-wrap: wrap;
                 gap: var(--spacing-medium) var(--spacing-large);
             }
 
-            .map {
-                grid-column: 1 / -2;
-            }
+            .map-section {
+                flex-basis: 50%;
+                flex-grow: 1;
+                min-width: 20rem;
 
-            .map-container {
-                height: 100%;
-                min-height: 45rem;
+                .map-container {
+                    height: 100%;
+                    min-height: 45rem;
+                }
             }
 
             .charts {
                 display: flex;
+                flex-basis: calc(50% - var(--spacing-large));
                 flex-direction: column;
+                flex-grow: 1;
+                min-width: 20rem;
                 gap: var(--spacing-medium);
-                grid-column: auto / -1;
             }
 
             .countries-crises-events-entries-figures-table {
-                grid-column: 1 / -1;
+                flex-basis: 100%;
                 min-height: 400px;
+                overflow-x: auto;
             }
 
             .overview {
-                grid-column: 1 / -2;
-                grid-row: auto / span 4;
+                flex-basis: 50%;
+                flex-grow: 1;
+                min-width: 20rem;
             }
 
-            .status {
-                grid-column: auto / -1;
-            }
-            .history {
-                grid-column: auto / -1;
-            }
-            .masterFactInfo {
-                grid-column: auto / -1;
-            }
-            .comments {
-                grid-column: auto / -1;
+            .side-content {
+                display: flex;
+                align-content: flex-start;
+                flex-basis: calc(50% - var(--spacing-large));
+                flex-direction: column;
+                flex-grow: 1;
+                min-width: 20rem;
+                gap: var(--spacing-medium);
+
+                .status {
+                    min-height: 10rem;
+                }
+
+                .history {
+                    min-height: 10rem;
+                }
+
+                .masterFactInfo {
+                    min-height: 10rem;
+                }
+
+                .comments {
+                    min-height: 10rem;
+                }
             }
         }
 

@@ -112,12 +112,12 @@ export const FIGURE_LIST = gql`
                     oldId
                     articleTitle
                 }
+                figureCause
+                figureCauseDisplay
                 event {
                     id
                     oldId
                     name
-                    eventType
-                    eventTypeDisplay
                     crisis {
                         id
                         name
@@ -460,9 +460,9 @@ function useFigureTable(props: Props) {
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
-                    'event__event_type',
+                    'figure_cause',
                     'Cause',
-                    (item) => item.event?.eventTypeDisplay,
+                    (item) => item.figureCauseDisplay,
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
