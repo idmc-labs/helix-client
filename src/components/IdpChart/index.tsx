@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { bound, compareDate, compareNumber, isDefined, isNotDefined, listToGroupList, mapToList, _cs } from '@togglecorp/fujs';
+import { bound, compareDate, isDefined, isNotDefined, listToGroupList, mapToList, _cs } from '@togglecorp/fujs';
 
 import ChartAxes from '#components/ChartAxes';
 import useChartData from '#hooks/useChartData';
