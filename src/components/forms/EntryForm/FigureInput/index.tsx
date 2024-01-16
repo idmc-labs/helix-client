@@ -509,6 +509,7 @@ function FigureInput(props: FigureInputProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
+                    // FIXME: we need to move this behavior to the parent
                     setEvents((oldEvents) => unique([
                         result.event,
                         ...(oldEvents ?? []),
@@ -544,6 +545,7 @@ function FigureInput(props: FigureInputProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
+                    // FIXME: we need to move this behavior to the parent
                     setEvents((oldEvents) => unique([
                         result.event,
                         ...(oldEvents ?? []),
@@ -579,6 +581,7 @@ function FigureInput(props: FigureInputProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
+                    // FIXME: we need to move this behavior to the parent
                     setEvents((oldEvents) => unique([
                         result.event,
                         ...(oldEvents ?? []),
@@ -909,6 +912,7 @@ function FigureInput(props: FigureInputProps) {
 
     const handleEventCreate = useCallback(
         (newEvent: EventListOption) => {
+            // FIXME: we need to move this behavior to the parent
             setEvents((oldEvents) => [...(oldEvents ?? []), newEvent]);
             handleEventChange(newEvent.id, 'event', newEvent);
             hideEventModal();

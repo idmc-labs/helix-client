@@ -297,7 +297,7 @@ function EntryForm(props: EntryFormProps) {
         { id: string },
         { id: string, uuid: string },
         Omit<NonNullable<UpdateFiguresMutationVariables['figures']>[number], 'uuid'> & { uuid: string }
-    >();
+    >(25);
 
     const {
         notify,
@@ -651,6 +651,7 @@ function EntryForm(props: EntryFormProps) {
             );
 
             setOrganizations(organizationsForState);
+            // NOTE: We need to add to the event state and not remove anything
             setEvents(eventsForState);
             setTagOptions(tagOptionsForState);
             setViolenceContextOptions(violenceContextOptionsForState);

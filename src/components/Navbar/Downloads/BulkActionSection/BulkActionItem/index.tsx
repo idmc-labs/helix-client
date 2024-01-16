@@ -130,7 +130,6 @@ function BulkActionItem(props: DownloadedItemProps) {
                         </div>
                         {detailsExpanded && (
                             <BulkActionSummary
-                                className={styles.summary}
                                 id={id}
                             />
                         )}

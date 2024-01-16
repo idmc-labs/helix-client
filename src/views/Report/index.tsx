@@ -40,6 +40,7 @@ import {
     ReportAggregationsQueryVariables,
     ExtractionEntryListFiltersQueryVariables,
 } from '#generated/types';
+import { mergeBbox } from '#utils/common';
 import Message from '#components/Message';
 import useOptions from '#hooks/useOptions';
 import DomainContext from '#components/DomainContext';
@@ -55,7 +56,7 @@ import PageHeader from '#components/PageHeader';
 import QuickActionButton from '#components/QuickActionButton';
 import useModalState from '#hooks/useModalState';
 import TextBlock from '#components/TextBlock';
-import CountriesMap from '#components/CountriesMap';
+import CountriesMap, { Bounds } from '#components/CountriesMap';
 import NdChart from '#components/NdChart';
 import IdpChart from '#components/IdpChart';
 
@@ -164,6 +165,9 @@ const REPORT = gql`
             filterFigureCountries {
                 id
                 idmcShortName
+                # Adding these information to shwo map
+                boundingBox
+                geojsonUrl
             }
             filterFigureCrises {
                 id
@@ -716,6 +720,12 @@ function Report(props: ReportProps) {
     const generations = report?.generations?.results?.filter((item) => item.isSignedOff);
     const reportTypes = report?.filterFigureCrisisTypes;
 
+    const bounds = mergeBbox(
+        report?.filterFigureCountries
+            ?.map((country) => country.boundingBox as (GeoJSON.BBox | null | undefined))
+            .filter(isDefined),
+    );
+
     const isPfaValid = useMemo(
         () => {
             const countries = report?.filterFigureCountries;
@@ -944,8 +954,8 @@ function Report(props: ReportProps) {
                     >
                         <CountriesMap
                             className={styles.mapContainer}
-                            // bounds={bounds as Bounds | undefined}
-                            // countries={eventData?.event?.countries}
+                            bounds={bounds as Bounds | undefined}
+                            countries={report?.filterFigureCountries}
                         />
                     </Container>
                     <div className={styles.charts}>
