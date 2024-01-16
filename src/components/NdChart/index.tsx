@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { isDefined, isNotDefined, listToGroupList, mapToList } from '@togglecorp/fujs';
+import { bound, isDefined, isNotDefined, listToGroupList, mapToList } from '@togglecorp/fujs';
 
 import ChartAxes from '#components/ChartAxes';
 import useChartData from '#hooks/useChartData';
@@ -252,8 +252,6 @@ function NdChart(props: Props) {
         },
     );
 
-    const barWidth = 10;
-
     const disasterDataPoints = dataPoints.map(
         (dataPoint) => {
             if (isNotDefined(dataPoint.originalData.disaster)) {
@@ -266,6 +264,12 @@ function NdChart(props: Props) {
             };
         },
     ).filter(isDefined);
+
+    const barWidth = bound(
+        xAxisTickWidth / xAxisCompression,
+        5,
+        15,
+    );
 
     return (
         <Container

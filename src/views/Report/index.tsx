@@ -939,7 +939,7 @@ function Report(props: ReportProps) {
                         filterState={reportFilters}
                     />
                     <Container
-                        className={styles.map}
+                        className={styles.mapSection}
                         compact
                     >
                         <CountriesMap
@@ -974,9 +974,7 @@ function Report(props: ReportProps) {
                             }
                         />
                     </div>
-                    <Container
-                        className={styles.overview}
-                    >
+                    <Container className={styles.overview}>
                         <Container
                             heading="Figure Analysis"
                             borderless
@@ -1142,75 +1140,78 @@ function Report(props: ReportProps) {
                             )}
                         </Container>
                     </Container>
-                    {lastGeneration && (lastGeneration.isApproved || lastGeneration.isSignedOff) && ( // eslint-disable-line max-len
-                        <Container
-                            className={styles.status}
-                            heading="Status"
-                        >
-                            {lastGeneration.approvals?.results
-                                && lastGeneration.approvals.results.length > 0
-                                && (
+                    <div className={styles.sideContent}>
+                        {lastGeneration && (lastGeneration.isApproved || lastGeneration.isSignedOff) && ( // eslint-disable-line max-len
+                            <Container
+                                className={styles.status}
+                                heading="Status"
+                            >
+                                {lastGeneration.approvals?.results
+                                    && lastGeneration.approvals.results.length > 0
+                                    && (
+                                        <>
+                                            <h4>
+                                                Approvals
+                                            </h4>
+                                            {lastGeneration.approvals.results.map((item) => (
+                                                <UserItem
+                                                    name={item.createdBy.fullName}
+                                                    date={item.createdAt}
+                                                />
+                                            ))}
+                                        </>
+                                    )}
+                                {lastGeneration.isSignedOffBy && (
                                     <>
                                         <h4>
-                                            Approvals
+                                            Signed Off
                                         </h4>
-                                        {lastGeneration.approvals.results.map((item) => (
-                                            <UserItem
-                                                name={item.createdBy.fullName}
-                                                date={item.createdAt}
-                                            />
-                                        ))}
+                                        <UserItem
+                                            name={lastGeneration.isSignedOffBy.fullName}
+                                            date={lastGeneration.isSignedOffOn}
+                                        />
                                     </>
                                 )}
-                            {lastGeneration.isSignedOffBy && (
-                                <>
-                                    <h4>
-                                        Signed Off
-                                    </h4>
-                                    <UserItem
-                                        name={lastGeneration.isSignedOffBy.fullName}
-                                        date={lastGeneration.isSignedOffOn}
+                            </Container>
+                        )}
+                        {generations && generations.length > 0 && (
+                            <Container
+                                className={styles.history}
+                                heading="History"
+                            >
+                                {generations.map((item) => (
+                                    <GenerationItem
+                                        key={item.id}
+                                        user={item.isSignedOffBy}
+                                        date={item.isSignedOffOn}
+                                        fullReport={item.fullReport}
+                                        snapshot={item.snapshot}
+                                        status={item.status}
                                     />
-                                </>
-                            )}
-                        </Container>
-                    )}
-                    {generations && generations.length > 0 && (
+                                ))}
+                            </Container>
+                        )}
+                        {!report?.generated
+                            && (report?.filterFigureCategories?.length ?? 0) > 0 && (
+                            <MasterFactInfo
+                                className={styles.masterFactInfo}
+                                totalFigures={report?.totalFigures}
+                                roles={report?.filterFigureRoles}
+                                countries={report?.filterFigureCountries}
+                                categories={report?.filterFigureCategories}
+                                tags={report?.filterFigureTags}
+                            />
+                        )}
                         <Container
-                            className={styles.history}
-                            heading="History"
+                            className={styles.comments}
+                            heading="Comments"
                         >
-                            {generations.map((item) => (
-                                <GenerationItem
-                                    key={item.id}
-                                    user={item.isSignedOffBy}
-                                    date={item.isSignedOffOn}
-                                    fullReport={item.fullReport}
-                                    snapshot={item.snapshot}
-                                    status={item.status}
-                                />
-                            ))}
+                            <ReportComments
+                                // className={styles.comments}
+                                reportId={reportId}
+                            />
                         </Container>
-                    )}
-                    {!report?.generated && (report?.filterFigureCategories?.length ?? 0) > 0 && (
-                        <MasterFactInfo
-                            className={styles.masterFactInfo}
-                            totalFigures={report?.totalFigures}
-                            roles={report?.filterFigureRoles}
-                            countries={report?.filterFigureCountries}
-                            categories={report?.filterFigureCategories}
-                            tags={report?.filterFigureTags}
-                        />
-                    )}
-                    <Container
-                        className={styles.comments}
-                        heading="Comments"
-                    >
-                        <ReportComments
-                            // className={styles.comments}
-                            reportId={reportId}
-                        />
-                    </Container>
+                    </div>
                     <CountriesCrisesEventsEntriesFiguresTable
                         className={styles.countriesCrisesEventsEntriesFiguresTable}
                         reportId={reportId}
