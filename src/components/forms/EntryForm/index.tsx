@@ -214,7 +214,7 @@ function getValuesFromFigures(figures: (NonNullable<NonNullable<EntryQuery['entr
         }
 
         // FIXME: removeNull will delete 'null' from the list instead of
-        // setting it to undefined
+        // setting it to undefined. So, using removeNull on individual item
         return removeNull({
             ...figure,
             entry: figure.entry?.id,
@@ -332,6 +332,17 @@ function EntryForm(props: EntryFormProps) {
         events,
         setEvents,
     ] = useState<EventListOption[] | null | undefined>([]);
+
+    const handleEventOptionsChange: typeof setEvents = useCallback(
+        (options) => {
+            setEvents((oldEvents) => unique([
+                ...(oldEvents ?? []),
+                ...((typeof options === 'function' ? options(oldEvents) : options) ?? []),
+            ]));
+        },
+        [],
+    );
+
     type FigureResponse = NonNullable<NonNullable<EntryQuery['entry']>['figures']>[number];
     type FigureMapping = Pick<FigureResponse, 'role' | 'reviewStatus'> & {
         fieldStatuses: FigureResponse['lastReviewCommentStatus']
@@ -342,6 +353,7 @@ function EntryForm(props: EntryFormProps) {
     ] = useState<{
         [key: string]: FigureMapping,
     }>({});
+
     const [, setOrganizations] = useOptions('organization');
     const [, setTagOptions] = useOptions('tag');
     const [, setViolenceContextOptions] = useOptions('contextOfViolence');
@@ -517,8 +529,14 @@ function EntryForm(props: EntryFormProps) {
         },
     );
 
+    type BulkHandleOptions = {
+        entrySaved: boolean;
+        noFigures: boolean;
+        errorMessage?: string;
+    }
+
     const handleBulkSaveEnd = useCallback(
-        ({ entrySaved, noFigures }: { entrySaved: boolean, noFigures: boolean }) => {
+        ({ entrySaved, noFigures, errorMessage }: BulkHandleOptions) => {
             if (entrySaved) {
                 notify({
                     children: 'Entry saved successfully!',
@@ -652,7 +670,7 @@ function EntryForm(props: EntryFormProps) {
 
             setOrganizations(organizationsForState);
             // NOTE: We need to add to the event state and not remove anything
-            setEvents(eventsForState);
+            handleEventOptionsChange(eventsForState);
             setTagOptions(tagOptionsForState);
             setViolenceContextOptions(violenceContextOptionsForState);
 
@@ -668,14 +686,6 @@ function EntryForm(props: EntryFormProps) {
                     }
                     return figure;
                 }).filter(isDefined) ?? [];
-
-                /*
-                FIXME: Remove this comment once we are sure we don't need this
-                const newFigures = savedFigures
-                    .filter((item) => item.new)
-                    .map((item) => item.value)
-                    .sort((foo, bar) => compareStringAsNumber(foo.id, bar.id));
-                 */
 
                 return ({
                     ...oldValue,
@@ -698,6 +708,7 @@ function EntryForm(props: EntryFormProps) {
 
             // NOTE: onValueSet clears errors so setting this later
             onErrorSet({
+                $internal: errorMessage,
                 fields: {
                     figures: {
                         $internal: undefined,
@@ -709,6 +720,12 @@ function EntryForm(props: EntryFormProps) {
                     },
                 },
             });
+            if (errorMessage) {
+                notify({
+                    children: errorMessage,
+                    variant: 'error',
+                });
+            }
 
             // NOTE: Not sure if onValueSet also sets pristine value
             onPristineSet(true);
@@ -753,6 +770,7 @@ function EntryForm(props: EntryFormProps) {
             setOrganizations,
             setTagOptions,
             setViolenceContextOptions,
+            handleEventOptionsChange,
         ],
     );
 
@@ -765,7 +783,11 @@ function EntryForm(props: EntryFormProps) {
             onCompleted: (response) => {
                 const { bulkUpdateFigures: bulkUpdateFiguresRes } = response;
                 if (!bulkUpdateFiguresRes) {
-                    handleBulkSaveEnd({ entrySaved: true, noFigures: false });
+                    handleBulkSaveEnd({
+                        entrySaved: true,
+                        noFigures: false,
+                        errorMessage: 'Some error occurred while saving figure',
+                    });
                     return;
                 }
 
@@ -798,15 +820,11 @@ function EntryForm(props: EntryFormProps) {
                 handleBulkSaveEnd({ entrySaved: true, noFigures: false });
             },
             onError: (errors) => {
-                notify({
-                    children: errors.message,
-                    variant: 'error',
+                handleBulkSaveEnd({
+                    entrySaved: true,
+                    noFigures: false,
+                    errorMessage: errors.message,
                 });
-                onErrorSet({
-                    $internal: errors.message,
-                });
-
-                handleBulkSaveEnd({ entrySaved: true, noFigures: false });
             },
         },
     );
@@ -917,7 +935,7 @@ function EntryForm(props: EntryFormProps) {
             setSourcePreview(entry.preview);
             setAttachment(entry.document);
 
-            setEvents(eventsForState);
+            handleEventOptionsChange(eventsForState);
             setTagOptions(tagOptionsForState);
             setViolenceContextOptions(violenceContextOptionsForState);
 
@@ -1285,6 +1303,9 @@ function EntryForm(props: EntryFormProps) {
                     return true;
                 }}
             />
+            <NonFieldError>
+                {error?.$internal}
+            </NonFieldError>
             <form
                 className={_cs(className, styles.entryForm)}
                 onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
@@ -1309,9 +1330,6 @@ function EntryForm(props: EntryFormProps) {
                             Figure and Analysis
                         </Tab>
                     </TabList>
-                    <NonFieldError>
-                        {error?.$internal}
-                    </NonFieldError>
                     <TabPanel
                         className={styles.details}
                         name="details"
@@ -1389,7 +1407,7 @@ function EntryForm(props: EntryFormProps) {
                                             // eslint-disable-next-line max-len
                                             optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
                                             events={events}
-                                            setEvents={setEvents}
+                                            setEvents={handleEventOptionsChange}
                                             // eslint-disable-next-line max-len
                                             causeOptions={figureOptionsData?.crisisType?.enumValues as CauseOptions}
                                             // eslint-disable-next-line max-len

@@ -6,6 +6,7 @@ import {
     ApolloLink as ApolloLinkFromClient,
     HttpLink,
 } from '@apollo/client';
+import { onError } from 'apollo-link-error';
 import { ApolloLink } from 'apollo-link';
 import { RetryLink } from 'apollo-link-retry';
 import { RestLink } from 'apollo-link-rest';
@@ -18,6 +19,23 @@ import '../../../node_modules/mapbox-gl/dist/mapbox-gl.css';
 import './styles.css';
 
 import Multiplexer from './Multiplexer';
+
+const errorLink = onError((all) => {
+    const { graphQLErrors } = all;
+    console.log(all);
+    if (graphQLErrors) {
+        const allErrors = graphQLErrors.map((error) => (
+            error.message
+        )).join('\n');
+
+        // NOTE: we are overriding network errors if we have graphql errors
+        // as network errors get more priority than graphql errors on apollo client
+        if (all.networkError) {
+            // eslint-disable-next-line no-param-reassign
+            all.networkError.message = allErrors;
+        }
+    }
+});
 
 const GRAPHQL_ENDPOINT = process.env.REACT_APP_GRAPHQL_ENDPOINT as string;
 
@@ -41,6 +59,7 @@ const client = new ApolloClient({
                 new RestLink({
                     uri: 'https://osmnames.idmcdb.org',
                 }) as unknown as ApolloLink,
+                errorLink as unknown as ApolloLink,
                 new HttpLink({
                     uri: GRAPHQL_ENDPOINT,
                     credentials: 'include',
