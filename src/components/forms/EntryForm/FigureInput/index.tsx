@@ -509,11 +509,7 @@ function FigureInput(props: FigureInputProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
-                    // FIXME: we need to move this behavior to the parent
-                    setEvents((oldEvents) => unique([
-                        result.event,
-                        ...(oldEvents ?? []),
-                    ], (event) => event.id));
+                    setEvents([result.event]);
                     notify({
                         children: 'Figure approved successfully!',
                         variant: 'success',
@@ -545,11 +541,7 @@ function FigureInput(props: FigureInputProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
-                    // FIXME: we need to move this behavior to the parent
-                    setEvents((oldEvents) => unique([
-                        result.event,
-                        ...(oldEvents ?? []),
-                    ], (event) => event.id));
+                    setEvents([result.event]);
                     notify({
                         children: 'Figure unapproved successfully!',
                         variant: 'success',
@@ -581,11 +573,7 @@ function FigureInput(props: FigureInputProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
-                    // FIXME: we need to move this behavior to the parent
-                    setEvents((oldEvents) => unique([
-                        result.event,
-                        ...(oldEvents ?? []),
-                    ], (event) => event.id));
+                    setEvents([result.event]);
                     notify({
                         children: 'Figure re-request review successfully!',
                         variant: 'success',
@@ -912,8 +900,7 @@ function FigureInput(props: FigureInputProps) {
 
     const handleEventCreate = useCallback(
         (newEvent: EventListOption) => {
-            // FIXME: we need to move this behavior to the parent
-            setEvents((oldEvents) => [...(oldEvents ?? []), newEvent]);
+            setEvents([newEvent]);
             handleEventChange(newEvent.id, 'event', newEvent);
             hideEventModal();
         },
