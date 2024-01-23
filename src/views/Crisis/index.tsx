@@ -22,7 +22,7 @@ import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import useOptions from '#hooks/useOptions';
 import AdvancedFiguresFilter from '#components/rawTables/useFigureTable/AdvancedFiguresFilter';
-import { expandObject, mergeBbox, hasNoData } from '#utils/common';
+import { expandObject, mergeBbox, hasNoData, getNow } from '#utils/common';
 import useSidebarLayout from '#hooks/useSidebarLayout';
 import NdChart from '#components/NdChart';
 import IdpChart from '#components/IdpChart';
@@ -83,7 +83,7 @@ const CRISIS_AGGREGATIONS = gql`
     }
 `;
 
-const now = new Date();
+const now = getNow();
 
 interface CrisisProps {
     className?: string;

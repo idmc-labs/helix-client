@@ -11,12 +11,12 @@ import {
     CountriesQueryVariables,
 } from '#generated/types';
 import useFilterState from '#hooks/useFilterState';
-import { expandObject } from '#utils/common';
+import { expandObject, getNow } from '#utils/common';
 
 import styles from './styles.css';
 
 const defaultFilter: PurgeNull<CountriesFilterFields> = {
-    year: new Date().getFullYear(),
+    year: getNow().getFullYear(),
 };
 
 interface CountriesProps {

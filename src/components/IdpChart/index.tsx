@@ -1,15 +1,44 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { bound, compareDate, isDefined, isNotDefined, listToGroupList, mapToList, _cs } from '@togglecorp/fujs';
+import React, {
+    useCallback,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
+import {
+    bound,
+    compareDate,
+    _cs,
+    isDefined,
+    isNotDefined,
+    listToGroupList,
+    mapToList,
+} from '@togglecorp/fujs';
+import { SegmentInput } from '@togglecorp/toggle-ui';
 
 import ChartAxes from '#components/ChartAxes';
 import useChartData from '#hooks/useChartData';
-import { defaultChartMargin, defaultChartPadding, getNumberOfDays, getNumberOfMonths, getPathData, getSuitableTemporalResolution } from '#utils/chart';
+import {
+    defaultChartMargin,
+    defaultChartPadding,
+    getNumberOfDays,
+    getNumberOfMonths,
+    getPathData,
+    getSuitableTemporalResolution,
+    TemporalResolution,
+} from '#utils/chart';
 
-import styles from './styles.css';
-import { sumSafe } from '#utils/common';
+import {
+    getDateFromYmd,
+    getDateFromDateStringOrTimestamp,
+    getDateFromTimestamp,
+    getNow,
+    sumSafe,
+} from '#utils/common';
 import Tooltip from '#components/Tooltip';
 import NumberBlock from '#components/NumberBlock';
 import Container from '#components/Container';
+
+import styles from './styles.css';
 
 const X_AXIS_HEIGHT = 16;
 const Y_AXIS_WIDTH = 40;
@@ -20,11 +49,12 @@ const chartOffset = {
     right: 0,
     bottom: X_AXIS_HEIGHT,
 };
-const chartPadding = defaultChartPadding;
-const chartMargin = defaultChartMargin;
 
 const NUM_X_AXIS_POINTS_MAX = 7;
 const NUM_X_AXIS_POINTS_MIN = 3;
+
+const chartPadding = defaultChartPadding;
+const chartMargin = defaultChartMargin;
 
 interface Data {
     date: string;
@@ -42,6 +72,7 @@ function IdpChart(props: Props) {
 
     const CONFLICT_TYPE = 'conflict';
     const DISASTER_TYPE = 'disaster';
+
     const data = useMemo(
         () => {
             const combinedData = [
@@ -129,19 +160,21 @@ function IdpChart(props: Props) {
     const temporalDomain = useMemo(
         () => {
             if (!data || data.length === 0) {
-                const now = new Date();
+                const now = getNow();
                 return {
-                    min: new Date(now.getFullYear() - numAxisPointsX + 1, 0, 1),
-                    max: new Date(now.getFullYear(), 0, 1),
+                    min: getDateFromYmd(now.getFullYear() - numAxisPointsX + 1, 0, 1),
+                    max: getDateFromYmd(now.getFullYear(), 0, 1),
                 };
             }
 
-            const timestampList = data.map(({ date }) => new Date(date).getTime());
+            const timestampList = data.map(({ date }) => (
+                getDateFromDateStringOrTimestamp(date).getTime()
+            ));
             const minTimestamp = Math.min(...timestampList);
             const maxTimestamp = Math.max(...timestampList);
 
-            const minDate = new Date(minTimestamp);
-            const maxDate = new Date(maxTimestamp);
+            const minDate = getDateFromTimestamp(minTimestamp);
+            const maxDate = getDateFromTimestamp(maxTimestamp);
 
             return {
                 min: minDate,
@@ -151,13 +184,17 @@ function IdpChart(props: Props) {
         [data, numAxisPointsX],
     );
 
-    const temporalResolution = getSuitableTemporalResolution(
+    const suggestedTemporalResolution = getSuitableTemporalResolution(
         {
             min: temporalDomain.min.getTime(),
             max: temporalDomain.max.getTime(),
         },
         numAxisPointsX,
     );
+    const [
+        temporalResolution = suggestedTemporalResolution,
+        setTemporalResolution,
+    ] = useState<TemporalResolution>();
 
     const dateRange = useMemo(
         () => {
@@ -172,8 +209,9 @@ function IdpChart(props: Props) {
                     : numAxisPointsX - remainder - 1;
 
                 return {
-                    min: new Date(minYear, 0, 1),
-                    max: new Date(maxYear + additional, 0, 1),
+                    min: getDateFromYmd(minYear, 0, 1),
+                    // NOTE: this should be the last day of the year
+                    max: getDateFromYmd(maxYear + additional + 1, 0, -1),
                 };
             }
 
@@ -189,15 +227,16 @@ function IdpChart(props: Props) {
                     : numAxisPointsX - remainder - 1;
 
                 return {
-                    min: new Date(
+                    min: getDateFromYmd(
                         minYear,
                         temporalDomain.min.getMonth(),
                         1,
                     ),
-                    max: new Date(
+                    // NOTE: this should be the last day of the month
+                    max: getDateFromYmd(
                         maxYear,
-                        temporalDomain.max.getMonth() + additional,
-                        1,
+                        temporalDomain.max.getMonth() + additional + 1,
+                        -1,
                     ),
                 };
             }
@@ -213,12 +252,12 @@ function IdpChart(props: Props) {
                 : numAxisPointsX - remainder - 1;
 
             return {
-                min: new Date(
+                min: getDateFromYmd(
                     minYear,
                     temporalDomain.min.getMonth(),
                     temporalDomain.min.getDate(),
                 ),
-                max: new Date(
+                max: getDateFromYmd(
                     maxYear,
                     temporalDomain.max.getMonth(),
                     temporalDomain.max.getDate() + additional,
@@ -265,7 +304,7 @@ function IdpChart(props: Props) {
             type: 'numeric',
             keySelector: (datum) => datum.date,
             xValueSelector: (datum) => {
-                const date = new Date(datum.date);
+                const date = getDateFromDateStringOrTimestamp(datum.date);
                 return getNumberOfDays(dateRange.min, date);
             },
             xAxisLabelSelector: (diff) => diff,
@@ -287,6 +326,9 @@ function IdpChart(props: Props) {
                 diff = getNumberOfDays(dateRange.min, dateRange.max);
             }
 
+            // NOTE: We want at least one tick
+            diff = Math.max(diff, 1);
+
             const step = Math.ceil(diff / (numAxisPointsX - 1));
             const ticks = Array.from(Array(step * numAxisPointsX).keys()).map(
                 (key) => key * step,
@@ -295,7 +337,7 @@ function IdpChart(props: Props) {
             if (temporalResolution === 'year') {
                 return ticks.map(
                     (tick) => {
-                        const date = new Date(dateRange.min.getFullYear() + tick, 0, 1);
+                        const date = getDateFromYmd(dateRange.min.getFullYear() + tick, 0, 1);
                         const numDays = getNumberOfDays(dateRange.min, date);
 
                         return {
@@ -310,7 +352,7 @@ function IdpChart(props: Props) {
             if (temporalResolution === 'month') {
                 return ticks.map(
                     (tick) => {
-                        const date = new Date(
+                        const date = getDateFromYmd(
                             dateRange.min.getFullYear(),
                             dateRange.min.getMonth() + tick,
                             1,
@@ -334,7 +376,7 @@ function IdpChart(props: Props) {
 
             return ticks.map(
                 (tick) => {
-                    const date = new Date(
+                    const date = getDateFromYmd(
                         dateRange.min.getFullYear(),
                         dateRange.min.getMonth(),
                         dateRange.min.getDate() + tick,
@@ -417,6 +459,29 @@ function IdpChart(props: Props) {
             heading="Internally Displaced People (IDPs)"
             className={styles.idpChart}
             contentClassName={styles.content}
+            headerActions={(
+                <SegmentInput
+                    name="temporalResolution"
+                    value={temporalResolution}
+                    options={[
+                        {
+                            name: 'Year',
+                            value: 'year' as const,
+                        },
+                        {
+                            name: 'Month',
+                            value: 'month' as const,
+                        },
+                        {
+                            name: 'Day',
+                            value: 'day' as const,
+                        },
+                    ]}
+                    keySelector={(item) => item.value}
+                    labelSelector={(item) => item.name}
+                    onChange={setTemporalResolution}
+                />
+            )}
         >
             <div className={styles.stats}>
                 <NumberBlock
@@ -476,6 +541,7 @@ function IdpChart(props: Props) {
                                     >
                                         <Tooltip
                                             title={point.originalData.date}
+                                            // title={resolveDomainLabelX(point.originalData.date)}
                                             description={(
                                                 <div className={styles.tooltipContent}>
                                                     <NumberBlock

@@ -1,15 +1,42 @@
-import React, { useCallback, useMemo, useRef } from 'react';
-import { bound, isDefined, isNotDefined, listToGroupList, mapToList } from '@togglecorp/fujs';
+import React, {
+    useCallback,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
+import {
+    bound,
+    isDefined,
+    isNotDefined,
+    listToGroupList,
+    mapToList,
+} from '@togglecorp/fujs';
+import { SegmentInput } from '@togglecorp/toggle-ui';
 
 import ChartAxes from '#components/ChartAxes';
 import useChartData from '#hooks/useChartData';
-import { defaultChartMargin, defaultChartPadding, getNumberOfDays, getNumberOfMonths, getSuitableTemporalResolution } from '#utils/chart';
+import {
+    defaultChartMargin,
+    defaultChartPadding,
+    getNumberOfDays,
+    getNumberOfMonths,
+    getSuitableTemporalResolution,
+    incrementDate,
+    incrementMonth,
+    TemporalResolution,
+} from '#utils/chart';
 
-import styles from './styles.css';
-import { sumSafe } from '#utils/common';
+import {
+    sumSafe,
+    getDateFromDateString,
+    getDateFromTimestamp,
+    getNow,
+} from '#utils/common';
 import Tooltip from '#components/Tooltip';
 import NumberBlock from '#components/NumberBlock';
 import Container from '#components/Container';
+
+import styles from './styles.css';
 
 const X_AXIS_HEIGHT = 16;
 const Y_AXIS_WIDTH = 40;
@@ -22,6 +49,8 @@ const chartOffset = {
 };
 
 const NUM_X_AXIS_POINTS = 5;
+const chartPadding = defaultChartPadding;
+const chartMargin = defaultChartMargin;
 
 interface Data {
     date: string;
@@ -56,13 +85,15 @@ function NdChart(props: Props) {
 
     const temporalDomain = useMemo(
         () => {
-            const now = new Date();
+            const now = getNow();
 
             if (!combinedData || combinedData.length === 0) {
                 return { min: now.getFullYear() - NUM_X_AXIS_POINTS + 1, max: now.getFullYear() };
             }
 
-            const timestampList = combinedData.map(({ date }) => new Date(date).getTime());
+            const timestampList = combinedData.map(
+                ({ date }) => getDateFromDateString(date).getTime(),
+            );
             const minTimestamp = Math.min(...timestampList);
             const maxTimestamp = Math.max(...timestampList);
 
@@ -74,10 +105,14 @@ function NdChart(props: Props) {
         [combinedData],
     );
 
-    const temporalResolution = getSuitableTemporalResolution(
+    const suggestedTemporalResolution = getSuitableTemporalResolution(
         temporalDomain,
         NUM_X_AXIS_POINTS,
     );
+    const [
+        temporalResolution = suggestedTemporalResolution,
+        setTemporalResolution,
+    ] = useState<TemporalResolution>();
 
     const data = useMemo(
         () => {
@@ -86,17 +121,17 @@ function NdChart(props: Props) {
             if (temporalResolution === 'year') {
                 groupedData = listToGroupList(
                     combinedData,
-                    (datum) => new Date(datum.date).getFullYear()
-                        - new Date(temporalDomain.min).getFullYear(),
+                    (datum) => getDateFromDateString(datum.date).getFullYear()
+                        - getDateFromTimestamp(temporalDomain.min).getFullYear(),
                 );
             } else if (temporalResolution === 'month') {
                 groupedData = listToGroupList(
                     combinedData,
                     (datum) => {
-                        const date = new Date(datum.date);
+                        const date = getDateFromDateString(datum.date);
 
                         return getNumberOfMonths(
-                            new Date(temporalDomain.min),
+                            getDateFromTimestamp(temporalDomain.min),
                             date,
                         );
                     },
@@ -105,10 +140,10 @@ function NdChart(props: Props) {
                 groupedData = listToGroupList(
                     combinedData,
                     (datum) => {
-                        const date = new Date(datum.date);
+                        const date = getDateFromDateString(datum.date);
 
                         return getNumberOfDays(
-                            new Date(temporalDomain.min),
+                            getDateFromTimestamp(temporalDomain.min),
                             date,
                         );
                     },
@@ -160,7 +195,7 @@ function NdChart(props: Props) {
 
     const domain = useMemo(
         () => {
-            const now = new Date();
+            const now = getNow();
             if (!data || data.length === 0) {
                 return { min: now.getFullYear() - NUM_X_AXIS_POINTS + 1, max: now.getFullYear() };
             }
@@ -196,15 +231,14 @@ function NdChart(props: Props) {
 
     const resolveDomainLabelX = useCallback(
         (diff) => {
-            const minDate = new Date(temporalDomain.min);
+            const minDate = getDateFromTimestamp(temporalDomain.min);
             if (temporalResolution === 'year') {
                 return minDate.getFullYear() + diff;
             }
 
             if (temporalResolution === 'month') {
-                minDate.setDate(1);
-                minDate.setMonth(minDate.getMonth() + diff);
-                return minDate.toLocaleString(
+                const newDate = incrementMonth(minDate, diff);
+                return newDate.toLocaleString(
                     navigator.language,
                     {
                         year: 'numeric',
@@ -213,8 +247,8 @@ function NdChart(props: Props) {
                 );
             }
 
-            minDate.setDate(minDate.getDate() + diff);
-            return minDate.toLocaleString(
+            const newDate = incrementDate(minDate, diff);
+            return newDate.toLocaleString(
                 navigator.language,
                 {
                     year: 'numeric',
@@ -239,8 +273,8 @@ function NdChart(props: Props) {
         {
             containerRef: chartContainerRef,
             chartOffset,
-            chartMargin: defaultChartMargin,
-            chartPadding: defaultChartPadding,
+            chartMargin,
+            chartPadding,
             type: 'numeric',
             keySelector: (datum) => datum.key,
             xValueSelector: (datum) => datum.key,
@@ -276,6 +310,29 @@ function NdChart(props: Props) {
             heading="Internal Displacements"
             className={styles.ndChart}
             contentClassName={styles.content}
+            headerActions={(
+                <SegmentInput
+                    name="temporalResolution"
+                    value={temporalResolution}
+                    options={[
+                        {
+                            name: 'Year',
+                            value: 'year' as const,
+                        },
+                        {
+                            name: 'Month',
+                            value: 'month' as const,
+                        },
+                        {
+                            name: 'Day',
+                            value: 'day' as const,
+                        },
+                    ]}
+                    keySelector={(item) => item.value}
+                    labelSelector={(item) => item.name}
+                    onChange={setTemporalResolution}
+                />
+            )}
         >
             <div className={styles.stats}>
                 <NumberBlock
@@ -304,7 +361,7 @@ function NdChart(props: Props) {
                         xAxisHeight={X_AXIS_HEIGHT}
                         yAxisWidth={Y_AXIS_WIDTH}
                         chartSize={chartSize}
-                        chartMargin={defaultChartMargin}
+                        chartMargin={chartMargin}
                     />
                     <g className={styles.backgroundBars}>
                         {dataPoints.map(
@@ -348,7 +405,12 @@ function NdChart(props: Props) {
                                     height={
                                         Math.max(
                                             renderableHeight - point.y,
-                                            0,
+                                            // NOTE: We need to show at least 1/2
+                                            // pixel if the data is too small
+                                            // eslint-disable-next-line max-len
+                                            point.originalData.conflict && point.originalData.disaster
+                                                ? 2
+                                                : 1,
                                         )
                                     }
                                 />
@@ -367,7 +429,9 @@ function NdChart(props: Props) {
                                     height={
                                         Math.max(
                                             renderableHeight - point.y,
-                                            0,
+                                            // NOTE: We need to show at least 1
+                                            // pixel if the data is too small
+                                            1,
                                         )
                                     }
                                 />

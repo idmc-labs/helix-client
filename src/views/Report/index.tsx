@@ -40,7 +40,7 @@ import {
     ReportAggregationsQueryVariables,
     ExtractionEntryListFiltersQueryVariables,
 } from '#generated/types';
-import { mergeBbox } from '#utils/common';
+import { mergeBbox, getDateFromDateString } from '#utils/common';
 import Message from '#components/Message';
 import useOptions from '#hooks/useOptions';
 import DomainContext from '#components/DomainContext';
@@ -733,10 +733,10 @@ function Report(props: ReportProps) {
             const isPublic = report?.isPublic;
 
             const endDate = report?.filterFigureEndBefore
-                ? new Date(`${report.filterFigureEndBefore}T00:00:00`)
+                ? getDateFromDateString(report.filterFigureEndBefore)
                 : undefined;
             const startDate = report?.filterFigureStartAfter
-                ? new Date(`${report.filterFigureStartAfter}T00:00:00`)
+                ? getDateFromDateString(report.filterFigureStartAfter)
                 : undefined;
 
             return (

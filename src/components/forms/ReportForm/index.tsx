@@ -489,7 +489,6 @@ function ReportForm(props: ReportFormProps) {
                 const { errors, result } = updateReportRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    console.log(formError);
                     notifyGQLError(errors);
                     onErrorSet(formError);
                 }

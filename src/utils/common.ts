@@ -64,19 +64,27 @@ export function minSafe(list: UnsafeNumberList) {
     return Math.min(...safeList);
 }
 
-export function avgSafe(list: UnsafeNumberList) {
-    const safeList = getNumberListSafe(list);
-    if (isNotDefined(safeList)) {
-        return undefined;
-    }
-
-    const listSum = sum(safeList);
-    return listSum / safeList.length;
+// NOTE: we need to append T00:00:00 to get date on current user's timezone
+export function getDateFromDateString(value: string) {
+    return new Date(`${value}T00:00:00`);
 }
 
-// NOTE: we need to append T00:00:00 to get date on current user's timezone
-export function ymdToDate(value: string) {
-    return new Date(`${value}T00:00:00`);
+export function getDateFromTimestamp(value: number) {
+    return new Date(value);
+}
+
+export function getDateFromDateStringOrTimestamp(value: string | number) {
+    return typeof value === 'string'
+        ? getDateFromDateString(value)
+        : getDateFromTimestamp(value);
+}
+
+export function getNow() {
+    return new Date();
+}
+
+export function getDateFromYmd(year: number, month: number, day: number) {
+    return new Date(year, month, day);
 }
 
 export const basicEntityKeySelector = (d: BasicEntity): string => d.id;
@@ -112,7 +120,7 @@ export function isValidUrl(url: string | undefined): url is string {
 }
 
 export function formatDate(dateValue: string | undefined) {
-    const dateInfo = dateValue ? ymdToDate(dateValue) : undefined;
+    const dateInfo = dateValue ? getDateFromDateString(dateValue) : undefined;
     if (!dateInfo) {
         return undefined;
     }
@@ -122,7 +130,7 @@ export function formatDate(dateValue: string | undefined) {
 }
 
 export function formatDateYmd(dateValue: string | undefined) {
-    const dateInfo = dateValue ? ymdToDate(dateValue) : undefined;
+    const dateInfo = dateValue ? getDateFromDateString(dateValue) : undefined;
     if (!dateInfo) {
         return undefined;
     }
@@ -145,25 +153,6 @@ export function calculateHouseHoldSize(
     // floating point numbers
     const precision = 100;
     return Math.round(((householdCount ?? 0) * precision * (householdSize ?? 0)) / precision);
-}
-
-export function listToMap<T, K extends string | number, V>(
-    items: T[],
-    keySelector: (val: T, index: number) => K,
-    valueSelector: (val: T, index: number) => V,
-) {
-    const val: Partial<Record<K, V>> = items.reduce(
-        (acc, item, index) => {
-            const key = keySelector(item, index);
-            const value = valueSelector(item, index);
-            return {
-                ...acc,
-                [key]: value,
-            };
-        },
-        {},
-    );
-    return val;
 }
 
 type Bounds = [number, number, number, number];
@@ -277,8 +266,11 @@ export function prepareUrlParams(params: UrlParams): string {
         .join('&');
 }
 
+// NOTE: we do not need to use ymdToDate here as this is datetime string
 export function diff(foo: string, bar: string) {
-    return Math.ceil((new Date(foo).getTime() - new Date(bar).getTime()) / 1000);
+    return Math.ceil((
+        new Date(foo).getTime() - new Date(bar).getTime()
+    ) / 1000);
 }
 
 function mod(foo: number, bar: number) {
@@ -315,6 +307,7 @@ export function formatElapsedTime(seconds: number, depth = 0): string {
     return '';
 }
 
+// NOTE: used to override filters
 export function expandObject<T extends Record<string, unknown>>(
     defaultValue: T | null | undefined,
     overrideValue: T,
@@ -403,34 +396,6 @@ export function formatNumber(
         .format(value);
 
     return newValue;
-}
-
-export function splitList<X, Y>(
-    list: (X | Y)[],
-    splitPointSelector: (item: X | Y, i: number) => item is X,
-): Y[][] {
-    const breakpointIndices = list.map(
-        (item, i) => (splitPointSelector(item, i) ? i : undefined),
-    ).filter(isDefined);
-
-    if (breakpointIndices.length === 0) {
-        return [list as Y[]];
-    }
-
-    return [...breakpointIndices, list.length].map(
-        (breakpointIndex, i) => {
-            const prevIndex = i === 0
-                ? 0
-                : breakpointIndices[i - 1] + 1;
-
-            if (prevIndex === breakpointIndex) {
-                return undefined;
-            }
-
-            const newList = list.slice(prevIndex, breakpointIndex);
-            return newList as Y[];
-        },
-    ).filter(isDefined);
 }
 
 // Remove id and generate new uuid

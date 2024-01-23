@@ -22,7 +22,6 @@ import Multiplexer from './Multiplexer';
 
 const errorLink = onError((all) => {
     const { graphQLErrors } = all;
-    console.log(all);
     if (graphQLErrors) {
         const allErrors = graphQLErrors.map((error) => (
             error.message
