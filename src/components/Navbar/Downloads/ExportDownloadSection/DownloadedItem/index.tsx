@@ -1,14 +1,12 @@
 import React from 'react';
 import { _cs, isDefined, isNotDefined } from '@togglecorp/fujs';
-import {
-    DateTime,
-    Numeral,
-} from '@togglecorp/toggle-ui';
+import { Numeral } from '@togglecorp/toggle-ui';
 import {
     IoDocumentOutline,
     IoInformationCircleOutline,
 } from 'react-icons/io5';
 
+import DateTime from '#components/DateTime';
 import {
     diff,
     formatElapsedTime,

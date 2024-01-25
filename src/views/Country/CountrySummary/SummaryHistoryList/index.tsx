@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { Pager, DateTime } from '@togglecorp/toggle-ui';
+import { Pager } from '@togglecorp/toggle-ui';
 
+import DateTime from '#components/DateTime';
 import useFilterState from '#hooks/useFilterState';
 import Container from '#components/Container';
 import Message from '#components/Message';

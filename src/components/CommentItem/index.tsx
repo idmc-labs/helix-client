@@ -5,8 +5,9 @@ import {
     IoCheckmarkCircle,
     IoCloseCircle,
 } from 'react-icons/io5';
-import { Avatar, DateTime } from '@togglecorp/toggle-ui';
+import { Avatar } from '@togglecorp/toggle-ui';
 
+import DateTime from '#components/DateTime';
 import {
     Review_Comment_Type as ReviewCommentType,
 } from '#generated/types';

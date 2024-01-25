@@ -8,9 +8,9 @@ import {
     Numeral,
     NumeralProps,
     DateTimeProps,
-    DateTime,
 } from '@togglecorp/toggle-ui';
 
+import DateTime from '#components/DateTime';
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
 import Link, { LinkProps } from './Link';
 import ExternalLink, { ExternalLinkProps } from './ExternalLink';

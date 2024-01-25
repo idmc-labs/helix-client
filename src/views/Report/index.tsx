@@ -59,6 +59,7 @@ import TextBlock from '#components/TextBlock';
 import CountriesMap, { Bounds } from '#components/CountriesMap';
 import NdChart from '#components/NdChart';
 import IdpChart from '#components/IdpChart';
+import useCombinedChartData from '#hooks/useCombinedChartData';
 
 import GenerationItem from './GenerationItem';
 import MasterFactInfo from './MasterFactInfo';
@@ -726,6 +727,22 @@ function Report(props: ReportProps) {
             .filter(isDefined),
     );
 
+    const {
+        getAxisTicksX,
+        chartDomainX,
+        combinedNdsData,
+        combinedIdpsData,
+        temporalResolution,
+        setTemporalResolution,
+        chartTemporalDomain,
+        numAxisPointsX,
+    } = useCombinedChartData({
+        ndsConflictData: reportAggregations?.figureAggregations?.ndsConflictFigures,
+        ndsDisasterData: reportAggregations?.figureAggregations?.ndsDisasterFigures,
+        idpsConflictData: reportAggregations?.figureAggregations?.idpsConflictFigures,
+        idpsDisasterData: reportAggregations?.figureAggregations?.idpsDisasterFigures,
+    });
+
     const isPfaValid = useMemo(
         () => {
             const countries = report?.filterFigureCountries;
@@ -960,28 +977,22 @@ function Report(props: ReportProps) {
                     </Container>
                     <div className={styles.charts}>
                         <NdChart
-                            conflictData={
-                                reportAggregations
-                                    ?.figureAggregations
-                                    ?.ndsConflictFigures
-                            }
-                            disasterData={
-                                reportAggregations
-                                    ?.figureAggregations
-                                    ?.ndsDisasterFigures
-                            }
+                            combinedNdsData={combinedNdsData}
+                            numAxisPointsX={numAxisPointsX}
+                            chartTemporalDomain={chartTemporalDomain}
+                            chartDomainX={chartDomainX}
+                            getAxisTicksX={getAxisTicksX}
+                            temporalResolution={temporalResolution}
+                            setTemporalResolution={setTemporalResolution}
                         />
                         <IdpChart
-                            conflictData={
-                                reportAggregations
-                                    ?.figureAggregations
-                                    ?.idpsConflictFigures
-                            }
-                            disasterData={
-                                reportAggregations
-                                    ?.figureAggregations
-                                    ?.idpsDisasterFigures
-                            }
+                            combinedIdpsData={combinedIdpsData}
+                            numAxisPointsX={numAxisPointsX}
+                            chartTemporalDomain={chartTemporalDomain}
+                            chartDomainX={chartDomainX}
+                            getAxisTicksX={getAxisTicksX}
+                            temporalResolution={temporalResolution}
+                            setTemporalResolution={setTemporalResolution}
                         />
                     </div>
                     <Container className={styles.overview}>

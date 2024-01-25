@@ -2,11 +2,11 @@ import React from 'react';
 import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     Button,
-    DateTime,
     useBooleanState,
 } from '@togglecorp/toggle-ui';
 import { IoInformationCircleOutline } from 'react-icons/io5';
 
+import DateTime from '#components/DateTime';
 import { diff, formatElapsedTime } from '#utils/common';
 import {
     Bulk_Operation_Status as BulkOperationStatus,

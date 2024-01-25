@@ -2,8 +2,9 @@ import React, { useContext } from 'react';
 import { IoCreateOutline, IoAddOutline, IoEyeOutline } from 'react-icons/io5';
 import { MutationUpdaterFn } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
-import { Modal, DateTime } from '@togglecorp/toggle-ui';
+import { Modal } from '@togglecorp/toggle-ui';
 
+import DateTime from '#components/DateTime';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import { MarkdownPreview } from '#components/MarkdownEditor';

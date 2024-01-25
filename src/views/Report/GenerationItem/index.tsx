@@ -1,12 +1,12 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
-import { DateTime } from '@togglecorp/toggle-ui';
 import {
     IoDocumentOutline,
     IoFolderOutline,
     IoInformationCircleOutline,
 } from 'react-icons/io5';
 
+import DateTime from '#components/DateTime';
 import ButtonLikeExternalLink from '#components/ButtonLikeExternalLink';
 import {
     Report_Generation_Status as ReportGenerationStatus,

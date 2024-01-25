@@ -1,10 +1,8 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
-import {
-    Avatar,
-    DateTime,
-} from '@togglecorp/toggle-ui';
+import { Avatar } from '@togglecorp/toggle-ui';
 
+import DateTime from '#components/DateTime';
 import {
     diff,
     formatElapsedTime,

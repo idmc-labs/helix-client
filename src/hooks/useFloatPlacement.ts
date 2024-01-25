@@ -80,11 +80,9 @@ function useFloatPlacement(
         const orientation = getPreferredOrientation(parentBCR);
         const parentCenterX = parentX + parentWidth / 2;
 
-        const width = bound(
-            isDefined(preferredWidth) ? preferredWidth * ONE_REM : parentWidth,
-            MIN_WIDTH,
-            maxWidth,
-        );
+        const width = isDefined(preferredWidth)
+            ? preferredWidth * ONE_REM
+            : bound(parentWidth, MIN_WIDTH, maxWidth);
 
         let x1 = parentCenterX - width / 2;
         let x2 = parentCenterX + width / 2;
