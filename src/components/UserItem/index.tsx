@@ -1,5 +1,7 @@
 import React from 'react';
-import { Avatar, DateTime } from '@togglecorp/toggle-ui';
+import { Avatar } from '@togglecorp/toggle-ui';
+
+import DateTime from '#components/DateTime';
 
 import styles from './styles.css';
 

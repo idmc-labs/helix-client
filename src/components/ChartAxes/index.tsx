@@ -10,7 +10,7 @@ import styles from './styles.css';
 
 type Key = string | number;
 
-interface TickX {
+export interface TickX {
     key: Key;
     x: number;
     label: React.ReactNode;

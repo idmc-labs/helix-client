@@ -37,9 +37,10 @@
 
     .x-axis-grid-line,
     .y-axis-grid-line {
+        stroke-width: 1pt;
         stroke: var(--color-chart-axes);
         stroke-dasharray: 4 4;
-        stroke-opacity: 0.5;
+        stroke-opacity: 0.2;
     }
 
     .bound-rect {

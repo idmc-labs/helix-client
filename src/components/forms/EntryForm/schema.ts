@@ -32,6 +32,10 @@ import {
     isStockCategory,
 } from '#utils/selectionConstants';
 import {
+    getDateFromDateStringOrTimestamp,
+    getNow,
+} from '#utils/common';
+import {
     Unit,
     Figure_Terms as FigureTerms,
     Figure_Category_Types as FigureCategoryTypes,
@@ -42,7 +46,8 @@ function pastDateCondition(value: string | null | undefined) {
     if (isNotDefined(value)) {
         return undefined;
     }
-    if (new Date(value) <= new Date()) {
+    // NOTE: check if we need to add time information
+    if (getDateFromDateStringOrTimestamp(value) <= getNow()) {
         return undefined;
     }
     return 'Date should not be in the future';

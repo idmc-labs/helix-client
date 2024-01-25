@@ -1,6 +1,6 @@
 .text-block {
     .value {
-        font-size: var(--font-size-extra-large);
+        font-size: var(--font-size-large);
 
         a {
             font-weight: var(--font-weight-medium);
@@ -14,7 +14,7 @@
 
     .na {
         color: var(--color-text-disabled);
-        font-size: var(--font-size-extra-large);
+        font-size: var(--font-size-large);
     }
 
     .label {

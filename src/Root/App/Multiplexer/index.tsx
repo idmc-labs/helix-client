@@ -17,6 +17,7 @@ import NotificationContext, {
 import Loading from '#components/Loading';
 import ExternalLink from '#components/tableHelpers/ExternalLink';
 import { ObjectError } from '#utils/errorTransform';
+import { getNow } from '#utils/common';
 
 import {
     User,
@@ -84,7 +85,7 @@ const defaultNotification: Notification = {
     variant: 'default',
 };
 
-const currentYear = new Date().getFullYear();
+const currentYear = getNow().getFullYear();
 
 interface Props {
     className?: string;

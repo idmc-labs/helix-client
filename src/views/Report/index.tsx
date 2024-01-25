@@ -40,7 +40,7 @@ import {
     ReportAggregationsQueryVariables,
     ExtractionEntryListFiltersQueryVariables,
 } from '#generated/types';
-import { mergeBbox } from '#utils/common';
+import { mergeBbox, getDateFromDateString } from '#utils/common';
 import Message from '#components/Message';
 import useOptions from '#hooks/useOptions';
 import DomainContext from '#components/DomainContext';
@@ -59,6 +59,7 @@ import TextBlock from '#components/TextBlock';
 import CountriesMap, { Bounds } from '#components/CountriesMap';
 import NdChart from '#components/NdChart';
 import IdpChart from '#components/IdpChart';
+import useCombinedChartData from '#hooks/useCombinedChartData';
 
 import GenerationItem from './GenerationItem';
 import MasterFactInfo from './MasterFactInfo';
@@ -726,6 +727,22 @@ function Report(props: ReportProps) {
             .filter(isDefined),
     );
 
+    const {
+        getAxisTicksX,
+        chartDomainX,
+        combinedNdsData,
+        combinedIdpsData,
+        temporalResolution,
+        setTemporalResolution,
+        chartTemporalDomain,
+        numAxisPointsX,
+    } = useCombinedChartData({
+        ndsConflictData: reportAggregations?.figureAggregations?.ndsConflictFigures,
+        ndsDisasterData: reportAggregations?.figureAggregations?.ndsDisasterFigures,
+        idpsConflictData: reportAggregations?.figureAggregations?.idpsConflictFigures,
+        idpsDisasterData: reportAggregations?.figureAggregations?.idpsDisasterFigures,
+    });
+
     const isPfaValid = useMemo(
         () => {
             const countries = report?.filterFigureCountries;
@@ -733,10 +750,10 @@ function Report(props: ReportProps) {
             const isPublic = report?.isPublic;
 
             const endDate = report?.filterFigureEndBefore
-                ? new Date(`${report.filterFigureEndBefore}T00:00:00`)
+                ? getDateFromDateString(report.filterFigureEndBefore)
                 : undefined;
             const startDate = report?.filterFigureStartAfter
-                ? new Date(`${report.filterFigureStartAfter}T00:00:00`)
+                ? getDateFromDateString(report.filterFigureStartAfter)
                 : undefined;
 
             return (
@@ -960,28 +977,22 @@ function Report(props: ReportProps) {
                     </Container>
                     <div className={styles.charts}>
                         <NdChart
-                            conflictData={
-                                reportAggregations
-                                    ?.figureAggregations
-                                    ?.ndsConflictFigures
-                            }
-                            disasterData={
-                                reportAggregations
-                                    ?.figureAggregations
-                                    ?.ndsDisasterFigures
-                            }
+                            combinedNdsData={combinedNdsData}
+                            numAxisPointsX={numAxisPointsX}
+                            chartTemporalDomain={chartTemporalDomain}
+                            chartDomainX={chartDomainX}
+                            getAxisTicksX={getAxisTicksX}
+                            temporalResolution={temporalResolution}
+                            setTemporalResolution={setTemporalResolution}
                         />
                         <IdpChart
-                            conflictData={
-                                reportAggregations
-                                    ?.figureAggregations
-                                    ?.idpsConflictFigures
-                            }
-                            disasterData={
-                                reportAggregations
-                                    ?.figureAggregations
-                                    ?.idpsDisasterFigures
-                            }
+                            combinedIdpsData={combinedIdpsData}
+                            numAxisPointsX={numAxisPointsX}
+                            chartTemporalDomain={chartTemporalDomain}
+                            chartDomainX={chartDomainX}
+                            getAxisTicksX={getAxisTicksX}
+                            temporalResolution={temporalResolution}
+                            setTemporalResolution={setTemporalResolution}
                         />
                     </div>
                     <Container className={styles.overview}>

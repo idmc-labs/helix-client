@@ -3,11 +3,11 @@ import {
     IoTrashOutline,
     IoCreateOutline,
 } from 'react-icons/io5';
-import { DateTime } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 
 import { gql, useMutation, MutationUpdaterFn } from '@apollo/client';
 
+import DateTime from '#components/DateTime';
 import BasicItem from '#components/BasicItem';
 import QuickActionButton from '#components/QuickActionButton';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';

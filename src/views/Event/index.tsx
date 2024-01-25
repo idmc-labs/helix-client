@@ -23,7 +23,7 @@ import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import useOptions from '#hooks/useOptions';
 import AdvancedFiguresFilter from '#components/rawTables/useFigureTable/AdvancedFiguresFilter';
-import { expandObject, mergeBbox, hasNoData } from '#utils/common';
+import { expandObject, mergeBbox, hasNoData, getNow } from '#utils/common';
 import useSidebarLayout from '#hooks/useSidebarLayout';
 import NdChart from '#components/NdChart';
 import IdpChart from '#components/IdpChart';
@@ -38,6 +38,7 @@ import EventForm from '#components/forms/EventForm';
 import useModalState from '#hooks/useModalState';
 import Message from '#components/Message';
 import route from '#config/routes';
+import useCombinedChartData from '#hooks/useCombinedChartData';
 
 import CountriesEntriesFiguresTable from './CountriesEntriesFiguresTable';
 import styles from './styles.css';
@@ -125,7 +126,7 @@ const EVENT_AGGREGATIONS = gql`
     }
 `;
 
-const now = new Date();
+const now = getNow();
 
 interface EventProps {
     className?: string;
@@ -234,6 +235,22 @@ function Event(props: EventProps) {
         setShowSidebarTrue,
         setShowSidebarFalse,
     } = useSidebarLayout();
+
+    const {
+        getAxisTicksX,
+        chartDomainX,
+        combinedNdsData,
+        combinedIdpsData,
+        temporalResolution,
+        setTemporalResolution,
+        chartTemporalDomain,
+        numAxisPointsX,
+    } = useCombinedChartData({
+        ndsConflictData: eventAggregations?.figureAggregations?.ndsConflictFigures,
+        ndsDisasterData: eventAggregations?.figureAggregations?.ndsDisasterFigures,
+        idpsConflictData: eventAggregations?.figureAggregations?.idpsConflictFigures,
+        idpsDisasterData: eventAggregations?.figureAggregations?.idpsDisasterFigures,
+    });
 
     const floatingButtonVisibility = useCallback(
         (scroll: number) => scroll >= 80 && !showSidebar,
@@ -421,28 +438,22 @@ function Event(props: EventProps) {
                     </Container>
                     <div className={styles.charts}>
                         <NdChart
-                            conflictData={
-                                eventAggregations
-                                    ?.figureAggregations
-                                    ?.ndsConflictFigures
-                            }
-                            disasterData={
-                                eventAggregations
-                                    ?.figureAggregations
-                                    ?.ndsDisasterFigures
-                            }
+                            combinedNdsData={combinedNdsData}
+                            numAxisPointsX={numAxisPointsX}
+                            chartTemporalDomain={chartTemporalDomain}
+                            chartDomainX={chartDomainX}
+                            getAxisTicksX={getAxisTicksX}
+                            temporalResolution={temporalResolution}
+                            setTemporalResolution={setTemporalResolution}
                         />
                         <IdpChart
-                            conflictData={
-                                eventAggregations
-                                    ?.figureAggregations
-                                    ?.idpsConflictFigures
-                            }
-                            disasterData={
-                                eventAggregations
-                                    ?.figureAggregations
-                                    ?.idpsDisasterFigures
-                            }
+                            combinedIdpsData={combinedIdpsData}
+                            numAxisPointsX={numAxisPointsX}
+                            chartTemporalDomain={chartTemporalDomain}
+                            chartDomainX={chartDomainX}
+                            getAxisTicksX={getAxisTicksX}
+                            temporalResolution={temporalResolution}
+                            setTemporalResolution={setTemporalResolution}
                         />
                     </div>
                     <CountriesEntriesFiguresTable
