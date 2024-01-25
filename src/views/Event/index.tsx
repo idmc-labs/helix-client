@@ -38,6 +38,7 @@ import EventForm from '#components/forms/EventForm';
 import useModalState from '#hooks/useModalState';
 import Message from '#components/Message';
 import route from '#config/routes';
+import useCombinedChartData from '#hooks/useCombinedChartData';
 
 import CountriesEntriesFiguresTable from './CountriesEntriesFiguresTable';
 import styles from './styles.css';
@@ -235,6 +236,22 @@ function Event(props: EventProps) {
         setShowSidebarFalse,
     } = useSidebarLayout();
 
+    const {
+        getAxisTicksX,
+        chartDomainX,
+        combinedNdsData,
+        combinedIdpsData,
+        temporalResolution,
+        setTemporalResolution,
+        chartTemporalDomain,
+        numAxisPointsX,
+    } = useCombinedChartData({
+        ndsConflictData: eventAggregations?.figureAggregations?.ndsConflictFigures,
+        ndsDisasterData: eventAggregations?.figureAggregations?.ndsDisasterFigures,
+        idpsConflictData: eventAggregations?.figureAggregations?.idpsConflictFigures,
+        idpsDisasterData: eventAggregations?.figureAggregations?.idpsDisasterFigures,
+    });
+
     const floatingButtonVisibility = useCallback(
         (scroll: number) => scroll >= 80 && !showSidebar,
         [showSidebar],
@@ -421,28 +438,22 @@ function Event(props: EventProps) {
                     </Container>
                     <div className={styles.charts}>
                         <NdChart
-                            conflictData={
-                                eventAggregations
-                                    ?.figureAggregations
-                                    ?.ndsConflictFigures
-                            }
-                            disasterData={
-                                eventAggregations
-                                    ?.figureAggregations
-                                    ?.ndsDisasterFigures
-                            }
+                            combinedNdsData={combinedNdsData}
+                            numAxisPointsX={numAxisPointsX}
+                            chartTemporalDomain={chartTemporalDomain}
+                            chartDomainX={chartDomainX}
+                            getAxisTicksX={getAxisTicksX}
+                            temporalResolution={temporalResolution}
+                            setTemporalResolution={setTemporalResolution}
                         />
                         <IdpChart
-                            conflictData={
-                                eventAggregations
-                                    ?.figureAggregations
-                                    ?.idpsConflictFigures
-                            }
-                            disasterData={
-                                eventAggregations
-                                    ?.figureAggregations
-                                    ?.idpsDisasterFigures
-                            }
+                            combinedIdpsData={combinedIdpsData}
+                            numAxisPointsX={numAxisPointsX}
+                            chartTemporalDomain={chartTemporalDomain}
+                            chartDomainX={chartDomainX}
+                            getAxisTicksX={getAxisTicksX}
+                            temporalResolution={temporalResolution}
+                            setTemporalResolution={setTemporalResolution}
                         />
                     </div>
                     <CountriesEntriesFiguresTable

@@ -1,13 +1,13 @@
 import { useCallback, useMemo, useState } from 'react';
-import { bound, isDefined } from '@togglecorp/fujs';
+import { bound, compareNumber, isDefined } from '@togglecorp/fujs';
 import { getDateFromDateString, getDateFromTimestamp, getDateFromYmd, getNow } from '#utils/common';
 import { getNumberOfDays, getNumberOfMonths, getSuitableTemporalResolution, TemporalResolution } from '#utils/chart';
 
 export const CONFLICT_TYPE = 'conflict' as const;
 export const DISASTER_TYPE = 'disaster' as const;
 
-const NUM_X_AXIS_POINTS_MAX = 7;
-const NUM_X_AXIS_POINTS_MIN = 3;
+const NUM_X_AXIS_POINTS_MAX = 6;
+const NUM_X_AXIS_POINTS_MIN = 2;
 
 interface ResolutionOption {
     label: string;
@@ -35,6 +35,28 @@ export function resolutionOptionKeySelector(option: ResolutionOption) {
 
 export function resolutionOptionLabelSelector(option: ResolutionOption) {
     return option.label;
+}
+
+function calculateEvenDistribution(min: number, max: number, distribution: number) {
+    const diff = max - min;
+
+    if (diff === 0) {
+        return {
+            left: Math.floor(distribution / 2),
+            right: Math.ceil(distribution / 2),
+        };
+    }
+
+    const remainder = diff % distribution;
+
+    const additional = remainder === 0
+        ? 0
+        : distribution - remainder;
+
+    return {
+        left: Math.floor(additional / 2),
+        right: Math.ceil(additional / 2),
+    };
 }
 
 interface Data {
@@ -145,7 +167,11 @@ function useCombinedChartData(props: Props) {
                 numDataPoints = getNumberOfDays(dataTemporalDomain.min, dataTemporalDomain.max);
             }
 
-            const numTicksList = Array.from(Array(Math.max(tickRange, 1)).keys()).map(
+            if (numDataPoints <= NUM_X_AXIS_POINTS_MIN) {
+                return NUM_X_AXIS_POINTS_MIN;
+            }
+
+            const numTicksList = Array.from(Array(tickRange + 1).keys()).map(
                 (key) => NUM_X_AXIS_POINTS_MIN + key,
             );
 
@@ -157,14 +183,13 @@ function useCombinedChartData(props: Props) {
                     return {
                         numTicks,
                         offset,
+                        rank: numTicks / (offset + 5),
                     };
                 },
             );
 
             const tickWithLowestOffset = [...potentialTicks].sort(
-                (a, b) => (
-                    (b.numTicks - a.numTicks) * 0.75 + (a.offset - b.offset)
-                ),
+                (a, b) => compareNumber(a.rank, b.rank, -1),
             )[0];
 
             return bound(
@@ -190,16 +215,15 @@ function useCombinedChartData(props: Props) {
             const maxYear = dataTemporalDomain.max.getFullYear();
 
             if (temporalResolution === 'year') {
-                const diff = maxYear - minYear;
-                const remainder = diff % (numAxisPointsX - 1);
-                const additional = remainder === 0
-                    ? 0
-                    : numAxisPointsX - remainder - 1;
+                const { left, right } = calculateEvenDistribution(
+                    minYear,
+                    maxYear,
+                    numAxisPointsX,
+                );
 
                 return {
-                    min: getDateFromYmd(minYear, 0, 1),
-                    // NOTE: this should be the last day of the year
-                    max: getDateFromYmd(maxYear + additional + 1, 0, -1),
+                    min: getDateFromYmd(minYear - left, 0, 1),
+                    max: getDateFromYmd(maxYear + right, 0, 1),
                 };
             }
 
@@ -208,47 +232,44 @@ function useCombinedChartData(props: Props) {
                     + dataTemporalDomain.max.getMonth();
                 const minMonth = dataTemporalDomain.min.getFullYear() * 12
                     + dataTemporalDomain.min.getMonth();
-                const diff = maxMonth - minMonth;
-                const remainder = diff % (numAxisPointsX - 1);
-                const additional = remainder === 0
-                    ? 0
-                    : numAxisPointsX - remainder - 1;
+
+                const { left, right } = calculateEvenDistribution(
+                    minMonth,
+                    maxMonth,
+                    numAxisPointsX,
+                );
 
                 return {
                     min: getDateFromYmd(
                         minYear,
-                        dataTemporalDomain.min.getMonth(),
+                        dataTemporalDomain.min.getMonth() - left,
                         1,
                     ),
                     // NOTE: this should be the last day of the month
                     max: getDateFromYmd(
                         maxYear,
-                        dataTemporalDomain.max.getMonth() + additional + 1,
-                        -1,
+                        dataTemporalDomain.max.getMonth() + right,
+                        1,
                     ),
                 };
             }
 
-            const diff = Math.max(
-                numAxisPointsX,
+            const { left, right } = calculateEvenDistribution(
+                0,
                 getNumberOfDays(dataTemporalDomain.min, dataTemporalDomain.max),
+                numAxisPointsX,
             );
-
-            const remainder = diff % (numAxisPointsX - 1);
-            const additional = remainder === 0
-                ? 0
-                : numAxisPointsX - remainder - 1;
 
             return {
                 min: getDateFromYmd(
                     minYear,
                     dataTemporalDomain.min.getMonth(),
-                    dataTemporalDomain.min.getDate(),
+                    dataTemporalDomain.min.getDate() - left,
                 ),
                 max: getDateFromYmd(
                     maxYear,
                     dataTemporalDomain.max.getMonth(),
-                    dataTemporalDomain.max.getDate() + additional,
+                    dataTemporalDomain.max.getDate() + right,
                 ),
             };
         },
@@ -275,11 +296,9 @@ function useCombinedChartData(props: Props) {
                 diff = getNumberOfDays(chartTemporalDomain.min, chartTemporalDomain.max);
             }
 
-            // NOTE: We want at least one tick
-            diff = Math.max(diff, 1);
+            const step = Math.max(Math.ceil(diff / numAxisPointsX), 1);
 
-            const step = Math.ceil(diff / (numAxisPointsX - 1));
-            const ticks = Array.from(Array(numAxisPointsX).keys()).map(
+            const ticks = Array.from(Array(numAxisPointsX + 1).keys()).map(
                 (key) => key * step,
             );
 

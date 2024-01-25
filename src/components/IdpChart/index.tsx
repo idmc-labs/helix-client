@@ -26,6 +26,7 @@ import {
 } from '#utils/chart';
 
 import {
+    getDateFromDateString,
     getDateFromDateStringOrTimestamp,
     sumSafe,
 } from '#utils/common';
@@ -165,6 +166,22 @@ function IdpChart(props: Props) {
         [xScaleFn, getAxisTicksX],
     );
 
+    const resolveDomainLabelX = useCallback(
+        (dateStr: string) => {
+            const date = getDateFromDateString(dateStr);
+
+            return date.toLocaleString(
+                navigator.language,
+                {
+                    year: 'numeric',
+                    month: 'short',
+                    day: '2-digit',
+                },
+            );
+        },
+        [],
+    );
+
     const hoverOutTimeoutRef = useRef<number | undefined>();
     const [hoveredKey, setHoveredKey] = useState<string | number | undefined>();
 
@@ -292,8 +309,7 @@ function IdpChart(props: Props) {
                                         onMouseOut={handleMouseOut}
                                     >
                                         <Tooltip
-                                            title={point.originalData.date}
-                                            // title={resolveDomainLabelX(point.originalData.date)}
+                                            title={resolveDomainLabelX(String(point.key))}
                                             description={(
                                                 <div className={styles.tooltipContent}>
                                                     <NumberBlock

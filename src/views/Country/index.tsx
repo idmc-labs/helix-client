@@ -37,12 +37,12 @@ import NdChart from '#components/NdChart';
 import IdpChart from '#components/IdpChart';
 import FloatingButton from '#components/FloatingButton';
 import CountriesMap, { Bounds } from '#components/CountriesMap';
+import useCombinedChartData from '#hooks/useCombinedChartData';
 
 import CrisesEventsEntriesFiguresTable from './CrisesEventsEntriesFiguresTable';
 import ContextualAnalysis from './ContextualAnalysis';
 import CountrySummary from './CountrySummary';
 import styles from './styles.css';
-import useCombinedChartData from '#hooks/useCombinedChartData';
 
 const COUNTRY = gql`
     query Country($id: ID!) {
