@@ -2,7 +2,6 @@ import React, {
     useCallback,
     useMemo,
     useRef,
-    useState,
 } from 'react';
 import {
     bound,
@@ -13,14 +12,14 @@ import {
 } from '@togglecorp/fujs';
 import { SegmentInput } from '@togglecorp/toggle-ui';
 
-import ChartAxes from '#components/ChartAxes';
+import ChartAxes, { TickX } from '#components/ChartAxes';
 import useChartData from '#hooks/useChartData';
 import {
+    Bounds,
     defaultChartMargin,
     defaultChartPadding,
     getNumberOfDays,
     getNumberOfMonths,
-    getSuitableTemporalResolution,
     incrementDate,
     incrementMonth,
     TemporalResolution,
@@ -29,16 +28,23 @@ import {
 import {
     sumSafe,
     getDateFromDateString,
-    getDateFromTimestamp,
-    getNow,
+    getDateFromYmd,
 } from '#utils/common';
 import Tooltip from '#components/Tooltip';
 import NumberBlock from '#components/NumberBlock';
 import Container from '#components/Container';
+import {
+    CombinedData,
+    CONFLICT_TYPE,
+    DISASTER_TYPE,
+    resolutionOptions,
+    resolutionOptionKeySelector,
+    resolutionOptionLabelSelector,
+} from '#hooks/useCombinedChartData';
 
 import styles from './styles.css';
 
-const X_AXIS_HEIGHT = 16;
+const X_AXIS_HEIGHT = 32;
 const Y_AXIS_WIDTH = 40;
 
 const chartOffset = {
@@ -48,71 +54,33 @@ const chartOffset = {
     bottom: X_AXIS_HEIGHT,
 };
 
-const NUM_X_AXIS_POINTS = 5;
 const chartPadding = defaultChartPadding;
 const chartMargin = defaultChartMargin;
 
-interface Data {
-    date: string;
-    value: number;
-}
-
 interface Props {
-    conflictData: Data[] | undefined | null;
-    disasterData: Data[] | undefined | null;
+    combinedNdsData: CombinedData[];
+    numAxisPointsX: number;
+    chartTemporalDomain: {
+        min: Date,
+        max: Date,
+    };
+    chartDomainX: Bounds;
+    getAxisTicksX: (xScaleFn: (value: number) => number) => TickX[];
+    temporalResolution: TemporalResolution;
+    setTemporalResolution: React.Dispatch<React.SetStateAction<TemporalResolution | undefined>>;
 }
 
 function NdChart(props: Props) {
-    const { conflictData, disasterData } = props;
-    const chartContainerRef = useRef<HTMLDivElement>(null);
-
-    const CONFLICT_TYPE = 'conflict';
-    const DISASTER_TYPE = 'disaster';
-
-    const combinedData = useMemo(
-        () => (
-            [
-                conflictData?.map(
-                    (datum) => ({ type: CONFLICT_TYPE, ...datum }),
-                ),
-                disasterData?.map(
-                    (datum) => ({ type: DISASTER_TYPE, ...datum }),
-                ),
-            ].filter(isDefined).flat()
-        ),
-        [conflictData, disasterData],
-    );
-
-    const temporalDomain = useMemo(
-        () => {
-            const now = getNow();
-
-            if (!combinedData || combinedData.length === 0) {
-                return { min: now.getFullYear() - NUM_X_AXIS_POINTS + 1, max: now.getFullYear() };
-            }
-
-            const timestampList = combinedData.map(
-                ({ date }) => getDateFromDateString(date).getTime(),
-            );
-            const minTimestamp = Math.min(...timestampList);
-            const maxTimestamp = Math.max(...timestampList);
-
-            return {
-                min: minTimestamp,
-                max: maxTimestamp,
-            };
-        },
-        [combinedData],
-    );
-
-    const suggestedTemporalResolution = getSuitableTemporalResolution(
-        temporalDomain,
-        NUM_X_AXIS_POINTS,
-    );
-    const [
-        temporalResolution = suggestedTemporalResolution,
+    const {
+        combinedNdsData,
+        chartTemporalDomain,
+        numAxisPointsX,
+        chartDomainX,
+        getAxisTicksX,
+        temporalResolution,
         setTemporalResolution,
-    ] = useState<TemporalResolution>();
+    } = props;
+    const chartContainerRef = useRef<HTMLDivElement>(null);
 
     const data = useMemo(
         () => {
@@ -120,30 +88,30 @@ function NdChart(props: Props) {
 
             if (temporalResolution === 'year') {
                 groupedData = listToGroupList(
-                    combinedData,
+                    combinedNdsData,
                     (datum) => getDateFromDateString(datum.date).getFullYear()
-                        - getDateFromTimestamp(temporalDomain.min).getFullYear(),
+                        - chartTemporalDomain.min.getFullYear(),
                 );
             } else if (temporalResolution === 'month') {
                 groupedData = listToGroupList(
-                    combinedData,
+                    combinedNdsData,
                     (datum) => {
                         const date = getDateFromDateString(datum.date);
 
                         return getNumberOfMonths(
-                            getDateFromTimestamp(temporalDomain.min),
+                            chartTemporalDomain.min,
                             date,
                         );
                     },
                 );
             } else {
                 groupedData = listToGroupList(
-                    combinedData,
+                    combinedNdsData,
                     (datum) => {
                         const date = getDateFromDateString(datum.date);
 
                         return getNumberOfDays(
-                            getDateFromTimestamp(temporalDomain.min),
+                            chartTemporalDomain.min,
                             date,
                         );
                     },
@@ -175,7 +143,7 @@ function NdChart(props: Props) {
                 },
             );
         },
-        [combinedData, temporalResolution, temporalDomain],
+        [combinedNdsData, temporalResolution, chartTemporalDomain],
     );
 
     const displacements = useMemo(
@@ -193,45 +161,9 @@ function NdChart(props: Props) {
         [data],
     );
 
-    const domain = useMemo(
-        () => {
-            const now = getNow();
-            if (!data || data.length === 0) {
-                return { min: now.getFullYear() - NUM_X_AXIS_POINTS + 1, max: now.getFullYear() };
-            }
-
-            const yearList = data.map(({ key }) => key);
-            const minKey = Math.min(...yearList);
-            const maxKey = Math.max(...yearList);
-
-            const diff = maxKey - minKey;
-            const remainder = diff % (NUM_X_AXIS_POINTS - 1);
-            const additional = remainder === 0
-                ? 0
-                : NUM_X_AXIS_POINTS - remainder - 1;
-
-            if (minKey === maxKey) {
-                return {
-                    min: minKey - 1,
-                    max: maxKey + 1,
-                };
-            }
-
-            return {
-                min: minKey - Math.ceil(additional / 2),
-                max: maxKey + Math.floor(additional / 2),
-            };
-        },
-        [data],
-    );
-
-    const xAxisCompression = data.length === 0
-        ? 1
-        : (domain.max - domain.min) / NUM_X_AXIS_POINTS;
-
     const resolveDomainLabelX = useCallback(
         (diff) => {
-            const minDate = getDateFromTimestamp(temporalDomain.min);
+            const minDate = chartTemporalDomain.min;
             if (temporalResolution === 'year') {
                 return minDate.getFullYear() + diff;
             }
@@ -257,17 +189,18 @@ function NdChart(props: Props) {
                 },
             );
         },
-        [temporalResolution, temporalDomain],
+        [temporalResolution, chartTemporalDomain],
     );
 
     const {
         dataPoints,
         chartSize,
-        xAxisTicks,
+        // xAxisTicks,
         yAxisTicks,
         yScaleFn,
         xAxisTickWidth,
         renderableHeight,
+        xScaleFn,
     } = useChartData(
         data,
         {
@@ -277,12 +210,35 @@ function NdChart(props: Props) {
             chartPadding,
             type: 'numeric',
             keySelector: (datum) => datum.key,
-            xValueSelector: (datum) => datum.key,
-            xAxisLabelSelector: resolveDomainLabelX,
+            xValueSelector: (datum) => {
+                if (temporalResolution === 'year') {
+                    const date = getDateFromYmd(
+                        chartTemporalDomain.min.getFullYear() + datum.key,
+                        chartTemporalDomain.min.getMonth(),
+                        chartTemporalDomain.min.getDate(),
+                    );
+
+                    const days = getNumberOfDays(chartTemporalDomain.min, date);
+                    return days;
+                }
+
+                if (temporalResolution === 'month') {
+                    const date = getDateFromYmd(
+                        chartTemporalDomain.min.getFullYear(),
+                        chartTemporalDomain.min.getMonth() + datum.key,
+                        chartTemporalDomain.min.getDate(),
+                    );
+
+                    return getNumberOfDays(chartTemporalDomain.min, date);
+                }
+
+                return datum.key;
+            },
+            xAxisLabelSelector: (diff) => diff,
             yValueSelector: (datum) => datum.totalDisplacement,
             yAxisStartsFromZero: true,
-            numXAxisTicks: NUM_X_AXIS_POINTS,
-            xDomain: domain,
+            numXAxisTicks: numAxisPointsX,
+            xDomain: chartDomainX,
         },
     );
 
@@ -299,10 +255,35 @@ function NdChart(props: Props) {
         },
     ).filter(isDefined);
 
+    const xAxisCompression = useMemo(
+        () => {
+            if (data.length === 0) {
+                return 1;
+            }
+
+            let diff = chartDomainX.max - chartDomainX.min;
+
+            if (temporalResolution === 'year') {
+                diff = chartTemporalDomain.max.getFullYear()
+                    - chartTemporalDomain.min.getFullYear();
+            } else if (temporalResolution === 'month') {
+                diff = getNumberOfMonths(chartTemporalDomain.min, chartTemporalDomain.max);
+            }
+
+            return diff / numAxisPointsX;
+        },
+        [chartDomainX, temporalResolution, chartTemporalDomain, data, numAxisPointsX],
+    );
+
     const barWidth = bound(
         xAxisTickWidth / xAxisCompression,
-        5,
-        15,
+        2,
+        10,
+    );
+
+    const xAxisTicks = useMemo(
+        () => getAxisTicksX(xScaleFn),
+        [xScaleFn, getAxisTicksX],
     );
 
     return (
@@ -314,22 +295,9 @@ function NdChart(props: Props) {
                 <SegmentInput
                     name="temporalResolution"
                     value={temporalResolution}
-                    options={[
-                        {
-                            name: 'Year',
-                            value: 'year' as const,
-                        },
-                        {
-                            name: 'Month',
-                            value: 'month' as const,
-                        },
-                        {
-                            name: 'Day',
-                            value: 'day' as const,
-                        },
-                    ]}
-                    keySelector={(item) => item.value}
-                    labelSelector={(item) => item.name}
+                    options={resolutionOptions}
+                    keySelector={resolutionOptionKeySelector}
+                    labelSelector={resolutionOptionLabelSelector}
                     onChange={setTemporalResolution}
                 />
             )}
@@ -369,9 +337,14 @@ function NdChart(props: Props) {
                                 <rect
                                     key={point.key}
                                     className={styles.rect}
-                                    x={point.x - xAxisTickWidth / (2 * xAxisCompression)}
+                                    x={
+                                        point.x - Math.max(
+                                            xAxisTickWidth / (2 * xAxisCompression),
+                                            barWidth / 2,
+                                        )
+                                    }
                                     y={0}
-                                    width={xAxisTickWidth / xAxisCompression}
+                                    width={Math.max(barWidth, xAxisTickWidth / xAxisCompression)}
                                     height={renderableHeight}
                                 >
                                     <Tooltip
@@ -395,47 +368,53 @@ function NdChart(props: Props) {
                     </g>
                     <g className={styles.totalDisplacement}>
                         {dataPoints.map(
-                            (point) => (
-                                <rect
-                                    key={point.key}
-                                    className={styles.rect}
-                                    x={point.x - barWidth / 2}
-                                    y={point.y}
-                                    width={barWidth}
-                                    height={
-                                        Math.max(
-                                            renderableHeight - point.y,
-                                            // NOTE: We need to show at least 1/2
-                                            // pixel if the data is too small
-                                            // eslint-disable-next-line max-len
-                                            point.originalData.conflict && point.originalData.disaster
-                                                ? 2
-                                                : 1,
-                                        )
-                                    }
-                                />
-                            ),
+                            (point) => {
+                                const initialHeight = renderableHeight - point.y;
+                                const minHeight = point.originalData.conflict
+                                    && point.originalData.disaster
+                                    ? 2
+                                    : 1;
+
+                                const y = initialHeight < minHeight
+                                    ? point.y - minHeight
+                                    : point.y;
+                                const height = Math.max(initialHeight, minHeight);
+
+                                return (
+                                    <rect
+                                        key={point.key}
+                                        className={styles.rect}
+                                        x={point.x - barWidth / 2}
+                                        y={y}
+                                        width={barWidth}
+                                        height={height}
+                                    />
+                                );
+                            },
                         )}
                     </g>
                     <g className={styles.disaster}>
                         {disasterDataPoints.map(
-                            (point) => (
-                                <rect
-                                    key={point.key}
-                                    className={styles.rect}
-                                    x={point.x - barWidth / 2}
-                                    y={point.y}
-                                    width={barWidth}
-                                    height={
-                                        Math.max(
-                                            renderableHeight - point.y,
-                                            // NOTE: We need to show at least 1
-                                            // pixel if the data is too small
-                                            1,
-                                        )
-                                    }
-                                />
-                            ),
+                            (point) => {
+                                const initialHeight = renderableHeight - point.y;
+                                const minHeight = 1;
+
+                                const y = initialHeight < minHeight
+                                    ? point.y - minHeight
+                                    : point.y;
+                                const height = Math.max(initialHeight, minHeight);
+
+                                return (
+                                    <rect
+                                        key={point.key}
+                                        className={styles.rect}
+                                        x={point.x - barWidth / 2}
+                                        y={y}
+                                        width={barWidth}
+                                        height={height}
+                                    />
+                                );
+                            },
                         )}
                     </g>
                 </svg>

@@ -33,7 +33,6 @@
                     color: var(--color-axes);
 
                     .rect {
-                        transition: opacity var(--duration-transition-medium) ease-in-out;
                         opacity: 0;
 
                         &:hover {

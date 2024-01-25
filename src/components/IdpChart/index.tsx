@@ -5,7 +5,6 @@ import React, {
     useState,
 } from 'react';
 import {
-    bound,
     compareDate,
     _cs,
     isDefined,
@@ -15,32 +14,36 @@ import {
 } from '@togglecorp/fujs';
 import { SegmentInput } from '@togglecorp/toggle-ui';
 
-import ChartAxes from '#components/ChartAxes';
+import ChartAxes, { TickX } from '#components/ChartAxes';
 import useChartData from '#hooks/useChartData';
 import {
+    Bounds,
     defaultChartMargin,
     defaultChartPadding,
     getNumberOfDays,
-    getNumberOfMonths,
     getPathData,
-    getSuitableTemporalResolution,
     TemporalResolution,
 } from '#utils/chart';
 
 import {
-    getDateFromYmd,
     getDateFromDateStringOrTimestamp,
-    getDateFromTimestamp,
-    getNow,
     sumSafe,
 } from '#utils/common';
 import Tooltip from '#components/Tooltip';
 import NumberBlock from '#components/NumberBlock';
 import Container from '#components/Container';
+import {
+    CombinedData,
+    CONFLICT_TYPE,
+    DISASTER_TYPE,
+    resolutionOptions,
+    resolutionOptionKeySelector,
+    resolutionOptionLabelSelector,
+} from '#hooks/useCombinedChartData';
 
 import styles from './styles.css';
 
-const X_AXIS_HEIGHT = 16;
+const X_AXIS_HEIGHT = 32;
 const Y_AXIS_WIDTH = 40;
 
 const chartOffset = {
@@ -50,42 +53,39 @@ const chartOffset = {
     bottom: X_AXIS_HEIGHT,
 };
 
-const NUM_X_AXIS_POINTS_MAX = 7;
-const NUM_X_AXIS_POINTS_MIN = 3;
-
 const chartPadding = defaultChartPadding;
 const chartMargin = defaultChartMargin;
 
-interface Data {
-    date: string;
-    value: number;
-}
-
 interface Props {
-    conflictData: Data[] | undefined | null;
-    disasterData: Data[] | undefined | null;
+    combinedIdpsData: CombinedData[];
+    numAxisPointsX: number;
+    chartTemporalDomain: {
+        min: Date,
+        max: Date,
+    };
+    chartDomainX: Bounds;
+    getAxisTicksX: (xScaleFn: (value: number) => number) => TickX[];
+    temporalResolution: TemporalResolution;
+    setTemporalResolution: React.Dispatch<React.SetStateAction<TemporalResolution | undefined>>;
 }
 
 function IdpChart(props: Props) {
-    const { conflictData, disasterData } = props;
-    const chartContainerRef = useRef<HTMLDivElement>(null);
+    const {
+        combinedIdpsData,
+        chartTemporalDomain,
+        numAxisPointsX,
+        chartDomainX,
+        getAxisTicksX,
+        temporalResolution,
+        setTemporalResolution,
+    } = props;
 
-    const CONFLICT_TYPE = 'conflict';
-    const DISASTER_TYPE = 'disaster';
+    const chartContainerRef = useRef<HTMLDivElement>(null);
 
     const data = useMemo(
         () => {
-            const combinedData = [
-                conflictData?.map(
-                    (datum) => ({ type: CONFLICT_TYPE, ...datum }),
-                ),
-                disasterData?.map(
-                    (datum) => ({ type: DISASTER_TYPE, ...datum }),
-                ),
-            ].filter(isDefined).flat();
-
             const dateGrouped = listToGroupList(
-                combinedData,
+                combinedIdpsData,
                 (datum) => datum.date,
             );
 
@@ -117,162 +117,7 @@ function IdpChart(props: Props) {
                 (a, b) => compareDate(a.date, b.date),
             );
         },
-        [conflictData, disasterData],
-    );
-
-    // const numAxisPointsX = bound(data?.length, NUM_X_AXIS_POINTS_MIN, NUM_X_AXIS_POINTS_MAX);
-    const numDataPoints = (data?.length ?? 0);
-
-    const numAxisPointsX = useMemo(
-        () => {
-            const tickRange = NUM_X_AXIS_POINTS_MAX - NUM_X_AXIS_POINTS_MIN;
-            const numTicksList = Array.from(Array(tickRange + 1).keys()).map(
-                (key) => NUM_X_AXIS_POINTS_MIN + key,
-            );
-
-            const potentialTicks = numTicksList.reverse().map(
-                (numTicks) => {
-                    const tickDiff = Math.ceil(numDataPoints / numTicks);
-                    const offset = numTicks * tickDiff - numDataPoints;
-
-                    return {
-                        numTicks,
-                        offset,
-                    };
-                },
-            );
-
-            const tickWithLowestOffset = [...potentialTicks].sort(
-                (a, b) => (
-                    (b.numTicks - a.numTicks) * 0.75 + (a.offset - b.offset)
-                ),
-            )[0];
-
-            return bound(
-                tickWithLowestOffset.numTicks,
-                NUM_X_AXIS_POINTS_MIN,
-                NUM_X_AXIS_POINTS_MAX,
-            );
-        },
-        [numDataPoints],
-    );
-
-    const temporalDomain = useMemo(
-        () => {
-            if (!data || data.length === 0) {
-                const now = getNow();
-                return {
-                    min: getDateFromYmd(now.getFullYear() - numAxisPointsX + 1, 0, 1),
-                    max: getDateFromYmd(now.getFullYear(), 0, 1),
-                };
-            }
-
-            const timestampList = data.map(({ date }) => (
-                getDateFromDateStringOrTimestamp(date).getTime()
-            ));
-            const minTimestamp = Math.min(...timestampList);
-            const maxTimestamp = Math.max(...timestampList);
-
-            const minDate = getDateFromTimestamp(minTimestamp);
-            const maxDate = getDateFromTimestamp(maxTimestamp);
-
-            return {
-                min: minDate,
-                max: maxDate,
-            };
-        },
-        [data, numAxisPointsX],
-    );
-
-    const suggestedTemporalResolution = getSuitableTemporalResolution(
-        {
-            min: temporalDomain.min.getTime(),
-            max: temporalDomain.max.getTime(),
-        },
-        numAxisPointsX,
-    );
-    const [
-        temporalResolution = suggestedTemporalResolution,
-        setTemporalResolution,
-    ] = useState<TemporalResolution>();
-
-    const dateRange = useMemo(
-        () => {
-            const minYear = temporalDomain.min.getFullYear();
-            const maxYear = temporalDomain.max.getFullYear();
-
-            if (temporalResolution === 'year') {
-                const diff = maxYear - minYear;
-                const remainder = diff % (numAxisPointsX - 1);
-                const additional = remainder === 0
-                    ? 0
-                    : numAxisPointsX - remainder - 1;
-
-                return {
-                    min: getDateFromYmd(minYear, 0, 1),
-                    // NOTE: this should be the last day of the year
-                    max: getDateFromYmd(maxYear + additional + 1, 0, -1),
-                };
-            }
-
-            if (temporalResolution === 'month') {
-                const maxMonth = temporalDomain.max.getFullYear() * 12
-                    + temporalDomain.max.getMonth();
-                const minMonth = temporalDomain.min.getFullYear() * 12
-                    + temporalDomain.min.getMonth();
-                const diff = maxMonth - minMonth;
-                const remainder = diff % (numAxisPointsX - 1);
-                const additional = remainder === 0
-                    ? 0
-                    : numAxisPointsX - remainder - 1;
-
-                return {
-                    min: getDateFromYmd(
-                        minYear,
-                        temporalDomain.min.getMonth(),
-                        1,
-                    ),
-                    // NOTE: this should be the last day of the month
-                    max: getDateFromYmd(
-                        maxYear,
-                        temporalDomain.max.getMonth() + additional + 1,
-                        -1,
-                    ),
-                };
-            }
-
-            const diff = Math.max(
-                numAxisPointsX,
-                getNumberOfDays(temporalDomain.min, temporalDomain.max),
-            );
-
-            const remainder = diff % (numAxisPointsX - 1);
-            const additional = remainder === 0
-                ? 0
-                : numAxisPointsX - remainder - 1;
-
-            return {
-                min: getDateFromYmd(
-                    minYear,
-                    temporalDomain.min.getMonth(),
-                    temporalDomain.min.getDate(),
-                ),
-                max: getDateFromYmd(
-                    maxYear,
-                    temporalDomain.max.getMonth(),
-                    temporalDomain.max.getDate() + additional,
-                ),
-            };
-        },
-        [numAxisPointsX, temporalDomain, temporalResolution],
-    );
-
-    const xDomain = useMemo(
-        () => ({
-            min: 0,
-            max: getNumberOfDays(dateRange.min, dateRange.max),
-        }),
-        [dateRange],
+        [combinedIdpsData],
     );
 
     const lastPointWithData = useMemo(
@@ -305,99 +150,19 @@ function IdpChart(props: Props) {
             keySelector: (datum) => datum.date,
             xValueSelector: (datum) => {
                 const date = getDateFromDateStringOrTimestamp(datum.date);
-                return getNumberOfDays(dateRange.min, date);
+                return getNumberOfDays(chartTemporalDomain.min, date);
             },
             xAxisLabelSelector: (diff) => diff,
             yValueSelector: (datum) => datum.maxDisplacement,
             yAxisStartsFromZero: true,
             numXAxisTicks: numAxisPointsX,
-            xDomain,
+            xDomain: chartDomainX,
         },
     );
 
     const xAxisTicks = useMemo(
-        () => {
-            let diff = 0;
-            if (temporalResolution === 'year') {
-                diff = dateRange.max.getFullYear() - dateRange.min.getFullYear();
-            } else if (temporalResolution === 'month') {
-                diff = getNumberOfMonths(dateRange.min, dateRange.max);
-            } else {
-                diff = getNumberOfDays(dateRange.min, dateRange.max);
-            }
-
-            // NOTE: We want at least one tick
-            diff = Math.max(diff, 1);
-
-            const step = Math.ceil(diff / (numAxisPointsX - 1));
-            const ticks = Array.from(Array(step * numAxisPointsX).keys()).map(
-                (key) => key * step,
-            );
-
-            if (temporalResolution === 'year') {
-                return ticks.map(
-                    (tick) => {
-                        const date = getDateFromYmd(dateRange.min.getFullYear() + tick, 0, 1);
-                        const numDays = getNumberOfDays(dateRange.min, date);
-
-                        return {
-                            key: tick,
-                            x: xScaleFn(numDays),
-                            label: date.getFullYear(),
-                        };
-                    },
-                );
-            }
-
-            if (temporalResolution === 'month') {
-                return ticks.map(
-                    (tick) => {
-                        const date = getDateFromYmd(
-                            dateRange.min.getFullYear(),
-                            dateRange.min.getMonth() + tick,
-                            1,
-                        );
-                        const numDays = getNumberOfDays(dateRange.min, date);
-
-                        return {
-                            key: tick,
-                            x: xScaleFn(numDays),
-                            label: date.toLocaleString(
-                                navigator.language,
-                                {
-                                    year: 'numeric',
-                                    month: 'short',
-                                },
-                            ),
-                        };
-                    },
-                );
-            }
-
-            return ticks.map(
-                (tick) => {
-                    const date = getDateFromYmd(
-                        dateRange.min.getFullYear(),
-                        dateRange.min.getMonth(),
-                        dateRange.min.getDate() + tick,
-                    );
-
-                    return {
-                        key: tick,
-                        x: xScaleFn(tick),
-                        label: date.toLocaleString(
-                            navigator.language,
-                            {
-                                year: 'numeric',
-                                month: 'short',
-                                day: '2-digit',
-                            },
-                        ),
-                    };
-                },
-            );
-        },
-        [xScaleFn, dateRange, numAxisPointsX, temporalResolution],
+        () => getAxisTicksX(xScaleFn),
+        [xScaleFn, getAxisTicksX],
     );
 
     const hoverOutTimeoutRef = useRef<number | undefined>();
@@ -463,22 +228,9 @@ function IdpChart(props: Props) {
                 <SegmentInput
                     name="temporalResolution"
                     value={temporalResolution}
-                    options={[
-                        {
-                            name: 'Year',
-                            value: 'year' as const,
-                        },
-                        {
-                            name: 'Month',
-                            value: 'month' as const,
-                        },
-                        {
-                            name: 'Day',
-                            value: 'day' as const,
-                        },
-                    ]}
-                    keySelector={(item) => item.value}
-                    labelSelector={(item) => item.name}
+                    options={resolutionOptions}
+                    keySelector={resolutionOptionKeySelector}
+                    labelSelector={resolutionOptionLabelSelector}
                     onChange={setTemporalResolution}
                 />
             )}
