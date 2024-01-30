@@ -1,9 +1,26 @@
 .crises {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-large);
+    .page-content {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: var(--spacing-large);
+        overflow-x: auto;
 
-    .container {
-        min-height: 400px;
+        .filters {
+            background-color: var(--color-background);
+
+            .filters-content {
+                flex-grow: 1;
+            }
+        }
+
+        .main-content {
+            overflow-x: auto;
+
+            .container {
+                flex-grow: 1;
+                min-height: 400px;
+            }
+        }
     }
 }

@@ -8,6 +8,7 @@ import useCrisisTable from '#components/rawTables/useCrisisTable';
 import Container from '#components/Container';
 import {
     CrisesQueryVariables,
+    FigureExtractionFilterDataInputType,
 } from '#generated/types';
 import useFilterState from '#hooks/useFilterState';
 import { expandObject } from '#utils/common';
@@ -18,12 +19,14 @@ import styles from './styles.css';
 interface CrisesProps {
     className?: string;
     title?: string;
+    filterFigures?: FigureExtractionFilterDataInputType;
 }
 
 function CrisesTable(props: CrisesProps) {
     const {
         className,
         title,
+        filterFigures,
     } = props;
 
     const {
@@ -57,7 +60,9 @@ function CrisesTable(props: CrisesProps) {
             pageSize,
             filters: expandObject<NonNullable<CrisesQueryVariables['filters']>>(
                 filter,
-                {},
+                {
+                    filterFigures,
+                },
             ),
         }),
         [
@@ -65,6 +70,7 @@ function CrisesTable(props: CrisesProps) {
             page,
             pageSize,
             filter,
+            filterFigures,
         ],
     );
 

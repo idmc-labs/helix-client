@@ -104,7 +104,6 @@ function Events(props: EventsProps) {
                         initialFilter={initialFiguresFilter}
                         onFilterChange={setFiguresFilter}
                         hiddenFields={figureHiddenColumns}
-                        // events={[]}
                     />
                 </Container>
             </div>
