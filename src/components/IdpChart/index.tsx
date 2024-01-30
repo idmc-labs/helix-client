@@ -171,7 +171,7 @@ function IdpChart(props: Props) {
             const date = getDateFromDateString(dateStr);
 
             return date.toLocaleString(
-                navigator.language,
+                'default',
                 {
                     year: 'numeric',
                     month: 'short',

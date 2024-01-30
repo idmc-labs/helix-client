@@ -335,7 +335,7 @@ function useCombinedChartData(props: Props) {
                             key: tick,
                             x: xScaleFn(numDays),
                             label: date.toLocaleString(
-                                navigator.language,
+                                'default',
                                 {
                                     year: 'numeric',
                                     month: 'short',
@@ -358,7 +358,7 @@ function useCombinedChartData(props: Props) {
                         key: tick,
                         x: xScaleFn(tick),
                         label: date.toLocaleString(
-                            navigator.language,
+                            'default',
                             {
                                 year: 'numeric',
                                 month: 'short',

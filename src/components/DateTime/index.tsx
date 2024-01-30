@@ -21,9 +21,10 @@ function DateTime(props: Props) {
 
     let tooltipContent;
     if (value && format === 'date') {
-        const date = getDateFromDateString(value);
+        // NOTE: date format YYYY-MM-DD has 10 characters
+        const date = getDateFromDateString(value.slice(0, 10));
         tooltipContent = date.toLocaleString(
-            navigator.language,
+            'default',
             {
                 year: 'numeric',
                 month: 'short',
@@ -34,7 +35,7 @@ function DateTime(props: Props) {
         // FIXME: do no use new Date directly
         const date = new Date(value);
         tooltipContent = date.toLocaleString(
-            navigator.language,
+            'default',
             {
                 year: 'numeric',
                 month: 'short',
