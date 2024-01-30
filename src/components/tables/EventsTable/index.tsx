@@ -8,6 +8,7 @@ import useEventTable from '#components/rawTables/useEventTable';
 import Container from '#components/Container';
 import {
     EventListQueryVariables,
+    FigureExtractionFilterDataInputType,
     Qa_Rule_Type as QaRuleType,
     User_Role as UserRole,
 } from '#generated/types';
@@ -39,6 +40,7 @@ interface EventsProps {
     reviewStatus?: string[] | null
     assignee?: string | null;
     qaMode?: 'MULTIPLE_RF' | 'NO_RF' | 'IGNORE_QA' | undefined;
+    filterFigures?: FigureExtractionFilterDataInputType;
 }
 
 function EventsTable(props: EventsProps) {
@@ -48,6 +50,7 @@ function EventsTable(props: EventsProps) {
         title,
         assignee,
         reviewStatus,
+        filterFigures,
     } = props;
 
     const { user } = useContext(DomainContext);
@@ -146,6 +149,7 @@ function EventsTable(props: EventsProps) {
             filters: expandObject<NonNullable<EventListQueryVariables['filters']>>(
                 filter,
                 {
+                    filterFigures,
                     qaRule,
                     ignoreQa,
                     reviewStatus,
@@ -162,6 +166,7 @@ function EventsTable(props: EventsProps) {
             qaRule,
             reviewStatus,
             ignoreQa,
+            filterFigures,
         ],
     );
 
