@@ -1017,6 +1017,7 @@ function EventForm(props: EventFormProps) {
                         onClick={handleEventCodeAddButtonClick}
                         disabled={(
                             isNotDefined(value.countries)
+                                || value.countries.length <= 0
                                 || (value?.eventCodes?.length ?? 0) >= MAX_EVENT_CODES
                                 || disabled
                         )}
