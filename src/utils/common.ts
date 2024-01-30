@@ -125,7 +125,10 @@ export function formatDate(dateValue: string | undefined) {
         return undefined;
     }
     const dd = dateInfo.getDate();
-    const mm = dateInfo.toLocaleString('default', { month: 'long' });
+    const mm = dateInfo.toLocaleString(
+        'default',
+        { month: 'long' },
+    );
     return `${dd} ${mm}`;
 }
 

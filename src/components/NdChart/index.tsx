@@ -171,7 +171,7 @@ function NdChart(props: Props) {
             if (temporalResolution === 'month') {
                 const newDate = incrementMonth(minDate, diff);
                 return newDate.toLocaleString(
-                    navigator.language,
+                    'default',
                     {
                         year: 'numeric',
                         month: 'short',
@@ -181,7 +181,7 @@ function NdChart(props: Props) {
 
             const newDate = incrementDate(minDate, diff);
             return newDate.toLocaleString(
-                navigator.language,
+                'default',
                 {
                     year: 'numeric',
                     month: 'short',
