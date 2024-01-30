@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import {
     useQuery,
 } from '@apollo/client';
@@ -12,7 +12,7 @@ import SearchMultiSelectInputWithChip from '#components/SearchMultiSelectInputWi
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import useOptions from '#hooks/useOptions';
 import DomainContext from '#components/DomainContext';
-import { GetOrganizationQuery } from '#generated/types';
+import { GetOrganizationQuery, GetOrganizationQueryVariables } from '#generated/types';
 
 import { ORGANIZATION } from '../OrganizationSelectInput/index';
 
@@ -62,18 +62,25 @@ function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputP
 
     const debouncedSearchText = useDebouncedValue(searchText);
 
+    const searchVariable = useMemo(
+        (): GetOrganizationQueryVariables => ({
+            ordering: debouncedSearchText || country
+                ? undefined
+                : 'name',
+            filters: {
+                name_Unaccent_Icontains: debouncedSearchText,
+                orderCountryFirst: country ? [country] : undefined,
+            },
+        }),
+        [debouncedSearchText, country],
+    );
+
     const {
         loading,
         previousData,
         data = previousData,
     } = useQuery<GetOrganizationQuery>(ORGANIZATION, {
-        variables: {
-            search: debouncedSearchText,
-            ordering: debouncedSearchText || country
-                ? undefined
-                : 'name',
-            countries: country ? [country] : undefined,
-        },
+        variables: searchVariable,
         skip: !opened,
     });
 
