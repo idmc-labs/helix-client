@@ -41,6 +41,10 @@ import {
     resolutionOptionKeySelector,
     resolutionOptionLabelSelector,
 } from '#hooks/useCombinedChartData';
+import {
+    formatYearMonthLong,
+    formatDateLong,
+} from '#components/DateTime';
 
 import styles from './styles.css';
 
@@ -170,24 +174,11 @@ function NdChart(props: Props) {
 
             if (temporalResolution === 'month') {
                 const newDate = incrementMonth(minDate, diff);
-                return newDate.toLocaleString(
-                    'default',
-                    {
-                        year: 'numeric',
-                        month: 'short',
-                    },
-                );
+                return formatYearMonthLong(newDate);
             }
 
             const newDate = incrementDate(minDate, diff);
-            return newDate.toLocaleString(
-                'default',
-                {
-                    year: 'numeric',
-                    month: 'short',
-                    day: '2-digit',
-                },
-            );
+            return formatDateLong(newDate);
         },
         [temporalResolution, chartTemporalDomain],
     );

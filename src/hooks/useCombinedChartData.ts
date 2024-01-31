@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { bound, compareNumber, isDefined } from '@togglecorp/fujs';
 import { getDateFromDateString, getDateFromTimestamp, getDateFromYmd, getNow } from '#utils/common';
 import { getNumberOfDays, getNumberOfMonths, getSuitableTemporalResolution, TemporalResolution } from '#utils/chart';
+import { formatDateLong, formatYearMonthLong } from '#components/DateTime';
 
 export const CONFLICT_TYPE = 'conflict' as const;
 export const DISASTER_TYPE = 'disaster' as const;
@@ -334,13 +335,7 @@ function useCombinedChartData(props: Props) {
                         return {
                             key: tick,
                             x: xScaleFn(numDays),
-                            label: date.toLocaleString(
-                                'default',
-                                {
-                                    year: 'numeric',
-                                    month: 'short',
-                                },
-                            ),
+                            label: formatYearMonthLong(date),
                         };
                     },
                 );
@@ -357,14 +352,7 @@ function useCombinedChartData(props: Props) {
                     return {
                         key: tick,
                         x: xScaleFn(tick),
-                        label: date.toLocaleString(
-                            'default',
-                            {
-                                year: 'numeric',
-                                month: 'short',
-                                day: '2-digit',
-                            },
-                        ),
+                        label: formatDateLong(date),
                     };
                 },
             );

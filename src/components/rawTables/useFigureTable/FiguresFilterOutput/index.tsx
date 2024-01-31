@@ -13,6 +13,7 @@ import {
 import { EnumEntity, PurgeNull } from '#types';
 import FilterOutput from '#components/FilterOutput';
 import useOptions from '#hooks/useOptions';
+import { formatDate } from '#components/DateTime';
 
 function boolToStr(value: boolean | null | undefined) {
     if (isNotDefined(value)) {
@@ -246,7 +247,7 @@ function FiguresFilterOutput(props: Props) {
                 value={rawFiguresFilter.filterFigureStartAfter}
                 // FIXME: Do not use inline functions
                 keySelector={() => '1'}
-                labelSelector={() => rawFiguresFilter.filterFigureStartAfter}
+                labelSelector={() => formatDate(rawFiguresFilter.filterFigureStartAfter)}
             />
             <FilterOutput
                 label="Date to"
@@ -254,7 +255,7 @@ function FiguresFilterOutput(props: Props) {
                 value={rawFiguresFilter.filterFigureEndBefore}
                 // FIXME: Do not use inline functions
                 keySelector={() => '1'}
-                labelSelector={() => rawFiguresFilter.filterFigureEndBefore}
+                labelSelector={() => formatDate(rawFiguresFilter.filterFigureEndBefore)}
             />
             <FilterOutput
                 label="Countries"

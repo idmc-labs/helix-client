@@ -26,7 +26,6 @@ import {
 } from '#utils/chart';
 
 import {
-    getDateFromDateString,
     getDateFromDateStringOrTimestamp,
     sumSafe,
 } from '#utils/common';
@@ -41,6 +40,7 @@ import {
     resolutionOptionKeySelector,
     resolutionOptionLabelSelector,
 } from '#hooks/useCombinedChartData';
+import { formatDateLong, formatDate } from '#components/DateTime';
 
 import styles from './styles.css';
 
@@ -166,21 +166,7 @@ function IdpChart(props: Props) {
         [xScaleFn, getAxisTicksX],
     );
 
-    const resolveDomainLabelX = useCallback(
-        (dateStr: string) => {
-            const date = getDateFromDateString(dateStr);
-
-            return date.toLocaleString(
-                'default',
-                {
-                    year: 'numeric',
-                    month: 'short',
-                    day: '2-digit',
-                },
-            );
-        },
-        [],
-    );
+    const resolveDomainLabelX = formatDateLong;
 
     const hoverOutTimeoutRef = useRef<number | undefined>();
     const [hoveredKey, setHoveredKey] = useState<string | number | undefined>();
@@ -256,19 +242,19 @@ function IdpChart(props: Props) {
                 <NumberBlock
                     label="Total"
                     value={lastPointWithData?.sum}
-                    description={`as of ${lastPointWithData?.date ?? '--'}`}
+                    description={`as of ${formatDate(lastPointWithData?.date) ?? '--'}`}
                 />
                 <NumberBlock
                     className={styles.conflictBlock}
                     label="Conflict"
                     value={lastPointWithData?.conflict}
-                    description={`as of ${lastPointWithData?.date ?? '--'}`}
+                    description={`as of ${formatDate(lastPointWithData?.date) ?? '--'}`}
                 />
                 <NumberBlock
                     className={styles.disasterBlock}
                     label="Disaster"
                     value={lastPointWithData?.disaster}
-                    description={`as of ${lastPointWithData?.date ?? '--'}`}
+                    description={`as of ${formatDate(lastPointWithData?.date) ?? '--'}`}
                 />
             </div>
             <div

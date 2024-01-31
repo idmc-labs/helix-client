@@ -3,7 +3,7 @@ import {
     DateTimeProps,
     DateTime as ActualDateTime,
 } from '@togglecorp/toggle-ui';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isNotDefined } from '@togglecorp/fujs';
 
 import { getDateFromDateString } from '#utils/common';
 import Tooltip from '#components/Tooltip';
@@ -11,6 +11,106 @@ import Tooltip from '#components/Tooltip';
 import styles from './styles.css';
 
 type Props = DateTimeProps;
+
+export function formatYearMonthLong(value: undefined): undefined
+export function formatYearMonthLong(value: string | undefined): string | undefined
+export function formatYearMonthLong(value: string): string
+export function formatYearMonthLong(value: Date): string
+export function formatYearMonthLong(value: Date | string | null | undefined) {
+    if (isNotDefined(value)) {
+        return undefined;
+    }
+    let date: Date;
+    if (typeof value === 'string') {
+        date = getDateFromDateString(value);
+    } else {
+        date = value;
+    }
+    return date.toLocaleString(
+        'default',
+        {
+            year: 'numeric',
+            month: 'short',
+        },
+    );
+}
+
+export function formatDateLong(value: undefined): undefined
+export function formatDateLong(value: string | undefined): string | undefined
+export function formatDateLong(value: string): string
+export function formatDateLong(value: Date): string
+export function formatDateLong(value: Date | string | null | undefined) {
+    if (isNotDefined(value)) {
+        return undefined;
+    }
+    let date: Date;
+    if (typeof value === 'string') {
+        date = getDateFromDateString(value);
+    } else {
+        date = value;
+    }
+    return date.toLocaleString(
+        'default',
+        {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        },
+    );
+}
+
+export function formatDate(value: undefined): undefined
+export function formatDate(value: string | undefined): string | undefined
+export function formatDate(value: string): string
+export function formatDate(value: Date): string
+export function formatDate(value: Date | string | null | undefined) {
+    if (isNotDefined(value)) {
+        return undefined;
+    }
+    let date: Date;
+    if (typeof value === 'string') {
+        date = getDateFromDateString(value);
+    } else {
+        date = value;
+    }
+    return date.toLocaleString(
+        'default',
+        {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+        },
+    );
+}
+
+export function formatDateTimeLong(value: undefined): undefined
+export function formatDateTimeLong(value: string | undefined): string | undefined
+export function formatDateTimeLong(value: string): string
+export function formatDateTimeLong(value: Date): string
+export function formatDateTimeLong(value: Date | string | null | undefined) {
+    if (isNotDefined(value)) {
+        return undefined;
+    }
+
+    let date: Date;
+    if (typeof value === 'string') {
+        // FIXME: do no use new Date directly
+        date = new Date(value);
+    } else {
+        date = value;
+    }
+    return date.toLocaleString(
+        'default',
+        {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+        },
+    );
+}
 
 function DateTime(props: Props) {
     const {
@@ -21,30 +121,9 @@ function DateTime(props: Props) {
 
     let tooltipContent;
     if (value && format === 'date') {
-        // NOTE: date format YYYY-MM-DD has 10 characters
-        const date = getDateFromDateString(value.slice(0, 10));
-        tooltipContent = date.toLocaleString(
-            'default',
-            {
-                year: 'numeric',
-                month: 'short',
-                day: '2-digit',
-            },
-        );
+        tooltipContent = formatDateLong(value);
     } else if (value && format === 'datetime') {
-        // FIXME: do no use new Date directly
-        const date = new Date(value);
-        tooltipContent = date.toLocaleString(
-            'default',
-            {
-                year: 'numeric',
-                month: 'short',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-            },
-        );
+        tooltipContent = formatDateTimeLong(value);
     }
 
     return (

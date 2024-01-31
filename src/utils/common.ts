@@ -66,7 +66,8 @@ export function minSafe(list: UnsafeNumberList) {
 
 // NOTE: we need to append T00:00:00 to get date on current user's timezone
 export function getDateFromDateString(value: string) {
-    return new Date(`${value}T00:00:00`);
+    // NOTE: date format YYYY-MM-DD has 10 characters
+    return new Date(`${value.slice(0, 10)}T00:00:00`);
 }
 
 export function getDateFromTimestamp(value: number) {
