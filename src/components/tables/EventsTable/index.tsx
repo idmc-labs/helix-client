@@ -40,7 +40,7 @@ interface EventsProps {
     reviewStatus?: string[] | null
     assignee?: string | null;
     qaMode?: 'MULTIPLE_RF' | 'NO_RF' | 'IGNORE_QA' | undefined;
-    filterFigures?: FigureExtractionFilterDataInputType;
+    figuresFilter?: FigureExtractionFilterDataInputType;
 }
 
 function EventsTable(props: EventsProps) {
@@ -50,7 +50,7 @@ function EventsTable(props: EventsProps) {
         title,
         assignee,
         reviewStatus,
-        filterFigures,
+        figuresFilter,
     } = props;
 
     const { user } = useContext(DomainContext);
@@ -149,7 +149,10 @@ function EventsTable(props: EventsProps) {
             filters: expandObject<NonNullable<EventListQueryVariables['filters']>>(
                 filter,
                 {
-                    filterFigures,
+                    filterFigures: figuresFilter,
+                    aggregateFigures: {
+                        filterFigures: figuresFilter,
+                    },
                     qaRule,
                     ignoreQa,
                     reviewStatus,
@@ -166,13 +169,9 @@ function EventsTable(props: EventsProps) {
             qaRule,
             reviewStatus,
             ignoreQa,
-            filterFigures,
+            figuresFilter,
         ],
     );
-
-    const hiddenFields = [
-        reviewStatus ? 'reviewStatus' as const : undefined,
-    ].filter(isDefined);
 
     const {
         table: eventsTable,
@@ -188,6 +187,18 @@ function EventsTable(props: EventsProps) {
         onPageChange: setPage,
         onPageSizeChange: setPageSize,
     });
+
+    // NOTE: reset page to 1 when figures filter changes
+    useEffect(
+        () => {
+            setPage(1);
+        },
+        [setPage, figuresFilter],
+    );
+
+    const hiddenFields = [
+        reviewStatus ? 'reviewStatus' as const : undefined,
+    ].filter(isDefined);
 
     return (
         <Container

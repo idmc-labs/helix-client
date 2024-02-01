@@ -86,7 +86,7 @@ function Events(props: EventsProps) {
                     />
                     <EventsTable
                         className={styles.container}
-                        filterFigures={figuresFilter}
+                        figuresFilter={figuresFilter}
                     />
                 </div>
                 <Container

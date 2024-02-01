@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
     SortContext,
 } from '@togglecorp/toggle-ui';
@@ -19,14 +19,14 @@ import styles from './styles.css';
 interface CrisesProps {
     className?: string;
     title?: string;
-    filterFigures?: FigureExtractionFilterDataInputType;
+    figuresFilter?: FigureExtractionFilterDataInputType;
 }
 
 function CrisesTable(props: CrisesProps) {
     const {
         className,
         title,
-        filterFigures,
+        figuresFilter,
     } = props;
 
     const {
@@ -61,7 +61,10 @@ function CrisesTable(props: CrisesProps) {
             filters: expandObject<NonNullable<CrisesQueryVariables['filters']>>(
                 filter,
                 {
-                    filterFigures,
+                    filterFigures: figuresFilter,
+                    aggregateFigures: {
+                        filterFigures: figuresFilter,
+                    },
                 },
             ),
         }),
@@ -70,7 +73,7 @@ function CrisesTable(props: CrisesProps) {
             page,
             pageSize,
             filter,
-            filterFigures,
+            figuresFilter,
         ],
     );
 
@@ -87,6 +90,14 @@ function CrisesTable(props: CrisesProps) {
         onPageChange: setPage,
         onPageSizeChange: setPageSize,
     });
+
+    // NOTE: reset page to 1 when figures filter changes
+    useEffect(
+        () => {
+            setPage(1);
+        },
+        [setPage, figuresFilter],
+    );
 
     return (
         <Container

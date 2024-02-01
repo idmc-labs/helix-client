@@ -84,7 +84,7 @@ function Crises(props: CrisesProps) {
                     />
                     <CrisesTable
                         className={styles.container}
-                        filterFigures={figuresFilter}
+                        figuresFilter={figuresFilter}
                     />
                 </div>
                 <Container
