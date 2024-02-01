@@ -11,6 +11,7 @@ import Container from '#components/Container';
 import FloatingButton from '#components/FloatingButton';
 import useFilterState from '#hooks/useFilterState';
 import AdvancedFiguresFilter from '#components/rawTables/useFigureTable/AdvancedFiguresFilter';
+import FiguresFilterOutput from '#components/rawTables/useFigureTable/FiguresFilterOutput';
 import { ExtractionEntryListFiltersQueryVariables } from '#generated/types';
 import { PurgeNull } from '#types';
 
@@ -79,6 +80,10 @@ function Events(props: EventsProps) {
                     )}
                 />
                 <div className={styles.mainContent}>
+                    <FiguresFilterOutput
+                        className={styles.filterOutputs}
+                        filterState={figuresFilterState.rawFilter}
+                    />
                     <EventsTable
                         className={styles.container}
                         filterFigures={figuresFilter}

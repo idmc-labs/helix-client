@@ -15,7 +15,17 @@
         }
 
         .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-large);
             overflow-x: auto;
+
+            .filter-outputs {
+                display: flex;
+                flex-basis: 100%;
+                flex-wrap: wrap;
+                gap: var(--spacing-medium) var(--spacing-large);
+            }
 
             .container {
                 flex-grow: 1;
