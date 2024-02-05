@@ -121,7 +121,9 @@ export function isValidUrl(url: string | undefined): url is string {
 }
 
 export function formatDate(dateValue: string | undefined) {
-    const dateInfo = dateValue ? getDateFromDateString(dateValue) : undefined;
+    const dateInfo = dateValue
+        ? getDateFromDateString(dateValue)
+        : undefined;
     if (!dateInfo) {
         return undefined;
     }

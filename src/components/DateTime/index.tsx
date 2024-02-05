@@ -5,7 +5,10 @@ import {
 } from '@togglecorp/toggle-ui';
 import { _cs, isNotDefined } from '@togglecorp/fujs';
 
-import { getDateFromDateString } from '#utils/common';
+import {
+    getDateFromDateString,
+    getDateFromTimestamp,
+} from '#utils/common';
 import Tooltip from '#components/Tooltip';
 
 import styles from './styles.css';
@@ -16,7 +19,8 @@ export function formatYearMonthLong(value: undefined): undefined
 export function formatYearMonthLong(value: string | undefined): string | undefined
 export function formatYearMonthLong(value: string): string
 export function formatYearMonthLong(value: Date): string
-export function formatYearMonthLong(value: Date | string | null | undefined) {
+export function formatYearMonthLong(value: Date | undefined): string | undefined
+export function formatYearMonthLong(value: Date | string | undefined) {
     if (isNotDefined(value)) {
         return undefined;
     }
@@ -60,16 +64,22 @@ export function formatDateLong(value: Date | string | null | undefined) {
 }
 
 export function formatDate(value: undefined): undefined
-export function formatDate(value: string | undefined): string | undefined
 export function formatDate(value: string): string
+export function formatDate(value: number): string
 export function formatDate(value: Date): string
-export function formatDate(value: Date | string | null | undefined) {
+export function formatDate(value: string | undefined): string | undefined
+export function formatDate(value: number | undefined): string | undefined
+export function formatDate(value: Date | undefined): string | undefined
+export function formatDate(value: Date | string | number | undefined): string | undefined
+export function formatDate(value: Date | string | number | undefined) {
     if (isNotDefined(value)) {
         return undefined;
     }
     let date: Date;
     if (typeof value === 'string') {
         date = getDateFromDateString(value);
+    } else if (typeof value === 'number') {
+        date = getDateFromTimestamp(value);
     } else {
         date = value;
     }
