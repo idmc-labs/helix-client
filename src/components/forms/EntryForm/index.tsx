@@ -163,6 +163,7 @@ function getValuesFromEntry(entry: Omit<NonNullable<EntryQuery['entry']>, 'figur
     const organizationsFromEntry: OrganizationOption[] = entry.publishers?.results ?? [];
 
     const entryForState = removeNull({
+        id: entry.id,
         details: {
             associatedParkedItem: entry.associatedParkedItem?.id,
             articleTitle: entry.articleTitle,
@@ -290,6 +291,7 @@ function EntryForm(props: EntryFormProps) {
         start,
         end,
         getNextRequests,
+        updateState,
         updateResponses,
     } = useBulkSaveRegister<
         NonNullable<NonNullable<UpdateFiguresMutation['bulkUpdateFigures']>['errors']>[number],
@@ -483,47 +485,6 @@ function EntryForm(props: EntryFormProps) {
                 notify({
                     children: err.message,
                     variant: 'error',
-                });
-            },
-        },
-    );
-
-    const [
-        createEntry,
-        { loading: saveLoading },
-    ] = useMutation<CreateEntryMutation, CreateEntryMutationVariables>(
-        CREATE_ENTRY,
-        {
-            onCompleted: (response) => {
-                const { createEntry: createEntryRes } = response;
-                if (!createEntryRes) {
-                    return;
-                }
-                const { errors, result } = createEntryRes;
-                if (errors) {
-                    const newError = transformErrorForEntry(errors);
-                    notifyGQLError(errors);
-                    onErrorSet(newError);
-                }
-                if (result) {
-                    // NOTE: we do not need to set state as we are re-directing to next page
-                    onPristineSet(true);
-
-                    notify({
-                        children: 'New entry created successfully!',
-                        variant: 'success',
-                    });
-
-                    setRedirectId(result.id);
-                }
-            },
-            onError: (errors) => {
-                notify({
-                    children: errors.message,
-                    variant: 'error',
-                });
-                onErrorSet({
-                    $internal: errors.message,
                 });
             },
         },
@@ -830,6 +791,85 @@ function EntryForm(props: EntryFormProps) {
     );
 
     const [
+        createEntry,
+        { loading: saveLoading },
+    ] = useMutation<CreateEntryMutation, CreateEntryMutationVariables>(
+        CREATE_ENTRY,
+        {
+            onCompleted: (response) => {
+                const { createEntry: createEntryRes } = response;
+                if (!createEntryRes) {
+                    handleBulkSaveEnd({ entrySaved: false, noFigures: true });
+                    return;
+                }
+                const { errors, result } = createEntryRes;
+                if (errors) {
+                    const newError = transformErrorForEntry(errors);
+                    notifyGQLError(errors);
+                    onErrorSet(newError);
+                    handleBulkSaveEnd({ entrySaved: false, noFigures: true });
+                    return;
+                }
+                if (result) {
+                    const {
+                        organizationsForState,
+                        entryForState,
+                    } = getValuesFromEntry(result);
+
+                    setOrganizations(organizationsForState);
+                    setSourcePreview(result.preview ?? undefined);
+                    setAttachment(result.document ?? undefined);
+
+                    onValueSet((oldValue) => ({
+                        ...entryForState,
+                        figures: oldValue.figures?.map((figure) => ({
+                            ...figure,
+                            entry: entryForState.id,
+                        })),
+                    }));
+                    updateState((oldValue) => ({
+                        ...oldValue,
+                        saveRequests: oldValue.saveRequests?.map((saveRequest) => ({
+                            ...saveRequest,
+                            entry: entryForState.id,
+                        })),
+                    }));
+                    setRedirectId(result.id);
+
+                    const {
+                        isEmpty,
+                        deleteRequests: nextDeleteRequests,
+                        saveRequests: nextSaveRequests,
+                    } = getNextRequests();
+
+                    if (isEmpty) {
+                        // Only call this if there are not figures to save
+                        onPristineSet(true);
+                        handleBulkSaveEnd({ entrySaved: true, noFigures: true });
+                    } else {
+                        updateFigures({
+                            variables: {
+                                figures: nextSaveRequests,
+                                deleteIds: nextDeleteRequests.map((item) => item.id),
+                            },
+                        });
+                    }
+                }
+            },
+            onError: (errors) => {
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
+                onErrorSet({
+                    $internal: errors.message,
+                });
+                end();
+            },
+        },
+    );
+
+    const [
         updateEntry,
         { loading: updateLoading },
     ] = useMutation<UpdateEntryMutation, UpdateEntryMutationVariables>(
@@ -900,9 +940,11 @@ function EntryForm(props: EntryFormProps) {
 
     const variables = useMemo(
         (): EntryQueryVariables | undefined => (
-            entryId ? { id: entryId } : undefined
+            entryId && !value.id
+                ? { id: entryId }
+                : undefined
         ),
-        [entryId],
+        [entryId, value.id],
     );
 
     const {
@@ -1372,7 +1414,7 @@ function EntryForm(props: EntryFormProps) {
                         <Section
                             heading="Figures"
                             contentClassName={styles.figuresContent}
-                            actions={editMode && entryId && (
+                            actions={editMode && (
                                 <Button
                                     name={undefined}
                                     onClick={handleFigureAdd}

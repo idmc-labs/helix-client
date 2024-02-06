@@ -66,6 +66,13 @@ function useBulkSaveRegister<
         [defaultState],
     );
 
+    const updateState = useCallback(
+        (updaterFunction: (oldValue: Entries['state']) => Entries['state']) => {
+            entriesRef.current.state = updaterFunction(entriesRef.current.state);
+        },
+        [],
+    );
+
     const end = useCallback(
         () => {
             const state = entriesRef.current;
@@ -134,8 +141,9 @@ function useBulkSaveRegister<
     return {
         pending,
         start,
-        updateResponses,
         end,
+        updateState,
+        updateResponses,
         getNextRequests,
     };
 }

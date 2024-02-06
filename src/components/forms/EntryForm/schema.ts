@@ -204,7 +204,7 @@ const figure: Figure = {
             unit: [requiredCondition],
             figureCause: [requiredCondition],
             event: [requiredCondition],
-            entry: [requiredCondition],
+            entry: [],
             sources: [requiredListCondition, arrayCondition],
             geoLocations,
 
@@ -357,6 +357,7 @@ type EntryFields = ReturnType<Entry['fields']>;
 
 export const schema: Schema<PartialFormValues> = {
     fields: (): EntryFields => ({
+        id: [],
         details,
         analysis: analysisLogic,
         figures,
