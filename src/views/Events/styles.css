@@ -22,7 +22,6 @@
 
             .filter-outputs {
                 display: flex;
-                flex-basis: 100%;
                 flex-wrap: wrap;
                 gap: var(--spacing-medium) var(--spacing-large);
             }

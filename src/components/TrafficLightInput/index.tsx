@@ -1,13 +1,24 @@
-import React, { useCallback, useState, useEffect, useRef } from 'react';
+import React, {
+    useCallback,
+    useState,
+    useEffect,
+    useRef,
+    Dispatch,
+    SetStateAction,
+} from 'react';
 import { _cs } from '@togglecorp/fujs';
 import { IoEllipse } from 'react-icons/io5';
 import { PopupButton, Modal } from '@togglecorp/toggle-ui';
 
 import {
+    FigureMetadata,
+} from '#components/forms/EntryForm/types';
+import {
     Review_Field_Type as ReviewFieldType,
     Review_Comment_Type as ReviewCommentType,
 } from '#generated/types';
 import useBasicToggle from '#hooks/useBasicToggle';
+import { EventListOption } from '#components/selections/EventListSelectInput';
 
 import ReviewComments from './ReviewComments';
 import CommentForm from './ReviewComments/CommentForm';
@@ -23,6 +34,14 @@ export interface TrafficLightInputProps {
     eventId?: string;
     figureId?: string;
     geoLocationId?: string;
+
+    setEvents: Dispatch<SetStateAction<EventListOption[] | null | undefined>>;
+    setFigureMetadata: (
+        value: FigureMetadata
+            | ((oldValue: FigureMetadata | undefined) => FigureMetadata)
+            | undefined,
+        key: string,
+    ) => void;
 
     reviewDisabled?: boolean;
     defaultShown?: boolean;
@@ -40,6 +59,9 @@ function TrafficLightInput(props: TrafficLightInputProps) {
         assigneeMode,
         reviewDisabled,
         defaultShown,
+
+        setEvents,
+        setFigureMetadata,
     } = props;
 
     const elementRef = useRef<HTMLButtonElement>(null);
@@ -107,6 +129,8 @@ function TrafficLightInput(props: TrafficLightInputProps) {
                     onReviewEdit={handleShowCommentModal}
                     reviewDisabled={reviewDisabled}
                     assigneeMode={assigneeMode}
+                    setEvents={setEvents}
+                    setFigureMetadata={setFigureMetadata}
                 />
             </PopupButton>
             {shouldShowCommentModal && (
@@ -124,6 +148,8 @@ function TrafficLightInput(props: TrafficLightInputProps) {
                         geoLocationId={geoLocationId}
                         onCommentFormCancel={handleHideCommentModal}
                         cancelable
+                        setEvents={setEvents}
+                        setFigureMetadata={setFigureMetadata}
                     />
                 </Modal>
             )}

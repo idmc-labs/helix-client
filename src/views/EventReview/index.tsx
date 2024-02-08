@@ -9,6 +9,7 @@ import { removeNull } from '@togglecorp/toggle-form';
 import {
     isDefined,
     _cs,
+    listToMap,
 } from '@togglecorp/fujs';
 import { Button, Pager } from '@togglecorp/toggle-ui';
 
@@ -42,6 +43,7 @@ import {
     QuantifierOptions,
     CauseOptions,
     CategoryOptions,
+    FigureMetadata,
 } from '#components/forms/EntryForm/types';
 import EventForm from '#components/forms/EventForm';
 import PageHeader from '#components/PageHeader';
@@ -141,6 +143,13 @@ function EventReview(props: Props) {
     const [, setViolenceContextOptions] = useOptions('contextOfViolence');
     const [, setOrganizations] = useOptions('organization');
 
+    const [
+        figureMetadataMapping,
+        setFigureMetadataMapping,
+    ] = useState<{
+        [key: string]: FigureMetadata | undefined,
+    }>({});
+
     const {
         page,
         rawPage,
@@ -188,6 +197,17 @@ function EventReview(props: Props) {
                 ?.flatMap((item) => item.sources?.results)
                 .filter(isDefined) ?? [];
             setOrganizations(organizations);
+
+            const mapping = listToMap(
+                figureList?.results ?? [],
+                (figure) => figure.uuid,
+                (figure) => ({
+                    role: figure.role,
+                    reviewStatus: figure.reviewStatus,
+                    fieldStatuses: figure.lastReviewCommentStatus,
+                }),
+            );
+            setFigureMetadataMapping(mapping);
         },
     });
 
@@ -241,6 +261,23 @@ function EventReview(props: Props) {
                 });
             },
         },
+    );
+
+    const handleFigureMetadataChange = useCallback(
+        (
+            val: FigureMetadata
+                | ((oldValue: FigureMetadata | undefined) => FigureMetadata)
+                | undefined,
+            key: string,
+        ) => {
+            setFigureMetadataMapping((oldMapping) => ({
+                ...oldMapping,
+                [key]: typeof val === 'function'
+                    ? val(oldMapping[key])
+                    : val,
+            }));
+        },
+        [],
     );
 
     const handleSignOffEvent = useCallback(
@@ -387,9 +424,8 @@ function EventReview(props: Props) {
                             // eslint-disable-next-line max-len
                             otherSubTypeOptions={figureOptionsData?.otherSubTypeList}
                             trafficLightShown={trafficLightShown}
-                            reviewStatus={fig.reviewStatus}
-                            fieldStatuses={fig.lastReviewCommentStatus}
-                            isRecommended={fig.role === 'RECOMMENDED'}
+                            metadata={figureMetadataMapping[fig.uuid]}
+                            setMetadata={handleFigureMetadataChange}
                         />
                     ))}
                 </Container>

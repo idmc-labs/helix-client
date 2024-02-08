@@ -1,8 +1,18 @@
-import React, { useMemo, useCallback, useContext } from 'react';
+import React, {
+    useMemo,
+    useCallback,
+    useContext,
+    Dispatch,
+    SetStateAction,
+} from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Pager } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 
+import {
+    FigureMetadata,
+} from '#components/forms/EntryForm/types';
+import { EventListOption } from '#components/selections/EventListSelectInput';
 import {
     ReviewCommentsQuery,
     ReviewCommentsQueryVariables,
@@ -58,6 +68,14 @@ interface ReportCommentsProps {
 
     onReviewEdit: (id: string) => void;
     reviewDisabled: boolean | undefined;
+
+    setEvents: Dispatch<SetStateAction<EventListOption[] | null | undefined>>;
+    setFigureMetadata: (
+        value: FigureMetadata
+            | ((oldValue: FigureMetadata | undefined) => FigureMetadata)
+            | undefined,
+        key: string,
+    ) => void;
 }
 
 export default function ReviewComments(props: ReportCommentsProps) {
@@ -70,6 +88,8 @@ export default function ReviewComments(props: ReportCommentsProps) {
         onReviewEdit,
         assigneeMode,
         reviewDisabled,
+        setEvents,
+        setFigureMetadata,
     } = props;
 
     const {
@@ -135,6 +155,8 @@ export default function ReviewComments(props: ReportCommentsProps) {
                     onCommentCreate={handleRefetch}
                     assigneeMode={assigneeMode}
                     clearable
+                    setEvents={setEvents}
+                    setFigureMetadata={setFigureMetadata}
                 />
             )}
             <div className={styles.commentSection}>

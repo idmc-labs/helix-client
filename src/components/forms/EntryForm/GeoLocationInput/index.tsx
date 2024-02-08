@@ -1,4 +1,8 @@
-import React, { memo } from 'react';
+import React, {
+    memo,
+    Dispatch,
+    SetStateAction,
+} from 'react';
 import { _cs } from '@togglecorp/fujs';
 
 import {
@@ -13,6 +17,7 @@ import {
     StateArg,
 } from '@togglecorp/toggle-form';
 
+import { EventListOption } from '#components/selections/EventListSelectInput';
 import {
     Review_Field_Type as ReviewFieldType,
     Review_Comment_Type as ReviewCommentType,
@@ -30,6 +35,7 @@ import {
     GeoLocationFormProps,
     IdentifierOptions,
     AccuracyOptions,
+    FigureMetadata,
 } from '../types';
 
 import styles from './styles.css';
@@ -62,6 +68,14 @@ interface GeoLocationInputProps {
     assigneeMode?: boolean;
     reviewDisabled?: boolean;
     defaultShownField?: string | null;
+
+    setEvents: Dispatch<SetStateAction<EventListOption[] | null | undefined>>;
+    setFigureMetadata: (
+        value: FigureMetadata
+            | ((oldValue: FigureMetadata | undefined) => FigureMetadata)
+            | undefined,
+        key: string,
+    ) => void;
 }
 
 function GeoLocationInput(props: GeoLocationInputProps) {
@@ -85,6 +99,9 @@ function GeoLocationInput(props: GeoLocationInputProps) {
         assigneeMode,
         reviewDisabled,
         defaultShownField,
+
+        setEvents,
+        setFigureMetadata,
     } = props;
 
     const editMode = mode === 'edit';
@@ -130,6 +147,8 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                             assigneeMode={assigneeMode}
                             reviewDisabled={reviewDisabled}
                             defaultShown={defaultShownField === 'LOCATION_TYPE'}
+                            setEvents={setEvents}
+                            setFigureMetadata={setFigureMetadata}
                         />
                     )}
                 />
@@ -155,6 +174,8 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                             assigneeMode={assigneeMode}
                             reviewDisabled={reviewDisabled}
                             defaultShown={defaultShownField === 'LOCATION_ACCURACY'}
+                            setEvents={setEvents}
+                            setFigureMetadata={setFigureMetadata}
                         />
                     )}
                 />
