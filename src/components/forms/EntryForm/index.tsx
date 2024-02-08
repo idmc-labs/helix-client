@@ -94,6 +94,7 @@ import {
     QuantifierOptions,
     CauseOptions,
     CategoryOptions,
+    FigureMetadata,
 } from './types';
 
 import styles from './styles.css';
@@ -335,23 +336,22 @@ function EntryForm(props: EntryFormProps) {
 
     const handleEventOptionsChange: typeof setEvents = useCallback(
         (options) => {
+            // NOTE: we should always have the newValues
+            // before oldValues so that we can update
+            // the option values
             setEvents((oldEvents) => unique([
-                ...(oldEvents ?? []),
                 ...((typeof options === 'function' ? options(oldEvents) : options) ?? []),
+                ...(oldEvents ?? []),
             ]));
         },
         [],
     );
 
-    type FigureResponse = NonNullable<NonNullable<EntryQuery['entry']>['figures']>[number];
-    type FigureMapping = Pick<FigureResponse, 'role' | 'reviewStatus'> & {
-        fieldStatuses: FigureResponse['lastReviewCommentStatus']
-    };
     const [
-        figureMapping,
-        setFigureMapping,
+        figureMetadataMapping,
+        setFigureMetadataMapping,
     ] = useState<{
-        [key: string]: FigureMapping,
+        [key: string]: FigureMetadata | undefined,
     }>({});
 
     const [, setOrganizations] = useOptions('organization');
@@ -701,7 +701,7 @@ function EntryForm(props: EntryFormProps) {
                     fieldStatuses: figure.value.lastReviewCommentStatus,
                 }),
             );
-            setFigureMapping((oldMapping) => ({
+            setFigureMetadataMapping((oldMapping) => ({
                 ...oldMapping,
                 ...mapping,
             }));
@@ -965,7 +965,7 @@ function EntryForm(props: EntryFormProps) {
                     fieldStatuses: figure.lastReviewCommentStatus,
                 }),
             );
-            setFigureMapping(mapping);
+            setFigureMetadataMapping(mapping);
         },
     });
 
@@ -1112,6 +1112,23 @@ function EntryForm(props: EntryFormProps) {
         onValueChange: onFigureChange,
         onValueRemove: onFigureRemove,
     } = useFormArray<'figures', PartialFigureValues>('figures', onValueChange);
+
+    const handleFigureMetadataChange = useCallback(
+        (
+            val: FigureMetadata
+                | ((oldValue: FigureMetadata | undefined) => FigureMetadata)
+                | undefined,
+            key: string,
+        ) => {
+            setFigureMetadataMapping((oldMapping) => ({
+                ...oldMapping,
+                [key]: typeof val === 'function'
+                    ? val(oldMapping[key])
+                    : val,
+            }));
+        },
+        [],
+    );
 
     const handleFigureChange: typeof onFigureChange = useCallback(
         (val, otherName) => {
@@ -1439,9 +1456,8 @@ function EntryForm(props: EntryFormProps) {
                                             otherSubTypeOptions={figureOptionsData?.otherSubTypeList}
                                             trafficLightShown={trafficLightShown}
                                             onFigureClone={handleFigureClone}
-                                            isRecommended={figureMapping[fig.uuid]?.role === 'RECOMMENDED'}
-                                            reviewStatus={figureMapping[fig.uuid]?.reviewStatus}
-                                            fieldStatuses={figureMapping[fig.uuid]?.fieldStatuses}
+                                            metadata={figureMetadataMapping[fig.uuid]}
+                                            setMetadata={handleFigureMetadataChange}
                                             defaultShownField={selectedFieldType}
                                         />
                                     )

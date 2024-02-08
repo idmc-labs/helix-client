@@ -1,4 +1,10 @@
-import React, { useCallback, useContext, useMemo } from 'react';
+import React, {
+    useCallback,
+    useContext,
+    useMemo,
+    Dispatch,
+    SetStateAction,
+} from 'react';
 import {
     TextArea,
     Button,
@@ -31,11 +37,16 @@ import {
     UpdateReviewCommentMutationVariables,
     Review_Field_Type as ReviewFieldType,
 } from '#generated/types';
+import { EventListOption } from '#components/selections/EventListSelectInput';
+import {
+    FigureMetadata,
+} from '#components/forms/EntryForm/types';
 import {
     WithId,
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';
+import { EVENT_FRAGMENT } from '#components/forms/EntryForm/queries';
 
 import styles from './styles.css';
 
@@ -61,6 +72,7 @@ const COMMENT = gql`
 `;
 
 const CREATE_COMMENT = gql`
+    ${EVENT_FRAGMENT}
     mutation CreateReviewComment($data: UnifiedReviewCommentCreateInputType!) {
         createReviewComment(data: $data) {
             ok
@@ -76,6 +88,7 @@ const CREATE_COMMENT = gql`
                 # lastReviewCommentStatus will change
                 figure {
                     id
+                    uuid
                     reviewStatusDisplay
                     reviewStatus
                     lastReviewCommentStatus {
@@ -83,11 +96,9 @@ const CREATE_COMMENT = gql`
                         field
                         commentType
                     }
-                }
-                event {
-                    id
-                    reviewStatus
-                    reviewStatusDisplay
+                    event {
+                        ...EventResponse
+                    }
                 }
             }
             errors
@@ -148,6 +159,14 @@ interface CommentFormProps {
     clearable?: boolean;
     cancelable?: boolean;
     assigneeMode?: boolean;
+
+    setEvents: Dispatch<SetStateAction<EventListOption[] | null | undefined>>;
+    setFigureMetadata: (
+        value: FigureMetadata
+            | ((oldValue: FigureMetadata | undefined) => FigureMetadata)
+            | undefined,
+        key: string,
+    ) => void;
 }
 
 function CommentForm(props: CommentFormProps) {
@@ -162,6 +181,8 @@ function CommentForm(props: CommentFormProps) {
         clearable,
         cancelable,
         assigneeMode,
+        setEvents,
+        setFigureMetadata,
     } = props;
 
     const {
@@ -226,12 +247,23 @@ function CommentForm(props: CommentFormProps) {
                 if (!createReviewCommentRes) {
                     return;
                 }
-                const { errors } = createReviewCommentRes;
+                const { result, errors } = createReviewCommentRes;
                 if (errors) {
                     const createReviewCommentError = transformToFormError(removeNull(errors));
                     onErrorSet(createReviewCommentError);
                     notifyGQLError(errors);
-                } else {
+                    return;
+                }
+                if (result) {
+                    const { figure } = result;
+                    if (figure) {
+                        setEvents([figure.event]);
+                        setFigureMetadata((oldValue) => ({
+                            role: oldValue?.role,
+                            fieldStatuses: figure.lastReviewCommentStatus,
+                            reviewStatus: figure.reviewStatus,
+                        }), figure.uuid);
+                    }
                     notify({
                         children: 'Comment created successfully!',
                         variant: 'success',
