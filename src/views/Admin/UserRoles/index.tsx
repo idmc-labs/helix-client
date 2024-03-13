@@ -7,7 +7,9 @@ import {
     Modal,
     SortContext,
     createYesNoColumn,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
+import { getOperationName } from '@apollo/client/utilities';
 
 import TableMessage from '#components/TableMessage';
 import {
@@ -28,6 +30,8 @@ import {
     ToggleUserDirectorsOfficeStatusMutationVariables,
     ToggleUserReportingTeamStatusMutation,
     ToggleUserReportingTeamStatusMutationVariables,
+    ExportUsersMutation,
+    ExportUsersMutationVariables,
 } from '#generated/types';
 import useModalState from '#hooks/useModalState';
 import { expandObject, hasNoData } from '#utils/common';
@@ -35,10 +39,13 @@ import NotificationContext from '#components/NotificationContext';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
 import UserEmailChangeForm from '#components/forms/UserEmailChangeForm';
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 
 import ActionCell, { ActionProps } from './UserActions';
 import UserFilter from './UserFilter/index';
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_USERS_LIST = gql`
     query UserList(
@@ -124,6 +131,19 @@ const TOGGLE_USER_REPORTING_TEAM_STATUS = gql`
                 id
                 isReportingTeam
             }
+        }
+    }
+`;
+
+const USERS_DOWNLOAD = gql`
+    mutation ExportUsers(
+        $filters: UserFilterDataInputType!,
+    ) {
+        exportUser(
+            filters: $filters,
+        ) {
+            errors
+            ok
         }
     }
 `;
@@ -334,6 +354,48 @@ function UserRoles(props: UserRolesProps) {
         },
     );
 
+    const [
+        exportUsers,
+        { loading: exportingUsers },
+    ] = useMutation<ExportUsersMutation, ExportUsersMutationVariables>(
+        USERS_DOWNLOAD,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportUser: exportUsersResponse } = response;
+                if (!exportUsersResponse) {
+                    return;
+                }
+                const { errors, ok } = exportUsersResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({
+                        children: 'Export started successfully!',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const handleExportTableData = useCallback(
+        () => {
+            exportUsers({
+                variables: {
+                    filters: usersVariables?.filters ?? {},
+                },
+            });
+        },
+        [exportUsers, usersVariables],
+    );
+
     const handleToggleUserActiveStatus = useCallback(
         (id: string, newActiveStatus: boolean) => {
             toggleUserActiveStatus({
@@ -471,6 +533,19 @@ function UserRoles(props: UserRolesProps) {
             heading="Users"
             contentClassName={styles.content}
             className={_cs(className, styles.userContainer)}
+            headerActions={(
+                <>
+                    <ConfirmButton
+                        confirmationHeader="Confirm Export"
+                        confirmationMessage="Are you sure you want to export this table data?"
+                        name={undefined}
+                        onConfirm={handleExportTableData}
+                        disabled={exportingUsers}
+                    >
+                        Export
+                    </ConfirmButton>
+                </>
+            )}
             footerContent={(
                 <Pager
                     activePage={rawPage}
