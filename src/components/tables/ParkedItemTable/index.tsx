@@ -11,38 +11,42 @@ import {
     Modal,
     Button,
     SortContext,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
+import { getOperationName } from 'apollo-link';
 
 import TableMessage from '#components/TableMessage';
-import { PurgeNull } from '#types';
 import {
     createTextColumn,
     createExternalLinkColumn,
     createDateColumn,
     createCustomActionColumn,
 } from '#components/tableHelpers';
-import { expandObject, hasNoData } from '#utils/common';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
-import ActionCell, { ActionProps } from './Action';
-
-import useFilterState from '#hooks/useFilterState';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
-
+import ParkedItemForm from '#components/forms/ParkedItemForm';
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
+import { expandObject, hasNoData } from '#utils/common';
+import useFilterState from '#hooks/useFilterState';
 import useModalState from '#hooks/useModalState';
+import { PurgeNull } from '#types';
 
 import {
     ParkedItemListQuery,
     ParkedItemListQueryVariables,
     DeleteParkedItemMutation,
     DeleteParkedItemMutationVariables,
+    ExportParkedItemMutation,
+    ExportParkedItemMutationVariables,
 } from '#generated/types';
 
-import ParkedItemForm from '#components/forms/ParkedItemForm';
-
 import ParkedItemFilter from './ParkedItemFilter/index';
+import ActionCell, { ActionProps } from './Action';
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 type ParkedItemFields = NonNullable<NonNullable<ParkedItemListQuery['parkedItemList']>['results']>[number];
 
@@ -95,6 +99,19 @@ const PARKING_LOT_DELETE = gql`
             result {
                 id
             }
+        }
+    }
+`;
+
+const PARKED_ITEM_DOWNLOAD = gql`
+    mutation ExportParkedItem(
+        $filters: ParkingLotFilterDataInputType!,
+    ) {
+        exportParkedItem(
+            filters: $filters,
+        ) {
+            errors
+            ok
         }
     }
 `;
@@ -233,6 +250,48 @@ function ParkedItemTable(props: ParkedItemProps) {
         [deleteParkedItem],
     );
 
+    const [
+        exportParkedItems,
+        { loading: exportingParkedItems },
+    ] = useMutation<ExportParkedItemMutation, ExportParkedItemMutationVariables>(
+        PARKED_ITEM_DOWNLOAD,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportParkedItem: exportParkedItemsResponse } = response;
+                if (!exportParkedItemsResponse) {
+                    return;
+                }
+                const { errors, ok } = exportParkedItemsResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({
+                        children: 'Export started successfully!',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const handleExportTableData = useCallback(
+        () => {
+            exportParkedItems({
+                variables: {
+                    filters: variables.filters ?? {},
+                },
+            });
+        },
+        [exportParkedItems, variables],
+    );
+
     const { user: userFromDomain } = useContext(DomainContext);
     const parkedItemPermissions = userFromDomain?.permissions?.parkeditem;
 
@@ -338,6 +397,15 @@ function ParkedItemTable(props: ParkedItemProps) {
                             Add Parked Item
                         </Button>
                     )}
+                    <ConfirmButton
+                        confirmationHeader="Confirm Export"
+                        confirmationMessage="Are you sure you want to export this table data?"
+                        name={undefined}
+                        onConfirm={handleExportTableData}
+                        disabled={exportingParkedItems}
+                    >
+                        Export
+                    </ConfirmButton>
                 </>
             )}
             description={(
