@@ -7,9 +7,6 @@ import {
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
-    TableColumn,
-    TableHeaderCell,
-    TableHeaderCellProps,
     Modal,
     SortContext,
     ConfirmButton,
@@ -21,6 +18,7 @@ import Loading from '#components/Loading';
 import {
     createTextColumn,
     createNumberColumn,
+    createCustomActionColumn,
 } from '#components/tableHelpers';
 import useFilterState from '#hooks/useFilterState';
 import DomainContext from '#components/DomainContext';
@@ -191,20 +189,9 @@ function MonitoringRegions(props: MonitoringRegionProps) {
 
     const columns = useMemo(
         () => {
-            const action: TableColumn<
-                RegionFields,
-                string,
-                ActionProps,
-                TableHeaderCellProps
-            > = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
+            const action = createCustomActionColumn<RegionFields, string, ActionProps>(
+                ActionCell,
+                (_, datum) => ({
                     id: datum.id,
                     onRegionalCoordinatorEdit: portfolioPermissions?.change
                         ? showRegionCoordinatorModal
@@ -212,8 +199,13 @@ function MonitoringRegions(props: MonitoringRegionProps) {
                     onMonitoringExpertEdit: portfolioPermissions?.change
                         ? showMonitoringExpertModal
                         : undefined,
+                    actionsHidden: false,
                 }),
-            };
+                'action',
+                '',
+                undefined,
+                2,
+            );
 
             return [
                 createTextColumn<RegionFields, string>(
