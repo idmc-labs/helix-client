@@ -11,7 +11,9 @@ import {
     Modal,
     Button,
     SortContext,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
+import { getOperationName } from '@apollo/client/utilities';
 
 import TableMessage from '#components/TableMessage';
 import { PurgeNull } from '#types';
@@ -24,12 +26,15 @@ import Loading from '#components/Loading';
 import Container from '#components/Container';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import useModalState from '#hooks/useModalState';
 import {
     FigureTagListQuery,
     FigureTagListQueryVariables,
     DeleteFigureTagMutation,
     DeleteFigureTagMutationVariables,
+    ExportFigureTagsMutation,
+    ExportFigureTagsMutationVariables,
 } from '#generated/types';
 import useFilterState from '#hooks/useFilterState';
 import { hasNoData } from '#utils/common';
@@ -37,6 +42,8 @@ import { hasNoData } from '#utils/common';
 import FigureTagForm from './FigureTagForm';
 import TagsFilter from '../TagsFilter';
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 type FigureTagFields = NonNullable<NonNullable<FigureTagListQuery['figureTagList']>['results']>[number];
 
@@ -76,6 +83,19 @@ const FIGURE_TAG_DELETE = gql`
             result {
                 id
             }
+        }
+    }
+`;
+
+const FIGURE_TAGS_DOWNLOAD = gql`
+    mutation ExportFigureTags(
+        $filters: FigureTagFilterDataInputType!
+    ) {
+        exportFigureTags(
+            filters: $filters,
+        ) {
+            errors
+            ok
         }
     }
 `;
@@ -189,6 +209,36 @@ function FigureTagsTable(props: FigureTagsProps) {
         hideAddFigureTagModal();
     }, [refetchFigureTags, variables, hideAddFigureTagModal]);
 
+    const [
+        exportFigureTags,
+        { loading: exportingFigureTags },
+    ] = useMutation<ExportFigureTagsMutation, ExportFigureTagsMutationVariables>(
+        FIGURE_TAGS_DOWNLOAD,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportFigureTags: exportFigureTagsResponse } = response;
+                if (!exportFigureTagsResponse) {
+                    return;
+                }
+                const { errors, ok } = exportFigureTagsResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({
+                        children: 'Export started successfully!',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
     const handleFigureTagDelete = useCallback(
         (id: string) => {
             deleteFigureTag({
@@ -196,6 +246,17 @@ function FigureTagsTable(props: FigureTagsProps) {
             });
         },
         [deleteFigureTag],
+    );
+
+    const handleExportTableData = useCallback(
+        () => {
+            exportFigureTags({
+                variables: {
+                    filters: variables.filters ?? {},
+                },
+            });
+        },
+        [exportFigureTags, variables],
     );
 
     const { user } = useContext(DomainContext);
@@ -249,14 +310,27 @@ function FigureTagsTable(props: FigureTagsProps) {
             className={className}
             contentClassName={styles.content}
             heading="Tags"
-            headerActions={figureTagPermissions?.add && (
-                <Button
-                    name={undefined}
-                    onClick={showAddFigureTagModal}
-                    disabled={loadingFigureTags}
-                >
-                    Add Tag
-                </Button>
+            headerActions={(
+                <>
+                    {figureTagPermissions?.add && (
+                        <Button
+                            name={undefined}
+                            onClick={showAddFigureTagModal}
+                            disabled={loadingFigureTags}
+                        >
+                            Add Tag
+                        </Button>
+                    )}
+                    <ConfirmButton
+                        confirmationHeader="Confirm Export"
+                        confirmationMessage="Are you sure you want to export this table data?"
+                        name={undefined}
+                        onConfirm={handleExportTableData}
+                        disabled={exportingFigureTags}
+                    >
+                        Export
+                    </ConfirmButton>
+                </>
             )}
             description={(
                 <TagsFilter
