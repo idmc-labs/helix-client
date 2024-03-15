@@ -10,7 +10,9 @@ import {
     Modal,
     Button,
     SortContext,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
+import { getOperationName } from '@apollo/client/utilities';
 
 import TableMessage from '#components/TableMessage';
 import { PurgeNull } from '#types';
@@ -30,12 +32,17 @@ import {
     ContextOfViolenceListQueryVariables,
     DeleteContextOfViolenceMutation,
     DeleteContextOfViolenceMutationVariables,
+    ExportContextOfViolenceMutation,
+    ExportContextOfViolenceMutationVariables,
 } from '#generated/types';
 import { hasNoData } from '#utils/common';
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 
 import ViolenceContextForm from './ViolenceContextForm';
 import ViolenceContextFilter from '../ViolenceContextFilter';
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 type ViolenceContextFields = NonNullable<NonNullable<ContextOfViolenceListQuery['contextOfViolenceList']>['results']>[number];
 
@@ -71,6 +78,19 @@ const CONTEXT_OF_VIOLENCE_DELETE = gql`
             result {
                 id
             }
+        }
+    }
+`;
+
+const CONTEXT_OF_VIOLENCE_DOWNLOAD = gql`
+    mutation ExportContextOfViolence(
+        $filters: ContextOfViolenceFilterDataInputType!,
+    ) {
+        exportContextOfViolence(
+            filters: $filters,
+        ) {
+            errors
+            ok
         }
     }
 `;
@@ -170,6 +190,48 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
         },
     );
 
+    const [
+        exportContextOfViolence,
+        { loading: exportingContextOfViolence },
+    ] = useMutation<ExportContextOfViolenceMutation, ExportContextOfViolenceMutationVariables>(
+        CONTEXT_OF_VIOLENCE_DOWNLOAD,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportContextOfViolence: exportContextOfViolenceResponse } = response;
+                if (!exportContextOfViolenceResponse) {
+                    return;
+                }
+                const { errors, ok } = exportContextOfViolenceResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({
+                        children: 'Export started successfully!',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const handleExportTableData = useCallback(
+        () => {
+            exportContextOfViolence({
+                variables: {
+                    filters: variables.filters ?? {},
+                },
+            });
+        },
+        [exportContextOfViolence, variables],
+    );
+
     const handleViolenceContextCreate = useCallback(() => {
         hideViolenceContextModal();
 
@@ -243,13 +305,24 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
             contentClassName={styles.content}
             heading="Context of Violence"
             headerActions={violenceContextPermissions?.add && (
-                <Button
-                    name={undefined}
-                    onClick={showViolenceContextModal}
-                    disabled={loadingViolenceContext}
-                >
-                    Add Context of Violence
-                </Button>
+                <>
+                    <Button
+                        name={undefined}
+                        onClick={showViolenceContextModal}
+                        disabled={loadingViolenceContext}
+                    >
+                        Add Context of Violence
+                    </Button>
+                    <ConfirmButton
+                        confirmationHeader="Confirm Export"
+                        confirmationMessage="Are you sure you want to export this table data?"
+                        name={undefined}
+                        onConfirm={handleExportTableData}
+                        disabled={exportingContextOfViolence}
+                    >
+                        Export
+                    </ConfirmButton>
+                </>
             )}
             description={(
                 <ViolenceContextFilter

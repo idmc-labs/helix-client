@@ -1,6 +1,7 @@
-import React, { useMemo, useContext } from 'react';
+import React, { useMemo, useContext, useCallback } from 'react';
 import {
     gql,
+    useMutation,
     useQuery,
 } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
@@ -11,7 +12,9 @@ import {
     TableHeaderCellProps,
     Modal,
     SortContext,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
+import { getOperationName } from '@apollo/client/utilities';
 
 import TableMessage from '#components/TableMessage';
 import Loading from '#components/Loading';
@@ -25,15 +28,21 @@ import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import useModalState from '#hooks/useModalState';
 import {
+    ExportMonitoringRegionsMutation,
+    ExportMonitoringRegionsMutationVariables,
     MonitoringRegionsQuery,
     MonitoringRegionsQueryVariables,
 } from '#generated/types';
 import { hasNoData } from '#utils/common';
+import NotificationContext from '#components/NotificationContext';
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 
 import ActionCell, { ActionProps } from './Action';
 import RegionalCoordinatorForm from './RegionalCoordinatorForm';
 import MonitoringExpertForm from './MonitoringExpertForm';
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 type RegionFields = NonNullable<NonNullable<MonitoringRegionsQuery['monitoringSubRegionList']>['results']>[number];
 
@@ -67,6 +76,18 @@ const REGION_LIST = gql`
     }
 `;
 
+const MONITORING_REGIONS_DOWNLOAD = gql`
+    mutation ExportMonitoringRegions(
+        $filters: MonitoringSubRegionFilterDataInputType!,
+    ) {
+        exportMonitoringSubRegion(
+            filters: $filters,
+        ) {
+            errors
+            ok
+        }
+    }
+`;
 const keySelector = (item: RegionFields) => item.id;
 
 interface MonitoringRegionProps {
@@ -75,6 +96,10 @@ interface MonitoringRegionProps {
 
 function MonitoringRegions(props: MonitoringRegionProps) {
     const { className } = props;
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const {
         ordering,
@@ -118,6 +143,48 @@ function MonitoringRegions(props: MonitoringRegionProps) {
     } = useQuery<MonitoringRegionsQuery, MonitoringRegionsQueryVariables>(REGION_LIST, {
         variables: regionsVariables,
     });
+
+    const [
+        exportMonitoringRegions,
+        { loading: exportingMonitoringRegions },
+    ] = useMutation<ExportMonitoringRegionsMutation, ExportMonitoringRegionsMutationVariables>(
+        MONITORING_REGIONS_DOWNLOAD,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportMonitoringSubRegion: exportMonitoringRegionsResponse } = response;
+                if (!exportMonitoringRegionsResponse) {
+                    return;
+                }
+                const { errors, ok } = exportMonitoringRegionsResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({
+                        children: 'Export started successfully!',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const handleExportTableData = useCallback(
+        () => {
+            exportMonitoringRegions({
+                variables: {
+                    filters: filter ?? {},
+                },
+            });
+        },
+        [exportMonitoringRegions, filter],
+    );
 
     const { user } = useContext(DomainContext);
     const portfolioPermissions = user?.permissions?.portfolio;
@@ -200,6 +267,17 @@ function MonitoringRegions(props: MonitoringRegionProps) {
                 heading="Monitoring Regions"
                 className={styles.container}
                 contentClassName={styles.content}
+                headerActions={(
+                    <ConfirmButton
+                        confirmationHeader="Confirm Export"
+                        confirmationMessage="Are you sure you want to export this table data?"
+                        name={undefined}
+                        onConfirm={handleExportTableData}
+                        disabled={exportingMonitoringRegions}
+                    >
+                        Export
+                    </ConfirmButton>
+                )}
             >
                 {loadingRegions && <Loading absolute />}
                 {totalRegionsCount > 0 && (
