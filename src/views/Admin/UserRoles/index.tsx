@@ -139,7 +139,7 @@ const USERS_DOWNLOAD = gql`
     mutation ExportUsers(
         $filters: UserFilterDataInputType!,
     ) {
-        exportUser(
+        exportUsers(
             filters: $filters,
         ) {
             errors
@@ -362,7 +362,7 @@ function UserRoles(props: UserRolesProps) {
         {
             refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
-                const { exportUser: exportUsersResponse } = response;
+                const { exportUsers: exportUsersResponse } = response;
                 if (!exportUsersResponse) {
                     return;
                 }

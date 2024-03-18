@@ -78,7 +78,7 @@ const MONITORING_REGIONS_DOWNLOAD = gql`
     mutation ExportMonitoringRegions(
         $filters: MonitoringSubRegionFilterDataInputType!,
     ) {
-        exportMonitoringSubRegion(
+        exportMonitoringSubRegions(
             filters: $filters,
         ) {
             errors
@@ -150,7 +150,7 @@ function MonitoringRegions(props: MonitoringRegionProps) {
         {
             refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
-                const { exportMonitoringSubRegion: exportMonitoringRegionsResponse } = response;
+                const { exportMonitoringSubRegions: exportMonitoringRegionsResponse } = response;
                 if (!exportMonitoringRegionsResponse) {
                     return;
                 }
