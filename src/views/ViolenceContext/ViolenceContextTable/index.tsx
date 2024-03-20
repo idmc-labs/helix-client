@@ -86,7 +86,7 @@ const CONTEXT_OF_VIOLENCE_DOWNLOAD = gql`
     mutation ExportContextOfViolence(
         $filters: ContextOfViolenceFilterDataInputType!,
     ) {
-        exportContextOfViolence(
+        exportContextOfViolences(
             filters: $filters,
         ) {
             errors
@@ -198,7 +198,7 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
         {
             refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
-                const { exportContextOfViolence: exportContextOfViolenceResponse } = response;
+                const { exportContextOfViolences: exportContextOfViolenceResponse } = response;
                 if (!exportContextOfViolenceResponse) {
                     return;
                 }
