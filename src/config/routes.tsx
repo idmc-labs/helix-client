@@ -26,6 +26,71 @@ export function wrap<T extends string, K extends { className?: string }>(
     };
 }
 
+const entryRoute = wrap({
+    path: '?',
+    title: (key) => {
+        if (key === '/entries/:entryId(\\d+)/') {
+            return 'View Entry';
+        }
+        if (key === '/entries/new/') {
+            return 'New Entry';
+        }
+        if (key === '/entries/new-from-parked-item/:parkedItemId(\\d+)/') {
+            return 'New Entry from Parking Lot';
+        }
+        if (key === '/entries/:entryId(\\d+)/edit/') {
+            return 'Edit Entry';
+        }
+        return '???';
+    },
+    navbarVisibility: true,
+    component: lazy(() => import('../views/Entry')),
+    componentProps: (key) => {
+        if (key === '/entries/:entryId(\\d+)/') {
+            return {
+                className: styles.view,
+                mode: 'view' as const,
+            };
+        }
+        return {
+            className: styles.view,
+            mode: 'edit' as const,
+        };
+    },
+    visibility: 'is-authenticated',
+    checkPermissions: (permissions, key) => {
+        if (key === '/entries/:entryId(\\d+)/') {
+            return true;
+        }
+        if (key === '/entries/new/') {
+            return permissions.entry?.add;
+        }
+        if (key === '/entries/new-from-parked-item/:parkedItemId(\\d+)/') {
+            return permissions.entry?.add;
+        }
+        if (key === '/entries/:entryId(\\d+)/edit/') {
+            return permissions.entry?.change;
+        }
+        return false;
+    },
+    shouldPageDismount: (prevRoute, newRoute) => {
+        if (
+            newRoute.path === '/entries/new/'
+            && prevRoute.path !== '/entries/new/'
+        ) {
+            return true;
+        }
+        if (
+            newRoute.path === '/entries/:entryId(\\d+)/edit/'
+            && prevRoute.path === '/entries/:entryId(\\d+)/edit/'
+            && JSON.stringify(newRoute.params) !== JSON.stringify(prevRoute.params)
+        ) {
+            return true;
+        }
+        return false;
+    },
+});
+
 const routeSettings = {
     dashboard: wrap({
         path: '/',
@@ -158,53 +223,22 @@ const routeSettings = {
         },
         visibility: 'is-authenticated',
     }),
-    newEntry: wrap({
+    newEntry: {
+        ...entryRoute,
         path: '/entries/new/',
-        title: 'New Entry',
-        navbarVisibility: true,
-        component: lazy(() => import('../views/Entry')),
-        componentProps: {
-            className: styles.view,
-            mode: 'edit',
-        },
-        visibility: 'is-authenticated',
-        checkPermissions: (permissions) => permissions.entry?.add,
-    }),
-    entryEdit: wrap({
-        path: '/entries/:entryId(\\d+)/edit/',
-        title: 'Edit Entry',
-        navbarVisibility: true,
-        component: lazy(() => import('../views/Entry')),
-        componentProps: {
-            className: styles.view,
-            mode: 'edit',
-        },
-        visibility: 'is-authenticated',
-        checkPermissions: (permissions) => permissions.entry?.change,
-    }),
-    newEntryFromParkedItem: wrap({
+    },
+    newEntryFromParkedItem: {
+        ...entryRoute,
         path: '/entries/new-from-parked-item/:parkedItemId(\\d+)/',
-        title: 'New Entry from Parking Lot',
-        navbarVisibility: true,
-        component: lazy(() => import('../views/Entry')),
-        componentProps: {
-            className: styles.view,
-            mode: 'edit',
-        },
-        visibility: 'is-authenticated',
-        checkPermissions: (permissions) => permissions.entry?.add,
-    }),
-    entryView: wrap({
+    },
+    entryEdit: {
+        ...entryRoute,
+        path: '/entries/:entryId(\\d+)/edit/',
+    },
+    entryView: {
+        ...entryRoute,
         path: '/entries/:entryId(\\d+)/',
-        title: 'View Entry',
-        navbarVisibility: true,
-        component: lazy(() => import('../views/Entry')),
-        componentProps: {
-            className: styles.view,
-            mode: 'view',
-        },
-        visibility: 'is-authenticated',
-    }),
+    },
     reports: wrap({
         path: '/reports/',
         title: 'Reports',

@@ -357,18 +357,13 @@ function Multiplexer(props: Props) {
                                         />
                                         <Route
                                             exact
-                                            path={routeSettings.entryEdit.path}
-                                            render={routeSettings.entryEdit.load}
-                                        />
-                                        <Route
-                                            exact
-                                            path={routeSettings.entryView.path}
-                                            render={routeSettings.entryView.load}
-                                        />
-                                        <Route
-                                            exact
-                                            path={routeSettings.newEntryFromParkedItem.path}
-                                            render={routeSettings.newEntryFromParkedItem.load}
+                                            path={[
+                                                routeSettings.newEntry.path,
+                                                routeSettings.newEntryFromParkedItem.path,
+                                                routeSettings.entryEdit.path,
+                                                routeSettings.entryView.path,
+                                            ]}
+                                            render={routeSettings.newEntry.load}
                                         />
                                         <Route
                                             exact
@@ -424,11 +419,6 @@ function Multiplexer(props: Props) {
                                             exact
                                             path={routeSettings.qaDashboard.path}
                                             render={routeSettings.qaDashboard.load}
-                                        />
-                                        <Route
-                                            exact
-                                            path={routeSettings.newEntry.path}
-                                            render={routeSettings.newEntry.load}
                                         />
                                         <Route
                                             exact

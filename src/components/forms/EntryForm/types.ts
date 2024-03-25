@@ -28,6 +28,7 @@ export type AnalysisFormProps = PurgeNull<Pick<FormType, 'idmcAnalysis'>>;
 export type DetailsFormProps = PurgeNull<Pick<FormType, 'articleTitle' | 'publishDate' | 'publishers' | 'url' | 'document' | 'documentUrl' | 'preview' | 'isConfidential' | 'associatedParkedItem'>>;
 
 export type FormValues = PurgeNull<{
+    id: string | undefined;
     figures: FigureFormProps[];
     analysis: AnalysisFormProps;
     details: DetailsFormProps;

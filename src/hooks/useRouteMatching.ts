@@ -32,7 +32,7 @@ function useRouteMatching(route: RouteData, attrs?: Attrs) {
 
     if (
         (visibility === 'is-authenticated' && !authenticated)
-        || (checkPermissions && (!user?.permissions || !checkPermissions(user.permissions)))
+        || (checkPermissions && (!user?.permissions || !checkPermissions(user.permissions, path)))
     ) {
         return undefined;
     }

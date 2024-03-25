@@ -1,5 +1,5 @@
-import React, { useEffect, lazy, useContext } from 'react';
-import { Redirect } from 'react-router-dom';
+import React, { useState, useEffect, lazy, useContext, useRef } from 'react';
+import { Redirect, useRouteMatch, match } from 'react-router-dom';
 
 import DomainContext from '#components/DomainContext';
 import DocumentTitle from '#components/DocumentTitle';
@@ -13,15 +13,20 @@ const FourHundredThree = lazy(
     () => import('../../views/FourHundredThree'),
 );
 
+type ValueOrFunc<T> = T | ((value: string) => T);
+
 export interface ViewProps<T extends { className?: string }> {
-    title: string;
-    navbarVisibility: boolean;
+    title: ValueOrFunc<string>;
+    navbarVisibility: ValueOrFunc<boolean>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     component: React.LazyExoticComponent<(props: T) => React.ReactElement<any, any> | null>;
-    componentProps: React.PropsWithRef<T>;
-    visibility: Visibility,
+    componentProps: ValueOrFunc<React.PropsWithRef<T>>;
+    visibility: ValueOrFunc<Visibility>;
     // onlyAdminAccess?: boolean,
-    checkPermissions?: (permissions: NonNullable<User['permissions']>) => boolean | undefined,
+    checkPermissions?: (permissions: NonNullable<User['permissions']>, key: string) => boolean | undefined,
+
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    shouldPageDismount?: (prevRoute: match<object>, newRoute: match<object>) => boolean;
 }
 
 function View<T extends { className?: string }>(props: ViewProps<T>) {
@@ -33,7 +38,37 @@ function View<T extends { className?: string }>(props: ViewProps<T>) {
         visibility,
         // onlyAdminAccess,
         checkPermissions,
+        shouldPageDismount,
     } = props;
+
+    const routeMatch = useRouteMatch();
+
+    const prevRouteMatchRef = useRef<typeof routeMatch | undefined>();
+    const [compKey, setCompKey] = useState(0);
+
+    // NOTE: Should we use useEffect or useLayoutEffect?
+    useEffect(
+        () => {
+            const prevRouteMatch = prevRouteMatchRef.current;
+            prevRouteMatchRef.current = routeMatch;
+
+            if (!prevRouteMatch) {
+                return;
+            }
+            if (!shouldPageDismount) {
+                return;
+            }
+            const changeKey = shouldPageDismount(
+                prevRouteMatch,
+                routeMatch,
+            );
+            if (changeKey) {
+                console.warn('Forced Dismounting', prevRouteMatch, routeMatch);
+                setCompKey((key) => (key + 1));
+            }
+        },
+        [routeMatch, shouldPageDismount],
+    );
 
     const {
         authenticated,
@@ -41,8 +76,24 @@ function View<T extends { className?: string }>(props: ViewProps<T>) {
         user,
     } = useContext(DomainContext);
 
-    const redirectToSignIn = visibility === 'is-authenticated' && !authenticated;
-    const redirectToHome = visibility === 'is-not-authenticated' && authenticated;
+    const resolvedNavbarVisibility = typeof navbarVisibility === 'function'
+        ? navbarVisibility(routeMatch.path)
+        : navbarVisibility;
+
+    const resolvedVisibility = typeof visibility === 'function'
+        ? visibility(routeMatch.path)
+        : visibility;
+
+    const resolvedTitle = typeof title === 'function'
+        ? title(routeMatch.path)
+        : title;
+
+    const resolvedComponentProps = typeof componentProps === 'function'
+        ? componentProps(routeMatch.path)
+        : componentProps;
+
+    const redirectToSignIn = resolvedVisibility === 'is-authenticated' && !authenticated;
+    const redirectToHome = resolvedVisibility === 'is-not-authenticated' && authenticated;
     const redirect = redirectToSignIn || redirectToHome;
 
     useEffect(
@@ -50,11 +101,11 @@ function View<T extends { className?: string }>(props: ViewProps<T>) {
             // NOTE: should not set visibility for redirection
             // or, navbar will flash
             if (!redirect) {
-                setNavbarVisibility(navbarVisibility);
+                setNavbarVisibility(resolvedNavbarVisibility);
             }
         },
         // NOTE: setNavbarVisibility will not change, navbarVisibility will not change
-        [setNavbarVisibility, navbarVisibility, redirect],
+        [setNavbarVisibility, resolvedNavbarVisibility, redirect],
     );
 
     if (redirectToSignIn) {
@@ -71,10 +122,12 @@ function View<T extends { className?: string }>(props: ViewProps<T>) {
         );
     }
 
-    if (checkPermissions && (!user?.permissions || !checkPermissions(user.permissions))) {
+    if (checkPermissions && (
+        !user?.permissions || !checkPermissions(user.permissions, routeMatch.path)
+    )) {
         return (
             <>
-                <DocumentTitle value={`403 - ${title}`} />
+                <DocumentTitle value={`403 - ${resolvedTitle}`} />
                 <FourHundredThree className={styles.view} />
             </>
         );
@@ -82,10 +135,11 @@ function View<T extends { className?: string }>(props: ViewProps<T>) {
 
     return (
         <>
-            <DocumentTitle value={title} />
+            <DocumentTitle value={resolvedTitle} />
             <Comp
+                key={compKey}
                 className={styles.view}
-                {...componentProps}
+                {...resolvedComponentProps}
             />
         </>
     );
