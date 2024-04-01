@@ -1,8 +1,10 @@
 import React, { useContext, useCallback, useMemo } from 'react';
-import { _cs } from '@togglecorp/fujs';
+import { isDefined, _cs } from '@togglecorp/fujs';
 import {
     TextInput,
     Button,
+    Switch,
+    MultiSelectInput,
 } from '@togglecorp/toggle-ui';
 import {
     removeNull,
@@ -10,10 +12,9 @@ import {
     useForm,
     createSubmitHandler,
     requiredCondition,
-    requiredStringCondition,
-    idCondition,
     PartialForm,
     PurgeNull,
+    emailCondition,
 } from '@togglecorp/toggle-form';
 
 import {
@@ -30,10 +31,15 @@ import BooleanInput from '#components/selections/BooleanInput';
 import { transformToFormError } from '#utils/errorTransform';
 
 import {
+    enumKeySelector,
+    enumLabelSelector,
+    GetEnumOptions,
     WithId,
 } from '#utils/common';
 
 import {
+    ClientOptionsQuery,
+    ClientOptionsQueryVariables,
     ClientQuery,
     ClientQueryVariables,
     CreateClientMutation,
@@ -46,26 +52,41 @@ import styles from './styles.css';
 const GET_CLIENT = gql`
     query Client($id: ID!) {
         client(id: $id) {
-            id
+            acronym
             code
-            name
-            isActive
+            contactEmail
+            contactName
+            contactWebsite
+            createdAt
             createdBy {
                 id
                 fullName
             }
+            id
+            isActive
+            name
+            useCase
+            optedOutOfEmails
         }
     }
 `;
 
 const CREATE_CLIENT = gql`
-    mutation CreateClient($clientRecordItem: clientCreateInputType!) {
+    mutation CreateClient($clientRecordItem: ClientCreateInputType!) {
         createClient(data: $clientRecordItem) {
             result {
-                id
+                acronym
                 code
+                contactEmail
+                contactName
+                contactWebsite
+                createdAt
+                id
                 isActive
                 name
+                optedOutOfEmails
+                otherNotes
+                useCase
                 createdBy {
                     id
                     fullName
@@ -85,10 +106,18 @@ const UPDATE_CLIENT = gql`
     mutation UpdateClient($clientRecordItem: ClientUpdateInputType!) {
         updateClient(data: $clientRecordItem) {
             result {
-                id
+                acronym
                 code
+                contactEmail
+                contactName
+                contactWebsite
+                createdAt
+                id
                 isActive
                 name
+                optedOutOfEmails
+                otherNotes
+                useCase
                 createdBy {
                     id
                     fullName
@@ -104,6 +133,18 @@ const UPDATE_CLIENT = gql`
     }
 `;
 
+const CLIENT_OPTIONS = gql`
+    query ClientOptions {
+        useCaseType: __type(name: "USE_CASE_CHOICES") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+    }
+`;
+
 type ClientRecordFormFields = CreateClientMutationVariables['clientRecordItem'];
 type FormType = PurgeNull<PartialForm<WithId<ClientRecordFormFields>>>;
 
@@ -112,18 +153,18 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        id: [idCondition],
+        acronym: [],
         name: [requiredCondition],
-        code: [requiredStringCondition],
-        isActive: [],
+        contactName: [requiredCondition],
+        contactEmail: [requiredCondition, emailCondition],
+        contactWebsite: [],
+        isActive: [requiredCondition],
+        useCase: [],
+        optedOutOfEmails: [requiredCondition],
     }),
 };
 
-const defaultFormValues: PartialForm<FormType> = {
-    code: undefined,
-    name: undefined,
-    isActive: undefined,
-};
+const defaultFormValues: PartialForm<FormType> = {};
 
 interface ClientRecordProps {
     className?: string;
@@ -168,6 +209,7 @@ function ClientRecordForm(props: ClientRecordProps) {
     const {
         loading: clientDataLoading,
         error: clientDataError,
+        data,
     } = useQuery<ClientQuery>(
         GET_CLIENT,
         {
@@ -178,16 +220,16 @@ function ClientRecordForm(props: ClientRecordProps) {
                 if (!client) {
                     return;
                 }
-                onValueSet(removeNull({
-                    ...client,
-                    id: client.id,
-                    name: client.name,
-                    code: client.code,
-                    isActive: client.isActive,
-                }));
+                onValueSet(removeNull(client));
             },
         },
     );
+
+    const {
+        data: clientOptions,
+        loading: clientOptionsLoading,
+        error: clientOptionsError,
+    } = useQuery<ClientOptionsQuery, ClientOptionsQueryVariables>(CLIENT_OPTIONS);
 
     const [
         createClientRecord,
@@ -288,6 +330,12 @@ function ClientRecordForm(props: ClientRecordProps) {
         updateClientRecord,
     ]);
 
+    const useCaseTypes = clientOptions?.useCaseType?.enumValues;
+    type UseCaseTypeOptions = GetEnumOptions<
+        typeof useCaseTypes,
+        NonNullable<typeof value.useCase>[number]
+    >;
+
     const loading = createLoading || updateLoading || clientDataLoading;
     const errored = !!clientDataError;
     const disabled = loading || errored;
@@ -301,8 +349,27 @@ function ClientRecordForm(props: ClientRecordProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
+            {isDefined(data?.client?.code) && (
+                <TextInput
+                    label="Code"
+                    name="code"
+                    value={data?.client?.code}
+                    readOnly
+                    autoFocus
+                />
+            )}
             <TextInput
-                label="Client Name *"
+                label="Acronym"
+                name="acronym"
+                value={value.acronym}
+                onChange={onValueChange}
+                error={error?.fields?.acronym}
+                readOnly={readOnly}
+                autoFocus
+                disabled={disabled}
+            />
+            <TextInput
+                label="Name *"
                 name="name"
                 value={value.name}
                 onChange={onValueChange}
@@ -312,22 +379,61 @@ function ClientRecordForm(props: ClientRecordProps) {
                 disabled={disabled}
             />
             <TextInput
-                label="Client Code *"
-                name="code"
-                value={value.code}
+                label="Contact Name *"
+                name="contactName"
+                value={value.contactName}
                 onChange={onValueChange}
-                error={error?.fields?.code}
+                error={error?.fields?.contactName}
+                readOnly={readOnly}
+                autoFocus
+                disabled={disabled}
+            />
+            <TextInput
+                label="Contact Email *"
+                name="contactEmail"
+                value={value.contactEmail}
+                onChange={onValueChange}
+                error={error?.fields?.contactEmail}
+                readOnly={readOnly}
+                autoFocus
+                disabled={disabled}
+            />
+            <TextInput
+                label="Website"
+                name="contactWebsite"
+                value={value.contactWebsite}
+                onChange={onValueChange}
+                error={error?.fields?.contactWebsite}
                 readOnly={readOnly}
                 autoFocus
                 disabled={disabled}
             />
             <BooleanInput
-                label="Active"
+                label="Active *"
                 name="isActive"
                 value={value.isActive}
                 onChange={onValueChange}
                 error={error?.fields?.isActive}
             />
+            <MultiSelectInput
+                label="useCase"
+                name="useCase"
+                options={useCaseTypes as UseCaseTypeOptions}
+                value={value.useCase}
+                onChange={onValueChange}
+                keySelector={enumKeySelector}
+                labelSelector={enumLabelSelector}
+                error={error?.fields?.useCase?.$internal}
+                disabled={clientOptionsLoading || !!clientOptionsError}
+            />
+            <Switch
+                name="optedOutOfEmails"
+                label="Opted-out of receiving emails"
+                value={value.optedOutOfEmails}
+                onChange={onValueChange}
+                error={error?.fields?.optedOutOfEmails}
+            />
+
             {!readOnly && (
                 <div className={styles.formButtons}>
                     {!!onClientCreateCancel && (

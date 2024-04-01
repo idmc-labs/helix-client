@@ -15,6 +15,7 @@ import {
     Pager,
     SortContext,
     createYesNoColumn,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
 
 import TableMessage from '#components/TableMessage';
@@ -41,7 +42,7 @@ import {
 import styles from './styles.css';
 
 const CLIENT_LIST = gql`
-  query ClientList(
+    query ClientList(
         $ordering: String,
         $page: Int,
         $pageSize: Int,
@@ -58,9 +59,16 @@ const CLIENT_LIST = gql`
             totalCount
             results {
                 id
-                name
-                isActive
+                acronym
                 code
+                contactEmail
+                contactName
+                contactWebsite
+                isActive
+                name
+                useCase
+                optedOutOfEmails
+                createdAt
                 createdBy {
                     id
                     fullName
@@ -152,11 +160,9 @@ function ClientRecordsTable(props: ClientRecordProps) {
 
     const handleClientCreate = useCallback(() => {
         refetchClientRecords(clientVariables);
-        hideAddClientModal();
     }, [
         refetchClientRecords,
         clientVariables,
-        hideAddClientModal,
     ]);
 
     const totalClientCount = clientListData?.clientList?.totalCount ?? 0;
@@ -216,6 +222,12 @@ function ClientRecordsTable(props: ClientRecordProps) {
         ],
     );
 
+    const handleExportTableData = useCallback(
+        () => {
+            console.log('client export');
+        },
+        [],
+    );
     return (
         <Container
             compactContent
@@ -223,12 +235,23 @@ function ClientRecordsTable(props: ClientRecordProps) {
             contentClassName={styles.content}
             heading={title || 'Clients'}
             headerActions={recordEditPermission?.add && (
-                <Button
-                    name={undefined}
-                    onClick={showAddClientModal}
-                >
-                    Add Client
-                </Button>
+                <>
+                    <Button
+                        name={undefined}
+                        onClick={showAddClientModal}
+                    >
+                        Add Client
+                    </Button>
+                    <ConfirmButton
+                        confirmationHeader="Confirm Export"
+                        confirmationMessage="Are you sure you want to export this table data?"
+                        name={undefined}
+                        onConfirm={handleExportTableData}
+                        // disabled={exportingClientItems}
+                    >
+                        Export
+                    </ConfirmButton>
+                </>
             )}
             footerContent={!pagerDisabled && (
                 <Pager
