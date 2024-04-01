@@ -46,6 +46,10 @@ const schema: FormSchema = {
         isPublic: [],
         isGiddReport: [],
         isPfaVisibleInGidd: [],
+        changeInSource: [],
+        changeInMethodology: [],
+        changeInDataAvailability: [],
+        retroactiveChange: [],
     }),
 };
 
@@ -191,6 +195,38 @@ function ReportFilter(props: ReportFilterProps) {
                     toValue={value.endDateBefore}
                     toOnChange={onValueChange}
                     toError={error?.fields?.endDateBefore}
+                />
+                <BooleanInput
+                    className={styles.input}
+                    label="Change in Source"
+                    name="changeInSource"
+                    error={error?.fields?.changeInSource}
+                    value={value.changeInSource}
+                    onChange={onValueChange}
+                />
+                <BooleanInput
+                    className={styles.input}
+                    label="Change in Methodology"
+                    name="changeInMethodology"
+                    error={error?.fields?.changeInMethodology}
+                    value={value.changeInMethodology}
+                    onChange={onValueChange}
+                />
+                <BooleanInput
+                    className={styles.input}
+                    label="Change in Data Availability"
+                    name="changeInDataAvailability"
+                    error={error?.fields?.changeInDataAvailability}
+                    value={value.changeInDataAvailability}
+                    onChange={onValueChange}
+                />
+                <BooleanInput
+                    className={styles.input}
+                    label="Retroactive Change"
+                    name="retroactiveChange"
+                    error={error?.fields?.retroactiveChange}
+                    value={value.retroactiveChange}
+                    onChange={onValueChange}
                 />
                 <div className={styles.formButtons}>
                     <Button
