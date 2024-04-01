@@ -1222,7 +1222,6 @@ function EntryForm(props: EntryFormProps) {
                 disaggregationLocationNonCamp: undefined,
                 disaggregationSexFemale: undefined,
                 disaggregationSexMale: undefined,
-                disaggregationStrataJson: undefined,
                 isDisaggregated: false,
 
                 excerptIdu: undefined,
