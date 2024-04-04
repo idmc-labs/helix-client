@@ -1233,8 +1233,6 @@ function EntryForm(props: EntryFormProps) {
                 reported: undefined,
                 role: undefined,
 
-                wasSubfact: undefined,
-
                 stale: true,
             };
             handleSelectedFigureChange(newFigure.uuid);
