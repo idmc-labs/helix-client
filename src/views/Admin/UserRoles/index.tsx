@@ -63,13 +63,15 @@ const GET_USERS_LIST = gql`
             results {
                 dateJoined
                 isActive
-                isAdmin
-                isDirectorsOffice
-                isReportingTeam
+                portfoliosMetadata {
+                    isAdmin
+                    isDirectorsOffice
+                    isReportingTeam
+                    portfolioRole
+                    portfolioRoleDisplay
+                }
                 id
                 fullName
-                portfolioRole
-                portfolioRoleDisplay
             }
             totalCount
             pageSize
@@ -96,10 +98,12 @@ const TOGGLE_USER_ADMIN_STATUS = gql`
             errors
             ok
             result {
-                portfolioRole
-                portfolioRoleDisplay
                 id
-                isAdmin
+                portfoliosMetadata {
+                    isAdmin
+                    portfolioRole
+                    portfolioRoleDisplay
+                }
             }
         }
     }
@@ -111,10 +115,12 @@ const TOGGLE_USER_DIRECTORS_OFFICE_STATUS = gql`
             errors
             ok
             result {
-                portfolioRole
-                portfolioRoleDisplay
                 id
-                isDirectorsOffice
+                portfoliosMetadata {
+                    isDirectorsOffice
+                    portfolioRole
+                    portfolioRoleDisplay
+                }
             }
         }
     }
@@ -126,10 +132,12 @@ const TOGGLE_USER_REPORTING_TEAM_STATUS = gql`
             errors
             ok
             result {
-                portfolioRole
-                portfolioRoleDisplay
                 id
-                isReportingTeam
+                portfoliosMetadata {
+                    isReportingTeam
+                    portfolioRole
+                    portfolioRoleDisplay
+                }
             }
         }
     }
@@ -468,26 +476,26 @@ function UserRoles(props: UserRolesProps) {
             createTextColumn<UserRolesField, string>(
                 'portfolio_role',
                 'Role',
-                (item) => item.portfolioRoleDisplay,
+                (item) => item.portfoliosMetadata.portfolioRoleDisplay,
                 undefined,
                 'large',
             ),
             createYesNoColumn<UserRolesField, string>(
                 'is_admin',
                 'Admin',
-                (item) => item.isAdmin,
+                (item) => item.portfoliosMetadata.isAdmin,
                 // { sortable: true },
             ),
             createYesNoColumn<UserRolesField, string>(
                 'is_directors_office',
                 'Director\'s Office',
-                (item) => item.isDirectorsOffice,
+                (item) => item.portfoliosMetadata.isDirectorsOffice,
                 // { sortable: true },
             ),
             createYesNoColumn<UserRolesField, string>(
                 'is_reporting_team',
                 'Reporting Team',
-                (item) => item.isReportingTeam,
+                (item) => item.portfoliosMetadata.isReportingTeam,
                 // { sortable: true },
             ),
             createYesNoColumn<UserRolesField, string>(
@@ -503,11 +511,11 @@ function UserRoles(props: UserRolesProps) {
                     onEdit: showEmailEditModal,
                     activeStatus: datum.isActive,
                     onToggleUserActiveStatus: handleToggleUserActiveStatus,
-                    isAdmin: datum.isAdmin,
+                    isAdmin: datum.portfoliosMetadata.isAdmin,
                     onToggleAdminStatus: handleToggleAdminStatus,
-                    isDirectorsOffice: datum.isDirectorsOffice,
+                    isDirectorsOffice: datum.portfoliosMetadata.isDirectorsOffice,
                     onToggleDirectorsOfficeStatus: handleToggleDirectorsOfficeStatus,
-                    isReportingTeam: datum.isReportingTeam,
+                    isReportingTeam: datum.portfoliosMetadata.isReportingTeam,
                     onToggleReportingTeamStatus: handleToggleReportingTeamStatus,
                 }),
                 'action',

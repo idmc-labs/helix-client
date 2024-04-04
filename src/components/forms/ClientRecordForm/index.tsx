@@ -70,7 +70,9 @@ const CREATE_CLIENT = gql`
                     id
                     fullName
                     isActive
-                    isAdmin
+                    portfoliosMetadata {
+                        isAdmin
+                    }
                 }
             }
             errors
@@ -91,7 +93,9 @@ const UPDATE_CLIENT = gql`
                     id
                     fullName
                     isActive
-                    isAdmin
+                    portfoliosMetadata {
+                        isAdmin
+                    }
                 }
             }
             errors
