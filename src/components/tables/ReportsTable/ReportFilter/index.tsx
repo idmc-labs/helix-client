@@ -176,14 +176,6 @@ function ReportFilter(props: ReportFilterProps) {
                     value={value.isGiddReport}
                     onChange={onValueChange}
                 />
-                <BooleanInput
-                    className={styles.input}
-                    label="Has Public Figure Analysis"
-                    name="isPfaVisibleInGidd"
-                    error={error?.fields?.isPfaVisibleInGidd}
-                    value={value.isPfaVisibleInGidd}
-                    onChange={onValueChange}
-                />
                 <DateRangeDualInput
                     className={styles.input}
                     label="Date Range"
@@ -198,7 +190,15 @@ function ReportFilter(props: ReportFilterProps) {
                 />
                 <BooleanInput
                     className={styles.input}
-                    label="Change in Source"
+                    label="Has Public Figure Analysis"
+                    name="isPfaVisibleInGidd"
+                    error={error?.fields?.isPfaVisibleInGidd}
+                    value={value.isPfaVisibleInGidd}
+                    onChange={onValueChange}
+                />
+                <BooleanInput
+                    className={styles.input}
+                    label="Has change in Source"
                     name="changeInSource"
                     error={error?.fields?.changeInSource}
                     value={value.changeInSource}
@@ -206,7 +206,7 @@ function ReportFilter(props: ReportFilterProps) {
                 />
                 <BooleanInput
                     className={styles.input}
-                    label="Change in Methodology"
+                    label="Has change in Methodology"
                     name="changeInMethodology"
                     error={error?.fields?.changeInMethodology}
                     value={value.changeInMethodology}
@@ -214,7 +214,7 @@ function ReportFilter(props: ReportFilterProps) {
                 />
                 <BooleanInput
                     className={styles.input}
-                    label="Change in Data Availability"
+                    label="Has change in Data Availability"
                     name="changeInDataAvailability"
                     error={error?.fields?.changeInDataAvailability}
                     value={value.changeInDataAvailability}
@@ -222,7 +222,7 @@ function ReportFilter(props: ReportFilterProps) {
                 />
                 <BooleanInput
                     className={styles.input}
-                    label="Retroactive Change"
+                    label="Has Retroactive Change"
                     name="retroactiveChange"
                     error={error?.fields?.retroactiveChange}
                     value={value.retroactiveChange}

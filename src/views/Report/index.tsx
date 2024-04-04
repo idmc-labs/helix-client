@@ -1451,7 +1451,7 @@ function Report(props: ReportProps) {
                             <Container
                                 heading="Miscellaneous"
                                 borderless
-                                contentClassName={styles.switch}
+                                contentClassName={styles.miscellaneousContent}
                             >
                                 <Switch
                                     label="Change in Source"
