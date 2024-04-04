@@ -91,6 +91,10 @@ const REPORT_LIST = gql`
                     totalStockConflictSum
                     totalStockDisasterSum
                 }
+                changeInMethodology
+                changeInDataAvailability
+                changeInSource
+                retroactiveChange
             }
         }
     }
@@ -341,6 +345,26 @@ function ReportsTable(props: ReportsProps) {
                 'is_gidd_report',
                 'GRID report',
                 (item) => item.isGiddReport,
+            ),
+            createYesNoColumn<ReportFields, string>(
+                'changeInSource',
+                'Change in Source',
+                (item) => item.changeInSource,
+            ),
+            createYesNoColumn<ReportFields, string>(
+                'changeInMethodology',
+                'Change in Methodology',
+                (item) => item.changeInMethodology,
+            ),
+            createYesNoColumn<ReportFields, string>(
+                'changeInDataAvailability',
+                'Change in Data Availability',
+                (item) => item.changeInDataAvailability,
+            ),
+            createYesNoColumn<ReportFields, string>(
+                'retroactiveChange',
+                'Retroactive Change',
+                (item) => item.retroactiveChange,
             ),
             createDateColumn<ReportFields, string>(
                 'filter_figure_start_after',

@@ -39,6 +39,14 @@ import {
     ReportAggregationsQuery,
     ReportAggregationsQueryVariables,
     ExtractionEntryListFiltersQueryVariables,
+    UpdateReportChangeInSourceMutation,
+    UpdateReportChangeInSourceMutationVariables,
+    UpdateReportChangeInMethodologyMutation,
+    UpdateReportChangeInMethodologyMutationVariables,
+    UpdateReportChangeInDataAvailabilityMutation,
+    UpdateReportChangeInDataAvailabilityMutationVariables,
+    UpdateReportRetroactiveChangeMutation,
+    UpdateReportRetroactiveChangeMutationVariables,
 } from '#generated/types';
 import { mergeBbox, getDateFromDateString } from '#utils/common';
 import Message from '#components/Message';
@@ -162,6 +170,11 @@ const REPORT = gql`
 
             generated
             totalFigures
+
+            changeInSource
+            changeInMethodology
+            changeInDataAvailability
+            retroactiveChange
 
             filterFigureCountries {
                 id
@@ -340,6 +353,89 @@ const SET_PUBLIC_FIGURE_ANALYSIS_VISIBLE = gql`
     }
 `;
 
+const UPDATE_REPORT_CHANGE_IN_SOURCE = gql`
+    mutation UpdateReportChangeInSource(
+        $id: ID!,
+        $changeInSource: Boolean,
+    ) {
+        updateReport(
+            data: {
+                id: $id,
+                changeInSource: $changeInSource,
+            }
+        ) {
+            result {
+                changeInSource
+                id
+            }
+            ok
+            errors
+        }
+    }
+`;
+
+const UPDATE_REPORT_CHANGE_IN_METHODOLOGY = gql`
+    mutation UpdateReportChangeInMethodology(
+        $id: ID!,
+        $changeInMethodology: Boolean,
+    ) {
+        updateReport(
+            data: {
+                id: $id,
+                changeInMethodology: $changeInMethodology,
+            }
+        ) {
+            result {
+                id
+                changeInMethodology
+            }
+            ok
+            errors
+        }
+    }
+`;
+
+const UPDATE_REPORT_CHANGE_IN_DATA_AVAILABILITY = gql`
+    mutation UpdateReportChangeInDataAvailability(
+        $id: ID!,
+        $changeInDataAvailability: Boolean,
+    ) {
+        updateReport(
+            data: {
+                id: $id,
+                changeInDataAvailability: $changeInDataAvailability,
+            }
+        ) {
+            result {
+                id
+                changeInDataAvailability
+            }
+            ok
+            errors
+        }
+    }
+`;
+
+const UPDATE_REPORT_RETROACTIVE_CHANGE = gql`
+    mutation UpdateReportRetroactiveChange(
+        $id: ID!,
+        $retroactiveChange: Boolean
+    ) {
+        updateReport(
+            data: {
+                id: $id,
+                retroactiveChange: $retroactiveChange,
+            }
+        ) {
+            result {
+                id
+                retroactiveChange
+            }
+            ok
+            errors
+        }
+    }
+`;
 interface ReportProps {
     className?: string;
 }
@@ -698,6 +794,138 @@ function Report(props: ReportProps) {
         },
     );
 
+    const [
+        changeSource,
+        {
+            loading: changeSourceLoading,
+        },
+    ] = useMutation<
+        UpdateReportChangeInSourceMutation,
+        UpdateReportChangeInSourceMutationVariables
+    >(
+        UPDATE_REPORT_CHANGE_IN_SOURCE,
+        {
+            onCompleted: (response) => {
+                const { errors, result } = removeNull(response?.updateReport);
+
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (result) {
+                    notify({
+                        children: 'Change in source set successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (errors) => {
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const [
+        changeMethodology,
+        {
+            loading: changeMethodologyLoading,
+        },
+    ] = useMutation<
+        UpdateReportChangeInMethodologyMutation,
+        UpdateReportChangeInMethodologyMutationVariables
+    >(
+        UPDATE_REPORT_CHANGE_IN_METHODOLOGY,
+        {
+            onCompleted: (response) => {
+                const { errors, result } = removeNull(response?.updateReport);
+
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (result) {
+                    notify({
+                        children: 'Change in methodology set successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (errors) => {
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const [
+        changeDataAvailability,
+        {
+            loading: changeDataAvailabilityLoading,
+        },
+    ] = useMutation<
+        UpdateReportChangeInDataAvailabilityMutation,
+        UpdateReportChangeInDataAvailabilityMutationVariables
+    >(
+        UPDATE_REPORT_CHANGE_IN_DATA_AVAILABILITY,
+        {
+            onCompleted: (response) => {
+                const { errors, result } = removeNull(response?.updateReport);
+
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (result) {
+                    notify({
+                        children: 'Change in data availability set successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (errors) => {
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const [
+        changeRetroactive,
+        {
+            loading: changeRetroactiveLoading,
+        },
+    ] = useMutation<
+        UpdateReportRetroactiveChangeMutation,
+        UpdateReportRetroactiveChangeMutationVariables
+    >(
+        UPDATE_REPORT_RETROACTIVE_CHANGE,
+        {
+            onCompleted: (response) => {
+                const { errors, result } = removeNull(response?.updateReport);
+
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (result) {
+                    notify({
+                        children: 'Change in retroactive set successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (errors) => {
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
     const loading = (
         reportDataLoading
         || reportAggregationsLoading
@@ -868,6 +1096,65 @@ function Report(props: ReportProps) {
         ],
     );
 
+    const handleSourceChange = useCallback(
+        (value: boolean) => {
+            changeSource({
+                variables: {
+                    id: reportId,
+                    changeInSource: value,
+                },
+            });
+        },
+        [
+            changeSource,
+            reportId,
+        ],
+    );
+
+    const handleMethodologyChange = useCallback(
+        (value: boolean) => {
+            changeMethodology({
+                variables: {
+                    id: reportId,
+                    changeInMethodology: value,
+                },
+            });
+        },
+        [
+            changeMethodology,
+            reportId,
+        ],
+    );
+
+    const handleDataAvailabilityChange = useCallback(
+        (value: boolean) => {
+            changeDataAvailability({
+                variables: {
+                    id: reportId,
+                    changeInDataAvailability: value,
+                },
+            });
+        },
+        [
+            changeDataAvailability,
+            reportId,
+        ],
+    );
+
+    const handleRetroActiveChange = useCallback(
+        (value: boolean) => {
+            changeRetroactive({
+                variables: {
+                    id: reportId,
+                    retroactiveChange: value,
+                },
+            });
+        },
+        [
+            changeRetroactive,
+            reportId,
+        ],
+    );
     return (
         <div className={_cs(styles.report, className)}>
             <div className={styles.pageContent}>
@@ -1160,6 +1447,46 @@ function Report(props: ReportProps) {
                                 />
                             )}
                         </Container>
+                        {reportPermissions?.change && (
+                            <Container
+                                heading="Miscellaneous"
+                                borderless
+                                contentClassName={styles.miscellaneousContent}
+                            >
+                                <Switch
+                                    label="Change in Source"
+                                    name="changeInSource"
+                                    value={reportData?.report?.changeInSource}
+                                    onChange={handleSourceChange}
+                                    disabled={changeSourceLoading}
+                                    readOnly={!reportPermissions?.change}
+                                />
+                                <Switch
+                                    label="Change in Methodology"
+                                    name="changeInSource"
+                                    value={reportData?.report?.changeInMethodology}
+                                    onChange={handleMethodologyChange}
+                                    disabled={changeMethodologyLoading}
+                                    readOnly={!reportPermissions?.change}
+                                />
+                                <Switch
+                                    label="Change in Data Availability"
+                                    name="changeInDataAvailability"
+                                    value={reportData?.report?.changeInDataAvailability}
+                                    onChange={handleDataAvailabilityChange}
+                                    disabled={changeDataAvailabilityLoading}
+                                    readOnly={!reportPermissions?.change}
+                                />
+                                <Switch
+                                    label="Retroactive Change"
+                                    name="retroactiveChange"
+                                    value={reportData?.report?.retroactiveChange}
+                                    onChange={handleRetroActiveChange}
+                                    disabled={changeRetroactiveLoading}
+                                    readOnly={!reportPermissions?.change}
+                                />
+                            </Container>
+                        )}
                     </Container>
                     <div className={styles.sideContent}>
                         {lastGeneration && (lastGeneration.isApproved || lastGeneration.isSignedOff) && ( // eslint-disable-line max-len
