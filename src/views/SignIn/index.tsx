@@ -42,7 +42,6 @@ const LOGIN = gql`
                 id
                 fullName
                 isActive
-                portfolioRole
                 portfolios {
                     id
                     role
@@ -61,6 +60,9 @@ const LOGIN = gql`
                 permissions {
                     action
                     entities
+                }
+                portfoliosMetadata {
+                    portfolioRole
                 }
             }
             captchaRequired

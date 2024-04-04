@@ -48,9 +48,7 @@ const ME = gql`
         me {
             id
             fullName
-            isAdmin
             isActive
-            portfolioRole
             portfolios {
                 id
                 role
@@ -69,6 +67,9 @@ const ME = gql`
             permissions {
                 action
                 entities
+            }
+            portfoliosMetadata {
+                isAdmin
             }
         }
     }
