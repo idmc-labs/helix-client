@@ -1,4 +1,4 @@
-import React, { useContext, useCallback, useMemo } from 'react';
+import React, { useContext, useCallback, useMemo, useState } from 'react';
 import { isDefined, _cs } from '@togglecorp/fujs';
 import {
     TextInput,
@@ -15,7 +15,9 @@ import {
     PartialForm,
     PurgeNull,
     emailCondition,
+    urlCondition,
 } from '@togglecorp/toggle-form';
+import { IoCopy } from 'react-icons/io5';
 
 import {
     gql,
@@ -52,21 +54,21 @@ import styles from './styles.css';
 const GET_CLIENT = gql`
     query Client($id: ID!) {
         client(id: $id) {
+            id
             acronym
             code
             contactEmail
             contactName
             contactWebsite
-            createdAt
             createdBy {
                 id
                 fullName
             }
-            id
             isActive
             name
-            useCase
+            useCases
             optedOutOfEmails
+            otherNotes
         }
     }
 `;
@@ -75,18 +77,17 @@ const CREATE_CLIENT = gql`
     mutation CreateClient($clientRecordItem: ClientCreateInputType!) {
         createClient(data: $clientRecordItem) {
             result {
+                id
                 acronym
                 code
                 contactEmail
                 contactName
                 contactWebsite
-                createdAt
-                id
                 isActive
                 name
                 optedOutOfEmails
                 otherNotes
-                useCase
+                useCases
                 createdBy {
                     id
                     fullName
@@ -111,13 +112,12 @@ const UPDATE_CLIENT = gql`
                 contactEmail
                 contactName
                 contactWebsite
-                createdAt
                 id
                 isActive
                 name
                 optedOutOfEmails
                 otherNotes
-                useCase
+                useCases
                 createdBy {
                     id
                     fullName
@@ -135,7 +135,7 @@ const UPDATE_CLIENT = gql`
 
 const CLIENT_OPTIONS = gql`
     query ClientOptions {
-        useCaseType: __type(name: "USE_CASE_CHOICES") {
+        useCaseTypes: __type(name: "USE_CASE_TYPES") {
             name
             enumValues {
                 name
@@ -152,16 +152,29 @@ type FormSchema = ObjectSchema<FormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
-    fields: (): FormSchemaFields => ({
-        acronym: [],
-        name: [requiredCondition],
-        contactName: [requiredCondition],
-        contactEmail: [requiredCondition, emailCondition],
-        contactWebsite: [],
-        isActive: [requiredCondition],
-        useCase: [],
-        optedOutOfEmails: [requiredCondition],
-    }),
+    fields: (val): FormSchemaFields => {
+        const baseSchema: FormSchemaFields = ({
+            acronym: [],
+            name: [requiredCondition],
+            contactName: [requiredCondition],
+            contactEmail: [requiredCondition, emailCondition],
+            contactWebsite: [urlCondition],
+            isActive: [requiredCondition],
+            useCases: [],
+            optedOutOfEmails: [requiredCondition],
+        });
+
+        if (val?.useCases?.includes('OTHER')) {
+            return {
+                ...baseSchema,
+                otherNotes: [requiredCondition],
+            };
+        }
+        return {
+            ...baseSchema,
+            otherNotes: [],
+        };
+    },
 };
 
 const defaultFormValues: PartialForm<FormType> = {};
@@ -169,18 +182,16 @@ const defaultFormValues: PartialForm<FormType> = {};
 interface ClientRecordProps {
     className?: string;
     id: string | undefined;
-    onClientCreate?: (result: NonNullable<NonNullable<CreateClientMutation['createClient']>['result']>) => void;
-    readOnly?: boolean;
-    onClientCreateCancel: () => void;
+    refetchClientLists: () => void;
+    onCancel: () => void;
 }
 
 function ClientRecordForm(props: ClientRecordProps) {
     const {
-        onClientCreate,
+        refetchClientLists,
         id,
-        readOnly,
         className,
-        onClientCreateCancel,
+        onCancel,
     } = props;
 
     const {
@@ -199,6 +210,9 @@ function ClientRecordForm(props: ClientRecordProps) {
         notifyGQLError,
     } = useContext(NotificationContext);
 
+    const [readOnly, setReadOnly] = useState<boolean>(false);
+    const [clientCode, setClientCode] = useState<string | undefined>(undefined);
+
     const clientVariables = useMemo(
         (): ClientQueryVariables | undefined => (
             id ? { id } : undefined
@@ -209,7 +223,6 @@ function ClientRecordForm(props: ClientRecordProps) {
     const {
         loading: clientDataLoading,
         error: clientDataError,
-        data,
     } = useQuery<ClientQuery>(
         GET_CLIENT,
         {
@@ -220,7 +233,11 @@ function ClientRecordForm(props: ClientRecordProps) {
                 if (!client) {
                     return;
                 }
-                onValueSet(removeNull(client));
+                setClientCode(client.code);
+                onValueSet(removeNull({
+                    ...client,
+                    id: client?.id,
+                }));
             },
         },
     );
@@ -238,25 +255,25 @@ function ClientRecordForm(props: ClientRecordProps) {
         CREATE_CLIENT,
         {
             onCompleted: (response) => {
-                const {
-                    createClient: createClientRes,
-                } = response;
-                if (!createClientRes) {
-                    return;
-                }
-                const { errors, result } = createClientRes;
+                const { result, errors } = removeNull(response.createClient);
+
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
                     notifyGQLError(errors);
                     onErrorSet(formError);
                 }
-                if (onClientCreate && result) {
+                if (result) {
                     notify({
                         children: 'Client created successfully!',
                         variant: 'success',
                     });
-                    onPristineSet(true);
-                    onClientCreate(result);
+                    onValueSet(removeNull({
+                        ...result,
+                        id: result?.id,
+                    }));
+                    setClientCode(result.code);
+                    setReadOnly(true);
+                    refetchClientLists();
                 }
             },
             onError: (errors) => {
@@ -278,25 +295,21 @@ function ClientRecordForm(props: ClientRecordProps) {
         UPDATE_CLIENT,
         {
             onCompleted: (response) => {
-                const {
-                    updateClient: updateClientRes,
-                } = response;
-                if (!updateClientRes) {
-                    return;
-                }
-                const { errors, result } = updateClientRes;
+                const { result, errors } = removeNull(response.updateClient);
+
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
                     notifyGQLError(errors);
                     onErrorSet(formError);
                 }
-                if (onClientCreate && result) {
+                if (result) {
                     notify({
                         children: 'Client updated successfully!',
                         variant: 'success',
                     });
                     onPristineSet(true);
-                    onClientCreate(result);
+                    setReadOnly(false);
+                    onCancel();
                 }
             },
             onError: (errors) => {
@@ -312,7 +325,7 @@ function ClientRecordForm(props: ClientRecordProps) {
     );
 
     const handleSubmit = useCallback((finalValues: FormType) => {
-        if (finalValues.id) {
+        if (value.id) {
             updateClientRecord({
                 variables: {
                     clientRecordItem: finalValues as WithId<ClientRecordFormFields>,
@@ -326,16 +339,35 @@ function ClientRecordForm(props: ClientRecordProps) {
             });
         }
     }, [
+        value.id,
         createClientRecord,
         updateClientRecord,
     ]);
 
-    const useCaseTypes = clientOptions?.useCaseType?.enumValues;
+    const useCaseTypes = clientOptions?.useCaseTypes?.enumValues;
     type UseCaseTypeOptions = GetEnumOptions<
         typeof useCaseTypes,
-        NonNullable<typeof value.useCase>[number]
+        NonNullable<typeof value.useCases>[number]
     >;
 
+    const handleCopyClick = useCallback(
+        () => {
+            if (isDefined(clientCode)) {
+                navigator.clipboard.writeText(clientCode);
+                notify({
+                    children: 'Code copied to clipboard!',
+                    variant: 'success',
+                });
+                onCancel();
+            }
+        }, [
+            clientCode,
+            notify,
+            onCancel,
+        ],
+    );
+
+    const visibleNotes = new Set(value.useCases).has('OTHER');
     const loading = createLoading || updateLoading || clientDataLoading;
     const errored = !!clientDataError;
     const disabled = loading || errored;
@@ -349,15 +381,6 @@ function ClientRecordForm(props: ClientRecordProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            {isDefined(data?.client?.code) && (
-                <TextInput
-                    label="Code"
-                    name="code"
-                    value={data?.client?.code}
-                    readOnly
-                    autoFocus
-                />
-            )}
             <TextInput
                 label="Acronym"
                 name="acronym"
@@ -375,7 +398,6 @@ function ClientRecordForm(props: ClientRecordProps) {
                 onChange={onValueChange}
                 error={error?.fields?.name}
                 readOnly={readOnly}
-                autoFocus
                 disabled={disabled}
             />
             <TextInput
@@ -385,7 +407,6 @@ function ClientRecordForm(props: ClientRecordProps) {
                 onChange={onValueChange}
                 error={error?.fields?.contactName}
                 readOnly={readOnly}
-                autoFocus
                 disabled={disabled}
             />
             <TextInput
@@ -395,7 +416,6 @@ function ClientRecordForm(props: ClientRecordProps) {
                 onChange={onValueChange}
                 error={error?.fields?.contactEmail}
                 readOnly={readOnly}
-                autoFocus
                 disabled={disabled}
             />
             <TextInput
@@ -405,7 +425,6 @@ function ClientRecordForm(props: ClientRecordProps) {
                 onChange={onValueChange}
                 error={error?.fields?.contactWebsite}
                 readOnly={readOnly}
-                autoFocus
                 disabled={disabled}
             />
             <BooleanInput
@@ -416,16 +435,38 @@ function ClientRecordForm(props: ClientRecordProps) {
                 error={error?.fields?.isActive}
             />
             <MultiSelectInput
-                label="useCase"
-                name="useCase"
+                label="useCases"
+                name="useCases"
                 options={useCaseTypes as UseCaseTypeOptions}
-                value={value.useCase}
+                value={value.useCases}
                 onChange={onValueChange}
                 keySelector={enumKeySelector}
                 labelSelector={enumLabelSelector}
-                error={error?.fields?.useCase?.$internal}
+                error={error?.fields?.useCases?.$internal}
                 disabled={clientOptionsLoading || !!clientOptionsError}
             />
+            {/* FIXME: use Map */}
+            {visibleNotes && (
+                <TextInput
+                    label="Notes"
+                    name="otherNotes"
+                    value={value.otherNotes}
+                    onChange={onValueChange}
+                    error={error?.fields?.otherNotes}
+                    readOnly={readOnly}
+                    disabled={disabled}
+                />
+            )}
+            {isDefined(clientCode) && (
+                <TextInput
+                    label="Code"
+                    name="code"
+                    value={clientCode}
+                    readOnly
+                    autoFocus
+                    actions={<IoCopy onClick={handleCopyClick} />}
+                />
+            )}
             <Switch
                 name="optedOutOfEmails"
                 label="Opted-out of receiving emails"
@@ -433,18 +474,15 @@ function ClientRecordForm(props: ClientRecordProps) {
                 onChange={onValueChange}
                 error={error?.fields?.optedOutOfEmails}
             />
-
-            {!readOnly && (
-                <div className={styles.formButtons}>
-                    {!!onClientCreateCancel && (
-                        <Button
-                            name={undefined}
-                            onClick={onClientCreateCancel}
-                            disabled={disabled}
-                        >
-                            Cancel
-                        </Button>
-                    )}
+            <div className={styles.formButtons}>
+                <Button
+                    name={undefined}
+                    onClick={onCancel}
+                    disabled={disabled}
+                >
+                    Cancel
+                </Button>
+                {!readOnly && (
                     <Button
                         type="submit"
                         name={undefined}
@@ -453,8 +491,17 @@ function ClientRecordForm(props: ClientRecordProps) {
                     >
                         Submit
                     </Button>
-                </div>
-            )}
+                )}
+                {readOnly && (
+                    <Button
+                        name={undefined}
+                        onClick={handleCopyClick}
+                        disabled={disabled}
+                    >
+                        Copy and Close
+                    </Button>
+                )}
+            </div>
         </form>
     );
 }

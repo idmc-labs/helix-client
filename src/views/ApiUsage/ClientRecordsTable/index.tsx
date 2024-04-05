@@ -66,7 +66,7 @@ const CLIENT_LIST = gql`
                 contactWebsite
                 isActive
                 name
-                useCase
+                useCases
                 optedOutOfEmails
                 createdAt
                 createdBy {
@@ -152,18 +152,18 @@ function ClientRecordsTable(props: ClientRecordProps) {
         previousData,
         data: clientListData = previousData,
         loading: loadingClientData,
-        refetch: refetchClientRecords,
+        refetch,
         error: clientError,
     } = useQuery<ClientListQuery, ClientListQueryVariables>(CLIENT_LIST, {
         variables: clientVariables,
     });
 
-    const handleClientCreate = useCallback(() => {
-        refetchClientRecords(clientVariables);
-    }, [
-        refetchClientRecords,
-        clientVariables,
-    ]);
+    const handleExportTableData = useCallback(
+        () => {
+            console.log('client export');
+        },
+        [],
+    );
 
     const totalClientCount = clientListData?.clientList?.totalCount ?? 0;
     const clientRecords = clientListData?.clientList?.results;
@@ -222,12 +222,6 @@ function ClientRecordsTable(props: ClientRecordProps) {
         ],
     );
 
-    const handleExportTableData = useCallback(
-        () => {
-            console.log('client export');
-        },
-        [],
-    );
     return (
         <Container
             compactContent
@@ -303,8 +297,8 @@ function ClientRecordsTable(props: ClientRecordProps) {
                 >
                     <ClientRecordForm
                         id={editableClientRecord}
-                        onClientCreate={handleClientCreate}
-                        onClientCreateCancel={hideAddClientModal}
+                        refetchClientLists={refetch}
+                        onCancel={hideAddClientModal}
                     />
                 </Modal>
             )}
