@@ -6,6 +6,7 @@ import React, {
 import { _cs } from '@togglecorp/fujs';
 import {
     gql,
+    useMutation,
     useQuery,
 } from '@apollo/client';
 import {
@@ -17,6 +18,7 @@ import {
     createYesNoColumn,
     ConfirmButton,
 } from '@togglecorp/toggle-ui';
+import { getOperationName } from 'apollo-link';
 
 import TableMessage from '#components/TableMessage';
 import {
@@ -31,12 +33,16 @@ import ClientRecordForm from '#components/forms/ClientRecordForm';
 import useFilterState from '#hooks/useFilterState';
 import { PurgeNull } from '#types';
 import { hasNoData } from '#utils/common';
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
+import NotificationContext from '#components/NotificationContext';
 
 import ClientRecordsFilter from './ClientRecordsFilters';
 
 import {
     ClientListQuery,
     ClientListQueryVariables,
+    ExportClientsMutation,
+    ExportClientsMutationVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
@@ -77,6 +83,21 @@ const CLIENT_LIST = gql`
         }
     }
 `;
+
+const CLIENTS_DOWNLOAD = gql`
+    mutation ExportClients(
+        $filters: ClientFilterDataInputType!,
+    ) {
+        exportClients(
+            filters: $filters,
+        ) {
+            errors
+            ok
+        }
+    }
+`;
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 type ClientFields = NonNullable<NonNullable<ClientListQuery['clientList']>['results']>[number];
 
@@ -149,6 +170,11 @@ function ClientRecordsTable(props: ClientRecordProps) {
     );
 
     const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
+
+    const {
         previousData,
         data: clientListData = previousData,
         loading: loadingClientData,
@@ -158,11 +184,45 @@ function ClientRecordsTable(props: ClientRecordProps) {
         variables: clientVariables,
     });
 
+    const [
+        exportClients,
+        { loading: exportingClients },
+    ] = useMutation<ExportClientsMutation, ExportClientsMutationVariables>(
+        CLIENTS_DOWNLOAD,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportClients: exportClientsResponse } = response;
+                if (!exportClientsResponse) {
+                    return;
+                }
+                const { errors, ok } = exportClientsResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({
+                        children: 'Export started successfully!',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
     const handleExportTableData = useCallback(
         () => {
-            console.log('client export');
+            exportClients({
+                variables: {
+                    filters: clientVariables.filters ?? {},
+                },
+            });
         },
-        [],
+        [exportClients, clientVariables?.filters],
     );
 
     const totalClientCount = clientListData?.clientList?.totalCount ?? 0;
@@ -241,7 +301,7 @@ function ClientRecordsTable(props: ClientRecordProps) {
                         confirmationMessage="Are you sure you want to export this table data?"
                         name={undefined}
                         onConfirm={handleExportTableData}
-                        // disabled={exportingClientItems}
+                        disabled={exportingClients}
                     >
                         Export
                     </ConfirmButton>

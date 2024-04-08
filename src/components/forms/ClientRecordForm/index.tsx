@@ -16,8 +16,10 @@ import {
     PurgeNull,
     emailCondition,
     urlCondition,
+    nullCondition,
+    arrayCondition,
 } from '@togglecorp/toggle-form';
-import { IoCopy } from 'react-icons/io5';
+import { IoCopyOutline } from 'react-icons/io5';
 
 import {
     gql,
@@ -154,14 +156,15 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (val): FormSchemaFields => {
         const baseSchema: FormSchemaFields = ({
+            id: [],
             acronym: [],
             name: [requiredCondition],
             contactName: [requiredCondition],
             contactEmail: [requiredCondition, emailCondition],
             contactWebsite: [urlCondition],
-            isActive: [requiredCondition],
-            useCases: [],
-            optedOutOfEmails: [requiredCondition],
+            isActive: [],
+            useCases: [arrayCondition],
+            optedOutOfEmails: [],
         });
 
         if (val?.useCases?.includes('OTHER')) {
@@ -172,7 +175,7 @@ const schema: FormSchema = {
         }
         return {
             ...baseSchema,
-            otherNotes: [],
+            otherNotes: [nullCondition],
         };
     },
 };
@@ -325,7 +328,7 @@ function ClientRecordForm(props: ClientRecordProps) {
     );
 
     const handleSubmit = useCallback((finalValues: FormType) => {
-        if (value.id) {
+        if (finalValues.id) {
             updateClientRecord({
                 variables: {
                     clientRecordItem: finalValues as WithId<ClientRecordFormFields>,
@@ -334,12 +337,21 @@ function ClientRecordForm(props: ClientRecordProps) {
         } else {
             createClientRecord({
                 variables: {
-                    clientRecordItem: finalValues as ClientRecordFormFields,
+                    clientRecordItem: {
+                        acronym: finalValues.acronym,
+                        name: finalValues.name,
+                        contactName: finalValues.contactName,
+                        contactEmail: finalValues.contactEmail,
+                        contactWebsite: finalValues.contactWebsite,
+                        isActive: finalValues.isActive,
+                        useCases: finalValues.useCases,
+                        otherNotes: finalValues.otherNotes,
+                        optedOutOfEmails: finalValues.optedOutOfEmails,
+                    } as ClientRecordFormFields,
                 },
             });
         }
     }, [
-        value.id,
         createClientRecord,
         updateClientRecord,
     ]);
@@ -350,7 +362,22 @@ function ClientRecordForm(props: ClientRecordProps) {
         NonNullable<typeof value.useCases>[number]
     >;
 
-    const handleCopyClick = useCallback(
+    const handleCopy = useCallback(
+        () => {
+            if (isDefined(clientCode)) {
+                navigator.clipboard.writeText(clientCode);
+                notify({
+                    children: 'Code copied to clipboard!',
+                    variant: 'success',
+                });
+            }
+        }, [
+            clientCode,
+            notify,
+        ],
+    );
+
+    const handleCopyAndClose = useCallback(
         () => {
             if (isDefined(clientCode)) {
                 navigator.clipboard.writeText(clientCode);
@@ -433,9 +460,10 @@ function ClientRecordForm(props: ClientRecordProps) {
                 value={value.isActive}
                 onChange={onValueChange}
                 error={error?.fields?.isActive}
+                readOnly={readOnly}
             />
             <MultiSelectInput
-                label="useCases"
+                label="Use Cases"
                 name="useCases"
                 options={useCaseTypes as UseCaseTypeOptions}
                 value={value.useCases}
@@ -444,11 +472,11 @@ function ClientRecordForm(props: ClientRecordProps) {
                 labelSelector={enumLabelSelector}
                 error={error?.fields?.useCases?.$internal}
                 disabled={clientOptionsLoading || !!clientOptionsError}
+                readOnly={readOnly}
             />
-            {/* FIXME: use Map */}
             {visibleNotes && (
                 <TextInput
-                    label="Notes"
+                    label="Notes *"
                     name="otherNotes"
                     value={value.otherNotes}
                     onChange={onValueChange}
@@ -457,6 +485,14 @@ function ClientRecordForm(props: ClientRecordProps) {
                     disabled={disabled}
                 />
             )}
+            <Switch
+                name="optedOutOfEmails"
+                label="Opted-out of receiving emails"
+                value={value.optedOutOfEmails}
+                onChange={onValueChange}
+                error={error?.fields?.optedOutOfEmails}
+                readOnly={readOnly}
+            />
             {isDefined(clientCode) && (
                 <TextInput
                     label="Code"
@@ -464,23 +500,26 @@ function ClientRecordForm(props: ClientRecordProps) {
                     value={clientCode}
                     readOnly
                     autoFocus
-                    actions={<IoCopy onClick={handleCopyClick} />}
+                    actions={(
+                        <Button
+                            compact
+                            transparent
+                            name={undefined}
+                            title="Copy code"
+                            onClick={handleCopy}
+                        >
+                            <IoCopyOutline />
+                        </Button>
+                    )}
                 />
             )}
-            <Switch
-                name="optedOutOfEmails"
-                label="Opted-out of receiving emails"
-                value={value.optedOutOfEmails}
-                onChange={onValueChange}
-                error={error?.fields?.optedOutOfEmails}
-            />
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}
                     onClick={onCancel}
                     disabled={disabled}
                 >
-                    Cancel
+                    {readOnly ? 'Close' : 'Cancel' }
                 </Button>
                 {!readOnly && (
                     <Button
@@ -495,10 +534,11 @@ function ClientRecordForm(props: ClientRecordProps) {
                 {readOnly && (
                     <Button
                         name={undefined}
-                        onClick={handleCopyClick}
+                        onClick={handleCopyAndClose}
                         disabled={disabled}
+                        variant="primary"
                     >
-                        Copy and Close
+                        Copy code and close
                     </Button>
                 )}
             </div>
