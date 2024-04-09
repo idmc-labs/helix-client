@@ -7,11 +7,14 @@ import {
     MultiSelectInput,
 } from '@togglecorp/toggle-ui';
 import {
+    idCondition,
     removeNull,
     ObjectSchema,
     useForm,
     createSubmitHandler,
     requiredCondition,
+    requiredListCondition,
+    requiredStringCondition,
     PartialForm,
     PurgeNull,
     emailCondition,
@@ -158,21 +161,21 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (val): FormSchemaFields => {
         const baseSchema: FormSchemaFields = ({
-            id: [],
+            id: [idCondition],
             acronym: [],
-            name: [requiredCondition],
-            contactName: [requiredCondition],
-            contactEmail: [requiredCondition, emailCondition],
+            name: [requiredStringCondition],
+            contactName: [requiredStringCondition],
+            contactEmail: [requiredStringCondition, emailCondition],
             contactWebsite: [urlCondition],
-            isActive: [],
-            useCases: [arrayCondition],
-            optedOutOfEmails: [],
+            isActive: [requiredCondition],
+            useCases: [arrayCondition, requiredListCondition],
+            optedOutOfEmails: [requiredCondition],
         });
 
         if (val?.useCases?.includes('OTHER')) {
             return {
                 ...baseSchema,
-                otherNotes: [requiredCondition],
+                otherNotes: [requiredStringCondition],
             };
         }
         return {
@@ -242,10 +245,7 @@ function ClientRecordForm(props: ClientRecordProps) {
                     return;
                 }
                 setClientCode(client.code);
-                onValueSet(removeNull({
-                    ...client,
-                    id: client?.id,
-                }));
+                onValueSet(removeNull(client));
             },
         },
     );
@@ -275,10 +275,7 @@ function ClientRecordForm(props: ClientRecordProps) {
                         children: 'Client created successfully!',
                         variant: 'success',
                     });
-                    onValueSet(removeNull({
-                        ...result,
-                        id: result?.id,
-                    }));
+                    onValueSet(removeNull(result));
                     setClientCode(result.code);
                     setReadOnly(true);
                     refetchClientLists();
@@ -342,17 +339,7 @@ function ClientRecordForm(props: ClientRecordProps) {
         } else {
             createClientRecord({
                 variables: {
-                    clientRecordItem: {
-                        acronym: finalValues.acronym,
-                        name: finalValues.name,
-                        contactName: finalValues.contactName,
-                        contactEmail: finalValues.contactEmail,
-                        contactWebsite: finalValues.contactWebsite,
-                        isActive: finalValues.isActive,
-                        useCases: finalValues.useCases,
-                        otherNotes: finalValues.otherNotes,
-                        optedOutOfEmails: finalValues.optedOutOfEmails,
-                    } as ClientRecordFormFields,
+                    clientRecordItem: finalValues as ClientRecordFormFields,
                 },
             });
         }
@@ -468,7 +455,7 @@ function ClientRecordForm(props: ClientRecordProps) {
                 readOnly={readOnly}
             />
             <MultiSelectInput
-                label="Use Cases"
+                label="Use Cases *"
                 name="useCases"
                 options={useCaseTypes as UseCaseTypeOptions}
                 value={value.useCases}

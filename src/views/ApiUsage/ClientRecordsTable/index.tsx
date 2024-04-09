@@ -279,7 +279,7 @@ function ClientRecordsTable(props: ClientRecordProps) {
             createTextColumn<ClientFields, string>(
                 'useCasesDisplay',
                 'Use Cases',
-                (item) => item?.useCasesDisplay?.map((useCase) => useCase).join('; '),
+                (item) => item?.useCasesDisplay?.map((useCase) => useCase).join(', '),
             ),
             createYesNoColumn<ClientFields, string>(
                 'is_active',
