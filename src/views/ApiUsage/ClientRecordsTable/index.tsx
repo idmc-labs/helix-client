@@ -6,6 +6,7 @@ import React, {
 import { _cs } from '@togglecorp/fujs';
 import {
     gql,
+    useMutation,
     useQuery,
 } from '@apollo/client';
 import {
@@ -15,12 +16,15 @@ import {
     Pager,
     SortContext,
     createYesNoColumn,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
+import { getOperationName } from 'apollo-link';
 
 import TableMessage from '#components/TableMessage';
 import {
     createTextColumn,
     createActionColumn,
+    createDateColumn,
 } from '#components/tableHelpers';
 import Loading from '#components/Loading';
 import useModalState from '#hooks/useModalState';
@@ -30,18 +34,22 @@ import ClientRecordForm from '#components/forms/ClientRecordForm';
 import useFilterState from '#hooks/useFilterState';
 import { PurgeNull } from '#types';
 import { hasNoData } from '#utils/common';
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
+import NotificationContext from '#components/NotificationContext';
 
 import ClientRecordsFilter from './ClientRecordsFilters';
 
 import {
     ClientListQuery,
     ClientListQueryVariables,
+    ExportClientsMutation,
+    ExportClientsMutationVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
 
 const CLIENT_LIST = gql`
-  query ClientList(
+    query ClientList(
         $ordering: String,
         $page: Int,
         $pageSize: Int,
@@ -58,9 +66,17 @@ const CLIENT_LIST = gql`
             totalCount
             results {
                 id
-                name
-                isActive
+                acronym
                 code
+                contactEmail
+                contactName
+                contactWebsite
+                isActive
+                name
+                useCases
+                useCasesDisplay
+                optedOutOfEmails
+                createdAt
                 createdBy {
                     id
                     fullName
@@ -69,6 +85,21 @@ const CLIENT_LIST = gql`
         }
     }
 `;
+
+const CLIENTS_DOWNLOAD = gql`
+    mutation ExportClients(
+        $filters: ClientFilterDataInputType!,
+    ) {
+        exportClients(
+            filters: $filters,
+        ) {
+            errors
+            ok
+        }
+    }
+`;
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 type ClientFields = NonNullable<NonNullable<ClientListQuery['clientList']>['results']>[number];
 
@@ -141,37 +172,77 @@ function ClientRecordsTable(props: ClientRecordProps) {
     );
 
     const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
+
+    const {
         previousData,
         data: clientListData = previousData,
         loading: loadingClientData,
-        refetch: refetchClientRecords,
+        refetch,
         error: clientError,
     } = useQuery<ClientListQuery, ClientListQueryVariables>(CLIENT_LIST, {
         variables: clientVariables,
     });
 
-    const handleClientCreate = useCallback(() => {
-        refetchClientRecords(clientVariables);
-        hideAddClientModal();
-    }, [
-        refetchClientRecords,
-        clientVariables,
-        hideAddClientModal,
-    ]);
+    const [
+        exportClients,
+        { loading: exportingClients },
+    ] = useMutation<ExportClientsMutation, ExportClientsMutationVariables>(
+        CLIENTS_DOWNLOAD,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportClients: exportClientsResponse } = response;
+                if (!exportClientsResponse) {
+                    return;
+                }
+                const { errors, ok } = exportClientsResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({
+                        children: 'Export started successfully!',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+    const handleExportTableData = useCallback(
+        () => {
+            exportClients({
+                variables: {
+                    filters: clientVariables.filters ?? {},
+                },
+            });
+        },
+        [exportClients, clientVariables?.filters],
+    );
 
     const totalClientCount = clientListData?.clientList?.totalCount ?? 0;
     const clientRecords = clientListData?.clientList?.results;
 
     const columns = useMemo(
         () => ([
-            /*
-            TODO: Add column after field added to server
-            createDateTimeColumn<ClientFields, string>(
+            createDateColumn<ClientFields, string>(
                 'date_created',
                 'Date Created',
                 (item) => item.createdAt,
             ),
-            */
+            createTextColumn<ClientFields, string>(
+                'created_by',
+                'Created By',
+                (item) => item.createdBy?.fullName,
+                { sortable: true },
+            ),
             createTextColumn<ClientFields, string>(
                 'id',
                 'Code',
@@ -179,21 +250,41 @@ function ClientRecordsTable(props: ClientRecordProps) {
                 { sortable: true },
             ),
             createTextColumn<ClientFields, string>(
+                'acronym',
+                'Acronym',
+                (item) => item.acronym,
+            ),
+            createTextColumn<ClientFields, string>(
                 'name',
                 'Name',
                 (item) => item.name,
                 { sortable: true },
             ),
+            createTextColumn<ClientFields, string>(
+                'contactName',
+                'Contact Name',
+                (item) => item.contactName,
+                { sortable: true },
+            ),
+            createTextColumn<ClientFields, string>(
+                'contactEmail',
+                'Contact Email',
+                (item) => item.contactEmail,
+            ),
+            createTextColumn<ClientFields, string>(
+                'contactWebsite',
+                'Website',
+                (item) => item.contactWebsite,
+            ),
+            createTextColumn<ClientFields, string>(
+                'useCasesDisplay',
+                'Use Cases',
+                (item) => item?.useCasesDisplay?.map((useCase) => useCase).join(', '),
+            ),
             createYesNoColumn<ClientFields, string>(
                 'is_active',
                 'Active',
                 (item) => item.isActive,
-                { sortable: true },
-            ),
-            createTextColumn<ClientFields, string>(
-                'created_by',
-                'Created By',
-                (item) => item.createdBy?.fullName,
                 { sortable: true },
             ),
             createActionColumn<ClientFields, string>(
@@ -223,12 +314,23 @@ function ClientRecordsTable(props: ClientRecordProps) {
             contentClassName={styles.content}
             heading={title || 'Clients'}
             headerActions={recordEditPermission?.add && (
-                <Button
-                    name={undefined}
-                    onClick={showAddClientModal}
-                >
-                    Add Client
-                </Button>
+                <>
+                    <Button
+                        name={undefined}
+                        onClick={showAddClientModal}
+                    >
+                        Add Client
+                    </Button>
+                    <ConfirmButton
+                        confirmationHeader="Confirm Export"
+                        confirmationMessage="Are you sure you want to export this table data?"
+                        name={undefined}
+                        onConfirm={handleExportTableData}
+                        disabled={exportingClients}
+                    >
+                        Export
+                    </ConfirmButton>
+                </>
             )}
             footerContent={!pagerDisabled && (
                 <Pager
@@ -280,8 +382,8 @@ function ClientRecordsTable(props: ClientRecordProps) {
                 >
                     <ClientRecordForm
                         id={editableClientRecord}
-                        onClientCreate={handleClientCreate}
-                        onClientCreateCancel={hideAddClientModal}
+                        refetchClientLists={refetch}
+                        onCancel={hideAddClientModal}
                     />
                 </Modal>
             )}
