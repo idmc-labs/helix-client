@@ -90,6 +90,7 @@ const CREATE_CLIENT = gql`
                 optedOutOfEmails
                 otherNotes
                 useCases
+                createdAt
                 createdBy {
                     id
                     fullName
@@ -120,6 +121,7 @@ const UPDATE_CLIENT = gql`
                 optedOutOfEmails
                 otherNotes
                 useCases
+                createdAt
                 createdBy {
                     id
                     fullName
@@ -180,7 +182,10 @@ const schema: FormSchema = {
     },
 };
 
-const defaultFormValues: PartialForm<FormType> = {};
+const defaultFormValues: PartialForm<FormType> = {
+    isActive: false,
+    optedOutOfEmails: false,
+};
 
 interface ClientRecordProps {
     className?: string;

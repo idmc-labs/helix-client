@@ -24,6 +24,7 @@ import TableMessage from '#components/TableMessage';
 import {
     createTextColumn,
     createActionColumn,
+    createDateColumn,
 } from '#components/tableHelpers';
 import Loading from '#components/Loading';
 import useModalState from '#hooks/useModalState';
@@ -73,6 +74,7 @@ const CLIENT_LIST = gql`
                 isActive
                 name
                 useCases
+                useCasesDisplay
                 optedOutOfEmails
                 createdAt
                 createdBy {
@@ -230,14 +232,17 @@ function ClientRecordsTable(props: ClientRecordProps) {
 
     const columns = useMemo(
         () => ([
-            /*
-            TODO: Add column after field added to server
-            createDateTimeColumn<ClientFields, string>(
+            createDateColumn<ClientFields, string>(
                 'date_created',
                 'Date Created',
                 (item) => item.createdAt,
             ),
-            */
+            createTextColumn<ClientFields, string>(
+                'created_by',
+                'Created By',
+                (item) => item.createdBy?.fullName,
+                { sortable: true },
+            ),
             createTextColumn<ClientFields, string>(
                 'id',
                 'Code',
@@ -245,21 +250,41 @@ function ClientRecordsTable(props: ClientRecordProps) {
                 { sortable: true },
             ),
             createTextColumn<ClientFields, string>(
+                'acronym',
+                'Acronym',
+                (item) => item.acronym,
+            ),
+            createTextColumn<ClientFields, string>(
                 'name',
                 'Name',
                 (item) => item.name,
                 { sortable: true },
             ),
+            createTextColumn<ClientFields, string>(
+                'contactName',
+                'Contact Name',
+                (item) => item.contactName,
+                { sortable: true },
+            ),
+            createTextColumn<ClientFields, string>(
+                'contactEmail',
+                'Contact Email',
+                (item) => item.contactEmail,
+            ),
+            createTextColumn<ClientFields, string>(
+                'contactWebsite',
+                'Website',
+                (item) => item.contactWebsite,
+            ),
+            createTextColumn<ClientFields, string>(
+                'useCasesDisplay',
+                'Use Cases',
+                (item) => item?.useCasesDisplay?.map((useCase) => useCase).join('; '),
+            ),
             createYesNoColumn<ClientFields, string>(
                 'is_active',
                 'Active',
                 (item) => item.isActive,
-                { sortable: true },
-            ),
-            createTextColumn<ClientFields, string>(
-                'created_by',
-                'Created By',
-                (item) => item.createdBy?.fullName,
                 { sortable: true },
             ),
             createActionColumn<ClientFields, string>(
