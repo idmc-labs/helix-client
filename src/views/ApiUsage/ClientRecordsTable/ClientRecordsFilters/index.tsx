@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import {
     Button,
+    MultiSelectInput,
     TextInput,
 } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
@@ -10,18 +11,33 @@ import {
     createSubmitHandler,
     PartialForm,
     PurgeNull,
+    arrayCondition,
 } from '@togglecorp/toggle-form';
-import {
-    IoSearchOutline,
-} from 'react-icons/io5';
+import { IoSearchOutline } from 'react-icons/io5';
+import { gql, useQuery } from '@apollo/client';
 
 import NonFieldError from '#components/NonFieldError';
 import BooleanInput from '#components/selections/BooleanInput';
-
 import {
     ClientListQueryVariables,
+    ClientUseCaseOptionsQuery,
+    ClientUseCaseOptionsQueryVariables,
 } from '#generated/types';
+import { enumKeySelector, enumLabelSelector, GetEnumOptions } from '#utils/common';
+
 import styles from './styles.css';
+
+const CLIENT_USE_CASE_OPTIONS = gql`
+    query ClientUseCaseOptions {
+        useCaseTypes: __type(name: "USE_CASE_TYPES") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+    }
+`;
 
 type ClientFilterFields = NonNullable<ClientListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<ClientFilterFields>>;
@@ -33,6 +49,7 @@ const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         isActive: [],
         name: [],
+        useCases: [arrayCondition],
     }),
 };
 
@@ -72,6 +89,15 @@ function ClientRecordsFilter(props: ClientFilterProps) {
         [currentFilter, initialFilter, onValueSet],
     );
 
+    const {
+        data: options,
+        loading: optionsLoading,
+        error: optionsError,
+    } = useQuery<
+        ClientUseCaseOptionsQuery,
+        ClientUseCaseOptionsQueryVariables
+    >(CLIENT_USE_CASE_OPTIONS);
+
     const onResetFilters = useCallback(
         () => {
             onValueSet(initialFilter);
@@ -84,6 +110,12 @@ function ClientRecordsFilter(props: ClientFilterProps) {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
+
+    const useCaseTypes = options?.useCaseTypes?.enumValues;
+    type UseCaseTypeOptions = GetEnumOptions<
+        typeof useCaseTypes,
+        NonNullable<typeof value.useCases>[number]
+    >;
 
     const filterChanged = initialFilter !== value;
 
@@ -103,7 +135,7 @@ function ClientRecordsFilter(props: ClientFilterProps) {
                     name="name"
                     value={value.name}
                     onChange={onValueChange}
-                    placeholder="Search Name"
+                    placeholder="Search by name, acronym, contact name or contact email"
                 />
                 <BooleanInput
                     className={styles.input}
@@ -112,6 +144,17 @@ function ClientRecordsFilter(props: ClientFilterProps) {
                     error={error?.fields?.isActive}
                     value={value.isActive}
                     onChange={onValueChange}
+                />
+                <MultiSelectInput
+                    label="Use Cases"
+                    name="useCases"
+                    options={useCaseTypes as UseCaseTypeOptions}
+                    value={value.useCases}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.useCases?.$internal}
+                    disabled={optionsLoading || !!optionsError}
                 />
                 <div className={styles.formButtons}>
                     <Button
