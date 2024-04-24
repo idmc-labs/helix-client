@@ -1420,7 +1420,7 @@ function Report(props: ReportProps) {
                                             value={reportData?.report?.isPfaVisibleInGidd}
                                             onChange={showPublicFigureInGidd}
                                             disabled={publicFigureVisibleLoading}
-                                            readOnly={!reportPermissions?.change || !user?.isAdmin}
+                                            readOnly={!reportPermissions?.change}
                                         />
                                     )}
                                     {reportPermissions?.change && (
