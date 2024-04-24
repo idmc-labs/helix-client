@@ -63,8 +63,8 @@ const CONTEXTUAL_UPDATE_LIST = gql`
                 }
                 createdAt
                 createdBy {
-                    fullName
                     id
+                    fullName
                 }
                 crisisTypes
                 id

@@ -101,8 +101,8 @@ const EXTRACTION_FILTER = gql`
             filterFigureTerms
             createdAt
             createdBy {
-                fullName
                 id
+                fullName
             }
             filterFigureReviewStatus
             filterFigureHasExcerptIdu

@@ -235,8 +235,8 @@ const REPORT = gql`
             filterFigureTerms
             createdAt
             createdBy {
-                fullName
                 id
+                fullName
             }
             filterFigureReviewStatus
             filterFigureHasExcerptIdu
