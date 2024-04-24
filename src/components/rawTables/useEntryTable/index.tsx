@@ -61,6 +61,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
                 id
                 oldId
                 createdBy {
+                    id
                     fullName
                 }
                 publishDate

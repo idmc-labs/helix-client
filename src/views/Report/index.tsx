@@ -235,8 +235,8 @@ const REPORT = gql`
             filterFigureTerms
             createdAt
             createdBy {
-                fullName
                 id
+                fullName
             }
             filterFigureReviewStatus
             filterFigureHasExcerptIdu
@@ -1420,7 +1420,7 @@ function Report(props: ReportProps) {
                                             value={reportData?.report?.isPfaVisibleInGidd}
                                             onChange={showPublicFigureInGidd}
                                             disabled={publicFigureVisibleLoading}
-                                            readOnly={!reportPermissions?.change || !user?.isAdmin}
+                                            readOnly={!reportPermissions?.change}
                                         />
                                     )}
                                     {reportPermissions?.change && (
