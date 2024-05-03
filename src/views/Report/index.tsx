@@ -1411,30 +1411,16 @@ function Report(props: ReportProps) {
                         <Container
                             heading="Public Figure Analysis"
                             borderless
-                            headerActions={(
-                                <>
-                                    {(reportData?.report?.isPfaVisibleInGidd || isPfaValid) && (
-                                        <Switch
-                                            label="This is available in GIDD"
-                                            name="PublicFigureVisibleinGidd"
-                                            value={reportData?.report?.isPfaVisibleInGidd}
-                                            onChange={showPublicFigureInGidd}
-                                            disabled={publicFigureVisibleLoading}
-                                            readOnly={!reportPermissions?.change}
-                                        />
-                                    )}
-                                    {reportPermissions?.change && (
-                                        <QuickActionButton
-                                            name={undefined}
-                                            disabled={loading}
-                                            title="Edit public figure analysis"
-                                            onClick={showPublicFigureAnalysisModal}
-                                            transparent
-                                        >
-                                            <IoCreateOutline />
-                                        </QuickActionButton>
-                                    )}
-                                </>
+                            headerActions={reportPermissions?.change && (
+                                <QuickActionButton
+                                    name={undefined}
+                                    disabled={loading}
+                                    title="Edit public figure analysis"
+                                    onClick={showPublicFigureAnalysisModal}
+                                    transparent
+                                >
+                                    <IoCreateOutline />
+                                </QuickActionButton>
                             )}
                         >
                             {publicFigureAnalysis ? (
@@ -1447,46 +1433,54 @@ function Report(props: ReportProps) {
                                 />
                             )}
                         </Container>
-                        {reportPermissions?.change && (
-                            <Container
-                                heading="Miscellaneous"
-                                borderless
-                                contentClassName={styles.miscellaneousContent}
-                            >
+                        <Container
+                            heading="Methodological Changes"
+                            borderless
+                            contentClassName={styles.miscellaneousContent}
+                        >
+                            {(isPfaValid || reportData?.report?.isPfaVisibleInGidd) && (
                                 <Switch
-                                    label="Change in Source"
-                                    name="changeInSource"
-                                    value={reportData?.report?.changeInSource}
-                                    onChange={handleSourceChange}
-                                    disabled={changeSourceLoading}
+                                    label="Public Figure Analysis is available in GIDD"
+                                    name="PublicFigureVisibleinGidd"
+                                    value={reportData?.report?.isPfaVisibleInGidd}
+                                    onChange={showPublicFigureInGidd}
+                                    disabled={publicFigureVisibleLoading}
                                     readOnly={!reportPermissions?.change}
                                 />
-                                <Switch
-                                    label="Change in Methodology"
-                                    name="changeInSource"
-                                    value={reportData?.report?.changeInMethodology}
-                                    onChange={handleMethodologyChange}
-                                    disabled={changeMethodologyLoading}
-                                    readOnly={!reportPermissions?.change}
-                                />
-                                <Switch
-                                    label="Change in Data Availability"
-                                    name="changeInDataAvailability"
-                                    value={reportData?.report?.changeInDataAvailability}
-                                    onChange={handleDataAvailabilityChange}
-                                    disabled={changeDataAvailabilityLoading}
-                                    readOnly={!reportPermissions?.change}
-                                />
-                                <Switch
-                                    label="Retroactive Change"
-                                    name="retroactiveChange"
-                                    value={reportData?.report?.retroactiveChange}
-                                    onChange={handleRetroActiveChange}
-                                    disabled={changeRetroactiveLoading}
-                                    readOnly={!reportPermissions?.change}
-                                />
-                            </Container>
-                        )}
+                            )}
+                            <Switch
+                                label="Change in Source"
+                                name="changeInSource"
+                                value={reportData?.report?.changeInSource}
+                                onChange={handleSourceChange}
+                                disabled={changeSourceLoading}
+                                readOnly={!reportPermissions?.change}
+                            />
+                            <Switch
+                                label="Change in Methodology"
+                                name="changeInSource"
+                                value={reportData?.report?.changeInMethodology}
+                                onChange={handleMethodologyChange}
+                                disabled={changeMethodologyLoading}
+                                readOnly={!reportPermissions?.change}
+                            />
+                            <Switch
+                                label="Change in Data Availability"
+                                name="changeInDataAvailability"
+                                value={reportData?.report?.changeInDataAvailability}
+                                onChange={handleDataAvailabilityChange}
+                                disabled={changeDataAvailabilityLoading}
+                                readOnly={!reportPermissions?.change}
+                            />
+                            <Switch
+                                label="Retroactive Change"
+                                name="retroactiveChange"
+                                value={reportData?.report?.retroactiveChange}
+                                onChange={handleRetroActiveChange}
+                                disabled={changeRetroactiveLoading}
+                                readOnly={!reportPermissions?.change}
+                            />
+                        </Container>
                     </Container>
                     <div className={styles.sideContent}>
                         {lastGeneration && (lastGeneration.isApproved || lastGeneration.isSignedOff) && ( // eslint-disable-line max-len
