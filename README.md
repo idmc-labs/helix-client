@@ -68,7 +68,7 @@ Helix 2.0 is a React-based web application designed to provide a user-friendly i
 ## Getting Started
 
 ### Prerequisites
-- Node.js
+- Node.js (Recommended version: v14.0 to v16.20)
 - Yarn
 - Docker (optional)
 
