@@ -1,8 +1,8 @@
-version: '3.3'
-
 services:
   react:
-    build: .
+    build:
+      context: .
+      target: dev
     command: sh -c 'yarn install && yarn start'
     environment:
       REACT_APP_ENV: ${REACT_APP_ENV:-dev}
