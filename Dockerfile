@@ -1,15 +1,14 @@
 # -------------------------- Dev ---------------------------------------
 
-FROM node:16.20.2-bullseye AS dev
+FROM node:20-bookworm AS dev
 
 RUN apt-get update -y \
-    && apt-get install -y --no-install-recommends git \
+    && apt-get install -y --no-install-recommends \
+        git bash g++ make \
     && git config --global --add safe.directory /code \
-    && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /code
-
 
 # -------------------------- Builder ---------------------------------------
 FROM dev AS builder
@@ -36,13 +35,15 @@ ENV REACT_APP_HCATPCHA_SITEKEY=REACT_APP_HCATPCHA_SITEKEY_PLACEHOLDER
 ENV REACT_APP_GRAPHQL_ENDPOINT=https://REACT-APP-GRAPHQL-ENDPOINT-PLACEHOLDER.COM/
 ENV REACT_APP_SWAGGER_ENDPOINT=https://REACT-APP-SWAGGER-ENDPOINT-PLACEHOLDER.COM/external-api/
 
-RUN env > .env && yarn build:unsafe
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
+RUN env > .env && yarn build
 
 # ---------------------------------------------------------------------------
 FROM nginx:1 AS nginx-serve
 
 LABEL maintainer="IDMC"
-LABEL org.opencontainers.image.source="github.com/idmc-labs/helix-server"
+LABEL org.opencontainers.image.source="github.com/idmc-labs/helix-client"
 
 COPY ./nginx-serve/apply-config.sh /docker-entrypoint.d/
 COPY ./nginx-serve/nginx.conf.template /etc/nginx/templates/default.conf.template
