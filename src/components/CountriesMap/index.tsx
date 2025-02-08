@@ -10,7 +10,7 @@ import Map, {
 export type Bounds = [number, number, number, number];
 export type Centers = [number, number];
 
-const lightStyle = 'mapbox://styles/togglecorp/cl50rwy0a002d14mo6w9zprio';
+const lightStyle = 'mapbox://styles/idmcda/ck9x61jf5148n1in1wws4mswc';
 
 const countryFillPaint: mapboxgl.FillPaint = {
     'fill-color': '#e0e8f0',

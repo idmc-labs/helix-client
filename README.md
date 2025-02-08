@@ -1,6 +1,7 @@
 # Helix 2.0
 
 ## Table of Contents
+
 - [Helix 2.0](#helix-20)
   - [Table of Contents](#table-of-contents)
   - [Project Overview](#project-overview)
@@ -26,7 +27,11 @@
   - [License](#license)
 
 ## Project Overview
-Helix 2.0 is a React-based web application designed to provide a user-friendly interface for interacting with a backend service via GraphQL. The project emphasizes modularity, reusability, and maintainability, leveraging modern JavaScript practices and TypeScript for enhanced type safety.
+
+Helix 2.0 is a React-based web application designed to provide a user-friendly
+interface for interacting with a backend service via GraphQL. The project
+emphasizes modularity, reusability, and maintainability, leveraging modern
+JavaScript practices and TypeScript for enhanced type safety.
 
 ## Main Features
 - **React-based UI**: Utilizes React for building dynamic user interfaces.
@@ -39,7 +44,7 @@ Helix 2.0 is a React-based web application designed to provide a user-friendly i
 - **Code Generation**: GraphQL Code Generator for TypeScript types based on the GraphQL schema.
 
 ## Repository Structure
-- **Root Level**: Configuration files (`.babelrc.js`, `.eslintrc.js`, `docker-compose.yml`, `Dockerfile`, `package.json`, `tsconfig.json`)
+- **Root Level**: Configuration files
 - **`config/`**: Environment and webpack configurations
 - **`src/`**: Main source code
   - `components/`: Reusable UI components
@@ -132,7 +137,7 @@ yarn build
 
 ### AWS CloudFormation Deployment
 1. Replace placeholders in the following command:
-   ```
+   ```bash
    AWS_PROFILE={AWS_PROFILE} aws cloudformation deploy \
        --capabilities CAPABILITY_NAMED_IAM \
        --template-file aws/cloudformation.yml \
@@ -141,7 +146,7 @@ yarn build
        --parameter-overrides Env={env} HostedZoneId={HostedZoneId}
    ```
 2. View stack outputs:
-   ```
+   ```bash
    AWS_PROFILE={AWS_PROFILE} aws cloudformation describe-stacks \
        --stack-name helix-{env}-client \
        | jq -r '.Stacks[0].Outputs'
@@ -161,11 +166,11 @@ The `schema.graphql` file defines the data structure, including:
 3. Submit a pull request with a description of your changes
 
 ### Code Quality Guidelines
-- Use Prettier and ESLint for consistent formatting
-- Write unit and integration tests for critical components
-- Document components with PropTypes or TypeScript interfaces
-- Optimize performance using React.memo or useCallback where necessary
-- Ensure accessibility by using ARIA roles and keyboard navigation
+- Use ESLint for consistent formatting
+- Write unit tests critical components
+- Document components with TypeScript interfaces
+- Optimize performance using React.memo, useCallback and useMemo where necessary
+- Ensure accessibility by using ARIA roles
 
 ## Troubleshooting
 - **Module not found**: Ensure all dependencies are installed and paths are correct

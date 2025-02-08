@@ -440,9 +440,9 @@ const routeSettings = {
 };
 
 export const lostRoute = {
-    path: undefined,
+    path: '*',
     title: '404',
-    load: () => (
+    load: (
         <View
             title="404"
             component={lazy(() => import('../views/FourHundredFour'))}

@@ -1,11 +1,17 @@
 import React from 'react';
-import { Router, matchPath } from 'react-router-dom';
+import { Router } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
-import { init, ErrorBoundary, reactRouterV5Instrumentation } from '@sentry/react';
-import { Integrations } from '@sentry/tracing';
+import {
+    init,
+    ErrorBoundary,
+    reactRouterV5BrowserTracingIntegration,
+    browserProfilingIntegration,
+    browserTracingIntegration,
+    replayIntegration,
+    feedbackIntegration,
+} from '@sentry/react';
 import { setMapboxToken } from '@togglecorp/re-map';
 
-import routeSettings, { lostRoute } from '#config/routes';
 import Error from '#views/Error';
 import App from './App';
 
@@ -17,24 +23,32 @@ const mapboxToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
 const sentryDsn = process.env.REACT_APP_SENTRY_DSN;
 const appCommitHash = process.env.REACT_APP_COMMITHASH || 'UNKNOWN';
-const runtimeEnv = process.env.NODE_ENV;
+// const runtimeEnv = process.env.NODE_ENV;
 const env = process.env.REACT_APP_ENV;
-if (sentryDsn && runtimeEnv === 'production') {
+if (sentryDsn) {
     init({
         dsn: sentryDsn,
-        release: `helix@${appCommitHash}`,
         environment: env,
+        debug: env === 'dev',
+        release: `helix@${appCommitHash}`,
         // sendDefaultPii: true,
         normalizeDepth: 5,
         integrations: [
-            new Integrations.BrowserTracing({
-                routingInstrumentation: reactRouterV5Instrumentation(
-                    history,
-                    [...Object.entries(routeSettings), lostRoute],
-                    matchPath,
-                ),
+            reactRouterV5BrowserTracingIntegration({ history }),
+            // TODO: We should also set document response header to include
+            // Document-Policy: js-profiling
+            browserProfilingIntegration(),
+            browserTracingIntegration(),
+            replayIntegration(),
+            feedbackIntegration({
+                colorScheme: 'system',
             }),
         ],
+        tracesSampleRate: 1.0,
+        // FIXME: set this to the domains we have
+        tracePropagationTargets: ['localhost', /^\//],
+        replaysSessionSampleRate: 1.0,
+        profilesSampleRate: 1.0,
     });
 }
 

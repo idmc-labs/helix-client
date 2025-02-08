@@ -7,13 +7,12 @@
     gap: var(--spacing-large);
 
     .heading {
-        color: var(--color-danger);
-        font-size: var(--font-size-super-large-alt);
+        font-size: var(--font-size-ultra-large);
         font-weight: var(--font-weight-bold);
     }
 
     .message {
         text-align: center;
-        font-size: var(--font-size-large-alt);
+        font-size: var(--font-size-large);
     }
 }
