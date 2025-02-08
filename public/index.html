@@ -44,37 +44,11 @@
 
         <script>
             if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker
-                        .register('/service-worker.js')
-                        .then((registration) => {
-                            console.info('SW registered: ', registration);
-                            registration.onupdatefound = () => {
-                                const installingWorker = registration.installing;
-                                installingWorker.onstatechange = () => {
-                                    switch (installingWorker.state) {
-                                        case 'installed':
-                                            if (navigator.serviceWorker.controller) {
-                                                // New update is available
-                                                console.info('SW: New update is available!');
-                                                const shouldUpdate = window.confirm('New update is available. Do you want to update now?');
-                                                if (shouldUpdate) {
-                                                    window.location.reload(true);
-                                                }
-                                            } else {
-                                                // No new update
-                                                console.info('SW: No new updates!');
-                                            }
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                };
-                            };
-                        })
-                        .catch((registrationError) => {
-                            console.error('SW registration failed: ', registrationError);
-                        });
+                // Unregister service worker
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    for (const registration of registrations) {
+                        registration.unregister();
+                    }
                 });
             }
         </script>
