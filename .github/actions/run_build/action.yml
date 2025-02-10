@@ -12,6 +12,15 @@ inputs:
   REACT_APP_ENV:
     description: ''
     required: true
+  REACT_APP_MAPBOX_ACCESS_TOKEN:
+    description: ''
+    required: true
+  REACT_APP_SENTRY_DSN:
+    description: ''
+    required: true
+  REACT_APP_HCATPCHA_SITEKEY:
+    description: ''
+    required: true
   # Optional
   REACT_APP_GRAPHQL_ENDPOINT:
     description: ''
@@ -35,9 +44,9 @@ runs:
           GRAPHQL_CODEGEN_ENDPOINT: ''
           # Common
           REACT_APP_MMP_ENDPOINT: "https://media-monitoring.idmcdb.org"
-          REACT_APP_MAPBOX_ACCESS_TOKEN: ${{ secrets.REACT_APP_MAPBOX_ACCESS_TOKEN }}
-          REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}
-          REACT_APP_HCATPCHA_SITEKEY: ${{ secrets.REACT_APP_HCATPCHA_SITEKEY }}
+          REACT_APP_MAPBOX_ACCESS_TOKEN: ${{ inputs.REACT_APP_MAPBOX_ACCESS_TOKEN }}
+          REACT_APP_SENTRY_DSN: ${{ inputs.REACT_APP_SENTRY_DSN }}
+          REACT_APP_HCATPCHA_SITEKEY: ${{ inputs.REACT_APP_HCATPCHA_SITEKEY }}
           # Default values
           # -- Helix
           REACT_APP_GRAPHQL_ENDPOINT: ${{ inputs.REACT_APP_GRAPHQL_ENDPOINT }}
@@ -51,7 +60,7 @@ runs:
         # Pass env to file for yarn build
         env > .env &&
         # Run build
-        yarn build &&
+        NODE_OPTIONS=--openssl-legacy-provider yarn build &&
         # Copy build files to output dir
         mv build/ $BUILD_OUTPUT_DIR
 
