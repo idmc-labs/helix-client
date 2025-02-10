@@ -1,0 +1,61 @@
+name: Reusable workflow for deploying helix
+
+on:
+  workflow_call:
+    inputs:
+      GH_ENVIRONMENT_NAME:
+        required: true
+        type: string
+      GH_ENVIRONMENT_URL:
+        required: true
+        type: string
+      ARTIFACT_NAME:
+        required: true
+        type: string
+    secrets:
+      AWS_ROLE_TO_ASSUME:
+        required: true
+      AWS_REGION:
+        required: true
+      AWS_CLOUDFRONT_DISTRIBUTION:
+        required: true
+
+permissions:
+  id-token: write   # This is required for requesting the JWT
+  contents: read    # This is required for actions/checkout
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    environment:
+      name: ${{ inputs.GH_ENVIRONMENT_NAME }}
+      url: ${{ inputs.GH_ENVIRONMENT_URL }}
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.ARTIFACT_NAME }}
+          path: ./build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.3
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+
+      # Copy build to S3
+      - name: S3 Sync
+        env:
+          AWS_S3_BUCKET: ${{ vars.AWS_S3_BUCKET }}
+        run: |
+          aws s3 sync --no-progress --follow-symlinks --delete ./build s3://$AWS_S3_BUCKET
+
+      # Invalidate Cloudfront
+      - name: Cloudfront Invalidate
+        env:
+          DISTRIBUTION: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION }}
+        run: |
+          aws cloudfront create-invalidation --distribution-id $DISTRIBUTION --paths "/*"

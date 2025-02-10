@@ -1,0 +1,62 @@
+name: React Build
+description: 'Reusable workflow for building helix'
+
+inputs:
+  # Required
+  BUILD_OUTPUT_DIR:
+    description: ''
+    required: true
+  UPLOAD_ARTIFACT_NAME:
+    description: ''
+    required: true
+  REACT_APP_ENV:
+    description: ''
+    required: true
+  # Optional
+  REACT_APP_GRAPHQL_ENDPOINT:
+    description: ''
+    required: false
+    default: https://helix-tools-api.idmcdb.org/graphql
+  REACT_APP_GRAPHIQL_ENDPOINT:
+    description: ''
+    required: false
+    default: https://helix-tools-api.idmcdb.org/graphiql
+  REACT_APP_SWAGGER_ENDPOINT:
+    description: ''
+    required: false
+    default: https://helix-tools-api.idmcdb.org/external-api/
+
+runs:
+  using: "composite"
+  steps:
+    - name: 🤞 Run Build 🧪
+      env:
+          # Unsed variables
+          GRAPHQL_CODEGEN_ENDPOINT: ''
+          # Common
+          REACT_APP_MMP_ENDPOINT: "https://media-monitoring.idmcdb.org"
+          REACT_APP_MAPBOX_ACCESS_TOKEN: ${{ secrets.REACT_APP_MAPBOX_ACCESS_TOKEN }}
+          REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}
+          REACT_APP_HCATPCHA_SITEKEY: ${{ secrets.REACT_APP_HCATPCHA_SITEKEY }}
+          # Default values
+          # -- Helix
+          REACT_APP_GRAPHQL_ENDPOINT: ${{ inputs.REACT_APP_GRAPHQL_ENDPOINT }}
+          REACT_APP_GRAPHIQL_ENDPOINT: ${{ inputs.REACT_APP_GRAPHIQL_ENDPOINT }}
+          REACT_APP_SWAGGER_ENDPOINT: ${{ inputs.REACT_APP_SWAGGER_ENDPOINT }}
+          # -- Misc
+          REACT_APP_ENV: ${{ inputs.REACT_APP_ENV }}
+          BUILD_OUTPUT_DIR: ${{ inputs.BUILD_OUTPUT_DIR }}
+      shell: bash
+      run: |
+        # Pass env to file for yarn build
+        env > .env &&
+        # Run build
+        yarn build:unsafe &&
+        # Copy build files to output dir
+        mv build/ $BUILD_OUTPUT_DIR
+
+    - name: Save build files as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.UPLOAD_ARTIFACT_NAME }}
+        path: ${{ inputs.BUILD_OUTPUT_DIR }}
