@@ -51,7 +51,7 @@ runs:
         # Pass env to file for yarn build
         env > .env &&
         # Run build
-        yarn build:unsafe &&
+        yarn build &&
         # Copy build files to output dir
         mv build/ $BUILD_OUTPUT_DIR
 
