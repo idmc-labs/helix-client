@@ -40,8 +40,6 @@ runs:
   steps:
     - name: 🤞 Run Build 🧪
       env:
-          # Unsed variables
-          GRAPHQL_CODEGEN_ENDPOINT: ''
           # Common
           REACT_APP_MMP_ENDPOINT: "https://media-monitoring.idmcdb.org"
           REACT_APP_MAPBOX_ACCESS_TOKEN: ${{ inputs.REACT_APP_MAPBOX_ACCESS_TOKEN }}
