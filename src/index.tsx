@@ -7,7 +7,7 @@ console.info('React version', React.version);
 
 const rootElement = document.getElementById('helix-client-root');
 if (rootElement) {
-    ReactDOM.unstable_createRoot(rootElement).render(<Root />);
+    ReactDOM.render(<Root />, rootElement);
 } else {
     console.error('Root element was not found');
 }

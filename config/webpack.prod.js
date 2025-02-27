@@ -1,6 +1,5 @@
 import ResourceHintWebpackPlugin from 'resource-hints-webpack-plugin';
 import CompressionPlugin from 'compression-webpack-plugin';
-import WorkboxPlugin from 'workbox-webpack-plugin';
 import WebpackPwaManifest from 'webpack-pwa-manifest';
 import path from 'path';
 import webpack from 'webpack';
@@ -190,24 +189,6 @@ module.exports = (env) => {
             new MiniCssExtractPlugin({
                 filename: 'css/[name].[contenthash].css',
                 chunkFilename: 'css/[id].[contenthash].css',
-            }),
-            new WorkboxPlugin.GenerateSW({
-                // these options encourage the ServiceWorkers to get in there fast
-                // and not allow any straggling "old" SWs to hang around
-                cleanupOutdatedCaches: true,
-                clientsClaim: true,
-                skipWaiting: true,
-                include: [/\.html$/, /\.js$/, /\.css$/],
-                exclude: [/\.map$/, /\.map.gz$/, /index.html/, /index.html.gz/],
-                navigateFallback: '/index.html',
-                navigateFallbackDenylist: [/^\/assets/, /^\/admin/, /^\/api/],
-                maximumFileSizeToCacheInBytes: 500 * 1024,
-                runtimeCaching: [
-                    {
-                        urlPattern: /assets/,
-                        handler: 'StaleWhileRevalidate',
-                    },
-                ],
             }),
             new WebpackPwaManifest({
                 name: 'helix-client',

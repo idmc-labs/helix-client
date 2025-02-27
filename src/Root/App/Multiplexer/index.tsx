@@ -1,7 +1,7 @@
 import React, { Suspense, useState, useCallback, useMemo } from 'react';
 import { useQuery, gql } from '@apollo/client';
-import { setUser as setUserOnSentry } from '@sentry/react';
-import { Switch, Route } from 'react-router-dom';
+import { setUser as setUserOnSentry, withSentryRouting } from '@sentry/react';
+import { Switch, Route as RawRoute } from 'react-router-dom';
 import { _cs, isTruthyString } from '@togglecorp/fujs';
 import { removeNull } from '@togglecorp/toggle-form';
 import { v4 as uuidv4 } from 'uuid';
@@ -36,6 +36,8 @@ import {
 import routeSettings, { lostRoute } from '#config/routes';
 
 import styles from './styles.css';
+
+const Route = withSentryRouting(RawRoute);
 
 const notificationVariantToClassNameMap: { [key in NotificationVariant]: string } = {
     default: styles.default,
@@ -457,11 +459,10 @@ function Multiplexer(props: Props) {
                                             render={routeSettings.eventReview.load}
                                         />
                                         <Route
-                                            exact
                                             path={lostRoute.path}
-                                            render={lostRoute.load}
-                                            default
-                                        />
+                                        >
+                                            {lostRoute.load}
+                                        </Route>
                                     </Switch>
                                 </Suspense>
                                 <footer className={styles.footer}>

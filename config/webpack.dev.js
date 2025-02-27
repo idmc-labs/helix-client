@@ -84,6 +84,9 @@ module.exports = (env) => {
             watchOptions: {
                 ignored: /node_modules/,
             },
+            headers: {
+                'Document-Policy': 'js-profiling',
+            },
             // Don't show warnings in browser console
             clientLogLevel: 'none',
 
