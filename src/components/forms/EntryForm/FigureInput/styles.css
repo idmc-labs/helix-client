@@ -19,6 +19,12 @@
     color: var(--color-text-on-warning);
 }
 
+.add-button-container {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+}
+
 .section-content {
     display: flex;
     flex-direction: column;

@@ -157,6 +157,8 @@ export const FIGURE_FRAGMENT = gql`
                 houseNumbers
                 id
                 identifier
+                geocoder
+                geocoderMetadata
                 importance
                 lat
                 lon
@@ -397,7 +399,7 @@ export const FIGURE_OPTIONS = gql`
                 description
             }
         }
-        accuracyList: __type(name: "OSM_ACCURACY") {
+        accuracyList: __type(name: "ACCURACY") {
             name
             enumValues {
                 name
@@ -405,6 +407,13 @@ export const FIGURE_OPTIONS = gql`
             }
         }
         dateAccuracy: __type(name: "DATE_ACCURACY") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        geocoderList: __type(name: "FigureLocationGeocoder") {
             name
             enumValues {
                 name

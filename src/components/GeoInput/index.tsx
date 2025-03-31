@@ -19,7 +19,7 @@ import {
     RawButton,
     Button,
 } from '@togglecorp/toggle-ui';
-import { _cs, isDefined, isTruthyString } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import { mergeBbox } from '#utils/common';
 
 import { GeoLocationFormProps } from '#components/forms/EntryForm/types';
@@ -31,7 +31,7 @@ import {
     GlobalLookupQuery,
     GlobalLookupQueryVariables,
     Identifier,
-    Osm_Accuracy as OsmAccuracy,
+    Accuracy as OsmAccuracy,
 } from '#generated/types';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { PartialForm, MakeRequired } from '#types';
@@ -41,7 +41,11 @@ import image from './arrow.png';
 
 import styles from './styles.css';
 
-type GeoLocation = PartialForm<GeoLocationFormProps>;
+function randomNumber() {
+    return Math.floor((Math.random() * 100000000000));
+}
+
+type GeoLocation = PartialForm<GeoLocationFormProps> & { uniqueId: number };
 
 type LookupData = NonNullable<NonNullable<LookupQuery['lookup']>['results']>[0]
 
@@ -339,9 +343,9 @@ function LookupItem(props: LookupItemProps) {
 }
 
 export interface GeoInputProps<T extends string> {
-    value: GeoLocation[] | null | undefined;
+    value: PartialForm<GeoLocationFormProps>[] | null | undefined;
     name: T;
-    onChange: (value: GeoLocation[], name: T) => void;
+    onChange: (value: PartialForm<GeoLocationFormProps>[], name: T) => void;
     country?: Country;
     className?: string,
     disabled?: boolean;
@@ -361,7 +365,7 @@ function link<T, K>(foo: T[], bar: K[]): [T, K][] {
 
 type GoodGeoLocation = MakeRequired<GeoLocation, 'osmId' | 'lon' | 'lat'>;
 function isValidGeoLocation(value: GeoLocation): value is GoodGeoLocation {
-    return isTruthyString(value.osmId) && isDefined(value.lon) && isDefined(value.lat);
+    return isDefined(value.lon) && isDefined(value.lat);
 }
 
 // The mapping is created from the information available here:
@@ -403,6 +407,7 @@ function convertToGeoLocation(item: LookupData, omitIdentifier?: boolean): GeoLo
 
     const newValue: GeoLocation = {
         uuid: uuidv4(),
+        uniqueId: randomNumber(),
         wikipedia: properties.wikipedia,
         rank: properties.rank,
         country: properties.country,
@@ -425,6 +430,7 @@ function convertToGeoLocation(item: LookupData, omitIdentifier?: boolean): GeoLo
         osmType: properties.osm_type,
         placeRank: properties.place_rank,
         alternativeNames: properties.alternative_names,
+        geocoderMetadata: JSON.stringify(properties),
 
         moved: false,
         identifier: omitIdentifier ? undefined : defaultIdentifier,
@@ -437,12 +443,12 @@ function convertToGeoPoints(value: GeoLocation[] | null | undefined): LocationGe
     const features = value
         ?.filter(isValidGeoLocation)
         ?.map((item) => ({
-            id: +item.osmId,
+            id: +item.uniqueId,
             type: 'Feature' as const,
             bbox: item.boundingBox as (Bounds | undefined),
             properties: {
                 identifier: item.identifier,
-                name: item.name,
+                name: item.displayName,
             },
             geometry: {
                 type: 'Point' as const,
@@ -492,7 +498,12 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
         disabled,
     } = props;
 
-    const value = valueFromProps ?? (emptyList as GeoLocation[]);
+    const value = useMemo(() => (
+        valueFromProps?.map((item) => ({
+            ...item,
+            uniqueId: randomNumber(),
+        })) ?? (emptyList as GeoLocation[])
+    ), [valueFromProps]);
 
     const [searchShown, setSearchShown] = useState(false);
     const [search, setSearch] = useState<string | undefined>();
@@ -514,6 +525,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
         () => convertToGeoPoints(value),
         [value],
     );
+    console.log('here', geoPoints);
 
     const geoPointsWithTempPoint = useMemo(
         () => {
@@ -606,7 +618,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                 value,
                 (safeValue) => {
                     const index = safeValue.findIndex(
-                        (item) => item.osmId && +item.osmId === movedPoint.id,
+                        (item) => item.uniqueId && +item.uniqueId === movedPoint.id,
                     );
                     if (index !== -1) {
                         // eslint-disable-next-line no-param-reassign
@@ -720,19 +732,46 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
             feature: Dragging,
             lngLat: mapboxgl.LngLat,
         ) => {
-            setMovedPoint({
-                id: feature.id,
-                point: [lngLat.lng, lngLat.lat],
-            });
-
-            getReverseLookup({
-                variables: {
-                    lng: lngLat.lng,
-                    lat: lngLat.lat,
-                },
-            });
+            const itemBeingDragged = value?.find((item) => +item.uniqueId === feature.id);
+            // NOTE: Only triggering reverse lookup if its OSM
+            if (itemBeingDragged?.geocoder === 'A_1') {
+                setMovedPoint({
+                    id: feature.id,
+                    point: [lngLat.lng, lngLat.lat],
+                });
+                getReverseLookup({
+                    variables: {
+                        lng: lngLat.lng,
+                        lat: lngLat.lat,
+                    },
+                });
+            } else if (itemBeingDragged) {
+                const newValue = produce(
+                    value,
+                    (safeValue) => {
+                        const index = safeValue.findIndex(
+                            (item) => item.uniqueId && +item.uniqueId === feature.id,
+                        );
+                        if (index !== -1) {
+                            // eslint-disable-next-line no-param-reassign
+                            safeValue[index] = {
+                                ...safeValue[index],
+                                lon: lngLat.lng,
+                                lat: lngLat.lat,
+                                moved: true,
+                            };
+                        }
+                    },
+                );
+                onChange(newValue, name);
+            }
         },
-        [getReverseLookup],
+        [
+            name,
+            onChange,
+            value,
+            getReverseLookup,
+        ],
     );
 
     const handleMouseEnter = useCallback(
@@ -833,7 +872,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             icons={searchShown ? <IoCloseOutline /> : <IoAddOutline />}
                             disabled={inputDisabled || readOnly}
                         >
-                            {searchShown ? 'Close' : 'Add location'}
+                            {searchShown ? 'Close' : 'Add location from OSM'}
                         </Button>
                     )}
                     {defaultBounds && (
