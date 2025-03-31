@@ -955,13 +955,16 @@ function FigureInput(props: FigureInputProps) {
         const newLocation: GeoLocations = {
             uuid,
             // NOTE: Setting to custom source by default
-            geocoder: 'A_4',
+            geocoder: 'CUSTOM_SOURCE',
+            countryCode: currentCountry?.iso2 ?? undefined,
+            moved: false,
         };
         onValueChange(
             [...(value.geoLocations ?? []), newLocation],
             'geoLocations' as const,
         );
     }, [
+        currentCountry,
         value.geoLocations,
         onValueChange,
     ]);
@@ -1563,7 +1566,7 @@ function FigureInput(props: FigureInputProps) {
                             disabled={disabled || eventNotChosen}
                         />
                     )}
-                    {value.country && locationsShown && (
+                    {value.country && locationsShown && editMode && (
                         <div className={styles.addButtonContainer}>
                             <Button
                                 name={undefined}

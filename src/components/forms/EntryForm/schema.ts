@@ -138,8 +138,16 @@ const geoLocation = {
         displayName: [],
         houseNumbers: [],
         importance: [],
-        lat: [greaterThanOrEqualToCondition(-90), lessThanOrEqualToCondition(90)],
-        lon: [greaterThanOrEqualToCondition(-180), lessThanOrEqualToCondition(180)],
+        lat: [
+            greaterThanOrEqualToCondition(-90),
+            lessThanOrEqualToCondition(90),
+            requiredCondition,
+        ],
+        lon: [
+            greaterThanOrEqualToCondition(-180),
+            lessThanOrEqualToCondition(180),
+            requiredCondition,
+        ],
         moved: [],
         name: [],
         nameSuffix: [],

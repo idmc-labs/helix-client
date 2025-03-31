@@ -1,4 +1,9 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, {
+    useRef,
+    useState,
+    useMemo,
+    useCallback,
+} from 'react';
 import { gql, useQuery, useLazyQuery } from '@apollo/client';
 import { removeNull } from '@togglecorp/toggle-form';
 import produce from 'immer';
@@ -41,11 +46,7 @@ import image from './arrow.png';
 
 import styles from './styles.css';
 
-function randomNumber() {
-    return Math.floor((Math.random() * 100000000000));
-}
-
-type GeoLocation = PartialForm<GeoLocationFormProps> & { uniqueId: number };
+type GeoLocation = PartialForm<GeoLocationFormProps>;
 
 type LookupData = NonNullable<NonNullable<LookupQuery['lookup']>['results']>[0]
 
@@ -407,7 +408,6 @@ function convertToGeoLocation(item: LookupData, omitIdentifier?: boolean): GeoLo
 
     const newValue: GeoLocation = {
         uuid: uuidv4(),
-        uniqueId: randomNumber(),
         wikipedia: properties.wikipedia,
         rank: properties.rank,
         country: properties.country,
@@ -431,6 +431,7 @@ function convertToGeoLocation(item: LookupData, omitIdentifier?: boolean): GeoLo
         placeRank: properties.place_rank,
         alternativeNames: properties.alternative_names,
         geocoderMetadata: JSON.stringify(properties),
+        geocoder: 'OSMNAME',
 
         moved: false,
         identifier: omitIdentifier ? undefined : defaultIdentifier,
@@ -439,11 +440,14 @@ function convertToGeoLocation(item: LookupData, omitIdentifier?: boolean): GeoLo
     return newValue;
 }
 
-function convertToGeoPoints(value: GeoLocation[] | null | undefined): LocationGeoJson {
+function convertToGeoPoints(
+    value: GeoLocation[] | null | undefined,
+    getIdFromMapping: (uuid: string) => number,
+): LocationGeoJson {
     const features = value
         ?.filter(isValidGeoLocation)
         ?.map((item) => ({
-            id: +item.uniqueId,
+            id: getIdFromMapping(item.uuid),
             type: 'Feature' as const,
             bbox: item.boundingBox as (Bounds | undefined),
             properties: {
@@ -498,12 +502,10 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
         disabled,
     } = props;
 
-    const value = useMemo(() => (
-        valueFromProps?.map((item) => ({
-            ...item,
-            uniqueId: randomNumber(),
-        })) ?? (emptyList as GeoLocation[])
-    ), [valueFromProps]);
+    const value = valueFromProps ?? (emptyList as GeoLocation[]);
+
+    const uuidNumberCounter = useRef<number>(1);
+    const uuidNumberMapping = useRef<Record<string, number>>({});
 
     const [searchShown, setSearchShown] = useState(false);
     const [search, setSearch] = useState<string | undefined>();
@@ -521,18 +523,36 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
         setHoveredRegionProperties,
     ] = useState<HoveredRegion | undefined>();
 
+    // NOTE: we need number as id to use drag handlers or refer to
+    // any point/object on map. As we don't have any uniqueId other than
+    // uuid (string), we need another number hence generating
+    // ids for each uuid
+    const getIdFromMapping = useCallback((uuid: string) => {
+        if (uuidNumberMapping.current[uuid]) {
+            return uuidNumberMapping.current[uuid];
+        }
+        const val = uuidNumberCounter.current + 1;
+        uuidNumberCounter.current = val;
+        uuidNumberMapping.current[uuid] = val;
+        return val;
+    }, []);
+
     const geoPoints = useMemo(
-        () => convertToGeoPoints(value),
-        [value],
+        () => (
+            convertToGeoPoints(value, getIdFromMapping)
+        ),
+        [
+            value,
+            getIdFromMapping,
+        ],
     );
-    console.log('here', geoPoints);
 
     const geoPointsWithTempPoint = useMemo(
         () => {
             if (!tempLocation) {
                 return geoPoints;
             }
-            const newGeo = convertToGeoPoints([tempLocation]);
+            const newGeo = convertToGeoPoints([tempLocation], getIdFromMapping);
             return {
                 ...geoPoints,
                 features: [
@@ -541,9 +561,14 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                 ],
             };
         },
-        [tempLocation, geoPoints],
+        [
+            getIdFromMapping,
+            tempLocation,
+            geoPoints,
+        ],
     );
 
+    console.log('here', geoPoints, geoPointsWithTempPoint);
     const geoLines = useMemo(
         () => convertToGeoLines(value),
         [value],
@@ -618,7 +643,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                 value,
                 (safeValue) => {
                     const index = safeValue.findIndex(
-                        (item) => item.uniqueId && +item.uniqueId === movedPoint.id,
+                        (item) => uuidNumberMapping.current[item.uuid] === movedPoint.id,
                     );
                     if (index !== -1) {
                         // eslint-disable-next-line no-param-reassign
@@ -732,9 +757,11 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
             feature: Dragging,
             lngLat: mapboxgl.LngLat,
         ) => {
-            const itemBeingDragged = value?.find((item) => +item.uniqueId === feature.id);
+            const itemBeingDragged = value?.find(
+                (item) => getIdFromMapping(item.uuid) === feature.id,
+            );
             // NOTE: Only triggering reverse lookup if its OSM
-            if (itemBeingDragged?.geocoder === 'A_1') {
+            if (itemBeingDragged?.geocoder === 'OSMNAME') {
                 setMovedPoint({
                     id: feature.id,
                     point: [lngLat.lng, lngLat.lat],
@@ -750,7 +777,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                     value,
                     (safeValue) => {
                         const index = safeValue.findIndex(
-                            (item) => item.uniqueId && +item.uniqueId === feature.id,
+                            (item) => getIdFromMapping(item.uuid) === feature.id,
                         );
                         if (index !== -1) {
                             // eslint-disable-next-line no-param-reassign
@@ -767,6 +794,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
             }
         },
         [
+            getIdFromMapping,
             name,
             onChange,
             value,

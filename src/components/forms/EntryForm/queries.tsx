@@ -413,7 +413,7 @@ export const FIGURE_OPTIONS = gql`
                 description
             }
         }
-        geocoderList: __type(name: "FigureLocationGeocoder") {
+        geocoderList: __type(name: "GEOCODER") {
             name
             enumValues {
                 name

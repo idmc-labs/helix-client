@@ -202,7 +202,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                             readOnly={!editMode}
                         />
                         <NumberInput
-                            label="Latitude"
+                            label="Latitude *"
                             name="lat"
                             value={value.lat}
                             error={error?.fields?.lat}
@@ -211,7 +211,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                             readOnly={!editMode}
                         />
                         <NumberInput
-                            label="Longitude"
+                            label="Longitude *"
                             name="lon"
                             value={value.lon}
                             error={error?.fields?.lon}
