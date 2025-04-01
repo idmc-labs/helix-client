@@ -65,6 +65,10 @@ export type IdentifierOptions = GetEnumOptions<
     NonNullable<FigureOptionsForEntryFormQuery['identifierList']>['enumValues'],
     NonNullable<GeoLocationFormProps['identifier']>
 >;
+export type GeocoderOptions = GetEnumOptions<
+    NonNullable<FigureOptionsForEntryFormQuery['geocoderList']>['enumValues'],
+    NonNullable<GeoLocationFormProps['geocoder']>
+>;
 export type QuantifierOptions = GetEnumOptions<
     NonNullable<FigureOptionsForEntryFormQuery['quantifierList']>['enumValues'],
     NonNullable<FigureFormProps['quantifier']>

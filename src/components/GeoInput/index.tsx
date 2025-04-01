@@ -1,4 +1,9 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, {
+    useRef,
+    useState,
+    useMemo,
+    useCallback,
+} from 'react';
 import { gql, useQuery, useLazyQuery } from '@apollo/client';
 import { removeNull } from '@togglecorp/toggle-form';
 import produce from 'immer';
@@ -19,7 +24,7 @@ import {
     RawButton,
     Button,
 } from '@togglecorp/toggle-ui';
-import { _cs, isDefined, isTruthyString } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import { mergeBbox } from '#utils/common';
 
 import { GeoLocationFormProps } from '#components/forms/EntryForm/types';
@@ -31,7 +36,7 @@ import {
     GlobalLookupQuery,
     GlobalLookupQueryVariables,
     Identifier,
-    Osm_Accuracy as OsmAccuracy,
+    Accuracy as OsmAccuracy,
 } from '#generated/types';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { PartialForm, MakeRequired } from '#types';
@@ -339,9 +344,9 @@ function LookupItem(props: LookupItemProps) {
 }
 
 export interface GeoInputProps<T extends string> {
-    value: GeoLocation[] | null | undefined;
+    value: PartialForm<GeoLocationFormProps>[] | null | undefined;
     name: T;
-    onChange: (value: GeoLocation[], name: T) => void;
+    onChange: (value: PartialForm<GeoLocationFormProps>[], name: T) => void;
     country?: Country;
     className?: string,
     disabled?: boolean;
@@ -361,7 +366,7 @@ function link<T, K>(foo: T[], bar: K[]): [T, K][] {
 
 type GoodGeoLocation = MakeRequired<GeoLocation, 'osmId' | 'lon' | 'lat'>;
 function isValidGeoLocation(value: GeoLocation): value is GoodGeoLocation {
-    return isTruthyString(value.osmId) && isDefined(value.lon) && isDefined(value.lat);
+    return isDefined(value.lon) && isDefined(value.lat);
 }
 
 // The mapping is created from the information available here:
@@ -425,6 +430,8 @@ function convertToGeoLocation(item: LookupData, omitIdentifier?: boolean): GeoLo
         osmType: properties.osm_type,
         placeRank: properties.place_rank,
         alternativeNames: properties.alternative_names,
+        geocoderMetadata: JSON.stringify(properties),
+        geocoder: 'OSMNAME',
 
         moved: false,
         identifier: omitIdentifier ? undefined : defaultIdentifier,
@@ -433,16 +440,19 @@ function convertToGeoLocation(item: LookupData, omitIdentifier?: boolean): GeoLo
     return newValue;
 }
 
-function convertToGeoPoints(value: GeoLocation[] | null | undefined): LocationGeoJson {
+function convertToGeoPoints(
+    value: GeoLocation[] | null | undefined,
+    getIdFromMapping: (uuid: string) => number,
+): LocationGeoJson {
     const features = value
         ?.filter(isValidGeoLocation)
         ?.map((item) => ({
-            id: +item.osmId,
+            id: getIdFromMapping(item.uuid),
             type: 'Feature' as const,
             bbox: item.boundingBox as (Bounds | undefined),
             properties: {
                 identifier: item.identifier,
-                name: item.name,
+                name: item.displayName,
             },
             geometry: {
                 type: 'Point' as const,
@@ -494,6 +504,9 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
 
     const value = valueFromProps ?? (emptyList as GeoLocation[]);
 
+    const uuidNumberCounter = useRef<number>(1);
+    const uuidNumberMapping = useRef<Record<string, number>>({});
+
     const [searchShown, setSearchShown] = useState(false);
     const [search, setSearch] = useState<string | undefined>();
 
@@ -510,9 +523,28 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
         setHoveredRegionProperties,
     ] = useState<HoveredRegion | undefined>();
 
+    // NOTE: we need number as id to use drag handlers or refer to
+    // any point/object on map. As we don't have any uniqueId other than
+    // uuid (string), we need another number hence generating
+    // ids for each uuid
+    const getIdFromMapping = useCallback((uuid: string) => {
+        if (uuidNumberMapping.current[uuid]) {
+            return uuidNumberMapping.current[uuid];
+        }
+        const val = uuidNumberCounter.current + 1;
+        uuidNumberCounter.current = val;
+        uuidNumberMapping.current[uuid] = val;
+        return val;
+    }, []);
+
     const geoPoints = useMemo(
-        () => convertToGeoPoints(value),
-        [value],
+        () => (
+            convertToGeoPoints(value, getIdFromMapping)
+        ),
+        [
+            value,
+            getIdFromMapping,
+        ],
     );
 
     const geoPointsWithTempPoint = useMemo(
@@ -520,7 +552,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
             if (!tempLocation) {
                 return geoPoints;
             }
-            const newGeo = convertToGeoPoints([tempLocation]);
+            const newGeo = convertToGeoPoints([tempLocation], getIdFromMapping);
             return {
                 ...geoPoints,
                 features: [
@@ -529,7 +561,11 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                 ],
             };
         },
-        [tempLocation, geoPoints],
+        [
+            getIdFromMapping,
+            tempLocation,
+            geoPoints,
+        ],
     );
 
     const geoLines = useMemo(
@@ -606,7 +642,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                 value,
                 (safeValue) => {
                     const index = safeValue.findIndex(
-                        (item) => item.osmId && +item.osmId === movedPoint.id,
+                        (item) => uuidNumberMapping.current[item.uuid] === movedPoint.id,
                     );
                     if (index !== -1) {
                         // eslint-disable-next-line no-param-reassign
@@ -720,19 +756,49 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
             feature: Dragging,
             lngLat: mapboxgl.LngLat,
         ) => {
-            setMovedPoint({
-                id: feature.id,
-                point: [lngLat.lng, lngLat.lat],
-            });
-
-            getReverseLookup({
-                variables: {
-                    lng: lngLat.lng,
-                    lat: lngLat.lat,
-                },
-            });
+            const itemBeingDragged = value?.find(
+                (item) => getIdFromMapping(item.uuid) === feature.id,
+            );
+            // NOTE: Only triggering reverse lookup if its OSM
+            if (itemBeingDragged?.geocoder === 'OSMNAME') {
+                setMovedPoint({
+                    id: feature.id,
+                    point: [lngLat.lng, lngLat.lat],
+                });
+                getReverseLookup({
+                    variables: {
+                        lng: lngLat.lng,
+                        lat: lngLat.lat,
+                    },
+                });
+            } else if (itemBeingDragged) {
+                const newValue = produce(
+                    value,
+                    (safeValue) => {
+                        const index = safeValue.findIndex(
+                            (item) => getIdFromMapping(item.uuid) === feature.id,
+                        );
+                        if (index !== -1) {
+                            // eslint-disable-next-line no-param-reassign
+                            safeValue[index] = {
+                                ...safeValue[index],
+                                lon: lngLat.lng,
+                                lat: lngLat.lat,
+                                moved: true,
+                            };
+                        }
+                    },
+                );
+                onChange(newValue, name);
+            }
         },
-        [getReverseLookup],
+        [
+            getIdFromMapping,
+            name,
+            onChange,
+            value,
+            getReverseLookup,
+        ],
     );
 
     const handleMouseEnter = useCallback(
@@ -833,7 +899,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             icons={searchShown ? <IoCloseOutline /> : <IoAddOutline />}
                             disabled={inputDisabled || readOnly}
                         >
-                            {searchShown ? 'Close' : 'Add location'}
+                            {searchShown ? 'Close' : 'Add location from OSMNames'}
                         </Button>
                     )}
                     {defaultBounds && (
