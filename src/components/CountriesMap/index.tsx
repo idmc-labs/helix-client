@@ -67,7 +67,7 @@ function CountriesMap(props: CountriesMapProps) {
                             type: 'fill',
                             paint: countryFillPaint,
                         }}
-                        // NOTE: this is the lowest line layer in mapstyle
+                        // NOTE: this is the lowest level before "sea" layer
                         beneath="settlement-subdivision-label"
                     />
                     <MapLayer
@@ -76,7 +76,7 @@ function CountriesMap(props: CountriesMapProps) {
                             type: 'line',
                             paint: countryLinePaint,
                         }}
-                        // NOTE: this is the lowest point layer in mapstyle
+                        // NOTE: this is the lowest level before "sea" layer
                         beneath="settlement-subdivision-label"
                     />
                 </MapSource>

@@ -568,7 +568,6 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
         ],
     );
 
-    console.log('here', geoPoints, geoPointsWithTempPoint);
     const geoLines = useMemo(
         () => convertToGeoLines(value),
         [value],
@@ -900,7 +899,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             icons={searchShown ? <IoCloseOutline /> : <IoAddOutline />}
                             disabled={inputDisabled || readOnly}
                         >
-                            {searchShown ? 'Close' : 'Add location from OSM'}
+                            {searchShown ? 'Close' : 'Add location from OSMNames'}
                         </Button>
                     )}
                     {defaultBounds && (
