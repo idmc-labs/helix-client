@@ -122,7 +122,7 @@ type GeoLocation = ObjectSchema<PartialForm<GeoLocationFormProps>>;
 type GeoLocationField = ReturnType<GeoLocation['fields']>;
 const geoLocation = {
     fields: (): GeoLocationField => ({
-        // id: [idCondition],
+        id: [idCondition],
         uuid: [],
         accuracy: [requiredCondition],
         identifier: [requiredCondition],
