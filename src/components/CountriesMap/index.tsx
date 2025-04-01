@@ -68,7 +68,7 @@ function CountriesMap(props: CountriesMapProps) {
                             paint: countryFillPaint,
                         }}
                         // NOTE: this is the lowest line layer in mapstyle
-                        beneath="tunnel-street-minor-low"
+                        beneath="settlement-subdivision-label"
                     />
                     <MapLayer
                         layerKey="country-line"
@@ -77,7 +77,7 @@ function CountriesMap(props: CountriesMapProps) {
                             paint: countryLinePaint,
                         }}
                         // NOTE: this is the lowest point layer in mapstyle
-                        beneath="road-label"
+                        beneath="settlement-subdivision-label"
                     />
                 </MapSource>
             )))}

@@ -92,3 +92,13 @@
     border-bottom: var(--width-separator-thin) solid var(--color-separator);
     height: 0px;
 }
+
+.action-buttons-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--tui-spacing-medium);
+
+    .action-button {
+        flex-shrink: 0;
+    }
+}
