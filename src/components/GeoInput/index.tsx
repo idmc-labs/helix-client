@@ -658,8 +658,6 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             houseNumbers: properties.housenumbers,
                             city: properties.city,
                             displayName: properties.display_name,
-                            lon: movedPoint.point[0],
-                            lat: movedPoint.point[1],
                             state: properties.state,
                             boundingBox: properties.boundingbox,
                             type: properties.type,
@@ -672,6 +670,14 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             alternativeNames: properties.alternative_names,
 
                             moved: true,
+                            lon: movedPoint.point[0],
+                            lat: movedPoint.point[1],
+                            // NOTE: If the geolocation has not been saved then
+                            // we need to update the geocoderMetadata
+                            // NOTE: geocoderMetadata will not be saved if geolocation
+                            // has already been saved once.
+                            geocoderMetadata: JSON.stringify(properties),
+                            // FIXME: Do we also clear out the "id"?
                         };
                     }
                 },
