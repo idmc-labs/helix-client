@@ -125,6 +125,7 @@ import {
     RoleOptions,
     GenderOptions,
     IdentifierOptions,
+    GeocoderOptions,
     QuantifierOptions,
     CategoryOptions,
     DateAccuracyOptions,
@@ -329,6 +330,7 @@ interface FigureInputProps {
     optionsDisabled: boolean;
     accuracyOptions: AccuracyOptions;
     identifierOptions: IdentifierOptions;
+    geocoderOptions: GeocoderOptions;
     categoryOptions: CategoryOptions;
     quantifierOptions: QuantifierOptions;
     unitOptions: UnitOptions;
@@ -390,6 +392,7 @@ function FigureInput(props: FigureInputProps) {
         setEvents,
         accuracyOptions,
         identifierOptions,
+        geocoderOptions,
         categoryOptions,
         quantifierOptions,
         unitOptions,
@@ -946,6 +949,25 @@ function FigureInput(props: FigureInputProps) {
         onValueChange: onGeoLocationChange,
         onValueRemove: onGeoLocationRemove,
     } = useFormArray<'geoLocations', GeoLocations>('geoLocations', onValueChange);
+
+    const handleManualLocationAddClick = useCallback(() => {
+        const uuid = uuidv4();
+        const newLocation: GeoLocations = {
+            uuid,
+            // NOTE: Setting to custom source by default
+            geocoder: 'CUSTOM_SOURCE',
+            countryCode: currentCountry?.iso2 ?? undefined,
+            moved: false,
+        };
+        onValueChange(
+            [...(value.geoLocations ?? []), newLocation],
+            'geoLocations' as const,
+        );
+    }, [
+        currentCountry,
+        value.geoLocations,
+        onValueChange,
+    ]);
 
     const handleExpansionChange = useCallback((val: boolean, key: string) => {
         setExpanded(val);
@@ -1544,6 +1566,18 @@ function FigureInput(props: FigureInputProps) {
                             disabled={disabled || eventNotChosen}
                         />
                     )}
+                    {value.country && locationsShown && editMode && (
+                        <div className={styles.addButtonContainer}>
+                            <Button
+                                name={undefined}
+                                onClick={handleManualLocationAddClick}
+                                disabled={disabled || eventNotChosen}
+                                icons={<IoAddOutline />}
+                            >
+                                Add location manually
+                            </Button>
+                        </div>
+                    )}
                     {value.country && locationsShown && (
                         <div className={styles.block}>
                             <NonFieldError>
@@ -1563,6 +1597,7 @@ function FigureInput(props: FigureInputProps) {
                                     eventId={eventId}
                                     accuracyOptions={accuracyOptions}
                                     identifierOptions={identifierOptions}
+                                    geocoderOptions={geocoderOptions}
                                     trafficLightShown={trafficLightShown}
                                     assigneeMode={isUserAssignee}
                                     reviewDisabled={!isFigureToReview}

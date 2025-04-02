@@ -4,7 +4,7 @@ import { _cs } from '@togglecorp/fujs';
 import { IoAddOutline } from 'react-icons/io5';
 
 import {
-    ConfirmButton,
+    useBooleanState,
     PopupButton,
     Avatar,
     Modal,
@@ -88,12 +88,11 @@ function Navbar(props: Props) {
         [hideUserProfileForm, setUser],
     );
 
-    const handleLogout = useCallback(
-        () => {
-            logout();
-        },
-        [logout],
-    );
+    const [
+        logoutConfirmModalShown,
+        showLogoutConfirmModal,
+        hideLogoutConfirmModal,
+    ] = useBooleanState(false);
 
     let userSuffix: string | undefined;
     if (user?.portfolioRole === 'MONITORING_EXPERT') {
@@ -272,17 +271,50 @@ function Navbar(props: Props) {
                         >
                             Change Password
                         </Button>
-                        <ConfirmButton
+                        <Button
                             className={styles.button}
                             name={undefined}
-                            onConfirm={handleLogout}
+                            onClick={showLogoutConfirmModal}
                             transparent
                         >
                             Sign Out
-                        </ConfirmButton>
+                        </Button>
                     </PopupButton>
                 )}
             </div>
+            {/* NOTE: We are replacing confirm button
+            because of issue with modal closing before action is triggered */}
+            {logoutConfirmModalShown && (
+                <Modal
+                    heading="Sign Out"
+                    onClose={hideLogoutConfirmModal}
+                    footerClassName={styles.actionButtonsRow}
+                    freeHeight
+                    size="medium"
+                    footer={(
+                        <>
+                            <Button
+                                className={styles.actionButton}
+                                name={undefined}
+                                onClick={hideLogoutConfirmModal}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                name={undefined}
+                                className={styles.actionButton}
+                                onClick={logout}
+                                variant="primary"
+                                autoFocus
+                            >
+                                Confirm
+                            </Button>
+                        </>
+                    )}
+                >
+                    Are you sure you want to sign out?
+                </Modal>
+            )}
             {userProfileFormOpened && user && (
                 <Modal
                     onClose={hideUserProfileForm}

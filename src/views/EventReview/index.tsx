@@ -40,6 +40,7 @@ import {
     RoleOptions,
     GenderOptions,
     IdentifierOptions,
+    GeocoderOptions,
     QuantifierOptions,
     CauseOptions,
     CategoryOptions,
@@ -411,6 +412,8 @@ function EventReview(props: Props) {
                             displacementOptions={figureOptionsData?.displacementOccurence?.enumValues as DisplacementOptions}
                             // eslint-disable-next-line max-len
                             identifierOptions={figureOptionsData?.identifierList?.enumValues as IdentifierOptions}
+                            // eslint-disable-next-line max-len
+                            geocoderOptions={figureOptionsData?.geocoderList?.enumValues as GeocoderOptions}
                             // eslint-disable-next-line max-len
                             genderCategoryOptions={figureOptionsData?.disaggregatedGenderList?.enumValues as GenderOptions}
                             // eslint-disable-next-line max-len

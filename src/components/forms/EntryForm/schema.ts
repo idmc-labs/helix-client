@@ -8,6 +8,7 @@ import {
     nullCondition,
     integerCondition,
     greaterThanOrEqualToCondition,
+    lessThanOrEqualToCondition,
     ObjectSchema,
     Schema,
     ArraySchema,
@@ -121,10 +122,12 @@ type GeoLocation = ObjectSchema<PartialForm<GeoLocationFormProps>>;
 type GeoLocationField = ReturnType<GeoLocation['fields']>;
 const geoLocation = {
     fields: (): GeoLocationField => ({
-        // id: [idCondition],
+        id: [idCondition],
         uuid: [],
         accuracy: [requiredCondition],
         identifier: [requiredCondition],
+        geocoder: [requiredCondition],
+        geocoderMetadata: [],
 
         alternativeNames: [],
         boundingBox: [],
@@ -135,8 +138,16 @@ const geoLocation = {
         displayName: [],
         houseNumbers: [],
         importance: [],
-        lat: [],
-        lon: [],
+        lat: [
+            greaterThanOrEqualToCondition(-90),
+            lessThanOrEqualToCondition(90),
+            requiredCondition,
+        ],
+        lon: [
+            greaterThanOrEqualToCondition(-180),
+            lessThanOrEqualToCondition(180),
+            requiredCondition,
+        ],
         moved: [],
         name: [],
         nameSuffix: [],

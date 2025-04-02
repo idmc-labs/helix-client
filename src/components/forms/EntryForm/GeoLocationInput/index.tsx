@@ -8,6 +8,7 @@ import { _cs } from '@togglecorp/fujs';
 import {
     TextInput,
     SelectInput,
+    NumberInput,
     Button,
 } from '@togglecorp/toggle-ui';
 import {
@@ -34,6 +35,7 @@ import {
 import {
     GeoLocationFormProps,
     IdentifierOptions,
+    GeocoderOptions,
     AccuracyOptions,
     FigureMetadata,
 } from '../types';
@@ -59,6 +61,7 @@ interface GeoLocationInputProps {
     eventId: string | undefined;
     accuracyOptions?: AccuracyOptions;
     identifierOptions?: IdentifierOptions;
+    geocoderOptions?: GeocoderOptions;
     trafficLightShown: boolean;
 
     fieldStatusMapping?: {
@@ -92,6 +95,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
         eventId,
         accuracyOptions,
         identifierOptions,
+        geocoderOptions,
         trafficLightShown,
 
         fieldStatusMapping,
@@ -118,67 +122,105 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
-                <TextInput
-                    label="Location"
-                    name="location"
-                    value={value.displayName}
-                    disabled={disabled}
-                    readOnly
-                />
-                <SelectInput
-                    label="Type *"
-                    name="identifier"
-                    value={value.identifier}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    options={identifierOptions}
-                    onChange={onValueChange}
-                    error={error?.fields?.identifier}
-                    disabled={disabled}
-                    readOnly={!editMode}
-                    icons={trafficLightShown && geoLocationId && figureId && eventId && (
-                        <TrafficLightInput
-                            eventId={eventId}
-                            figureId={figureId}
-                            geoLocationId={geoLocationId}
-                            name="LOCATION_TYPE"
-                            value={fieldStatusMapping?.LOCATION_TYPE}
-                            // disabled={!reviewMode}
-                            assigneeMode={assigneeMode}
-                            reviewDisabled={reviewDisabled}
-                            defaultShown={defaultShownField === 'LOCATION_TYPE'}
-                            setEvents={setEvents}
-                            setFigureMetadata={setFigureMetadata}
+                <div>
+                    <Row>
+                        <TextInput
+                            label="Location"
+                            name="displayName"
+                            value={value.displayName}
+                            error={error?.fields?.displayName}
+                            onChange={onValueChange}
+                            disabled={disabled}
+                            readOnly={!editMode}
                         />
-                    )}
-                />
-                <SelectInput
-                    label="Accuracy *"
-                    name="accuracy"
-                    value={value.accuracy}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    options={accuracyOptions}
-                    onChange={onValueChange}
-                    error={error?.fields?.accuracy}
-                    disabled={disabled}
-                    readOnly={!editMode}
-                    icons={trafficLightShown && geoLocationId && figureId && eventId && (
-                        <TrafficLightInput
-                            eventId={eventId}
-                            figureId={figureId}
-                            geoLocationId={geoLocationId}
-                            name="LOCATION_ACCURACY"
-                            value={fieldStatusMapping?.LOCATION_ACCURACY}
-                            // disabled={!reviewMode}
-                            assigneeMode={assigneeMode}
-                            reviewDisabled={reviewDisabled}
-                            defaultShown={defaultShownField === 'LOCATION_ACCURACY'}
-                            setEvents={setEvents}
-                            setFigureMetadata={setFigureMetadata}
+                        <SelectInput
+                            label="Type *"
+                            name="identifier"
+                            value={value.identifier}
+                            keySelector={enumKeySelector}
+                            labelSelector={enumLabelSelector}
+                            options={identifierOptions}
+                            onChange={onValueChange}
+                            error={error?.fields?.identifier}
+                            disabled={disabled}
+                            readOnly={!editMode}
+                            icons={trafficLightShown && geoLocationId && figureId && eventId && (
+                                <TrafficLightInput
+                                    eventId={eventId}
+                                    figureId={figureId}
+                                    geoLocationId={geoLocationId}
+                                    name="LOCATION_TYPE"
+                                    value={fieldStatusMapping?.LOCATION_TYPE}
+                                    // disabled={!reviewMode}
+                                    assigneeMode={assigneeMode}
+                                    reviewDisabled={reviewDisabled}
+                                    defaultShown={defaultShownField === 'LOCATION_TYPE'}
+                                    setEvents={setEvents}
+                                    setFigureMetadata={setFigureMetadata}
+                                />
+                            )}
                         />
-                    )}
-                />
+                        <SelectInput
+                            label="Accuracy *"
+                            name="accuracy"
+                            value={value.accuracy}
+                            keySelector={enumKeySelector}
+                            labelSelector={enumLabelSelector}
+                            options={accuracyOptions}
+                            onChange={onValueChange}
+                            error={error?.fields?.accuracy}
+                            disabled={disabled}
+                            readOnly={!editMode}
+                            icons={trafficLightShown && geoLocationId && figureId && eventId && (
+                                <TrafficLightInput
+                                    eventId={eventId}
+                                    figureId={figureId}
+                                    geoLocationId={geoLocationId}
+                                    name="LOCATION_ACCURACY"
+                                    value={fieldStatusMapping?.LOCATION_ACCURACY}
+                                    // disabled={!reviewMode}
+                                    assigneeMode={assigneeMode}
+                                    reviewDisabled={reviewDisabled}
+                                    defaultShown={defaultShownField === 'LOCATION_ACCURACY'}
+                                    setEvents={setEvents}
+                                    setFigureMetadata={setFigureMetadata}
+                                />
+                            )}
+                        />
+                    </Row>
+                    <Row>
+                        <SelectInput
+                            label="Geocoder *"
+                            name="geocoder"
+                            value={value.geocoder}
+                            keySelector={enumKeySelector}
+                            labelSelector={enumLabelSelector}
+                            options={geocoderOptions}
+                            onChange={onValueChange}
+                            error={error?.fields?.geocoder}
+                            disabled={disabled}
+                            readOnly={!editMode}
+                        />
+                        <NumberInput
+                            label="Latitude *"
+                            name="lat"
+                            value={value.lat}
+                            error={error?.fields?.lat}
+                            onChange={onValueChange}
+                            disabled={disabled}
+                            readOnly={!editMode}
+                        />
+                        <NumberInput
+                            label="Longitude *"
+                            name="lon"
+                            value={value.lon}
+                            error={error?.fields?.lon}
+                            onChange={onValueChange}
+                            disabled={disabled}
+                            readOnly={!editMode}
+                        />
+                    </Row>
+                </div>
                 {editMode && (
                     <Button
                         className={styles.removeButton}
