@@ -231,7 +231,7 @@ function generateFigureTitle(
     const startDateField = startDateInfo || '(Start Date)';
 
     return [
-        `${locationField},  ${countryField}`,
+        `${locationField}, ${countryField}`,
         isTermDestroyedHousing
             ? `${totalFigureField} ${figureTypeField} (DH)`
             : `${totalFigureField} ${figureTypeField}`,
@@ -735,7 +735,7 @@ function FigureInput(props: FigureInputProps) {
             });
             const locationsText = unique(
                 // FIXME: get admin 1 for locations
-                sortedLocations.map((loc) => loc.name),
+                sortedLocations.map((loc) => loc.displayName),
             ).join(', ');
 
             const totalFigure = value.unit === household
@@ -950,13 +950,17 @@ function FigureInput(props: FigureInputProps) {
         onValueRemove: onGeoLocationRemove,
     } = useFormArray<'geoLocations', GeoLocations>('geoLocations', onValueChange);
 
-    const handleManualLocationAddClick = useCallback(() => {
+    const handleManualLocationAddClick = useCallback((iso2: string | undefined) => {
+        if (!iso2) {
+            return;
+        }
+
         const uuid = uuidv4();
         const newLocation: GeoLocations = {
             uuid,
             // NOTE: Setting to custom source by default
             geocoder: 'CUSTOM_SOURCE',
-            countryCode: currentCountry?.iso2 ?? undefined,
+            countryCode: iso2,
             moved: false,
         };
         onValueChange(
@@ -964,7 +968,6 @@ function FigureInput(props: FigureInputProps) {
             'geoLocations' as const,
         );
     }, [
-        currentCountry,
         value.geoLocations,
         onValueChange,
     ]);
@@ -990,7 +993,7 @@ function FigureInput(props: FigureInputProps) {
         });
         const locationsText = unique(
             // FIXME: get admin 1 for locations
-            sortedLocations.map((loc) => loc.name),
+            sortedLocations.map((loc) => loc.displayName),
         ).join(', ');
 
         const totalFigure = value.reported;
@@ -1543,7 +1546,7 @@ function FigureInput(props: FigureInputProps) {
                                 setFigureMetadata={setMetadata}
                             />
                         )}
-                        actions={value.country && (
+                        actions={currentCountry && (
                             <Button
                                 name={undefined}
                                 onClick={handleShowLocationsAction}
@@ -1556,7 +1559,7 @@ function FigureInput(props: FigureInputProps) {
                             </Button>
                         )}
                     />
-                    {value.country && locationsShown && (
+                    {currentCountry && locationsShown && (
                         <GeoInput
                             name="geoLocations"
                             value={value.geoLocations}
@@ -1566,10 +1569,10 @@ function FigureInput(props: FigureInputProps) {
                             disabled={disabled || eventNotChosen}
                         />
                     )}
-                    {value.country && locationsShown && editMode && (
+                    {currentCountry && locationsShown && editMode && (
                         <div className={styles.addButtonContainer}>
                             <Button
-                                name={undefined}
+                                name={currentCountry.iso2 ?? undefined}
                                 onClick={handleManualLocationAddClick}
                                 disabled={disabled || eventNotChosen}
                                 icons={<IoAddOutline />}
@@ -1578,7 +1581,7 @@ function FigureInput(props: FigureInputProps) {
                             </Button>
                         </div>
                     )}
-                    {value.country && locationsShown && (
+                    {currentCountry && locationsShown && (
                         <div className={styles.block}>
                             <NonFieldError>
                                 {error?.fields?.geoLocations?.$internal}
@@ -1913,7 +1916,7 @@ function FigureInput(props: FigureInputProps) {
                         name="sources"
                         error={error?.fields?.sources?.$internal}
                         disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                        country={value.country}
+                        country={currentCountry?.id}
                         readOnly={!editMode}
                         icons={trafficLightShown && figureId && eventId && (
                             <TrafficLightInput
