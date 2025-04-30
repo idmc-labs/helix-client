@@ -55,10 +55,10 @@ runs:
           BUILD_OUTPUT_DIR: ${{ inputs.BUILD_OUTPUT_DIR }}
       shell: bash
       run: |
-        # Pass env to file for yarn build
+        # Pass env to file for build
         env > .env &&
         # Run build
-        NODE_OPTIONS=--openssl-legacy-provider yarn build &&
+        NODE_OPTIONS=--openssl-legacy-provider pnpm build &&
         # Copy build files to output dir
         mv build/ $BUILD_OUTPUT_DIR
 

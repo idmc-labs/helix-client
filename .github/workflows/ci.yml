@@ -13,20 +13,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --prefer-offline
+        run: pnpm install --frozen-lockfile
 
       - name: 🤞 Run Lint 🧪
-        run: yarn lint
+        run: pnpm lint
 
       - name: 🤞 Run Test 🧪
-        run: yarn test --passWithNoTests
+        run: pnpm test
 
   check_build:
     name: 🚴 Check Build 🚴
@@ -36,13 +37,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --prefer-offline
+        run: pnpm install --frozen-lockfile
 
       - name: 🤞 Run Build 🧪
         uses: ./.github/actions/run_build
@@ -62,13 +65,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --prefer-offline
+        run: pnpm install --frozen-lockfile
 
       - name: 🤞 Run Build 🧪 (Helix-STAGING)
         uses: ./.github/actions/run_build

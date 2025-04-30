@@ -3,26 +3,31 @@
 FROM node:20-bookworm AS dev
 
 ENV NODE_OPTIONS=--openssl-legacy-provider
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable && corepack prepare pnpm@8.15.9 --activate
 
 RUN apt-get update -y \
     && apt-get install -y --no-install-recommends \
         git bash g++ make \
     && git config --global --add safe.directory /code \
-    && yarn global add deasync \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /code
 
 # -------------------------- Builder ---------------------------------------
+
 FROM dev AS builder
 
-COPY ./package.json ./yarn.lock /code/
-
-RUN yarn install
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
+    pnpm install --frozen-lockfile
 
 COPY . /code/
 
 # -------------------------- Nginx - Builder --------------------------------
+
 FROM builder AS nginx-build
 
 # Static
@@ -38,9 +43,10 @@ ENV REACT_APP_MAPBOX_ACCESS_TOKEN=REACT_APP_MAPBOX_ACCESS_TOKEN_PLACEHOLDER
 ENV REACT_APP_SENTRY_DSN=REACT_APP_SENTRY_DSN_PLACEHOLDER
 ENV REACT_APP_HCATPCHA_SITEKEY=REACT_APP_HCATPCHA_SITEKEY_PLACEHOLDER
 
-RUN env > .env && yarn build
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store env > .env && pnpm build
 
 # ---------------------------------------------------------------------------
+
 FROM nginx:1 AS nginx-serve
 
 LABEL maintainer="IDMC"

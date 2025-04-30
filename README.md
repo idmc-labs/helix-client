@@ -74,7 +74,7 @@ JavaScript practices and TypeScript for enhanced type safety.
 
 ### Prerequisites
 - Node.js
-- Yarn
+- Pnpm
 - Docker (optional)
 
 ### Environment Setup
@@ -97,17 +97,17 @@ JavaScript practices and TypeScript for enhanced type safety.
    ```
 2. Install dependencies:
    ```
-   yarn install
+   pnpm install
    ```
 3. Generate GraphQL schema and typings:
    ```
-   yarn generate
+   pnpm generate
    ```
 
 ## Development
 - Start the development server:
   ```
-  yarn start
+  pnpm start
   ```
 - Or use Docker:
   ```
@@ -117,22 +117,22 @@ JavaScript practices and TypeScript for enhanced type safety.
 ## Testing
 Run tests using:
 ```
-yarn test
+pnpm test
 ```
 
 ### Generate introspection schema and typings
 ```
-yarn install
+pnpm install
 
 # Set GRAPHQL_CODEGEN_ENDPOINT to the output of /sbin/ip route | awk '/default/ { print $3 }'
-yarn generate
+pnpm generate
 ```
 
 ## Deployment
 
 ### Build for Production
 ```
-yarn build
+pnpm build
 ```
 
 ### AWS CloudFormation Deployment
