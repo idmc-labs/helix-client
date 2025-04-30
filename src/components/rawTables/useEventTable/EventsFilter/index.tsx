@@ -34,13 +34,13 @@ import {
     Event_Review_Status as EventReviewStatus,
 } from '#generated/types';
 
-import styles from './styles.module.css';
 import {
     basicEntityKeySelector,
     basicEntityLabelSelector,
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';
+import styles from './styles.module.css';
 
 // NOTE: the comparison should be type-safe but
 // we are currently down-casting string literals to string

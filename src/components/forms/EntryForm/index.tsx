@@ -62,6 +62,7 @@ import {
 } from '#generated/types';
 import useOptions from '#hooks/useOptions';
 
+import { FilterOutArray } from '#types';
 import {
     ENTRY,
     CREATE_ENTRY,
@@ -97,7 +98,6 @@ import {
     CategoryOptions,
     FigureMetadata,
 } from './types';
-import { FilterOutArray } from '#types';
 
 import styles from './styles.module.css';
 
@@ -959,7 +959,7 @@ function EntryForm(props: EntryFormProps) {
 
             const figures = entryData?.entry?.figures;
             const mapping = listToMap(
-                figures,
+                figures ?? [],
                 (figure) => figure.uuid,
                 (figure) => ({
                     role: figure.role,

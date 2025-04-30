@@ -41,7 +41,6 @@ export interface Props<LIST_ITEM, KEY extends Key> {
     list?: LIST_ITEM[];
     keySelector: (item: LIST_ITEM, i: number) => KEY,
     labelSelector: (item: LIST_ITEM, i: number) => React.ReactNode,
-    title?: React.ReactNode;
     separator?: React.ReactNode;
     maxItems?: number;
     minItems?: number;

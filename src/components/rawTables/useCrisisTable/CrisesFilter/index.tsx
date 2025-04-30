@@ -26,11 +26,11 @@ import NonFieldError from '#components/NonFieldError';
 
 import { CrisesQueryVariables, CrisisOptionsForFilterQuery } from '#generated/types';
 
-import styles from './styles.module.css';
 import {
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';
+import styles from './styles.module.css';
 
 type CrisesFilterFields = NonNullable<CrisesQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<CrisesFilterFields>>;

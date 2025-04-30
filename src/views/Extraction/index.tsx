@@ -22,9 +22,6 @@ import useOptions from '#hooks/useOptions';
 import AdvancedFiguresFilter from '#components/rawTables/useFigureTable/AdvancedFiguresFilter';
 import Container from '#components/Container';
 
-import ExtractionEntriesTable from './ExtractionEntriesTable';
-import SavedFiltersList, { GET_SAVED_QUERY_LIST } from './SavedFiltersList';
-
 import {
     ExtractionForFormQuery,
     ExtractionForFormQueryVariables,
@@ -35,6 +32,8 @@ import {
     UpdateExtractionMutationVariables,
 } from '#generated/types';
 import { WithId } from '#utils/common';
+import ExtractionEntriesTable from './ExtractionEntriesTable';
+import SavedFiltersList, { GET_SAVED_QUERY_LIST } from './SavedFiltersList';
 
 import styles from './styles.module.css';
 

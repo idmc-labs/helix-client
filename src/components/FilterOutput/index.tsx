@@ -39,8 +39,8 @@ function FilterOutput<DATUM, KEY extends Key>(props: Props<DATUM, KEY>) {
 
     const optionsByKey = useMemo(
         () => (
-            listToMap<DATUM>(
-                options,
+            listToMap<DATUM, KEY>(
+                options ?? [],
                 keySelector,
             )
         ),

@@ -39,10 +39,6 @@ import useOptions from '#hooks/useOptions';
 import { WithId } from '#utils/common';
 import CountryMultiSelectInput from '#components/selections/CountryMultiSelectInput';
 
-import GroupForm from '../GroupForm';
-
-import styles from './styles.module.css';
-
 import {
     CreateResourceMutation,
     CreateResourceMutationVariables,
@@ -55,6 +51,9 @@ import {
     CreateResourceGroupMutation,
     GroupsForResourceQuery,
 } from '#generated/types';
+import GroupForm from '../GroupForm';
+
+import styles from './styles.module.css';
 
 const CREATE_RESOURCE = gql`
     mutation CreateResource($input: ResourceCreateInputType!) {

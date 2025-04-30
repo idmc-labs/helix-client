@@ -23,15 +23,14 @@ import QuickActionButton from '#components/QuickActionButton';
 import useBasicToggle from '#hooks/useBasicToggle';
 import DomainContext from '#components/DomainContext';
 
-import ResourceForm from './ResourceForm';
-import ResourcesAccordion from './ResourcesAccordion';
-
 import {
     ResourcesQuery,
 } from '#generated/types';
+import useModalState from '#hooks/useModalState';
+import ResourceForm from './ResourceForm';
+import ResourcesAccordion from './ResourcesAccordion';
 
 import styles from './styles.module.css';
-import useModalState from '#hooks/useModalState';
 
 const GET_RESOURCES_LIST = gql`
     query Resources {

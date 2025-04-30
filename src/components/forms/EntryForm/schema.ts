@@ -19,14 +19,6 @@ import {
 
 import { PartialForm } from '#types';
 import {
-    AgeFormProps,
-    GeoLocationFormProps,
-    AnalysisFormProps,
-    DetailsFormProps,
-    FigureFormProps,
-    FormValues,
-} from './types';
-import {
     isFlowCategory,
     isHousingTerm,
     isDisplacementTerm,
@@ -42,6 +34,14 @@ import {
     Figure_Category_Types as FigureCategoryTypes,
     Crisis_Type as CrisisType,
 } from '#generated/types';
+import {
+    AgeFormProps,
+    GeoLocationFormProps,
+    AnalysisFormProps,
+    DetailsFormProps,
+    FigureFormProps,
+    FormValues,
+} from './types';
 
 function pastDateCondition(value: string | null | undefined) {
     if (isNotDefined(value)) {

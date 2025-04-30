@@ -12,19 +12,12 @@ import Actions from '#components/Actions';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 import QuickActionButton from '#components/QuickActionButton';
 
-import {
-    UserListQuery,
-} from '#generated/types';
-
-type UserRolesField = NonNullable<NonNullable<UserListQuery['users']>['results']>[number];
-
 export interface ActionProps {
     id: string;
     className?: string;
     disabled?: boolean;
     children?: React.ReactNode;
     onEdit?: (id: string) => void;
-    user?: UserRolesField | undefined;
     activeStatus?: boolean;
     onToggleUserActiveStatus?: (id: string, activeStatus: boolean) => void;
     isAdmin?: boolean | null | undefined;

@@ -26,12 +26,11 @@ import FormActions from '#components/FormActions';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 
-import styles from './styles.module.css';
-
 import {
     CreateResourceGroupMutation,
     CreateResourceGroupMutationVariables,
 } from '#generated/types';
+import styles from './styles.module.css';
 
 const CREATE_RESOURCE_GROUP = gql`
     mutation CreateResourceGroup($input: ResourceGroupCreateInputType!) {
