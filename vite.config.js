@@ -6,6 +6,7 @@ import reactSwc from '@vitejs/plugin-react-swc';
 import { execSync } from 'child_process';
 import { compression } from 'vite-plugin-compression2';
 import svgr from 'vite-plugin-svgr';
+import { visualizer } from "rollup-plugin-visualizer";
 
 import envConfig from './env';
 
@@ -35,7 +36,27 @@ export default defineConfig((config) => {
                     entryFileNames: 'entry-[name].[hash].js',
                     assetFileNames: 'asset-[name]-[hash].[ext]',
                     manualChunks: {
-                        // 'markdown-related': ['react-markdown', 'remark-gfm'],
+                        'map-related': [
+                            'mapbox-gl',
+                        ],
+                        'sentry-related': [
+                            '@sentry/react',
+                            '@sentry/tracing',
+                        ],
+                        'graphql-related': [
+                            'apollo-link',
+                            'apollo-link-batch-http',
+                            'apollo-link-error',
+                            'apollo-link-rest',
+                            'apollo-link-retry',
+                            'apollo-upload-client',
+                            'graphql',
+                            'graphql-anywhere',
+                        ],
+                        'markdown-related': [
+                            'react-mde',
+                            'react-showdown',
+                        ],
                     },
                 },
             },
@@ -71,6 +92,7 @@ export default defineConfig((config) => {
             tsconfigPaths(),
             webfontDownload(),
             validateEnv(envConfig),
+            isProd ? visualizer() : undefined,
             isProd ? compression() : undefined,
         ],
     };

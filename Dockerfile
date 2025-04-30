@@ -5,7 +5,7 @@ FROM node:20-bookworm AS dev
 ENV NODE_OPTIONS=--openssl-legacy-provider
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable && corepack prepare pnpm@8.15.9 --activate
+RUN corepack enable && corepack prepare pnpm@10.9.0 --activate
 
 RUN apt-get update -y \
     && apt-get install -y --no-install-recommends \
