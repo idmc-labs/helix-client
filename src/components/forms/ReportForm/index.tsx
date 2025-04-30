@@ -74,7 +74,7 @@ import {
     Figure_Category_Types as FigureCategoryTypes,
 } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 // NOTE: the comparison should be type-safe but
 // we are currently downcasting string literals to string

@@ -12,7 +12,7 @@ import {
 } from '#generated/types';
 import Loading from '#components/Loading';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const BULK_OPERATION = gql`
     query BulkApiOperation($id: ID!) {

@@ -13,7 +13,7 @@ import QuickActionButton from '#components/QuickActionButton';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 import DomainContext from '#components/DomainContext';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 import {
     DeleteResourceMutation,
     DeleteResourceMutationVariables,

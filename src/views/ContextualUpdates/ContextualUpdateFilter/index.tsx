@@ -17,7 +17,7 @@ import OrganizationMultiSelectInput from '#components/selections/OrganizationMul
 
 import { PartialForm, PurgeNull } from '#types';
 import { ContextualUpdatesQueryVariables } from '#generated/types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type ContextualFilterFields = NonNullable<ContextualUpdatesQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<ContextualFilterFields>>;

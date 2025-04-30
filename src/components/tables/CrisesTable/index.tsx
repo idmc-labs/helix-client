@@ -14,7 +14,7 @@ import useFilterState from '#hooks/useFilterState';
 import { expandObject } from '#utils/common';
 import { PurgeNull } from '#types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface CrisesProps {
     className?: string;

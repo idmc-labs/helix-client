@@ -16,7 +16,7 @@ import DomainContext from '#components/DomainContext';
 
 import CountrySummaryForm from './CountrySummaryForm';
 import SummaryHistoryList from './SummaryHistoryList';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type Summary = NonNullable<CountryQuery['country']>['lastSummary'];
 

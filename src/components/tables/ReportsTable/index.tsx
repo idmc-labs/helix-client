@@ -46,7 +46,7 @@ import route from '#config/routes';
 
 import ReportForm from '#components/forms/ReportForm';
 import ReportFilter from './ReportFilter';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 

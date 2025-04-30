@@ -17,7 +17,7 @@ import { FilterStateResponse } from '#hooks/useFilterState';
 import useEntryTable from '#components/rawTables/useEntryTable';
 import useFigureTable from '#components/rawTables/useFigureTable';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type Tabs = 'Entries' | 'Figures';
 

@@ -26,7 +26,7 @@ import FormActions from '#components/FormActions';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 import {
     CreateResourceGroupMutation,

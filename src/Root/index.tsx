@@ -10,21 +10,21 @@ import {
     replayIntegration,
     feedbackIntegration,
 } from '@sentry/react';
-import { setMapboxToken } from '@togglecorp/re-map';
+import mapboxgl from 'mapbox-gl';
 
 import Error from '#views/Error';
 import App from './App';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const history = createBrowserHistory();
 
-const mapboxToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
+const mapboxToken = import.meta.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
-const sentryDsn = process.env.REACT_APP_SENTRY_DSN;
-const appCommitHash = process.env.REACT_APP_COMMITHASH || 'UNKNOWN';
-// const runtimeEnv = process.env.NODE_ENV;
-const env = process.env.REACT_APP_ENV;
+const sentryDsn = import.meta.env.REACT_APP_SENTRY_DSN;
+const appCommitHash = import.meta.env.REACT_APP_COMMITHASH;
+// const runtimeEnv = import.meta.env.NODE_ENV;
+const env = import.meta.env.REACT_APP_ENV;
 if (sentryDsn) {
     init({
         dsn: sentryDsn,
@@ -53,7 +53,7 @@ if (sentryDsn) {
 }
 
 if (mapboxToken) {
-    setMapboxToken(mapboxToken);
+    mapboxgl.accessToken = mapboxToken;
 }
 
 // TODO: upload sourcemaps

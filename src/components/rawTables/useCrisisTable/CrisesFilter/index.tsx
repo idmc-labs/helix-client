@@ -26,7 +26,7 @@ import NonFieldError from '#components/NonFieldError';
 
 import { CrisesQueryVariables, CrisisOptionsForFilterQuery } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 import {
     enumKeySelector,
     enumLabelSelector,

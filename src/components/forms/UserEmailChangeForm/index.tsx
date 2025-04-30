@@ -33,7 +33,7 @@ import {
     UserEmailInfoQuery,
     UserEmailInfoQueryVariables,
 } from '#generated/types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const USER_EMAIL_INFO = gql`
     query UserEmailInfo($id: ID!) {

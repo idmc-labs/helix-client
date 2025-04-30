@@ -39,7 +39,7 @@ import {
 import { hasNoData } from '#utils/common';
 
 import ApiRecordsFilter from './ApiRecordsFilters';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 

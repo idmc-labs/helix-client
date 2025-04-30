@@ -37,7 +37,7 @@ import { hasNoData } from '#utils/common';
 
 import ActorForm from './ActorForm';
 import ActorsFilter from './ActorFilters/index';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 

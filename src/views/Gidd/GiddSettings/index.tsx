@@ -35,7 +35,7 @@ import {
     UpdateReleaseMetaDataMutationVariables,
 } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const UPDATE_RELEASE_METADATA = gql`
     mutation UpdateReleaseMetaData($data: ReleaseMetadataInputType!) {

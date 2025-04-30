@@ -4,7 +4,7 @@ import { _cs } from '@togglecorp/fujs';
 import Header from '#components/Header';
 import Footer from '#components/Footer';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface Props {
     className?: string;

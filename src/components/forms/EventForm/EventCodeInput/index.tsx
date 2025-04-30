@@ -17,7 +17,7 @@ import { CountryOption } from '#components/selections/CountrySelectInput';
 import { enumKeySelector, enumLabelSelector, GetEnumOptions } from '#utils/common';
 import { CreateEventMutationVariables, EventOptionsQuery } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type FormType = PurgeNull<PartialForm<CreateEventMutationVariables['event']>>;
 type EventCode = NonNullable<NonNullable<FormType['eventCodes']>[number]>;

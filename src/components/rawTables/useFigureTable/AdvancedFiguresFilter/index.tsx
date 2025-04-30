@@ -49,7 +49,7 @@ import {
     Figure_Category_Types as FigureCategoryTypes,
     Crisis_Type as CrisisType,
 } from '#generated/types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 import BooleanInput from '#components/selections/BooleanInput';
 
 const categoryTypeOptions = [

@@ -14,10 +14,10 @@ import PageHeader from '#components/PageHeader';
 import ApiClientsTable from './ClientRecordsTable';
 import ApiLogsTable from './ApiRecordsTable';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
-const GRAPHIQL_ENDPOINT = process.env.REACT_APP_GRAPHIQL_ENDPOINT as string;
-const SWAGGER_ENDPOINT = process.env.REACT_APP_SWAGGER_ENDPOINT as string;
+const GRAPHIQL_ENDPOINT = import.meta.env.REACT_APP_GRAPHIQL_ENDPOINT;
+const SWAGGER_ENDPOINT = import.meta.env.REACT_APP_SWAGGER_ENDPOINT;
 
 interface TabReduxProps {
     children: React.ReactNode;

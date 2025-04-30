@@ -37,7 +37,7 @@ import OrganizationForm from '#components/forms/OrganizationForm';
 import { hasNoData } from '#utils/common';
 
 import OrganizationFilter from './OrganizationFilter/index';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 

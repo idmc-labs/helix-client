@@ -41,7 +41,7 @@ import CountryMultiSelectInput from '#components/selections/CountryMultiSelectIn
 
 import GroupForm from '../GroupForm';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 import {
     CreateResourceMutation,

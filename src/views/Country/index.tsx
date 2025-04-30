@@ -42,7 +42,7 @@ import useCombinedChartData from '#hooks/useCombinedChartData';
 import CrisesEventsEntriesFiguresTable from './CrisesEventsEntriesFiguresTable';
 import ContextualAnalysis from './ContextualAnalysis';
 import CountrySummary from './CountrySummary';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const COUNTRY = gql`
     query Country($id: ID!) {

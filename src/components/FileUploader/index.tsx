@@ -8,7 +8,7 @@ import {
     randomString,
 } from '@togglecorp/fujs';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type ButtonHookProps = Parameters<typeof useButtonFeatures>[0];
 

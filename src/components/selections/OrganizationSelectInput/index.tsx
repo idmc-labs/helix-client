@@ -13,7 +13,7 @@ import useOptions from '#hooks/useOptions';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { GetOrganizationQuery, GetOrganizationQueryVariables } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 export const ORGANIZATION = gql`
     query GetOrganization(

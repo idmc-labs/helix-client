@@ -6,7 +6,7 @@ import {
     Rect, // Type
 } from '#utils/chart';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type Key = string | number;
 

@@ -69,7 +69,7 @@ import {
     Crisis_Type as CrisisType,
 } from '#generated/types';
 import EventCodeInput from './EventCodeInput';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const EVENT_OPTIONS = gql`
     query EventOptions {

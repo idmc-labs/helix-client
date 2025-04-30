@@ -29,7 +29,7 @@ import {
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const GET_ORGANIZATION_OPTIONS = gql`
     query OrganizationOptions {

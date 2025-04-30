@@ -57,7 +57,7 @@ import CountrySelectInput from '#components/selections/CountrySelectInput';
 import CountryMultiSelectInput from '#components/selections/CountryMultiSelectInput';
 import Loading from '#components/Loading';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const CONTACT_OPTIONS = gql`
     query ContactOptionsForCommunicationForm {

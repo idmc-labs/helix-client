@@ -46,7 +46,7 @@ import {
     ExportClientsMutationVariables,
 } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const CLIENT_LIST = gql`
     query ClientList(

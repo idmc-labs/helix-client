@@ -4,7 +4,7 @@ import { GiShrug } from 'react-icons/gi';
 
 import { isValidUrl, isLocalUrl } from '#utils/common';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type Maybe<T> = T | undefined | null;
 

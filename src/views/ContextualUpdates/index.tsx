@@ -35,7 +35,7 @@ import route from '#config/routes';
 import { hasNoData } from '#utils/common';
 
 import ContextualUpdateFilter from './ContextualUpdateFilter/index';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type ContextualUpdateFields = NonNullable<NonNullable<ContextualUpdatesQuery['contextualUpdateList']>['results']>[number];
 

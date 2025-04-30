@@ -50,7 +50,7 @@ import {
     UpdateCrisisMutation,
     UpdateCrisisMutationVariables,
 } from '#generated/types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const CRISIS_OPTIONS = gql`
     query CrisisOptions {

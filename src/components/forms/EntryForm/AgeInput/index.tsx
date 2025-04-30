@@ -24,7 +24,7 @@ import {
     AgeFormProps,
     GenderOptions,
 } from '../types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type AgeInputValue = PartialForm<AgeFormProps>;
 

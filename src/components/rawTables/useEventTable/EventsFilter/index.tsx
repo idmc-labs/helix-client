@@ -34,7 +34,7 @@ import {
     Event_Review_Status as EventReviewStatus,
 } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 import {
     basicEntityKeySelector,
     basicEntityLabelSelector,

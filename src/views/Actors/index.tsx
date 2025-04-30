@@ -4,7 +4,7 @@ import { _cs } from '@togglecorp/fujs';
 import PageHeader from '#components/PageHeader';
 
 import ActorTable from './ActorTable';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface ActorsProps {
     className?: string;

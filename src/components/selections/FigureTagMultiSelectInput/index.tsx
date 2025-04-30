@@ -13,7 +13,7 @@ import useDebouncedValue from '#hooks/useDebouncedValue';
 import useOptions from '#hooks/useOptions';
 import { GetFigureTagListQuery, GetFigureTagListQueryVariables } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const FIGURE_TAGS = gql`
     query GetFigureTagList(

@@ -15,6 +15,7 @@
         "test:coverage": "jest --coverage",
         "typecheck": "tsc",
         "lint": "eslint ./src",
+        "lint:css": "stylelint \"./src/**/*.css\"",
         "prestart": "pnpm initialize",
         "prebuild": "pnpm initialize",
         "preserve": "pnpm initialize",

@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import { useBooleanState } from '@togglecorp/toggle-ui';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 function useSidebarLayout(showInitially = false) {
     const [showSidebar, setShowSidebarTrue, setShowSidebarFalse] = useBooleanState(showInitially);

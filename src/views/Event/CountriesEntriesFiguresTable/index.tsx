@@ -21,7 +21,7 @@ import useCountryTable from '#components/rawTables/useCountryTable';
 import useEntryTable from '#components/rawTables/useEntryTable';
 import useFigureTable from '#components/rawTables/useFigureTable';
 import { expandObject } from '#utils/common';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type Filter = PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>;
 type FilterState = FilterStateResponse<Filter>;

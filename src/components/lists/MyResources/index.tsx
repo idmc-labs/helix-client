@@ -30,7 +30,7 @@ import {
     ResourcesQuery,
 } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 import useModalState from '#hooks/useModalState';
 
 const GET_RESOURCES_LIST = gql`

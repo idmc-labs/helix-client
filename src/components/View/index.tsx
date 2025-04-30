@@ -5,7 +5,7 @@ import DomainContext from '#components/DomainContext';
 import DocumentTitle from '#components/DocumentTitle';
 import { User } from '#types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type Visibility = 'is-authenticated' | 'is-not-authenticated' | 'is-anything';
 

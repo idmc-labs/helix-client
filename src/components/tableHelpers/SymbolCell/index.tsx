@@ -6,7 +6,7 @@ import {
 
 import { Sources_Reliability as SourcesReliability } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 export interface SymbolCellProps {
     className?: string | null | undefined;

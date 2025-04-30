@@ -14,7 +14,7 @@ import NonFieldError from '#components/NonFieldError';
 
 import { PartialForm, PurgeNull } from '#types';
 import { CommunicationListQueryVariables } from '#generated/types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type CommunicationFilterFields = NonNullable<CommunicationListQueryVariables['filters']>;

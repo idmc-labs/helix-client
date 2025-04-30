@@ -14,7 +14,7 @@ import NonFieldError from '#components/NonFieldError';
 
 import { PartialForm, PurgeNull } from '#types';
 import { ContextOfViolenceListQueryVariables } from '#generated/types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type ViolenceContextFilterFields = NonNullable<ContextOfViolenceListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<ViolenceContextFilterFields>>;

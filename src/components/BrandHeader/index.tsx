@@ -1,11 +1,11 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
-const appVersion = process.env.REACT_APP_VERSION || 'UNKNOWN';
-const appCommitHash = process.env.REACT_APP_COMMITHASH || 'UNKNOWN';
-const appBranch = process.env.REACT_APP_BRANCH || 'UNKNOWN';
+const appVersion = import.meta.env.REACT_APP_VERSION;
+const appCommitHash = import.meta.env.REACT_APP_COMMITHASH;
+const appBranch = import.meta.env.REACT_APP_BRANCH;
 
 const tooltipInfo = `Version: ${appVersion}\nCommit: ${appCommitHash}\nBranch: ${appBranch}`;
 

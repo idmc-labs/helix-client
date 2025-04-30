@@ -1,7 +1,7 @@
 import React, { lazy } from 'react';
 import View, { ViewProps } from '#components/View';
 
-import styles from './routes.css';
+import styles from './routes.module.css';
 
 export function wrap<T extends string, K extends { className?: string }>(
     props: ViewProps<K> & { path: T },

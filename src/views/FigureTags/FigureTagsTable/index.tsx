@@ -41,7 +41,7 @@ import { hasNoData } from '#utils/common';
 
 import FigureTagForm from './FigureTagForm';
 import TagsFilter from '../TagsFilter';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 

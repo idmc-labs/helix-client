@@ -40,7 +40,7 @@ import NotificationContext from '#components/NotificationContext';
 import MarkdownEditor from '#components/MarkdownEditor';
 import Loading from '#components/Loading';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const CRISIS_TYPE_OPTIONS = gql`
     query CrisisTypeOptions {

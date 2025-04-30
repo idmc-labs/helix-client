@@ -13,7 +13,7 @@ import useDebouncedValue from '#hooks/useDebouncedValue';
 import useOptions from '#hooks/useOptions';
 import { GetCountryQuery, GetCountryQueryVariables } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const COUNTRY = gql`
     query GetCountry(

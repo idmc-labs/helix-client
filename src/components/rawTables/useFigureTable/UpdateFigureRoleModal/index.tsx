@@ -18,7 +18,7 @@ import {
 import { enumKeySelector, enumLabelSelector, GetEnumOptions } from '#utils/common';
 import NotificationContext from '#components/NotificationContext';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 

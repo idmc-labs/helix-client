@@ -6,7 +6,7 @@ import {
 
 import Tooltip from '#components/Tooltip';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 export interface ProgressBarProps {
     className?: string | null | undefined;

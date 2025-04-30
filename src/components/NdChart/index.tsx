@@ -46,7 +46,7 @@ import {
     formatDateLong,
 } from '#components/DateTime';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const X_AXIS_HEIGHT = 32;
 const Y_AXIS_WIDTH = 40;

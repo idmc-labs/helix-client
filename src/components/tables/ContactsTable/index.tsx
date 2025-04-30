@@ -43,7 +43,7 @@ import useFilterState from '#hooks/useFilterState';
 import ContactForm from '#components/forms/ContactForm';
 import CommunicationTable from '#components/tables/CommunicationTable';
 import ContactsFilter from './ContactsFilter/index';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 

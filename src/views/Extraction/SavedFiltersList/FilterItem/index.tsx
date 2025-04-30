@@ -19,7 +19,7 @@ import {
 
 import route from '#config/routes';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const DELETE_EXTRACTION = gql`
     mutation DeleteExtraction($id: ID!) {

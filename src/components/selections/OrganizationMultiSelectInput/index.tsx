@@ -16,7 +16,7 @@ import { GetOrganizationQuery, GetOrganizationQueryVariables } from '#generated/
 
 import { ORGANIZATION } from '../OrganizationSelectInput/index';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 export type OrganizationOption = NonNullable<NonNullable<GetOrganizationQuery['organizationList']>['results']>[number];
 

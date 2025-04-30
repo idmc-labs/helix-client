@@ -16,7 +16,7 @@ import useFilterState from '#hooks/useFilterState';
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const REPORT_COMMENTS = gql`
     query ReportComments($reportId: ID!, $page: Int, $pageSize: Int, $ordering: String) {

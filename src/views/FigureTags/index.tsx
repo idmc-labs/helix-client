@@ -4,7 +4,7 @@ import { _cs } from '@togglecorp/fujs';
 import PageHeader from '#components/PageHeader';
 
 import FigureTagsTable from './FigureTagsTable';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface FigureTagsProps {
     className?: string;

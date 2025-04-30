@@ -16,7 +16,7 @@ import { isDefined } from '@togglecorp/fujs';
 import '@togglecorp/toggle-ui/build/index.css';
 import 'react-mde/lib/styles/css/react-mde-all.css';
 import '../../../node_modules/mapbox-gl/dist/mapbox-gl.css';
-import './styles.css';
+import './styles.module.css';
 
 import Multiplexer from './Multiplexer';
 
@@ -36,7 +36,7 @@ const errorLink = onError((all) => {
     }
 });
 
-const GRAPHQL_ENDPOINT = process.env.REACT_APP_GRAPHQL_ENDPOINT as string;
+const GRAPHQL_ENDPOINT = import.meta.env.REACT_APP_GRAPHQL_ENDPOINT;
 
 const client = new ApolloClient({
     link: ApolloLink.from([

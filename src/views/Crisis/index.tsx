@@ -39,7 +39,7 @@ import route from '#config/routes';
 import useCombinedChartData from '#hooks/useCombinedChartData';
 
 import CountriesEventsEntriesFiguresTable from './CountriesEventsEntriesFiguresTable';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const CRISIS = gql`
     query Crisis($id: ID!) {

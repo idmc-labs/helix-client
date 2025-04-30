@@ -28,7 +28,7 @@ import {
     ReportsQueryVariables,
 } from '#generated/types';
 import { enumKeySelector, enumLabelSelector } from '#utils/common';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type ReportsFilterFields = NonNullable<ReportsQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<ReportsFilterFields>>;

@@ -3,7 +3,7 @@ import { Avatar } from '@togglecorp/toggle-ui';
 
 import DateTime from '#components/DateTime';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface UserItemProps {
     name: string;

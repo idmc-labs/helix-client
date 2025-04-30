@@ -8,7 +8,7 @@ import {
 import SmartLink from '#components/SmartLink';
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type PropsFromButton = Parameters<typeof useButtonFeatures>[0];
 export interface ButtonLikeLinkProps extends PropsFromButton {

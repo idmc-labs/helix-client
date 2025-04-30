@@ -43,7 +43,7 @@ import { hasNoData } from '#utils/common';
 
 import NotificationContent, { Props as NotificationContentProps } from './NotificationContent';
 import ActionCell, { ActionProps } from './Action';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const NOTIFICATION_COUNTS = gql`
     query NotificationCounts(

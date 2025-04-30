@@ -26,6 +26,9 @@ jobs:
       - name: 🤞 Run Lint 🧪
         run: pnpm lint
 
+      - name: 🤞 Run Lint 🧪
+        run: pnpm lint:css
+
       - name: 🤞 Run Test 🧪
         run: pnpm test
 

@@ -3,7 +3,7 @@ import { isNotDefined, listToMap, isDefined } from '@togglecorp/fujs';
 
 import ReducedListDisplay from '#components/ReducedListDisplay';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type Key = string | number;
 

@@ -21,7 +21,7 @@ import {
 
 import GiddSettings from './GiddSettings';
 import StatusLogs, { STATUS_LOGS } from './StatusLogs';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 // NOTE: exporting this so that other requests can refetch this request
 export const PENDING_STATUS_LOGS = gql`

@@ -25,7 +25,7 @@ import {
 } from '#generated/types';
 import { enumKeySelector, enumLabelSelector, GetEnumOptions } from '#utils/common';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const CLIENT_USE_CASE_OPTIONS = gql`
     query ClientUseCaseOptions {

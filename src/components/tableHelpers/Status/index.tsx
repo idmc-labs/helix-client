@@ -10,7 +10,7 @@ import {
     Report_Review_Filter as ReportReviewFilter,
 } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 export type ReviewStatus = EventReviewStatus | FigureReviewStatus | ReportReviewFilter;
 

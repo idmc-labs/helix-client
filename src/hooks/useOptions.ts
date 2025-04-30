@@ -8,17 +8,17 @@ function useOptions<K extends keyof Options>(key: K) {
     const setIndividualOption = useCallback(
         (value: SetStateAction<Options[K] | null | undefined>) => {
             setOptions((oldValue) => {
-                const oldValueForKey = oldValue[key];
-                const newValueForKey = typeof value !== 'function'
-                    ? value
-                    : value(oldValueForKey);
+                const oldValueForKey: NonNullable<Options[K]> = oldValue[key] ?? [];
+                const newValueForKey: NonNullable<Options[K]> = typeof value !== 'function'
+                    ? value ?? []
+                    : value(oldValueForKey) ?? [];
 
                 // NOTE: we should always have the newValues
                 // before oldValues so that we can update
                 // the option values
                 const concatenatedValueForKey = [
-                    ...(newValueForKey ?? []),
-                    ...(oldValueForKey ?? []),
+                    ...newValueForKey,
+                    ...oldValueForKey,
                 ];
 
                 const finalValueForKey = unique(

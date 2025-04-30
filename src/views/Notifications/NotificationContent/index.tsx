@@ -10,7 +10,7 @@ import {
     prepareUrlParams,
 } from '#utils/common';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type NotificationType = NonNullable<NonNullable<NotificationsQuery['notifications']>['results']>[number];
 

@@ -40,7 +40,7 @@ import {
     FigureMetadata,
 } from '../types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type GeoLocationInputValue = PartialForm<GeoLocationFormProps>;
 

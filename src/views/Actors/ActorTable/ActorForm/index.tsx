@@ -41,7 +41,7 @@ import {
 } from '#generated/types';
 import { WithId } from '#utils/common';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const CREATE_ACTOR = gql`
     mutation CreateActor($actor: ActorCreateInputType!) {

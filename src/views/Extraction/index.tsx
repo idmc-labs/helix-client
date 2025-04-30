@@ -36,7 +36,7 @@ import {
 } from '#generated/types';
 import { WithId } from '#utils/common';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const getSavedQueryListQueryName = getOperationName(GET_SAVED_QUERY_LIST);
 

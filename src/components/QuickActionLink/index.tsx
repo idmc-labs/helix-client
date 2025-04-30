@@ -3,7 +3,7 @@ import { _cs } from '@togglecorp/fujs';
 
 import ButtonLikeLink, { ButtonLikeLinkProps } from '#components/ButtonLikeLink';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type QuickActionProps = ButtonLikeLinkProps;
 

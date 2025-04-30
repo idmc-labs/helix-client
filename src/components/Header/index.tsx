@@ -6,7 +6,7 @@ import Heading from '#components/Heading';
 import Icons from '#components/Icons';
 import { isChildNull } from '#utils/common';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface Props {
     className?: string;

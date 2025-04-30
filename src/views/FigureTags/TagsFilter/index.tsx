@@ -14,7 +14,7 @@ import NonFieldError from '#components/NonFieldError';
 
 import { PartialForm, PurgeNull } from '#types';
 import { FigureTagListQueryVariables } from '#generated/types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type TagsFilterFields = NonNullable<FigureTagListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<TagsFilterFields>>;

@@ -18,7 +18,7 @@ import StatusLink, { Props as StatusLinkProps } from './StatusLink';
 import { ReviewStatus } from './Status';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import Text, { TextProps } from './Text';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type Size = 'very-small' | 'small' | 'medium' | 'medium-large' | 'large';
 

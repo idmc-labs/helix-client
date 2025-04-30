@@ -12,7 +12,7 @@ import {
     Report_Generation_Status as ReportGenerationStatus,
 } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface GenerationItemProps {
     className?: string;

@@ -15,7 +15,7 @@ import useDebouncedValue from '#hooks/useDebouncedValue';
 import { GetEventListQuery, GetEventListQueryVariables } from '#generated/types';
 import { EVENT_FRAGMENT } from '#components/forms/EntryForm/queries';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const EVENT_LIST = gql`
     ${EVENT_FRAGMENT}

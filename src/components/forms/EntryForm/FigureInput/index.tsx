@@ -136,7 +136,7 @@ import {
     OtherSubTypeOptions,
     FigureMetadata,
 } from '../types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 // NOTE: the comparison should be type-safe but
 // we are currently downcasting string literals to string

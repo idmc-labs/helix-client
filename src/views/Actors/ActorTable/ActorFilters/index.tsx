@@ -14,7 +14,7 @@ import NonFieldError from '#components/NonFieldError';
 
 import { PartialForm, PurgeNull } from '#types';
 import { ActorsListQueryVariables } from '#generated/types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type ActorsFilterFields = NonNullable<ActorsListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<ActorsFilterFields>>;

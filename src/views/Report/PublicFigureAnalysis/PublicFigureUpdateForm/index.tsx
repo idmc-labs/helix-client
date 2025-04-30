@@ -34,7 +34,7 @@ import {
     FETCH_PUBLIC_FIGURE_ANALYSIS,
     UPDATE_PUBLIC_FIGURE_ANALYSIS,
 } from '../query';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type ReportPublicFigureAnalysisFields = UpdateReportPublicFigureAnalysisMutationVariables['report'];
 type FormType = PurgeNull<PartialForm<WithId<ReportPublicFigureAnalysisFields>>>;

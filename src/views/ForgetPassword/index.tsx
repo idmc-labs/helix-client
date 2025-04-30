@@ -28,9 +28,9 @@ import { transformToFormError } from '#utils/errorTransform';
 import route from '#config/routes';
 
 import { GenerateResetPasswordTokenType, GenerateResetPasswordTokenMutation, GenerateResetPasswordTokenMutationVariables } from '#generated/types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
-const HCaptchaSitekey = process.env.REACT_APP_HCATPCHA_SITEKEY as string;
+const HCaptchaSitekey = import.meta.env.REACT_APP_HCATPCHA_SITEKEY;
 
 const FORGET_PASSWORD = gql`
   mutation generateResetPasswordToken($input: GenerateResetPasswordTokenType!) {

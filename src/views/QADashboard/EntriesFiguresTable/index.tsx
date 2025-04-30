@@ -20,7 +20,7 @@ import useEntryTable from '#components/rawTables/useEntryTable';
 import useFigureTable from '#components/rawTables/useFigureTable';
 import FiguresFilter from '#components/rawTables/useFigureTable/FiguresFilter';
 import { expandObject } from '#utils/common';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type Tabs = 'Entries' | 'Figures';
 

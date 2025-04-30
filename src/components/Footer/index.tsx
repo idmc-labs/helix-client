@@ -4,7 +4,7 @@ import { _cs } from '@togglecorp/fujs';
 import Actions from '#components/Actions';
 import { isChildNull } from '#utils/common';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface Props {
     className?: string;

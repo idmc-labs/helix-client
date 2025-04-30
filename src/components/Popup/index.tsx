@@ -4,7 +4,7 @@ import { _cs } from '@togglecorp/fujs';
 import Portal from '#components/Portal';
 import useFloatPlacement from '#hooks/useFloatPlacement';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface Props {
     className?: string;

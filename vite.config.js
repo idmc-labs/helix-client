@@ -23,7 +23,7 @@ export default defineConfig((config) => {
             'import.meta.env.REACT_APP_VERSION': JSON.stringify(env.npm_package_version),
             'import.meta.env.REACT_APP_PACKAGE_NAME': JSON.stringify(env.npm_package_name),
             // NOTE: To fix 'global is not defined' issue after migration from yarn to pnpm
-            // global: {},
+            global: {},
         },
         build: {
             outDir: './build',
@@ -55,7 +55,7 @@ export default defineConfig((config) => {
         },
         envPrefix: 'REACT_APP_',
         server: {
-            port: 3001,
+            port: 3080,
             strictPort: true,
         },
         css: {

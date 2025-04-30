@@ -33,7 +33,7 @@ import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const GET_USER = gql`
     query UserProfile($id: ID!) {

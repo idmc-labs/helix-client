@@ -9,12 +9,13 @@ import {
 import {
     GetEnumOptions,
 } from '#utils/common';
-import { PurgeNull } from '#types';
+import { FilterOutArray, PurgeNull } from '#types';
 
 // NOTE: change info for FormType
 export type FormType = CreateEntryMutationVariables['entry'];
 
-type RawFigure = NonNullable<NonNullable<UpdateFiguresMutationVariables['figures']>[number]>;
+type RawFigure = FilterOutArray<NonNullable<NonNullable<UpdateFiguresMutationVariables['figures']>>>
+
 export type FigureFormProps = PurgeNull<Omit<RawFigure, 'uuid'>> & {
     id: string,
     stale?: boolean,

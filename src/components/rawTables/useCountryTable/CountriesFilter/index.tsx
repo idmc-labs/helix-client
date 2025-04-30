@@ -21,7 +21,7 @@ import GeographicMultiSelectInput from '#components/selections/GeographicMultiSe
 import NonFieldError from '#components/NonFieldError';
 
 import { CountriesQueryVariables } from '#generated/types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type CountriesQueryFilters = NonNullable<CountriesQueryVariables['filters']>;
 

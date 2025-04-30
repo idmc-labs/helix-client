@@ -97,8 +97,9 @@ import {
     CategoryOptions,
     FigureMetadata,
 } from './types';
+import { FilterOutArray } from '#types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 // TODO: move this to utils
 function useWatchDog(
@@ -298,7 +299,7 @@ function EntryForm(props: EntryFormProps) {
         NonNullable<NonNullable<UpdateFiguresMutation['bulkUpdateFigures']>['result']>[number],
         { id: string },
         { id: string, uuid: string },
-        Omit<NonNullable<UpdateFiguresMutationVariables['figures']>[number], 'uuid'> & { uuid: string }
+        Omit<FilterOutArray<NonNullable<UpdateFiguresMutationVariables['figures']>>, 'uuid'> & { uuid: string }
     >(25);
 
     const {
