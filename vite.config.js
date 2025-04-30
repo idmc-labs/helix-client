@@ -6,7 +6,7 @@ import reactSwc from '@vitejs/plugin-react-swc';
 import { execSync } from 'child_process';
 import { compression } from 'vite-plugin-compression2';
 import svgr from 'vite-plugin-svgr';
-import { visualizer } from "rollup-plugin-visualizer";
+// import { visualizer } from "rollup-plugin-visualizer";
 
 import envConfig from './env';
 
@@ -52,10 +52,6 @@ export default defineConfig((config) => {
                             'graphql',
                             'graphql-anywhere',
                         ],
-                        'markdown-related': [
-                            'react-mde',
-                            'react-showdown',
-                        ],
                     },
                 },
             },
@@ -91,7 +87,7 @@ export default defineConfig((config) => {
             tsconfigPaths(),
             webfontDownload(),
             validateEnv(envConfig),
-            isProd ? visualizer() : undefined,
+            // isProd ? visualizer() : undefined,
             isProd ? compression() : undefined,
         ],
     };

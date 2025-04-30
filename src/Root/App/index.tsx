@@ -16,7 +16,7 @@ import { isDefined } from '@togglecorp/fujs';
 import '@togglecorp/toggle-ui/build/index.css';
 import 'react-mde/lib/styles/css/react-mde-all.css';
 import '../../../node_modules/mapbox-gl/dist/mapbox-gl.css';
-import './styles.module.css';
+import './styles.css';
 
 import Multiplexer from './Multiplexer';
 

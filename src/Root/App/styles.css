@@ -1,29 +1,3 @@
-:global {
-    .react-mde {
-        border: none !important;
-
-        textarea.mde-text {
-            background: transparent !important;
-        }
-        .mde-header {
-            background: transparent !important;
-        }
-        .mde-tabs {
-            .selected {
-                border: none !important;
-                font-weight: var(--font-weight-bold);
-            }
-        }
-    }
-
-    /* NOTE: professional stuff, don't touch */
-    div[class^='styles_items-per-page'] {
-        >div {
-            width: 8rem !important;
-        }
-    }
-}
-
 :root {
     /* SPACING */
     --spacing-super-small: 1px;
@@ -136,4 +110,28 @@ a {
 
 * {
     box-sizing: border-box;
+}
+
+.react-mde {
+    border: none !important;
+
+    textarea.mde-text {
+        background: transparent !important;
+    }
+    .mde-header {
+        background: transparent !important;
+    }
+    .mde-tabs {
+        .selected {
+            border: none !important;
+            font-weight: var(--font-weight-bold);
+        }
+    }
+}
+
+/* NOTE: professional stuff, don't touch */
+div[class^='styles_items-per-page'] {
+    >div {
+        width: 8rem !important;
+    }
 }

@@ -1,30 +1,24 @@
 import React, { useState, useCallback } from 'react';
 import { InputContainer, InputContainerProps } from '@togglecorp/toggle-ui';
 import Markdown from 'react-mde';
-import MarkdownView, { MarkdownViewProps } from 'react-showdown';
+import MarkdownView from 'react-markdown';
+import remarkBreaks from 'remark-breaks';
+import remarkGfm from 'remark-gfm';
 
-export const markdownOptions: MarkdownViewProps['options'] = {
-    simpleLineBreaks: true,
-    headerLevelStart: 3,
-    simplifiedAutoLink: true,
-    openLinksInNewWindow: true,
-    backslashEscapesHTMLTags: true,
-    literalMidWordUnderscores: true,
-    strikethrough: true,
-    tables: true,
-    tasklists: true,
-};
-
+interface MarkdownViewProps {
+    markdown: string | null | undefined;
+}
 export function MarkdownPreview(props: MarkdownViewProps) {
     const {
-        options: markdownOptionsFromProps,
-        ...otherProps
+        markdown,
     } = props;
     return (
         <MarkdownView
-            {...otherProps}
-            options={markdownOptionsFromProps ?? markdownOptions}
-        />
+            skipHtml
+            remarkPlugins={[remarkBreaks, remarkGfm]}
+        >
+            {markdown}
+        </MarkdownView>
     );
 }
 
