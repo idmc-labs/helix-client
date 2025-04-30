@@ -45,7 +45,6 @@ export default defineConfig((config) => {
                         ],
                         'graphql-related': [
                             'apollo-link',
-                            'apollo-link-batch-http',
                             'apollo-link-error',
                             'apollo-link-rest',
                             'apollo-link-retry',
