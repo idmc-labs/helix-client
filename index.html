@@ -8,6 +8,8 @@
         <title>
             Helix 2.0
         </title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
 
         <style>
             :root {
@@ -30,7 +32,6 @@
             }
         </style>
 
-        <link rel="preconnect" href="https://fonts.googleapis.com">
     </head>
     <body style="background-color: var(--color-background)">
         <noscript>
@@ -38,9 +39,10 @@
         </noscript>
         <div id="helix-client-root">
         </div>
-
-        <!-- External resources  -->
-        <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
+        <script
+            type="module"
+            src="/src/index.tsx"
+        ></script>
 
         <script>
             if ('serviceWorker' in navigator) {
