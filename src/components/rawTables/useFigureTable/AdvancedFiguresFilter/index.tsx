@@ -225,7 +225,7 @@ const schema: FormSchema = {
             basicFields = {
                 ...basicFields,
                 filterFigureViolenceSubTypes: [arrayCondition],
-                filterFigureContextOfViolence: [],
+                filterFigureContextOfViolence: [arrayCondition],
             };
         }
         if (filterValue?.filterFigureCrisisTypes?.includes(disaster)) {

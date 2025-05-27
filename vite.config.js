@@ -73,6 +73,7 @@ export default defineConfig((config) => {
         server: {
             port: 3080,
             strictPort: true,
+            host: true,
         },
         css: {
             devSourcemap: isProd,
