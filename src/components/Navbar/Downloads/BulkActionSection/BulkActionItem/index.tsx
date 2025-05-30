@@ -15,7 +15,7 @@ import {
 } from '#generated/types';
 
 import BulkActionSummary from './BulkActionSummary';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type Payload = NonNullable<NonNullable<BulkApiOperationsQuery['bulkApiOperations']>['results']>[number]['payload'];
 

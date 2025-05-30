@@ -16,7 +16,7 @@ import FiguresFilterOutput from '#components/rawTables/useFigureTable/FiguresFil
 import { ExtractionEntryListFiltersQueryVariables } from '#generated/types';
 import { PurgeNull } from '#types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface CrisesProps {
     className?: string;

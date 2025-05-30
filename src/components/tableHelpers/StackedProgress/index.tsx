@@ -2,7 +2,7 @@ import React, { useMemo, memo } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import ProgressBar from '#components/ProgressBar';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 export interface StackedProgressProps {
     className?: string;

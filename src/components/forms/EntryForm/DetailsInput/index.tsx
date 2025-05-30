@@ -33,7 +33,7 @@ import {
     SourcePreview,
 } from '../types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 function getNameFromUrl(item: string | undefined) {
     if (!item) {

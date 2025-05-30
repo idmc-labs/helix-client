@@ -19,7 +19,7 @@ import route from '#config/routes';
 import EntryForm from '#components/forms/EntryForm';
 import { Attachment, SourcePreview } from '#components/forms/EntryForm/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const SOURCE_PREVIEW_POLL = gql`
     query SourcePreviewPoll($id: ID!) {

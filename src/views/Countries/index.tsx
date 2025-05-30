@@ -3,7 +3,7 @@ import { _cs } from '@togglecorp/fujs';
 import PageHeader from '#components/PageHeader';
 import CountriesTable from '#components/tables/CountriesTable';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface CountriesProps {
     className?: string;

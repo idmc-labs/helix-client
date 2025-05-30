@@ -3,7 +3,7 @@ import { isNotDefined, listToMap, isDefined } from '@togglecorp/fujs';
 
 import ReducedListDisplay from '#components/ReducedListDisplay';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type Key = string | number;
 
@@ -39,8 +39,8 @@ function FilterOutput<DATUM, KEY extends Key>(props: Props<DATUM, KEY>) {
 
     const optionsByKey = useMemo(
         () => (
-            listToMap<DATUM>(
-                options,
+            listToMap<DATUM, KEY>(
+                options ?? [],
                 keySelector,
             )
         ),

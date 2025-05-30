@@ -18,7 +18,7 @@ import {
 } from '#components/forms/EntryForm/types';
 import UrlPreview from '#components/UrlPreview';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type PreviewType = PartialForm<SourcePreview>
 type AttachmentType = PartialForm<Attachment>

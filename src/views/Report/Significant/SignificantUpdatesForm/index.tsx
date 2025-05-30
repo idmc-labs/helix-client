@@ -35,7 +35,7 @@ import {
     FETCH_REPORT_SIGNIFICANT,
     UPDATE_REPORT_SIGNIFICANT,
 } from '../query';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type ReportSignificantFormFields = UpdateReportSignificantUpdatesMutationVariables['report'];
 type FormType = PurgeNull<PartialForm<WithId<ReportSignificantFormFields>>>;

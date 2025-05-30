@@ -13,7 +13,7 @@ import {
     SummaryHistoryQueryVariables,
 } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const GET_SUMMARY_HISTORY = gql`
     query SummaryHistory($country: ID!, $page: Int, $pageSize: Int) {

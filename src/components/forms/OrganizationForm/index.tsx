@@ -56,7 +56,7 @@ import {
     UpdateOrganizationMutationVariables,
 } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const GET_ORGANIZATION_KIND_LIST = gql`
     query OrganizationKindList {

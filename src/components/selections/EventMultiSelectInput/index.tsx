@@ -14,7 +14,7 @@ import useOptions from '#hooks/useOptions';
 import { GetEventQuery, GetEventQueryVariables } from '#generated/types';
 import SearchMultiSelectInputWithChip from '#components/SearchMultiSelectInputWithChip';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const EVENT = gql`
     query GetEvent(

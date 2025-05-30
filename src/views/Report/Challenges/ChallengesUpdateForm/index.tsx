@@ -34,7 +34,7 @@ import {
     FETCH_REPORT_CHALLENGES,
     UPDATE_REPORT_CHALLENGES,
 } from '../query';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type ReportChallengesFormFields = UpdateReportChallengesMutationVariables['report'];
 type FormType = PurgeNull<PartialForm<WithId<ReportChallengesFormFields>>>;

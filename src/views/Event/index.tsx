@@ -41,7 +41,7 @@ import route from '#config/routes';
 import useCombinedChartData from '#hooks/useCombinedChartData';
 
 import CountriesEntriesFiguresTable from './CountriesEntriesFiguresTable';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const EVENT = gql`
     query EventSummary($id: ID!) {

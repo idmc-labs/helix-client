@@ -1,7 +1,7 @@
 import React from 'react';
 import { isFalsyString, _cs } from '@togglecorp/fujs';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 function isString(value: unknown): value is string {
     return typeof value === 'string';

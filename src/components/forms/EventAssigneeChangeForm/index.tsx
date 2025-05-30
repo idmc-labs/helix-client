@@ -32,7 +32,7 @@ import {
     SetAssigneeToEventMutationVariables,
 } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const SET_ASSIGNEE_TO_EVENT = gql`
     mutation SetAssigneeToEvent($eventId: ID!, $userId: ID!) {

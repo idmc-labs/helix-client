@@ -27,7 +27,7 @@ import NotificationContext from '#components/NotificationContext';
 import MarkdownEditor from '#components/MarkdownEditor';
 import Loading from '#components/Loading';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const CREATE_SUMMARY = gql`
     mutation CreateSummary($input: SummaryCreateInputType!) {

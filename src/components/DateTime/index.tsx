@@ -11,7 +11,7 @@ import {
 } from '#utils/common';
 import Tooltip from '#components/Tooltip';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type Props = DateTimeProps;
 

@@ -3,7 +3,7 @@ import { _cs } from '@togglecorp/fujs';
 
 import { ConfirmButton, ConfirmButtonProps } from '@togglecorp/toggle-ui';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type RoundButtonProps<T extends string | number | undefined> = Omit<ConfirmButtonProps<T>, 'icons'>;
 

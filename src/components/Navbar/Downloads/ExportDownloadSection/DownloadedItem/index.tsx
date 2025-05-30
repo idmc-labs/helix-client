@@ -17,7 +17,7 @@ import {
     Download_Types as DownloadTypes,
 } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface DownloadedItemProps {
     className?: string;

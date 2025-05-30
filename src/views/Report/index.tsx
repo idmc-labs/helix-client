@@ -80,7 +80,7 @@ import SignificateUpdateForm from './Significant/SignificantUpdatesForm';
 import ReportComments from './ReportComments';
 import CountriesCrisesEventsEntriesFiguresTable from './CountriesCrisesEventsEntriesFiguresTable';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 function getYesNo(value: boolean | null | undefined) {
     if (value === false) {

@@ -8,7 +8,7 @@ import {
 } from '@togglecorp/toggle-ui';
 import { IoCloseOutline, IoCreateOutline } from 'react-icons/io5';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type Def = { containerClassName?: string };
 type OptionKey = string | number;

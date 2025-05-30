@@ -35,7 +35,7 @@ import {
     UpdateFigureTagMutation,
     UpdateFigureTagMutationVariables,
 } from '#generated/types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const FIGURE_TAG = gql`
     query FigureTag($id: ID!) {

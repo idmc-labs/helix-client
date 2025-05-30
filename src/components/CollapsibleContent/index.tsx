@@ -5,7 +5,7 @@ import {
 } from 'react-icons/io5';
 import { _cs } from '@togglecorp/fujs';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface Props<N> {
     className?: string;

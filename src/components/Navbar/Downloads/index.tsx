@@ -20,7 +20,7 @@ import {
 
 import BulkActionSection from './BulkActionSection';
 import ExportDownloadSection from './ExportDownloadSection';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 // NOTE: exporting this so that other requests can refetch this request
 export const DOWNLOADS_COUNT = gql`

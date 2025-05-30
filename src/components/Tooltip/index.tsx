@@ -4,7 +4,7 @@ import { _cs, isNotDefined } from '@togglecorp/fujs';
 import Container from '#components/Container';
 import Popup from '#components/Popup';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface Props {
     className?: string;

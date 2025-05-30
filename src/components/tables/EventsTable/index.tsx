@@ -18,7 +18,7 @@ import { User } from '#types';
 import { expandObject } from '#utils/common';
 import useOptions from '#hooks/useOptions';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 // type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];
 

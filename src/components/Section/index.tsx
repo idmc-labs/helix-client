@@ -3,7 +3,7 @@ import { _cs } from '@togglecorp/fujs';
 
 import Header from '#components/Header';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface SectionProps {
     className?: string;

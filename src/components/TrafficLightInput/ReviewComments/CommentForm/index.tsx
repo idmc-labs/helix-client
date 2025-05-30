@@ -48,7 +48,7 @@ import {
 } from '#utils/common';
 import { EVENT_FRAGMENT } from '#components/forms/EntryForm/queries';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const colors = [
     {

@@ -15,7 +15,7 @@ import Loading from '#components/Loading';
 import Container from '#components/Container';
 
 import StatusLogItem from './StatusLogItem';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 export const STATUS_LOGS = gql`
     query StatusLogs($ordering: String, $page: Int, $pageSize: Int) {

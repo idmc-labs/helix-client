@@ -25,7 +25,7 @@ import {
     ClientTrackInformationListQueryVariables,
     ApiTypeForFiltersQuery,
 } from '#generated/types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const API_TYPE_OPTIONS = gql`
     query ApiTypeForFilters {

@@ -1,6 +1,6 @@
 services:
   react:
-    command: sh -c 'yarn install && yarn start'
+    command: sh -c 'pnpm install && pnpm start'
     build:
       context: .
       target: dev

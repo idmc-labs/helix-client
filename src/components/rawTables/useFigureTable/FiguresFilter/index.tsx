@@ -43,7 +43,7 @@ import {
     Crisis_Type as CrisisType,
 } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 // NOTE: the comparison should be type-safe but
 // we are currently down-casting string literals to string
@@ -186,7 +186,7 @@ const schema: FormSchema = {
             basicFields = {
                 ...basicFields,
                 filterFigureViolenceSubTypes: [arrayCondition],
-                filterFigureContextOfViolence: [],
+                filterFigureContextOfViolence: [arrayCondition],
             };
         }
         if (filterValue?.filterFigureCrisisTypes?.includes(disaster)) {

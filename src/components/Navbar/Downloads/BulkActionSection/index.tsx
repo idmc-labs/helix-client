@@ -9,7 +9,7 @@ import Container from '#components/Container';
 import { BulkApiOperationsQuery, BulkApiOperationsQueryVariables } from '#generated/types';
 
 import BulkActionItem from './BulkActionItem';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const BULK_OPERATIONS = gql`
     query BulkApiOperations(

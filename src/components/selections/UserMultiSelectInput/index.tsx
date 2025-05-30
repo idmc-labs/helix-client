@@ -13,7 +13,7 @@ import useDebouncedValue from '#hooks/useDebouncedValue';
 import useOptions from '#hooks/useOptions';
 import { GetUserQuery, GetUserQueryVariables } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const USER = gql`
     query GetUser(

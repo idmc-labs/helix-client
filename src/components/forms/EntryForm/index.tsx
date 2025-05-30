@@ -62,6 +62,7 @@ import {
 } from '#generated/types';
 import useOptions from '#hooks/useOptions';
 
+import { FilterOutArray } from '#types';
 import {
     ENTRY,
     CREATE_ENTRY,
@@ -98,7 +99,7 @@ import {
     FigureMetadata,
 } from './types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 // TODO: move this to utils
 function useWatchDog(
@@ -298,7 +299,7 @@ function EntryForm(props: EntryFormProps) {
         NonNullable<NonNullable<UpdateFiguresMutation['bulkUpdateFigures']>['result']>[number],
         { id: string },
         { id: string, uuid: string },
-        Omit<NonNullable<UpdateFiguresMutationVariables['figures']>[number], 'uuid'> & { uuid: string }
+        Omit<FilterOutArray<NonNullable<UpdateFiguresMutationVariables['figures']>>, 'uuid'> & { uuid: string }
     >(25);
 
     const {
@@ -958,7 +959,7 @@ function EntryForm(props: EntryFormProps) {
 
             const figures = entryData?.entry?.figures;
             const mapping = listToMap(
-                figures,
+                figures ?? [],
                 (figure) => figure.uuid,
                 (figure) => ({
                     role: figure.role,

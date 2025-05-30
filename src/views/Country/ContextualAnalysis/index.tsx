@@ -18,7 +18,7 @@ import { CountryQuery, CreateContextualAnalysisMutation } from '#generated/types
 
 import ContextualAnalysisForm from './ContextualAnalysisForm';
 import ContextualHistoryList from './ContextualHistoryList';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type ContextualAnalysis = NonNullable<CountryQuery['country']>['lastContextualAnalysis'];
 

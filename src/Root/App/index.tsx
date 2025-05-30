@@ -36,7 +36,7 @@ const errorLink = onError((all) => {
     }
 });
 
-const GRAPHQL_ENDPOINT = process.env.REACT_APP_GRAPHQL_ENDPOINT as string;
+const GRAPHQL_ENDPOINT = import.meta.env.REACT_APP_GRAPHQL_ENDPOINT;
 
 const client = new ApolloClient({
     link: ApolloLink.from([

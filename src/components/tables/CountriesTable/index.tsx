@@ -13,7 +13,7 @@ import {
 import useFilterState from '#hooks/useFilterState';
 import { expandObject, getNow } from '#utils/common';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const defaultFilter: PurgeNull<CountriesFilterFields> = {
     year: getNow().getFullYear(),

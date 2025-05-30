@@ -38,7 +38,7 @@ import {
     UpdateRegionalCoordinatorMutationVariables,
 } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const UPDATE_REGIONAL_COORDINATOR = gql`
     mutation updateRegionalCoordinator($data: RegionalCoordinatorPortfolioInputType!) {

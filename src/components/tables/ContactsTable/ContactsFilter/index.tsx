@@ -15,7 +15,7 @@ import CountryMultiSelectInput from '#components/selections/CountryMultiSelectIn
 
 import { PartialForm, PurgeNull } from '#types';
 import { ContactListQueryVariables } from '#generated/types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type ContactsFilterFields = NonNullable<ContactListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<ContactsFilterFields>>;

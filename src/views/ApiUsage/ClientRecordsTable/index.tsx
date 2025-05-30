@@ -37,16 +37,15 @@ import { hasNoData } from '#utils/common';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import NotificationContext from '#components/NotificationContext';
 
-import ClientRecordsFilter from './ClientRecordsFilters';
-
 import {
     ClientListQuery,
     ClientListQueryVariables,
     ExportClientsMutation,
     ExportClientsMutationVariables,
 } from '#generated/types';
+import ClientRecordsFilter from './ClientRecordsFilters';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const CLIENT_LIST = gql`
     query ClientList(

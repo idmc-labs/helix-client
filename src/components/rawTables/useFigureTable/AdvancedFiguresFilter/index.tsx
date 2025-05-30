@@ -49,8 +49,8 @@ import {
     Figure_Category_Types as FigureCategoryTypes,
     Crisis_Type as CrisisType,
 } from '#generated/types';
-import styles from './styles.css';
 import BooleanInput from '#components/selections/BooleanInput';
+import styles from './styles.module.css';
 
 const categoryTypeOptions = [
     { name: 'FLOW', description: 'Flow' },
@@ -225,7 +225,7 @@ const schema: FormSchema = {
             basicFields = {
                 ...basicFields,
                 filterFigureViolenceSubTypes: [arrayCondition],
-                filterFigureContextOfViolence: [],
+                filterFigureContextOfViolence: [arrayCondition],
             };
         }
         if (filterValue?.filterFigureCrisisTypes?.includes(disaster)) {

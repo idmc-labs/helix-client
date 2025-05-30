@@ -7,7 +7,7 @@ import {
 import SmartLink from '#components/SmartLink';
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 export interface LinkProps {
     title?: string | null;

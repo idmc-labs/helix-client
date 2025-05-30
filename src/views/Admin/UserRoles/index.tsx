@@ -43,7 +43,7 @@ import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 
 import ActionCell, { ActionProps } from './UserActions';
 import UserFilter from './UserFilter/index';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 

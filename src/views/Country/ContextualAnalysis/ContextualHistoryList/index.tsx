@@ -14,7 +14,7 @@ import {
     ContextualHistoryQueryVariables,
 } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const GET_CONTEXTUAL_HISTORY = gql`
     query ContextualHistory($country: ID!, $page: Int, $pageSize: Int) {

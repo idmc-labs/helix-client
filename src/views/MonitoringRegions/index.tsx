@@ -38,7 +38,7 @@ import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import ActionCell, { ActionProps } from './Action';
 import RegionalCoordinatorForm from './RegionalCoordinatorForm';
 import MonitoringExpertForm from './MonitoringExpertForm';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 

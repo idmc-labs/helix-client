@@ -44,7 +44,7 @@ import {
 
 import ParkedItemFilter from './ParkedItemFilter/index';
 import ActionCell, { ActionProps } from './Action';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 

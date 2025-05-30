@@ -16,7 +16,7 @@ import {
     GetUserQueryVariables,
 } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const USER = gql`
     query GetUser(

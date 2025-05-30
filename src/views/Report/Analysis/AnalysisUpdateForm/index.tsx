@@ -34,7 +34,7 @@ import {
     FETCH_REPORT_ANALYSIS,
     UPDATE_REPORT_ANALYSIS,
 } from '../query';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type ReportAnalysisFormFields = UpdateReportAnalysisMutationVariables['report'];
 type FormType = PurgeNull<PartialForm<WithId<ReportAnalysisFormFields>>>;

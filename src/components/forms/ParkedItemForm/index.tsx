@@ -50,7 +50,7 @@ import {
     UpdateParkedItemMutation,
     UpdateParkedItemMutationVariables,
 } from '#generated/types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const PARKING_LOT_OPTIONS = gql`
     query ParkedItemOptions {

@@ -4,7 +4,7 @@ import {
 } from '@togglecorp/fujs';
 import { Button, ButtonProps, Portal } from '@togglecorp/toggle-ui';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface FloatingButtonProps<N extends string | number | undefined> extends ButtonProps<N> {
     visibleOn: (scroll: number) => boolean,

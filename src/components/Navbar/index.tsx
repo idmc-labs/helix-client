@@ -24,7 +24,7 @@ import route from '#config/routes';
 
 import Downloads from './Downloads';
 import Notifications from './Notifications';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const LOGOUT = gql`
     mutation Logout {

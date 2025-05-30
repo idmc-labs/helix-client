@@ -34,7 +34,7 @@ import {
     FETCH_REPORT_SUMMARY,
     UPDATE_REPORT_SUMMARY,
 } from '../query';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type ReportSummaryFormFields = UpdateReportSummaryMutationVariables['report'];
 type FormType = PurgeNull<PartialForm<WithId<ReportSummaryFormFields>>>;

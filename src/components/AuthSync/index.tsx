@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { Modal, Button } from '@togglecorp/toggle-ui';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const AUTH_STATE = 'helix-auth-state';
 const LAST_USER = 'helix-lastuser-state';

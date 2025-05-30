@@ -43,7 +43,7 @@ import {
     CreateMonitoringExpertsMutation,
     CreateMonitoringExpertsMutationVariables,
 } from '#generated/types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const UPDATE_MONITORING_EXPERT = gql`
     mutation CreateMonitoringExperts($data: BulkMonitoringExpertPortfolioInputType!) {

@@ -48,7 +48,7 @@ import useModalState from '#hooks/useModalState';
 import { hasNoData } from '#utils/common';
 
 import UpdateFigureRoleModal from './UpdateFigureRoleModal';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 const MAX_SELECT_COUNT = 100;

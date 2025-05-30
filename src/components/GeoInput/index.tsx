@@ -14,7 +14,7 @@ import {
     IoSearchOutline,
 } from 'react-icons/io5';
 import {
-    MapTooltip,
+    MapPopup,
     MapLayer,
     MapSource,
     MapImage,
@@ -44,7 +44,7 @@ import CountriesMap, { Bounds, Centers } from '#components/CountriesMap';
 
 import image from './arrow.png';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type GeoLocation = PartialForm<GeoLocationFormProps>;
 
@@ -978,13 +978,14 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             onMouseLeave={handleMapRegionMouseLeave}
                         />
                         {hoveredRegionProperties && hoveredRegionProperties.lngLat && (
-                            <MapTooltip
+                            <MapPopup
                                 coordinates={hoveredRegionProperties.lngLat}
-                                tooltipOptions={tooltipOptions}
+                                popupOptions={tooltipOptions}
                                 trackPointer
+                                hidden={false}
                             >
                                 {hoveredRegionProperties?.feature?.properties?.name}
-                            </MapTooltip>
+                            </MapPopup>
                         )}
                     </MapSource>
                 </CountriesMap>

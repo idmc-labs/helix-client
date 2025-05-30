@@ -86,6 +86,7 @@ function CountriesMap(props: CountriesMapProps) {
                 <MapBounds
                     bounds={bounds as Bounds | undefined}
                     padding={50}
+                    duration={200}
                 />
             )}
             {center && (

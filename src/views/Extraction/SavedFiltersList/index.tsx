@@ -21,7 +21,7 @@ import {
 } from '#generated/types';
 
 import FilterItem from './FilterItem';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 export const GET_SAVED_QUERY_LIST = gql`
     query ExtractionQueryList(

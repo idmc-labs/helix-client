@@ -4,7 +4,7 @@ import HCaptcha from '@hcaptcha/react-hcaptcha';
 
 import { InputContainer, InputContainerProps } from '@togglecorp/toggle-ui';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 export type HCaptchaProps<T> = Omit<InputContainerProps, 'input'> & {
     name: T,

@@ -26,7 +26,7 @@ import Message from '#components/Message';
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const REVIEW_COMMENTS = gql`
     query ReviewComments(

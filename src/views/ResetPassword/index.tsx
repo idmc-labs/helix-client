@@ -26,7 +26,7 @@ import { transformToFormError } from '#utils/errorTransform';
 import route from '#config/routes';
 
 import { ResetPasswordType, ResetPasswordMutation, ResetPasswordMutationVariables } from '#generated/types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const RESET = gql`
   mutation ResetPassword($input: ResetPasswordType!) {

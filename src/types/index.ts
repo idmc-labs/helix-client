@@ -6,6 +6,7 @@ import {
 } from '#generated/types';
 
 export type MakeRequired<T, K extends string> = Omit<T, K> & Required<T>;
+export type FilterOutArray<T> = T extends unknown[] ? never : T
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type PartialForm<T> = T extends object ? (

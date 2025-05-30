@@ -13,7 +13,7 @@ import Loading from '#components/Loading';
 import Container from '#components/Container';
 
 import DownloadedItem from './DownloadedItem';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const DOWNLOADS = gql`
     query ExcelExports(

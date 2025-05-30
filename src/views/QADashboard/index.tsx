@@ -15,7 +15,7 @@ import Heading from '#components/Heading';
 
 import EntriesFiguresTable from './EntriesFiguresTable';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface TabReduxProps {
     children: React.ReactNode;

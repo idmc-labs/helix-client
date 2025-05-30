@@ -7,7 +7,7 @@ import MyResources from '#components/lists/MyResources';
 import ParkedItemTable from '#components/tables/ParkedItemTable';
 
 import CrisesEventsEntriesFiguresTable from './CrisesEventsEntriesFiguresTable';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface DashboardProps {
     className?: string;
@@ -32,7 +32,7 @@ function Dashboard(props: DashboardProps) {
                             className={styles.container}
                             headerActions={(
                                 <a
-                                    href={process.env.REACT_APP_MMP_ENDPOINT ?? '#'}
+                                    href={import.meta.env.REACT_APP_MMP_ENDPOINT ?? '#'}
                                     rel="noreferrer"
                                     target="_blank"
                                 >

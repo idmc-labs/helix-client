@@ -7,7 +7,7 @@ import {
 
 import ExternalLink from '#components/tableHelpers/ExternalLink';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type PropsFromButton = Parameters<typeof useButtonFeatures>[0];
 export interface ButtonLikeExternalLinkProps extends PropsFromButton {

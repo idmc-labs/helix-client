@@ -31,9 +31,9 @@ import { transformToFormError } from '#utils/errorTransform';
 
 import { LoginMutation, LoginMutationVariables, LoginInputType } from '#generated/types';
 import route from '#config/routes';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
-const HCaptchaSitekey = process.env.REACT_APP_HCATPCHA_SITEKEY as string;
+const HCaptchaSitekey = import.meta.env.REACT_APP_HCATPCHA_SITEKEY;
 
 const LOGIN = gql`
     mutation Login($input: LoginInputType!) {
@@ -151,9 +151,9 @@ function SignIn() {
                     const redirect = urlParams.get('redirect-to-mmp');
                     if (
                         redirect === 'true'
-                        && process.env.REACT_APP_MMP_ENDPOINT
+                        && import.meta.env.REACT_APP_MMP_ENDPOINT
                     ) {
-                        window.location.href = process.env.REACT_APP_MMP_ENDPOINT;
+                        window.location.href = import.meta.env.REACT_APP_MMP_ENDPOINT;
                     }
                 }
             },

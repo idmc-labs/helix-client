@@ -55,7 +55,7 @@ import NotificationContext from '#components/NotificationContext';
 import DomainContext from '#components/DomainContext';
 import route from '#config/routes';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const SIGN_OFF_EVENT = gql`
     mutation SignOffEvent($id: ID!) {

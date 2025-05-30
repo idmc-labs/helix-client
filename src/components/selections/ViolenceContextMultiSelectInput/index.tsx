@@ -14,7 +14,7 @@ import useOptions from '#hooks/useOptions';
 import { GetViolenceContextQuery, GetViolenceContextQueryVariables } from '#generated/types';
 import SearchMultiSelectInputWithChip from '#components/SearchMultiSelectInputWithChip';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const VIOLENCE_CONTEXT = gql`
     query GetViolenceContext(

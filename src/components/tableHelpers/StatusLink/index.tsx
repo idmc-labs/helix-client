@@ -8,7 +8,7 @@ import SmartLink from '#components/SmartLink';
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
 
 import Status, { ReviewStatus } from '../Status';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 export interface Props {
     className?: string;

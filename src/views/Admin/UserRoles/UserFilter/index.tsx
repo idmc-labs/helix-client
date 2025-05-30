@@ -24,7 +24,7 @@ import {
     RolesListQuery,
     User_Role as UserRole,
 } from '#generated/types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const regionalCoordinator: UserRole = 'REGIONAL_COORDINATOR';
 const monitoringExpert: UserRole = 'MONITORING_EXPERT';

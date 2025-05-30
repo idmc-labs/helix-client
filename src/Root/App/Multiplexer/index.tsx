@@ -35,7 +35,7 @@ import {
 
 import routeSettings, { lostRoute } from '#config/routes';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const Route = withSentryRouting(RawRoute);
 

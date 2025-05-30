@@ -3,7 +3,7 @@ import { _cs } from '@togglecorp/fujs';
 
 import { Button, ButtonProps } from '@togglecorp/toggle-ui';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type RoundButtonProps<T extends string | number | undefined> = Omit<ButtonProps<T>, 'icons'>;
 

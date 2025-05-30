@@ -34,7 +34,7 @@ import {
     FETCH_REPORT_METHODOLOGY,
     UPDATE_REPORT_METHODOLOGY,
 } from '../query';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 type ReportMethodologyFormFields = UpdateReportMethodologyMutationVariables['report'];
 type FormType = PurgeNull<PartialForm<WithId<ReportMethodologyFormFields>>>;

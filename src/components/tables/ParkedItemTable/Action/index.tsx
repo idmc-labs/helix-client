@@ -14,7 +14,7 @@ import { RouteData, Attrs } from '#hooks/useRouteMatching';
 import route from '#config/routes';
 import { Parking_Lot_Status as ParkingLotStatus } from '#generated/types';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 export interface ActionProps {
     id: string;

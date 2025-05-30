@@ -40,7 +40,7 @@ import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 
 import ViolenceContextForm from './ViolenceContextForm';
 import ViolenceContextFilter from '../ViolenceContextFilter';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 

@@ -29,7 +29,7 @@ import {
 import CommunicationForm from '#components/forms/CommunicationForm';
 
 import CommunicationFilter from './CommunicationFilter/index';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const GET_COMMUNICATIONS_LIST = gql`
     query CommunicationList(

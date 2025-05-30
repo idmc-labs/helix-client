@@ -22,7 +22,7 @@ import { EventListOption } from '#components/selections/EventListSelectInput';
 
 import ReviewComments from './ReviewComments';
 import CommentForm from './ReviewComments/CommentForm';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 export interface TrafficLightInputProps {
     className?: string;

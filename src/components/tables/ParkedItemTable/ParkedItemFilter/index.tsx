@@ -26,7 +26,7 @@ import NonFieldError from '#components/NonFieldError';
 
 import UserMultiSelectInput from '#components/selections/UserMultiSelectInput';
 import { PartialForm, PurgeNull } from '#types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const PARKING_LOT_OPTIONS = gql`
     query ParkedItemOptions {

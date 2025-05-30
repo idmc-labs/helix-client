@@ -35,7 +35,7 @@ import {
     UpdateViolenceContextMutation,
     UpdateViolenceContextMutationVariables,
 } from '#generated/types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const VIOLENCE_CONTEXT = gql`
     query ContextOfViolence($id: ID!) {

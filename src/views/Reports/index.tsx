@@ -4,7 +4,7 @@ import { _cs } from '@togglecorp/fujs';
 import ReportsTable from '#components/tables/ReportsTable';
 import PageHeader from '#components/PageHeader';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface ReportsProps {
     className?: string;

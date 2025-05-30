@@ -15,7 +15,7 @@ import {
 
 import useBasicToggle from '#hooks/useBasicToggle';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface TagProps extends ChipProps {
     label: string;

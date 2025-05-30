@@ -14,7 +14,7 @@ import {
 import QuickActionButton from '#components/QuickActionButton';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface CommentItemProps {
     onEditComment?: (id: string) => void;

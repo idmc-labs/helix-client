@@ -54,7 +54,7 @@ import {
     UpdateClientMutation,
     UpdateClientMutationVariables,
 } from '#generated/types';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 const GET_CLIENT = gql`
     query Client($id: ID!) {
