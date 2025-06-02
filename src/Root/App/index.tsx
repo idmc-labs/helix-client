@@ -37,6 +37,7 @@ const errorLink = onError((all) => {
 });
 
 const GRAPHQL_ENDPOINT = import.meta.env.REACT_APP_GRAPHQL_ENDPOINT;
+const OSMNAME_ENDPOINT = import.meta.env.REACT_APP_OSMNAME_ENDPOINT;
 
 const client = new ApolloClient({
     link: ApolloLink.from([
@@ -56,7 +57,7 @@ const client = new ApolloClient({
             }) as unknown as ApolloLink,
             ApolloLink.from([
                 new RestLink({
-                    uri: 'https://osmnames.idmcdb.org',
+                    uri: OSMNAME_ENDPOINT,
                 }) as unknown as ApolloLink,
                 errorLink as unknown as ApolloLink,
                 new HttpLink({
