@@ -5,6 +5,8 @@ import MarkdownView from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 
+import styles from './styles.module.css';
+
 interface MarkdownViewProps {
     markdown: string | null | undefined;
 }
@@ -13,12 +15,14 @@ export function MarkdownPreview(props: MarkdownViewProps) {
         markdown,
     } = props;
     return (
-        <MarkdownView
-            skipHtml
-            remarkPlugins={[remarkBreaks, remarkGfm]}
-        >
-            {markdown}
-        </MarkdownView>
+        <div className={styles.markdown}>
+            <MarkdownView
+                skipHtml
+                remarkPlugins={[remarkBreaks, remarkGfm]}
+            >
+                {markdown}
+            </MarkdownView>
+        </div>
     );
 }
 
