@@ -280,7 +280,7 @@ function OrganizationTable(props: OrganizationProps) {
             createTextColumn<OrganizationFields, string>(
                 'name',
                 'Name',
-                (item) => item.name,
+                (item) => `${item.name} - ${item.countries.map((c) => c.idmcShortName).join(', ')}`,
                 { sortable: true },
                 'large',
             ),
