@@ -72,6 +72,7 @@ const CLIENT_LIST = gql`
                 contactWebsite
                 isActive
                 name
+                shareSource
                 useCases
                 useCasesDisplay
                 optedOutOfEmails

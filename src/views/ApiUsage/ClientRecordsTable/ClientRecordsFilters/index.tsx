@@ -50,6 +50,7 @@ const schema: FormSchema = {
         isActive: [],
         name: [],
         useCases: [arrayCondition],
+        shareSource: [],
     }),
 };
 
@@ -155,6 +156,14 @@ function ClientRecordsFilter(props: ClientFilterProps) {
                     labelSelector={enumLabelSelector}
                     error={error?.fields?.useCases?.$internal}
                     disabled={optionsLoading || !!optionsError}
+                />
+                <BooleanInput
+                    className={styles.input}
+                    label="Share Source"
+                    name="shareSource"
+                    error={error?.fields?.shareSource}
+                    value={value.shareSource}
+                    onChange={onValueChange}
                 />
                 <div className={styles.formButtons}>
                     <Button
