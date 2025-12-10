@@ -287,6 +287,12 @@ function ClientRecordsTable(props: ClientRecordProps) {
                 (item) => item.isActive,
                 { sortable: true },
             ),
+            createYesNoColumn<ClientFields, string>(
+                'shareSource',
+                'Share source',
+                (item) => item.shareSource,
+                { sortable: true },
+            ),
             createActionColumn<ClientFields, string>(
                 'action',
                 '',

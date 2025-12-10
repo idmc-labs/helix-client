@@ -464,7 +464,7 @@ function ClientRecordForm(props: ClientRecordProps) {
                 readOnly={readOnly}
             />
             <BooleanInput
-                label="Share sources *"
+                label="Share source *"
                 name="shareSource"
                 value={value.shareSource}
                 onChange={onValueChange}
