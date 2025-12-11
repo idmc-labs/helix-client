@@ -12,10 +12,12 @@ import { v4 as uuidv4 } from 'uuid';
 import {
     Button,
     Pager,
+    SegmentInput,
     Tabs,
     TabList,
     Tab,
     TabPanel,
+    TextInput,
 } from '@togglecorp/toggle-ui';
 import {
     removeNull,
@@ -329,6 +331,37 @@ function EntryForm(props: EntryFormProps) {
         activeFiguresUuids,
         setActiveFiguresUuids,
     ] = useState<string[]>([]);
+
+    const [
+        figureIdFromSearchFilter,
+        setFigureIdFromSearchFilter,
+    ] = useState<string | undefined>();
+
+    type FigureFilterType = 'all' | 'errored' | 'unsaved';
+    interface BasicFigureStatusEntity {
+        id: FigureFilterType,
+        name: string;
+    }
+    const figureStatusOptionsForFilter: BasicFigureStatusEntity[] = [
+        {
+            id: 'all',
+            name: 'All',
+        },
+        {
+            id: 'errored',
+            name: 'Error',
+        },
+        {
+            id: 'unsaved',
+            name: 'Unsaved',
+        },
+    ];
+    const keySelector = (item: BasicFigureStatusEntity) => item.id;
+    const labelSelector = (item: BasicFigureStatusEntity) => item.name;
+    const [
+        figureStatusFromFilter,
+        setFigureStatusFromFilter,
+    ] = useState<FigureFilterType>('all');
 
     const handleSelectedFigureChange: React.Dispatch<
         React.SetStateAction<string | undefined>
@@ -1028,6 +1061,7 @@ function EntryForm(props: EntryFormProps) {
 
                 return organizationsSafe;
             });
+
             setActiveFiguresUuids(figuresFromResponse?.map((figure) => figure.uuid) ?? []);
 
             onValueChange((oldFigures: PartialFormValues['figures'] = []) => {
@@ -1336,6 +1370,27 @@ function EntryForm(props: EntryFormProps) {
         [entryFormRef],
     );
 
+    // FIXME: Optimize this filter
+    const activeFiguresToDisplay = useMemo(() => {
+        if (figureStatusFromFilter === 'errored') {
+            const erroredList = Object.keys(error?.fields?.figures?.members ?? {});
+            return value.figures
+                ?.filter((fig) => erroredList.includes(fig.uuid));
+        }
+        if (figureStatusFromFilter === 'unsaved') {
+            return value.figures?.filter((fig) => fig.stale);
+        }
+        return value.figures
+            ?.filter((figure) => activeFiguresUuids.includes(figure.uuid));
+    }, [
+        activeFiguresUuids,
+        error?.fields?.figures,
+        figureStatusFromFilter,
+        value.figures,
+    ]);
+
+    const showPagination = figureStatusFromFilter === 'all';
+
     if (redirectId && (!entryId || entryId !== redirectId)) {
         // NOTE: using <Redirect /> instead of history.push because
         // page redirect should be called only after pristine is set to true
@@ -1365,16 +1420,13 @@ function EntryForm(props: EntryFormProps) {
     const detailsTabErrored = analyzeErrors(error?.fields?.details);
     const analysisTabErrored = analyzeErrors(error?.fields?.analysis)
         || analyzeErrors(error?.fields?.figures);
+    console.log('value', error?.fields?.figures);
 
     const urlProcessed = !!preview;
     const attachmentProcessed = !!attachment;
     const processed = attachmentProcessed || urlProcessed;
 
     const editMode = mode === 'edit';
-
-    // FIXME: Optimize this filter
-    const activeFiguresToDisplay = value.figures
-        ?.filter((figure) => activeFiguresUuids.includes(figure.uuid));
 
     return (
         <>
@@ -1480,6 +1532,23 @@ function EntryForm(props: EntryFormProps) {
                                 </Button>
                             )}
                         >
+                            <div className={styles.filters}>
+                                <TextInput
+                                    name="figureId"
+                                    type="number"
+                                    label="Search by figure id"
+                                    value={figureIdFromSearchFilter}
+                                    onChange={setFigureIdFromSearchFilter}
+                                />
+                                <SegmentInput
+                                    name="figure status"
+                                    keySelector={keySelector}
+                                    labelSelector={labelSelector}
+                                    options={figureStatusOptionsForFilter}
+                                    onChange={setFigureStatusFromFilter}
+                                    value={figureStatusFromFilter}
+                                />
+                            </div>
                             <NonFieldError>
                                 {error?.fields?.figures?.$internal}
                             </NonFieldError>
@@ -1554,13 +1623,15 @@ function EntryForm(props: EntryFormProps) {
                                             />
                                         );
                                     })}
-                                    <Pager
-                                        activePage={figurePage}
-                                        itemsCount={totalFiguresCount ?? 0}
-                                        maxItemsPerPage={MAX_FIGURES_PER_PAGE}
-                                        onActivePageChange={setFigurePage}
-                                        itemsPerPageControlHidden
-                                    />
+                                    {showPagination && (
+                                        <Pager
+                                            activePage={figurePage}
+                                            itemsCount={totalFiguresCount ?? 0}
+                                            maxItemsPerPage={MAX_FIGURES_PER_PAGE}
+                                            onActivePageChange={setFigurePage}
+                                            itemsPerPageControlHidden
+                                        />
+                                    )}
                                 </div>
                             )}
                         </Section>
