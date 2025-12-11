@@ -4,12 +4,14 @@ import {
     _cs,
     unique,
     isDefined,
+    isNotDefined,
     listToMap,
     compareStringAsNumber,
 } from '@togglecorp/fujs';
 import { v4 as uuidv4 } from 'uuid';
 import {
     Button,
+    Pager,
     Tabs,
     TabList,
     Tab,
@@ -54,6 +56,8 @@ import {
     UpdateFiguresMutationVariables,
     EntryQuery,
     EntryQueryVariables,
+    FiguresForEntryQuery,
+    FiguresForEntryQueryVariables,
     FigureOptionsForEntryFormQuery,
     ParkedItemForEntryQuery,
     ParkedItemForEntryQueryVariables,
@@ -70,6 +74,7 @@ import {
     CREATE_SOURCE_PREVIEW,
     UPDATE_ENTRY,
     FIGURE_OPTIONS,
+    FIGURES_FOR_ENTRY,
     PARKED_ITEM_FOR_ENTRY,
     UPDATE_FIGURES,
 } from './queries';
@@ -251,6 +256,8 @@ function getValuesFromFigures(figures: (NonNullable<NonNullable<EntryQuery['entr
     };
 }
 
+const MAX_FIGURES_PER_PAGE = 10;
+
 interface EntryFormProps {
     className?: string;
 
@@ -286,6 +293,11 @@ function EntryForm(props: EntryFormProps) {
         initialFieldType,
     } = props;
 
+    const [
+        figurePage,
+        setFigurePage,
+    ] = useState<number>(1);
+
     const entryFormRef = useRef<HTMLFormElement>(null);
 
     const {
@@ -312,6 +324,11 @@ function EntryForm(props: EntryFormProps) {
     // just for jumping to selected figure
     const [selectedFigure, setSelectedFigure] = useState<string | undefined>();
     const [selectedFieldType, setSelectedFieldType] = useState<string>();
+
+    const [
+        activeFiguresUuids,
+        setActiveFiguresUuids,
+    ] = useState<string[]>([]);
 
     const handleSelectedFigureChange: React.Dispatch<
         React.SetStateAction<string | undefined>
@@ -376,6 +393,25 @@ function EntryForm(props: EntryFormProps) {
         validate,
         onPristineSet,
     } = useForm(initialFormValues, schema);
+
+    const resetWatchdog = useWatchDog(
+        pending || pristine,
+        30 * 1000,
+        () => {
+            notify({
+                children: 'You have some unsaved changes. Make sure to save your progress!',
+                variant: 'default',
+            });
+        },
+    );
+
+    const onValueChange: typeof onValueChangeFromForm = useCallback(
+        (...args) => {
+            onValueChangeFromForm(...args);
+            resetWatchdog();
+        },
+        [onValueChangeFromForm, resetWatchdog],
+    );
 
     const parkedItemVariables = useMemo(
         (): ParkedItemForEntryQueryVariables | undefined => (
@@ -900,7 +936,7 @@ function EntryForm(props: EntryFormProps) {
         },
     );
 
-    const variables = useMemo(
+    const variablesForEntryQuery = useMemo(
         (): EntryQueryVariables | undefined => (
             entryId ? { id: entryId } : undefined
         ),
@@ -910,11 +946,9 @@ function EntryForm(props: EntryFormProps) {
     const {
         loading: getEntryLoading,
         error: entryDataError,
-        previousData: previousEntryData,
-        data: entryData = previousEntryData,
     } = useQuery<EntryQuery, EntryQueryVariables>(ENTRY, {
-        skip: !variables,
-        variables,
+        skip: !variablesForEntryQuery,
+        variables: variablesForEntryQuery,
         onCompleted: (response) => {
             const { entry } = removeNull(response);
             if (!entry) {
@@ -926,40 +960,100 @@ function EntryForm(props: EntryFormProps) {
                 organizationsForState,
                 entryForState,
             } = getValuesFromEntry(entry);
-            const {
-                organizationsForState: organizationsForState2,
-                eventsForState,
-                figuresForState,
-                tagOptionsForState,
-                violenceContextOptionsForState,
-            } = getValuesFromFigures(entry.figures ?? []);
 
             setSourcePreview(entry.preview);
             setAttachment(entry.document);
 
+            setOrganizations(organizationsForState);
+
+            onValueSet((oldValue) => ({
+                ...oldValue,
+                ...entryForState,
+            }));
+        },
+    });
+
+    const variablesForFiguresQuery = useMemo(
+        (): FiguresForEntryQueryVariables | undefined => {
+            if (isNotDefined(entryId)) {
+                return undefined;
+            }
+            return {
+                entryId,
+                page: figurePage,
+                pageSize: MAX_FIGURES_PER_PAGE,
+            };
+        },
+        [
+            entryId,
+            figurePage,
+        ],
+    );
+
+    const getIndexofFigureUuid = useCallback((figureUuid: string | undefined) => {
+        const requiredIndex = value.figures?.findIndex((item) => item.uuid === figureUuid);
+        return requiredIndex;
+    }, [value.figures]);
+
+    const {
+        loading: getFiguresLoading,
+        previousData: previousFiguresData,
+        data: figuresData = previousFiguresData,
+    } = useQuery<FiguresForEntryQuery, FiguresForEntryQueryVariables>(FIGURES_FOR_ENTRY, {
+        skip: !variablesForFiguresQuery,
+        variables: variablesForFiguresQuery,
+        onCompleted: (response) => {
+            const figuresFromResponse = response.figureList?.results;
+
+            const {
+                organizationsForState,
+                eventsForState,
+                figuresForState,
+                tagOptionsForState,
+                violenceContextOptionsForState,
+            } = getValuesFromFigures(figuresFromResponse ?? []);
+
             handleEventOptionsChange(eventsForState);
             setTagOptions(tagOptionsForState);
             setViolenceContextOptions(violenceContextOptionsForState);
+            setOrganizations((oldOrganizations) => {
+                const organizationsAll = [
+                    ...oldOrganizations ?? [],
+                    ...organizationsForState,
+                ];
+                const organizationsSafe = unique(
+                    organizationsAll,
+                    (o) => o.id,
+                );
 
-            setOrganizations(organizationsForState);
-            setOrganizations(organizationsForState2);
-
-            onValueSet({
-                ...entryForState,
-                figures: figuresForState
-                    .filter(isDefined)
-                    .sort((foo, bar) => compareStringAsNumber(foo.id, bar.id)),
+                return organizationsSafe;
             });
+            setActiveFiguresUuids(figuresFromResponse?.map((figure) => figure.uuid) ?? []);
 
-            const mainFigure = entry.figures?.find((element) => (
+            onValueChange((oldFigures: PartialFormValues['figures'] = []) => {
+                const allFigures = [
+                    ...oldFigures,
+                    ...figuresForState.filter(isDefined),
+                ];
+                allFigures.sort((foo, bar) => compareStringAsNumber(foo.id, bar.id));
+
+                // FIXME: Need to be deliberate about which value to save
+                const uniqueFigures = unique(
+                    allFigures,
+                    (figure) => figure.uuid,
+                );
+                return uniqueFigures;
+            }, 'figures' as const);
+
+            const mainFigure = figuresFromResponse?.find((element) => (
                 element.id === initialFigureId
             ));
+
             setSelectedFigure(mainFigure?.uuid);
             setSelectedFieldType(initialFieldType ?? undefined);
 
-            const figures = entryData?.entry?.figures;
             const mapping = listToMap(
-                figures ?? [],
+                figuresFromResponse ?? [],
                 (figure) => figure.uuid,
                 (figure) => ({
                     role: figure.role,
@@ -971,6 +1065,8 @@ function EntryForm(props: EntryFormProps) {
         },
     });
 
+    const totalFiguresCount = figuresData?.figureList?.totalCount;
+
     const loading = (
         getEntryLoading
         || pending
@@ -980,25 +1076,7 @@ function EntryForm(props: EntryFormProps) {
         || createAttachmentLoading
         || parkedItemDataLoading
         || createSourcePreviewLoading
-    );
-
-    const resetWatchdog = useWatchDog(
-        pending || pristine,
-        30 * 1000,
-        () => {
-            notify({
-                children: 'You have some unsaved changes. Make sure to save your progress!',
-                variant: 'default',
-            });
-        },
-    );
-
-    const onValueChange: typeof onValueChangeFromForm = useCallback(
-        (...args) => {
-            onValueChangeFromForm(...args);
-            resetWatchdog();
-        },
-        [onValueChangeFromForm, resetWatchdog],
+        || getFiguresLoading
     );
 
     const handleSubmit = useCallback((finalValue: PartialFormValues) => {
@@ -1294,6 +1372,10 @@ function EntryForm(props: EntryFormProps) {
 
     const editMode = mode === 'edit';
 
+    // FIXME: Optimize this filter
+    const activeFiguresToDisplay = value.figures
+        ?.filter((figure) => activeFiguresUuids.includes(figure.uuid));
+
     return (
         <>
             {editMode && (
@@ -1401,68 +1483,86 @@ function EntryForm(props: EntryFormProps) {
                             <NonFieldError>
                                 {error?.fields?.figures?.$internal}
                             </NonFieldError>
-                            {value.figures?.length === 0 ? (
+                            {activeFiguresToDisplay?.length === 0 ? (
                                 <div className={styles.emptyMessage}>
                                     No figures yet
                                 </div>
-                            ) : value.figures?.map((fig, index) => (
-                                fig.deleted
-                                    ? null
-                                    : (
-                                        <FigureInput
-                                            key={fig.uuid}
-                                            selectedFigure={selectedFigure}
-                                            setSelectedFigure={handleSelectedFigureChange}
-                                            index={index}
-                                            value={fig}
-                                            onChange={handleFigureChange}
-                                            onRemove={handleFigureRemove}
-                                            error={error?.fields?.figures?.members?.[fig.uuid]}
-                                            disabled={loading || !processed}
-                                            mode={mode}
-                                            // eslint-disable-next-line max-len
-                                            optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
-                                            events={events}
-                                            setEvents={handleEventOptionsChange}
-                                            // eslint-disable-next-line max-len
-                                            causeOptions={figureOptionsData?.crisisType?.enumValues as CauseOptions}
-                                            // eslint-disable-next-line max-len
-                                            accuracyOptions={figureOptionsData?.accuracyList?.enumValues as AccuracyOptions}
-                                            // eslint-disable-next-line max-len
-                                            categoryOptions={figureOptionsData?.figureCategoryList?.enumValues as CategoryOptions}
-                                            // eslint-disable-next-line max-len
-                                            unitOptions={figureOptionsData?.unitList?.enumValues as UnitOptions}
-                                            // eslint-disable-next-line max-len
-                                            termOptions={figureOptionsData?.figureTermList?.enumValues as TermOptions}
-                                            // eslint-disable-next-line max-len
-                                            roleOptions={figureOptionsData?.roleList?.enumValues as RoleOptions}
-                                            // eslint-disable-next-line max-len
-                                            displacementOptions={figureOptionsData?.displacementOccurence?.enumValues as DisplacementOptions}
-                                            // eslint-disable-next-line max-len
-                                            identifierOptions={figureOptionsData?.identifierList?.enumValues as IdentifierOptions}
-                                            // eslint-disable-next-line max-len
-                                            geocoderOptions={figureOptionsData?.geocoderList?.enumValues as GeocoderOptions}
-                                            // eslint-disable-next-line max-len
-                                            genderCategoryOptions={figureOptionsData?.disaggregatedGenderList?.enumValues as GenderOptions}
-                                            // eslint-disable-next-line max-len
-                                            quantifierOptions={figureOptionsData?.quantifierList?.enumValues as QuantifierOptions}
-                                            // eslint-disable-next-line max-len
-                                            dateAccuracyOptions={figureOptionsData?.dateAccuracy?.enumValues as DateAccuracyOptions}
-                                            // eslint-disable-next-line max-len
-                                            disasterCategoryOptions={figureOptionsData?.disasterCategoryList}
-                                            // eslint-disable-next-line max-len
-                                            violenceCategoryOptions={figureOptionsData?.violenceList}
-                                            osvSubTypeOptions={figureOptionsData?.osvSubTypeList}
-                                            // eslint-disable-next-line max-len
-                                            otherSubTypeOptions={figureOptionsData?.otherSubTypeList}
-                                            trafficLightShown={trafficLightShown}
-                                            onFigureClone={handleFigureClone}
-                                            metadata={figureMetadataMapping[fig.uuid]}
-                                            setMetadata={handleFigureMetadataChange}
-                                            defaultShownField={selectedFieldType}
-                                        />
-                                    )
-                            ))}
+                            ) : (
+                                <div className={styles.figures}>
+                                    {activeFiguresToDisplay?.map((fig) => {
+                                        if (fig.deleted) {
+                                            return null;
+                                        }
+                                        const indexForFigure = getIndexofFigureUuid(fig.uuid);
+                                        if (isNotDefined(indexForFigure)) {
+                                            return null;
+                                        }
+                                        return (
+                                            <FigureInput
+                                                key={fig.uuid}
+                                                selectedFigure={selectedFigure}
+                                                setSelectedFigure={handleSelectedFigureChange}
+                                                index={indexForFigure}
+                                                value={fig}
+                                                onChange={handleFigureChange}
+                                                onRemove={handleFigureRemove}
+                                                // eslint-disable-next-line max-len
+                                                error={error?.fields?.figures?.members?.[fig.uuid]}
+                                                disabled={loading || !processed}
+                                                mode={mode}
+                                                // eslint-disable-next-line max-len
+                                                optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
+                                                events={events}
+                                                setEvents={handleEventOptionsChange}
+                                                // eslint-disable-next-line max-len
+                                                causeOptions={figureOptionsData?.crisisType?.enumValues as CauseOptions}
+                                                // eslint-disable-next-line max-len
+                                                accuracyOptions={figureOptionsData?.accuracyList?.enumValues as AccuracyOptions}
+                                                // eslint-disable-next-line max-len
+                                                categoryOptions={figureOptionsData?.figureCategoryList?.enumValues as CategoryOptions}
+                                                // eslint-disable-next-line max-len
+                                                unitOptions={figureOptionsData?.unitList?.enumValues as UnitOptions}
+                                                // eslint-disable-next-line max-len
+                                                termOptions={figureOptionsData?.figureTermList?.enumValues as TermOptions}
+                                                // eslint-disable-next-line max-len
+                                                roleOptions={figureOptionsData?.roleList?.enumValues as RoleOptions}
+                                                // eslint-disable-next-line max-len
+                                                displacementOptions={figureOptionsData?.displacementOccurence?.enumValues as DisplacementOptions}
+                                                // eslint-disable-next-line max-len
+                                                identifierOptions={figureOptionsData?.identifierList?.enumValues as IdentifierOptions}
+                                                // eslint-disable-next-line max-len
+                                                geocoderOptions={figureOptionsData?.geocoderList?.enumValues as GeocoderOptions}
+                                                // eslint-disable-next-line max-len
+                                                genderCategoryOptions={figureOptionsData?.disaggregatedGenderList?.enumValues as GenderOptions}
+                                                // eslint-disable-next-line max-len
+                                                quantifierOptions={figureOptionsData?.quantifierList?.enumValues as QuantifierOptions}
+                                                // eslint-disable-next-line max-len
+                                                dateAccuracyOptions={figureOptionsData?.dateAccuracy?.enumValues as DateAccuracyOptions}
+                                                // eslint-disable-next-line max-len
+                                                disasterCategoryOptions={figureOptionsData?.disasterCategoryList}
+                                                // eslint-disable-next-line max-len
+                                                violenceCategoryOptions={figureOptionsData?.violenceList}
+                                                // eslint-disable-next-line max-len
+                                                osvSubTypeOptions={figureOptionsData?.osvSubTypeList}
+                                                // eslint-disable-next-line max-len
+                                                otherSubTypeOptions={figureOptionsData?.otherSubTypeList}
+                                                trafficLightShown={trafficLightShown}
+                                                onFigureClone={handleFigureClone}
+                                                metadata={figureMetadataMapping[fig.uuid]}
+                                                setMetadata={handleFigureMetadataChange}
+                                                defaultShownField={selectedFieldType}
+                                            />
+                                        );
+                                    })}
+                                    <Pager
+                                        activePage={figurePage}
+                                        itemsCount={totalFiguresCount ?? 0}
+                                        maxItemsPerPage={MAX_FIGURES_PER_PAGE}
+                                        onActivePageChange={setFigurePage}
+                                        itemsPerPageControlHidden
+                                    />
+                                </div>
+                            )}
                         </Section>
                     </TabPanel>
                 </Tabs>

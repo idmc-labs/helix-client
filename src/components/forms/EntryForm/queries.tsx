@@ -244,6 +244,30 @@ export const ENTRY = gql`
     }
 `;
 
+export const FIGURES_FOR_ENTRY = gql`
+    ${FIGURE_FRAGMENT}
+    query FiguresForEntry(
+        $page: Int,
+        $pageSize: Int,
+        $entryId: String,
+    ) {
+        figureList(
+            page: $page,
+            pageSize: $pageSize,
+            filters: {
+                filterFigureEntry: $entryId,
+            },
+        ) {
+            page
+            pageSize
+            totalCount
+            results {
+                ...FigureResponse
+            }
+        }
+    }
+`;
+
 export const CREATE_ENTRY = gql`
     ${ENTRY_FRAGMENT}
     mutation CreateEntry($entry: EntryCreateInputType!) {
