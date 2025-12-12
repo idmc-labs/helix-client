@@ -9,6 +9,7 @@ import React, {
     useRef,
     useState,
 } from 'react';
+import { generatePath } from 'react-router-dom';
 import {
     TextInput,
     NumberInput,
@@ -22,6 +23,7 @@ import {
 } from '@togglecorp/toggle-ui';
 import {
     isDefined,
+    isNotDefined,
     sum,
     unique,
     _cs,
@@ -49,6 +51,7 @@ import {
     IoEyeOutline,
     IoEyeOffOutline,
     IoOpenOutline,
+    IoShareSocialOutline,
 } from 'react-icons/io5';
 
 import useOptions from '#hooks/useOptions';
@@ -71,6 +74,7 @@ import TrafficLightInput from '#components/TrafficLightInput';
 import FigureTagMultiSelectInput from '#components/selections/FigureTagMultiSelectInput';
 import EventListSelectInput, { EventListOption } from '#components/selections/EventListSelectInput';
 import ViolenceContextMultiSelectInput from '#components/selections/ViolenceContextMultiSelectInput';
+import QuickActionButton from '#components/QuickActionButton';
 import {
     enumKeySelector,
     enumLabelSelector,
@@ -1247,6 +1251,37 @@ function FigureInput(props: FigureInputProps) {
         </>
     );
 
+    const handleShareFigureClick = useCallback(
+        (name: string | undefined, e: React.MouseEvent<HTMLButtonElement>) => {
+            e.stopPropagation();
+            e.preventDefault();
+            if (isNotDefined(value.entry) || isNotDefined(name)) {
+                notify({
+                    children: 'Some error occured. Couldn\'t save url. Please contact admin',
+                    variant: 'error',
+                });
+                return;
+            }
+            const path = generatePath(route.entryEdit.path, { entryId: value.entry });
+            const linkToFigure = new URL(
+                path,
+                window.location.origin,
+            );
+            linkToFigure.searchParams.set(
+                'figureId',
+                name,
+            );
+            navigator.clipboard.writeText(linkToFigure.href.toString());
+            notify({
+                children: `Link to figure #${name} has been copied to clipboard`,
+                variant: 'success',
+            });
+        }, [
+            value.entry,
+            notify,
+        ],
+    );
+
     return (
         <CollapsibleContent
             elementRef={elementRef}
@@ -1256,9 +1291,23 @@ function FigureInput(props: FigureInputProps) {
             onExpansionChange={handleExpansionChange}
             isExpanded={expanded}
             icons={(
-                <Status
-                    status={reviewStatus}
-                />
+                <>
+                    <div className={styles.figureId}>
+                        #
+                        {value.id}
+                    </div>
+                    <QuickActionButton
+                        name={value.id}
+                        title="Share link to this figure"
+                        onClick={handleShareFigureClick}
+                        transparent
+                    >
+                        <IoShareSocialOutline />
+                    </QuickActionButton>
+                    <Status
+                        status={reviewStatus}
+                    />
+                </>
             )}
             actions={value.stale && (
                 <Chip>

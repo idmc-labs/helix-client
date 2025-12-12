@@ -6,12 +6,10 @@ import {
     isDefined,
     isNotDefined,
     listToMap,
-    compareStringAsNumber,
 } from '@togglecorp/fujs';
 import { v4 as uuidv4 } from 'uuid';
 import {
     Button,
-    Pager,
     SegmentInput,
     Tabs,
     TabList,
@@ -69,6 +67,7 @@ import {
 import useOptions from '#hooks/useOptions';
 
 import { FilterOutArray } from '#types';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 import {
     ENTRY,
     CREATE_ENTRY,
@@ -258,7 +257,17 @@ function getValuesFromFigures(figures: (NonNullable<NonNullable<EntryQuery['entr
     };
 }
 
-const MAX_FIGURES_PER_PAGE = 10;
+type FigureFilterType = 'all' | 'errored' | 'unsaved';
+
+interface BasicFigureStatusEntity {
+    id: FigureFilterType,
+    name: string;
+}
+
+const keySelector = (item: BasicFigureStatusEntity) => item.id;
+const labelSelector = (item: BasicFigureStatusEntity) => item.name;
+
+const MAX_FIGURES_PER_PAGE = 100;
 
 interface EntryFormProps {
     className?: string;
@@ -322,42 +331,20 @@ function EntryForm(props: EntryFormProps) {
     } = useContext(NotificationContext);
 
     const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const figureIdFromParams = searchParams.get('figureId');
 
     // just for jumping to selected figure
     const [selectedFigure, setSelectedFigure] = useState<string | undefined>();
     const [selectedFieldType, setSelectedFieldType] = useState<string>();
 
     const [
-        activeFiguresUuids,
-        setActiveFiguresUuids,
-    ] = useState<string[]>([]);
-
-    const [
         figureIdFromSearchFilter,
         setFigureIdFromSearchFilter,
-    ] = useState<string | undefined>();
+    ] = useState<string | undefined>(figureIdFromParams ?? undefined);
 
-    type FigureFilterType = 'all' | 'errored' | 'unsaved';
-    interface BasicFigureStatusEntity {
-        id: FigureFilterType,
-        name: string;
-    }
-    const figureStatusOptionsForFilter: BasicFigureStatusEntity[] = [
-        {
-            id: 'all',
-            name: 'All',
-        },
-        {
-            id: 'errored',
-            name: 'Error',
-        },
-        {
-            id: 'unsaved',
-            name: 'Unsaved',
-        },
-    ];
-    const keySelector = (item: BasicFigureStatusEntity) => item.id;
-    const labelSelector = (item: BasicFigureStatusEntity) => item.name;
+    const debouncedFigureIdFromSearch = useDebouncedValue(figureIdFromSearchFilter);
+
     const [
         figureStatusFromFilter,
         setFigureStatusFromFilter,
@@ -1013,93 +1000,127 @@ function EntryForm(props: EntryFormProps) {
             }
             return {
                 entryId,
-                page: figurePage,
+                page: 1,
                 pageSize: MAX_FIGURES_PER_PAGE,
             };
         },
-        [
-            entryId,
-            figurePage,
-        ],
+        [entryId],
     );
-
-    const getIndexofFigureUuid = useCallback((figureUuid: string | undefined) => {
-        const requiredIndex = value.figures?.findIndex((item) => item.uuid === figureUuid);
-        return requiredIndex;
-    }, [value.figures]);
 
     const {
         loading: getFiguresLoading,
         previousData: previousFiguresData,
         data: figuresData = previousFiguresData,
+        fetchMore: fetchMoreFigures,
     } = useQuery<FiguresForEntryQuery, FiguresForEntryQueryVariables>(FIGURES_FOR_ENTRY, {
         skip: !variablesForFiguresQuery,
         variables: variablesForFiguresQuery,
-        onCompleted: (response) => {
-            const figuresFromResponse = response.figureList?.results;
-
-            const {
-                organizationsForState,
-                eventsForState,
-                figuresForState,
-                tagOptionsForState,
-                violenceContextOptionsForState,
-            } = getValuesFromFigures(figuresFromResponse ?? []);
-
-            handleEventOptionsChange(eventsForState);
-            setTagOptions(tagOptionsForState);
-            setViolenceContextOptions(violenceContextOptionsForState);
-            setOrganizations((oldOrganizations) => {
-                const organizationsAll = [
-                    ...oldOrganizations ?? [],
-                    ...organizationsForState,
-                ];
-                const organizationsSafe = unique(
-                    organizationsAll,
-                    (o) => o.id,
-                );
-
-                return organizationsSafe;
-            });
-
-            setActiveFiguresUuids(figuresFromResponse?.map((figure) => figure.uuid) ?? []);
-
-            onValueChange((oldFigures: PartialFormValues['figures'] = []) => {
-                const allFigures = [
-                    ...oldFigures,
-                    ...figuresForState.filter(isDefined),
-                ];
-                allFigures.sort((foo, bar) => compareStringAsNumber(foo.id, bar.id));
-
-                // FIXME: Need to be deliberate about which value to save
-                const uniqueFigures = unique(
-                    allFigures,
-                    (figure) => figure.uuid,
-                );
-                return uniqueFigures;
-            }, 'figures' as const);
-
-            const mainFigure = figuresFromResponse?.find((element) => (
-                element.id === initialFigureId
-            ));
-
-            setSelectedFigure(mainFigure?.uuid);
-            setSelectedFieldType(initialFieldType ?? undefined);
-
-            const mapping = listToMap(
-                figuresFromResponse ?? [],
-                (figure) => figure.uuid,
-                (figure) => ({
-                    role: figure.role,
-                    reviewStatus: figure.reviewStatus,
-                    fieldStatuses: figure.lastReviewCommentStatus,
-                }),
-            );
-            setFigureMetadataMapping(mapping);
-        },
+        notifyOnNetworkStatusChange: true,
     });
 
     const totalFiguresCount = figuresData?.figureList?.totalCount;
+    const [figureFetchPending, setFigureFetchPending] = useState<boolean>(true);
+
+    const handleFigureFetchComplete = useCallback(() => {
+        const figures = figuresData?.figureList?.results;
+        const {
+            organizationsForState,
+            eventsForState,
+            figuresForState,
+            tagOptionsForState,
+            violenceContextOptionsForState,
+        } = getValuesFromFigures(figures ?? []);
+
+        handleEventOptionsChange(eventsForState);
+        setTagOptions(tagOptionsForState);
+        setViolenceContextOptions(violenceContextOptionsForState);
+        setOrganizations((oldOrganizations) => {
+            const organizationsAll = [
+                ...oldOrganizations ?? [],
+                ...organizationsForState,
+            ];
+            return organizationsAll;
+        });
+
+        onValueChange(figuresForState.filter(isDefined), 'figures' as const);
+
+        const mainFigure = figures?.find((element) => (
+            element.id === initialFigureId
+        ));
+
+        setSelectedFigure(mainFigure?.uuid);
+        setSelectedFieldType(initialFieldType ?? undefined);
+
+        const mapping = listToMap(
+            figures ?? [],
+            (figure) => figure.uuid,
+            (figure) => ({
+                role: figure.role,
+                reviewStatus: figure.reviewStatus,
+                fieldStatuses: figure.lastReviewCommentStatus,
+            }),
+        );
+        setFigureMetadataMapping(mapping);
+    }, [
+        handleEventOptionsChange,
+        initialFieldType,
+        initialFigureId,
+        onValueChange,
+        setOrganizations,
+        setTagOptions,
+        setViolenceContextOptions,
+        figuresData?.figureList?.results,
+    ]);
+
+    useEffect(() => {
+        if (!figuresData) {
+            return;
+        }
+        const fetchedSoFar = figurePage * MAX_FIGURES_PER_PAGE;
+
+        if (fetchedSoFar < (totalFiguresCount ?? 0)) {
+            fetchMoreFigures({
+                variables: {
+                    entryId,
+                    page: figurePage + 1,
+                    pageSize: MAX_FIGURES_PER_PAGE,
+                },
+                updateQuery: (previousResult, { fetchMoreResult }) => {
+                    if (!previousResult.figureList?.results) {
+                        return previousResult;
+                    }
+
+                    const newFigures = fetchMoreResult?.figureList;
+
+                    if (!newFigures) {
+                        return previousResult;
+                    }
+
+                    return ({
+                        ...previousResult,
+                        figureList: {
+                            ...newFigures,
+                            results: [
+                                ...(previousResult.figureList.results ?? []),
+                                ...(newFigures.results ?? []),
+                            ],
+                        },
+                    });
+                },
+            });
+            setFigurePage((page) => page + 1);
+        } else {
+            handleFigureFetchComplete();
+            setFigureFetchPending(false);
+        }
+    }, [
+        entryId,
+        fetchMoreFigures,
+        figurePage,
+        totalFiguresCount,
+        figuresData,
+        handleFigureFetchComplete,
+    ]);
 
     const loading = (
         getEntryLoading
@@ -1370,26 +1391,58 @@ function EntryForm(props: EntryFormProps) {
         [entryFormRef],
     );
 
-    // FIXME: Optimize this filter
-    const activeFiguresToDisplay = useMemo(() => {
-        if (figureStatusFromFilter === 'errored') {
-            const erroredList = Object.keys(error?.fields?.figures?.members ?? {});
-            return value.figures
-                ?.filter((fig) => erroredList.includes(fig.uuid));
-        }
-        if (figureStatusFromFilter === 'unsaved') {
-            return value.figures?.filter((fig) => fig.stale);
-        }
+    const erroredFigureList = useMemo(() => {
+        const erroredList = Object.keys(error?.fields?.figures?.members ?? {});
         return value.figures
-            ?.filter((figure) => activeFiguresUuids.includes(figure.uuid));
+            ?.filter((fig) => erroredList.includes(fig.uuid));
     }, [
-        activeFiguresUuids,
         error?.fields?.figures,
-        figureStatusFromFilter,
         value.figures,
     ]);
+    const unsavedFigureList = useMemo(() => value.figures?.filter((fig) => fig.stale),
+        [value.figures]);
 
-    const showPagination = figureStatusFromFilter === 'all';
+    const figureStatusOptionsForFilter: BasicFigureStatusEntity[] = useMemo(() => ([
+        {
+            id: 'all',
+            name: `All (${value.figures?.length ?? 0})`,
+        },
+        {
+            id: 'errored',
+            name: `Error (${erroredFigureList?.length ?? 0})`,
+        },
+        {
+            id: 'unsaved',
+            name: `Unsaved (${unsavedFigureList?.length ?? 0})`,
+        },
+    ]), [
+        erroredFigureList?.length,
+        value.figures?.length,
+        unsavedFigureList?.length,
+    ]);
+
+    // FIXME: Optimize this filter
+    const activeFiguresToDisplay = useMemo(() => {
+        if (isDefined(debouncedFigureIdFromSearch)) {
+            const selectedFigureItem = value.figures
+                ?.find((fig) => fig.id === debouncedFigureIdFromSearch);
+            setSelectedFigure(selectedFigureItem?.uuid);
+            return [selectedFigureItem].filter(isDefined);
+        }
+        if (figureStatusFromFilter === 'errored') {
+            return erroredFigureList;
+        }
+        if (figureStatusFromFilter === 'unsaved') {
+            return unsavedFigureList;
+        }
+        return value.figures;
+    }, [
+        figureStatusFromFilter,
+        value.figures,
+        debouncedFigureIdFromSearch,
+        erroredFigureList,
+        unsavedFigureList,
+    ]);
 
     if (redirectId && (!entryId || entryId !== redirectId)) {
         // NOTE: using <Redirect /> instead of history.push because
@@ -1420,7 +1473,6 @@ function EntryForm(props: EntryFormProps) {
     const detailsTabErrored = analyzeErrors(error?.fields?.details);
     const analysisTabErrored = analyzeErrors(error?.fields?.analysis)
         || analyzeErrors(error?.fields?.figures);
-    console.log('value', error?.fields?.figures);
 
     const urlProcessed = !!preview;
     const attachmentProcessed = !!attachment;
@@ -1540,14 +1592,16 @@ function EntryForm(props: EntryFormProps) {
                                     value={figureIdFromSearchFilter}
                                     onChange={setFigureIdFromSearchFilter}
                                 />
-                                <SegmentInput
-                                    name="figure status"
-                                    keySelector={keySelector}
-                                    labelSelector={labelSelector}
-                                    options={figureStatusOptionsForFilter}
-                                    onChange={setFigureStatusFromFilter}
-                                    value={figureStatusFromFilter}
-                                />
+                                {editMode && (
+                                    <SegmentInput
+                                        name="figure status"
+                                        keySelector={keySelector}
+                                        labelSelector={labelSelector}
+                                        options={figureStatusOptionsForFilter}
+                                        onChange={setFigureStatusFromFilter}
+                                        value={figureStatusFromFilter}
+                                    />
+                                )}
                             </div>
                             <NonFieldError>
                                 {error?.fields?.figures?.$internal}
@@ -1558,12 +1612,8 @@ function EntryForm(props: EntryFormProps) {
                                 </div>
                             ) : (
                                 <div className={styles.figures}>
-                                    {activeFiguresToDisplay?.map((fig) => {
+                                    {activeFiguresToDisplay?.map((fig, index) => {
                                         if (fig.deleted) {
-                                            return null;
-                                        }
-                                        const indexForFigure = getIndexofFigureUuid(fig.uuid);
-                                        if (isNotDefined(indexForFigure)) {
                                             return null;
                                         }
                                         return (
@@ -1571,7 +1621,7 @@ function EntryForm(props: EntryFormProps) {
                                                 key={fig.uuid}
                                                 selectedFigure={selectedFigure}
                                                 setSelectedFigure={handleSelectedFigureChange}
-                                                index={indexForFigure}
+                                                index={index}
                                                 value={fig}
                                                 onChange={handleFigureChange}
                                                 onRemove={handleFigureRemove}
@@ -1623,15 +1673,6 @@ function EntryForm(props: EntryFormProps) {
                                             />
                                         );
                                     })}
-                                    {showPagination && (
-                                        <Pager
-                                            activePage={figurePage}
-                                            itemsCount={totalFiguresCount ?? 0}
-                                            maxItemsPerPage={MAX_FIGURES_PER_PAGE}
-                                            onActivePageChange={setFigurePage}
-                                            itemsPerPageControlHidden
-                                        />
-                                    )}
                                 </div>
                             )}
                         </Section>
