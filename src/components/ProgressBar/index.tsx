@@ -1,88 +1,56 @@
 import React, { useMemo } from 'react';
-import { _cs, sum, isDefined, isNotDefined } from '@togglecorp/fujs';
-import {
-    IoSquare,
-} from 'react-icons/io5';
-
-import Tooltip from '#components/Tooltip';
+import { _cs } from '@togglecorp/fujs';
 
 import styles from './styles.module.css';
 
 export interface ProgressBarProps {
-    className?: string | null | undefined;
-    barHeight: number;
-    data: {
-        title: string | undefined | null,
-        color: string | undefined | null,
-        value: number | undefined | null,
-    }[];
+    className?: string;
+    value: number;
+    total: number | undefined | null;
+    height?: number;
+    label?: string;
 }
 
 function ProgressBar(props: ProgressBarProps) {
     const {
         className,
-        barHeight,
-        data,
+        value,
+        total,
+        height = 12,
+        label,
     } = props;
 
-    const totalSum = useMemo(
-        () => (
-            sum(data.map((item) => item.value).filter(isDefined))
-        ), [data],
-    );
+    const percentage = useMemo(() => {
+        if (!total || total <= 0) {
+            return 0;
+        }
+        const safeFetched = Math.min(value, total);
+        return Math.round((safeFetched / total) * 100);
+    }, [value, total]);
 
-    const avgResult = useMemo(
-        () => (
-            data.map(({ value, ...other }) => ({
-                ...other,
-                percentage: isDefined(value) && totalSum > 0
-                    ? ((value / totalSum) * 100)
-                    : undefined,
-            }))
-        ), [data, totalSum],
-    );
+    if (!total) {
+        return null;
+    }
 
     return (
-        <div
-            className={_cs(styles.progressWrapper, className)}
-            style={{ height: `${barHeight}px` }}
-        >
-            <Tooltip
-                description={(
-                    <div className={styles.items}>
-                        {data.map((datum) => (
-                            <div
-                                className={styles.item}
-                                key={datum.title}
-                            >
-                                <IoSquare
-                                    className={styles.icon}
-                                    style={{ color: datum.color ?? 'transparent' }}
-                                />
-                                <div className={styles.title}>
-                                    {datum.title}
-                                </div>
-                                <div className={styles.value}>
-                                    {datum.value ?? 0}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            />
-            {avgResult.map((item) => {
-                if (isNotDefined(item.percentage) || item.percentage === 0) {
-                    return null;
-                }
-                return (
-                    <div
-                        key={item.title}
-                        className={styles.data}
-                        style={{ width: `${item.percentage}%`, backgroundColor: `${item.color}` }}
-                    />
-                );
-            })}
+        <div className={_cs(styles.wrapper, className)}>
+            <div
+                className={styles.track}
+                style={{ height }}
+            >
+                <div
+                    className={styles.bar}
+                    style={{ width: `${percentage}%` }}
+                />
+            </div>
+            <div className={styles.label}>
+                {label}
+                {value}
+                /
+                {total}
+            </div>
         </div>
     );
 }
+
 export default ProgressBar;

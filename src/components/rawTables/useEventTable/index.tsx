@@ -29,7 +29,7 @@ import {
 } from '#components/tableHelpers';
 import Loading from '#components/Loading';
 import EventForm, { EventFormProps } from '#components/forms/EventForm';
-import StackedProgressCell, { StackedProgressProps } from '#components/tableHelpers/StackedProgress';
+import StackedCompositionCell, { StackedCompositionProps } from '#components/tableHelpers/StackedComposition';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
@@ -664,14 +664,14 @@ function useEventTable(props: Props) {
             );
 
             // eslint-disable-next-line max-len
-            const progressColumn: TableColumn<EventFields, string, StackedProgressProps, TableHeaderCellProps> = {
+            const compositionColumn: TableColumn<EventFields, string, StackedCompositionProps, TableHeaderCellProps> = {
                 id: 'progress',
                 title: 'Progress',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     sortable: true,
                 },
-                cellRenderer: StackedProgressCell,
+                cellRenderer: StackedCompositionCell,
                 cellRendererParams: (_, item) => ({
                     approved: item.reviewCount?.reviewApprovedCount,
                     inProgress: item.reviewCount?.reviewInProgressCount,
@@ -768,7 +768,7 @@ function useEventTable(props: Props) {
                     'Assignee',
                     (item) => item.assignee?.fullName,
                 ),
-                progressColumn,
+                compositionColumn,
                 hiddenColumns.includes('crisis')
                     ? undefined
                     : createLinkColumn<EventFields, string>(

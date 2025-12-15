@@ -1262,9 +1262,13 @@ function FigureInput(props: FigureInputProps) {
                 });
                 return;
             }
-            const path = generatePath(route.entryEdit.path, { entryId: value.entry });
+            const path = generatePath(
+                route.entryEdit.path,
+                { entryId: value.entry },
+            );
+            const pathWithHash = `${path}#/figures-and-analysis`;
             const linkToFigure = new URL(
-                path,
+                pathWithHash,
                 window.location.origin,
             );
             linkToFigure.searchParams.set(
@@ -1293,8 +1297,9 @@ function FigureInput(props: FigureInputProps) {
             icons={(
                 <>
                     <div className={styles.figureId}>
-                        #
-                        {value.id}
+                        {isDefined(value.id)
+                            ? `#${value.id}`
+                            : '[draft]'}
                     </div>
                     <QuickActionButton
                         name={value.id}

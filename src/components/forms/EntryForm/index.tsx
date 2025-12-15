@@ -33,6 +33,7 @@ import {
 import { transformToFormError } from '#utils/errorTransform';
 import useBulkSaveRegister from '#hooks/useBulkSaveRegister';
 import Portal from '#components/Portal';
+import ProgressBar from '#components/ProgressBar';
 import { EventListOption } from '#components/selections/EventListSelectInput';
 import Loading from '#components/Loading';
 import NonFieldError from '#components/NonFieldError';
@@ -1421,7 +1422,13 @@ function EntryForm(props: EntryFormProps) {
         unsavedFigureList?.length,
     ]);
 
-    // FIXME: Optimize this filter
+    const getIndexFromFigureUuid = useCallback((figureUuid: string | undefined) => {
+        const requiredIndex = value.figures?.findIndex(
+            (item) => item.uuid === figureUuid,
+        );
+        return requiredIndex;
+    }, [value.figures]);
+
     const activeFiguresToDisplay = useMemo(() => {
         if (isDefined(debouncedFigureIdFromSearch)) {
             const selectedFigureItem = value.figures
@@ -1442,6 +1449,119 @@ function EntryForm(props: EntryFormProps) {
         debouncedFigureIdFromSearch,
         erroredFigureList,
         unsavedFigureList,
+    ]);
+
+    const urlProcessed = !!preview;
+    const attachmentProcessed = !!attachment;
+    const processed = attachmentProcessed || urlProcessed;
+
+    const figuresContent = useMemo(() => {
+        if (figureFetchPending) {
+            return (
+                <ProgressBar
+                    label="Fetching figures"
+                    value={activeFiguresToDisplay?.length ?? 0}
+                    total={totalFiguresCount}
+                />
+            );
+        } if (!activeFiguresToDisplay || activeFiguresToDisplay.length === 0) {
+            return (
+                <div className={styles.emptyMessage}>
+                    No figures yet
+                </div>
+            );
+        }
+        return (
+            <div className={styles.figures}>
+                {activeFiguresToDisplay?.map((fig) => {
+                    if (fig.deleted) {
+                        return null;
+                    }
+                    const indexForFigure = getIndexFromFigureUuid(fig.uuid);
+                    if (isNotDefined(indexForFigure)) {
+                        return null;
+                    }
+                    return (
+                        <FigureInput
+                            key={fig.uuid}
+                            selectedFigure={selectedFigure}
+                            setSelectedFigure={handleSelectedFigureChange}
+                            index={indexForFigure}
+                            value={fig}
+                            onChange={handleFigureChange}
+                            onRemove={handleFigureRemove}
+                            // eslint-disable-next-line max-len
+                            error={error?.fields?.figures?.members?.[fig.uuid]}
+                            disabled={loading || !processed}
+                            mode={mode}
+                            // eslint-disable-next-line max-len
+                            optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
+                            events={events}
+                            setEvents={handleEventOptionsChange}
+                            // eslint-disable-next-line max-len
+                            causeOptions={figureOptionsData?.crisisType?.enumValues as CauseOptions}
+                            // eslint-disable-next-line max-len
+                            accuracyOptions={figureOptionsData?.accuracyList?.enumValues as AccuracyOptions}
+                            // eslint-disable-next-line max-len
+                            categoryOptions={figureOptionsData?.figureCategoryList?.enumValues as CategoryOptions}
+                            // eslint-disable-next-line max-len
+                            unitOptions={figureOptionsData?.unitList?.enumValues as UnitOptions}
+                            // eslint-disable-next-line max-len
+                            termOptions={figureOptionsData?.figureTermList?.enumValues as TermOptions}
+                            // eslint-disable-next-line max-len
+                            roleOptions={figureOptionsData?.roleList?.enumValues as RoleOptions}
+                            // eslint-disable-next-line max-len
+                            displacementOptions={figureOptionsData?.displacementOccurence?.enumValues as DisplacementOptions}
+                            // eslint-disable-next-line max-len
+                            identifierOptions={figureOptionsData?.identifierList?.enumValues as IdentifierOptions}
+                            // eslint-disable-next-line max-len
+                            geocoderOptions={figureOptionsData?.geocoderList?.enumValues as GeocoderOptions}
+                            // eslint-disable-next-line max-len
+                            genderCategoryOptions={figureOptionsData?.disaggregatedGenderList?.enumValues as GenderOptions}
+                            // eslint-disable-next-line max-len
+                            quantifierOptions={figureOptionsData?.quantifierList?.enumValues as QuantifierOptions}
+                            // eslint-disable-next-line max-len
+                            dateAccuracyOptions={figureOptionsData?.dateAccuracy?.enumValues as DateAccuracyOptions}
+                            // eslint-disable-next-line max-len
+                            disasterCategoryOptions={figureOptionsData?.disasterCategoryList}
+                            // eslint-disable-next-line max-len
+                            violenceCategoryOptions={figureOptionsData?.violenceList}
+                            // eslint-disable-next-line max-len
+                            osvSubTypeOptions={figureOptionsData?.osvSubTypeList}
+                            // eslint-disable-next-line max-len
+                            otherSubTypeOptions={figureOptionsData?.otherSubTypeList}
+                            trafficLightShown={trafficLightShown}
+                            onFigureClone={handleFigureClone}
+                            metadata={figureMetadataMapping[fig.uuid]}
+                            setMetadata={handleFigureMetadataChange}
+                            defaultShownField={selectedFieldType}
+                        />
+                    );
+                })}
+            </div>
+        );
+    }, [
+        activeFiguresToDisplay,
+        error?.fields?.figures?.members,
+        events,
+        figureFetchPending,
+        figureMetadataMapping,
+        figureOptionsData,
+        figureOptionsError,
+        figureOptionsLoading,
+        handleEventOptionsChange,
+        handleFigureChange,
+        handleFigureClone,
+        handleFigureMetadataChange,
+        handleFigureRemove,
+        handleSelectedFigureChange,
+        loading,
+        mode,
+        processed,
+        selectedFieldType,
+        selectedFigure,
+        totalFiguresCount,
+        trafficLightShown,
     ]);
 
     if (redirectId && (!entryId || entryId !== redirectId)) {
@@ -1473,10 +1593,6 @@ function EntryForm(props: EntryFormProps) {
     const detailsTabErrored = analyzeErrors(error?.fields?.details);
     const analysisTabErrored = analyzeErrors(error?.fields?.analysis)
         || analyzeErrors(error?.fields?.figures);
-
-    const urlProcessed = !!preview;
-    const attachmentProcessed = !!attachment;
-    const processed = attachmentProcessed || urlProcessed;
 
     const editMode = mode === 'edit';
 
@@ -1606,75 +1722,7 @@ function EntryForm(props: EntryFormProps) {
                             <NonFieldError>
                                 {error?.fields?.figures?.$internal}
                             </NonFieldError>
-                            {activeFiguresToDisplay?.length === 0 ? (
-                                <div className={styles.emptyMessage}>
-                                    No figures yet
-                                </div>
-                            ) : (
-                                <div className={styles.figures}>
-                                    {activeFiguresToDisplay?.map((fig, index) => {
-                                        if (fig.deleted) {
-                                            return null;
-                                        }
-                                        return (
-                                            <FigureInput
-                                                key={fig.uuid}
-                                                selectedFigure={selectedFigure}
-                                                setSelectedFigure={handleSelectedFigureChange}
-                                                index={index}
-                                                value={fig}
-                                                onChange={handleFigureChange}
-                                                onRemove={handleFigureRemove}
-                                                // eslint-disable-next-line max-len
-                                                error={error?.fields?.figures?.members?.[fig.uuid]}
-                                                disabled={loading || !processed}
-                                                mode={mode}
-                                                // eslint-disable-next-line max-len
-                                                optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
-                                                events={events}
-                                                setEvents={handleEventOptionsChange}
-                                                // eslint-disable-next-line max-len
-                                                causeOptions={figureOptionsData?.crisisType?.enumValues as CauseOptions}
-                                                // eslint-disable-next-line max-len
-                                                accuracyOptions={figureOptionsData?.accuracyList?.enumValues as AccuracyOptions}
-                                                // eslint-disable-next-line max-len
-                                                categoryOptions={figureOptionsData?.figureCategoryList?.enumValues as CategoryOptions}
-                                                // eslint-disable-next-line max-len
-                                                unitOptions={figureOptionsData?.unitList?.enumValues as UnitOptions}
-                                                // eslint-disable-next-line max-len
-                                                termOptions={figureOptionsData?.figureTermList?.enumValues as TermOptions}
-                                                // eslint-disable-next-line max-len
-                                                roleOptions={figureOptionsData?.roleList?.enumValues as RoleOptions}
-                                                // eslint-disable-next-line max-len
-                                                displacementOptions={figureOptionsData?.displacementOccurence?.enumValues as DisplacementOptions}
-                                                // eslint-disable-next-line max-len
-                                                identifierOptions={figureOptionsData?.identifierList?.enumValues as IdentifierOptions}
-                                                // eslint-disable-next-line max-len
-                                                geocoderOptions={figureOptionsData?.geocoderList?.enumValues as GeocoderOptions}
-                                                // eslint-disable-next-line max-len
-                                                genderCategoryOptions={figureOptionsData?.disaggregatedGenderList?.enumValues as GenderOptions}
-                                                // eslint-disable-next-line max-len
-                                                quantifierOptions={figureOptionsData?.quantifierList?.enumValues as QuantifierOptions}
-                                                // eslint-disable-next-line max-len
-                                                dateAccuracyOptions={figureOptionsData?.dateAccuracy?.enumValues as DateAccuracyOptions}
-                                                // eslint-disable-next-line max-len
-                                                disasterCategoryOptions={figureOptionsData?.disasterCategoryList}
-                                                // eslint-disable-next-line max-len
-                                                violenceCategoryOptions={figureOptionsData?.violenceList}
-                                                // eslint-disable-next-line max-len
-                                                osvSubTypeOptions={figureOptionsData?.osvSubTypeList}
-                                                // eslint-disable-next-line max-len
-                                                otherSubTypeOptions={figureOptionsData?.otherSubTypeList}
-                                                trafficLightShown={trafficLightShown}
-                                                onFigureClone={handleFigureClone}
-                                                metadata={figureMetadataMapping[fig.uuid]}
-                                                setMetadata={handleFigureMetadataChange}
-                                                defaultShownField={selectedFieldType}
-                                            />
-                                        );
-                                    })}
-                                </div>
-                            )}
+                            {figuresContent}
                         </Section>
                     </TabPanel>
                 </Tabs>

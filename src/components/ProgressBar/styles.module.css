@@ -1,37 +1,29 @@
-.progress-wrapper {
-    display: flex;
-    border-radius: 10px;
-    background-color: var(--tui-color-background-input-section-light);
-    height: 16px;
-
-    .data {
-        &:first-of-type {
-            border-top-left-radius: 4px;
-            border-bottom-left-radius: 4px;
-        }
-        &:last-of-type {
-            border-top-right-radius: 4px;
-            border-bottom-right-radius: 4px;
-        }
-    }
-}
-
-.items {
+.wrapper {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-small);
+    border-radius: 10px;
 
-    .item {
+    .track {
         display: flex;
-        gap: var(--spacing-small);
-        align-items: center;
+        border-radius: var(--tui-radius-border-input-section);
+        background-color: var(--color-background);
+        width: 100%;
+        height: 16px;
+        overflow: hidden;
 
-        .title {
-            flex-grow: 1;
+        .bar {
+            display: flex;
+            gap: var(--spacing-small);
+            align-items: center;
+            transition: width 200ms linear;
+            background-color: var(--tui-color-success);
+            height: 100%;
         }
-        .value, .icon {
-            flex-shrink: 0;
-        }
+    }
+
+    .label {
+        color: var(--color-text);
+        font-size: var(--tui-font-size-small);
     }
 }
 

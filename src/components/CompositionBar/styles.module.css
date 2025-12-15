@@ -1,0 +1,37 @@
+.progress-wrapper {
+    display: flex;
+    border-radius: 10px;
+    background-color: var(--tui-color-background-input-section-light);
+    height: 16px;
+
+    .data {
+        &:first-of-type {
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+        &:last-of-type {
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+    }
+}
+
+.items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-small);
+
+    .item {
+        display: flex;
+        gap: var(--spacing-small);
+        align-items: center;
+
+        .title {
+            flex-grow: 1;
+        }
+        .value, .icon {
+            flex-shrink: 0;
+        }
+    }
+}
+
