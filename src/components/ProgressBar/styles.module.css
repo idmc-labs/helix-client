@@ -1,14 +1,14 @@
-.wrapper {
+.progress-bar {
     display: flex;
+    align-items: center;
     flex-direction: column;
-    border-radius: 10px;
+    gap: var(--spacing-extra-small);
 
     .track {
         display: flex;
         border-radius: var(--tui-radius-border-input-section);
         background-color: var(--color-background);
         width: 100%;
-        height: 16px;
         overflow: hidden;
 
         .bar {
@@ -16,7 +16,7 @@
             gap: var(--spacing-small);
             align-items: center;
             transition: width 200ms linear;
-            background-color: var(--tui-color-success);
+            background-color: var(--color-accent);
             height: 100%;
         }
     }

@@ -41,15 +41,13 @@
             flex-direction: column;
             gap: var(--spacing-medium);
 
-            .filters {
-                display: flex;
-                align-items: flex-end;
-                gap: var(--spacing-extra-large);
-            }
             .figures {
                 display: flex;
                 flex-direction: column;
                 gap: var(--spacing-medium);
+            }
+            .progress-bar {
+                width: 10rem;
             }
         }
 

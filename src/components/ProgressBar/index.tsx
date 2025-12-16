@@ -24,8 +24,8 @@ function ProgressBar(props: ProgressBarProps) {
         if (!total || total <= 0) {
             return 0;
         }
-        const safeFetched = Math.min(value, total);
-        return Math.round((safeFetched / total) * 100);
+        const safeValue = Math.min(value, total);
+        return Math.round((safeValue / total) * 100);
     }, [value, total]);
 
     if (!total) {
@@ -33,7 +33,7 @@ function ProgressBar(props: ProgressBarProps) {
     }
 
     return (
-        <div className={_cs(styles.wrapper, className)}>
+        <div className={_cs(styles.progressBar, className)}>
             <div
                 className={styles.track}
                 style={{ height }}
@@ -44,10 +44,7 @@ function ProgressBar(props: ProgressBarProps) {
                 />
             </div>
             <div className={styles.label}>
-                {label}
-                {value}
-                /
-                {total}
+                {`${label} (${value}/${total})`}
             </div>
         </div>
     );

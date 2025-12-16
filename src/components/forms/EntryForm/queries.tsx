@@ -233,13 +233,9 @@ export const ENTRY_FRAGMENT = gql`
 
 export const ENTRY = gql`
     ${ENTRY_FRAGMENT}
-    ${FIGURE_FRAGMENT}
     query Entry($id: ID!) {
         entry(id: $id) {
             ...EntryResponse
-            figures {
-                ...FigureResponse
-            }
         }
     }
 `;

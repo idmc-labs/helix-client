@@ -1252,32 +1252,33 @@ function FigureInput(props: FigureInputProps) {
     );
 
     const handleShareFigureClick = useCallback(
-        (name: string | undefined, e: React.MouseEvent<HTMLButtonElement>) => {
+        (id: string | undefined, e: React.MouseEvent<HTMLButtonElement>) => {
+            // NOTE: To avoid expanding the container on this button click
             e.stopPropagation();
-            e.preventDefault();
-            if (isNotDefined(value.entry) || isNotDefined(name)) {
-                notify({
-                    children: 'Some error occured. Couldn\'t save url. Please contact admin',
-                    variant: 'error',
-                });
+            if (isNotDefined(value.entry)) {
+                console.error('Could not find entry id.');
+                return;
+            }
+            if (isNotDefined(id)) {
+                console.error('Could not find figure id.');
                 return;
             }
             const path = generatePath(
                 route.entryEdit.path,
                 { entryId: value.entry },
             );
-            const pathWithHash = `${path}#/figures-and-analysis`;
             const linkToFigure = new URL(
-                pathWithHash,
+                path,
                 window.location.origin,
             );
             linkToFigure.searchParams.set(
-                'figureId',
-                name,
+                'id',
+                id,
             );
+            linkToFigure.hash = '/figures-and-analysis';
             navigator.clipboard.writeText(linkToFigure.href.toString());
             notify({
-                children: `Link to figure #${name} has been copied to clipboard`,
+                children: `Link to figure #${id} has been copied to clipboard`,
                 variant: 'success',
             });
         }, [
@@ -1295,24 +1296,28 @@ function FigureInput(props: FigureInputProps) {
             onExpansionChange={handleExpansionChange}
             isExpanded={expanded}
             icons={(
-                <>
+                <div className={styles.icons}>
                     <div className={styles.figureId}>
                         {isDefined(value.id)
                             ? `#${value.id}`
                             : '[draft]'}
                     </div>
-                    <QuickActionButton
-                        name={value.id}
-                        title="Share link to this figure"
-                        onClick={handleShareFigureClick}
-                        transparent
-                    >
-                        <IoShareSocialOutline />
-                    </QuickActionButton>
+                    <div className={styles.shareButton}>
+                        {isDefined(value.id) && (
+                            <QuickActionButton
+                                name={value.id}
+                                title="Copy link to this figure"
+                                onClick={handleShareFigureClick}
+                                transparent
+                            >
+                                <IoShareSocialOutline />
+                            </QuickActionButton>
+                        )}
+                    </div>
                     <Status
                         status={reviewStatus}
                     />
-                </>
+                </div>
             )}
             actions={value.stale && (
                 <Chip>

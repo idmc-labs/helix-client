@@ -4,7 +4,6 @@ import {
     _cs,
     unique,
     isDefined,
-    isNotDefined,
     listToMap,
 } from '@togglecorp/fujs';
 import { v4 as uuidv4 } from 'uuid';
@@ -15,7 +14,6 @@ import {
     TabList,
     Tab,
     TabPanel,
-    TextInput,
 } from '@togglecorp/toggle-ui';
 import {
     removeNull,
@@ -36,6 +34,7 @@ import Portal from '#components/Portal';
 import ProgressBar from '#components/ProgressBar';
 import { EventListOption } from '#components/selections/EventListSelectInput';
 import Loading from '#components/Loading';
+import Message from '#components/Message';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import { OrganizationOption } from '#components/selections/OrganizationSelectInput';
@@ -58,7 +57,6 @@ import {
     EntryQuery,
     EntryQueryVariables,
     FiguresForEntryQuery,
-    FiguresForEntryQueryVariables,
     FigureOptionsForEntryFormQuery,
     ParkedItemForEntryQuery,
     ParkedItemForEntryQueryVariables,
@@ -68,7 +66,6 @@ import {
 import useOptions from '#hooks/useOptions';
 
 import { FilterOutArray } from '#types';
-import useDebouncedValue from '#hooks/useDebouncedValue';
 import {
     ENTRY,
     CREATE_ENTRY,
@@ -76,13 +73,13 @@ import {
     CREATE_SOURCE_PREVIEW,
     UPDATE_ENTRY,
     FIGURE_OPTIONS,
-    FIGURES_FOR_ENTRY,
     PARKED_ITEM_FOR_ENTRY,
     UPDATE_FIGURES,
 } from './queries';
 import FigureInput from './FigureInput';
 import DetailsInput from './DetailsInput';
 import AnalysisInput from './AnalysisInput';
+import usePaginatedFigures from './usePaginatedFigures';
 import { schema, initialFormValues } from './schema';
 import { transformErrorForEntry } from './utils';
 import {
@@ -169,6 +166,8 @@ type EntryFormFields = CreateEntryMutationVariables['entry'];
 type PartialFormValues = PartialForm<FormValues>;
 type PartialFigureValues = PartialForm<FigureFormProps>;
 
+type FigureItem = NonNullable<NonNullable<FiguresForEntryQuery['figureList']>['results']>[number];
+
 function getValuesFromEntry(entry: Omit<NonNullable<EntryQuery['entry']>, 'figures'>) {
     const organizationsFromEntry: OrganizationOption[] = entry.publishers?.results ?? [];
 
@@ -195,7 +194,7 @@ function getValuesFromEntry(entry: Omit<NonNullable<EntryQuery['entry']>, 'figur
     };
 }
 
-function getValuesFromFigures(figures: (NonNullable<NonNullable<EntryQuery['entry']>['figures']>[number] | null | undefined)[]) {
+function getValuesFromFigures(figures: (FigureItem | null | undefined)[]) {
     const organizationsFromEntry: OrganizationOption[] = [];
     organizationsFromEntry.push(
         ...(figures
@@ -260,15 +259,13 @@ function getValuesFromFigures(figures: (NonNullable<NonNullable<EntryQuery['entr
 
 type FigureFilterType = 'all' | 'errored' | 'unsaved';
 
-interface BasicFigureStatusEntity {
+interface FigureFilterOption {
     id: FigureFilterType,
     name: string;
 }
 
-const keySelector = (item: BasicFigureStatusEntity) => item.id;
-const labelSelector = (item: BasicFigureStatusEntity) => item.name;
-
-const MAX_FIGURES_PER_PAGE = 100;
+const keySelector = (item: FigureFilterOption) => item.id;
+const labelSelector = (item: FigureFilterOption) => item.name;
 
 interface EntryFormProps {
     className?: string;
@@ -305,11 +302,6 @@ function EntryForm(props: EntryFormProps) {
         initialFieldType,
     } = props;
 
-    const [
-        figurePage,
-        setFigurePage,
-    ] = useState<number>(1);
-
     const entryFormRef = useRef<HTMLFormElement>(null);
 
     const {
@@ -332,23 +324,14 @@ function EntryForm(props: EntryFormProps) {
     } = useContext(NotificationContext);
 
     const location = useLocation();
-    const searchParams = new URLSearchParams(location.search);
-    const figureIdFromParams = searchParams.get('figureId');
 
     // just for jumping to selected figure
     const [selectedFigure, setSelectedFigure] = useState<string | undefined>();
     const [selectedFieldType, setSelectedFieldType] = useState<string>();
 
     const [
-        figureIdFromSearchFilter,
-        setFigureIdFromSearchFilter,
-    ] = useState<string | undefined>(figureIdFromParams ?? undefined);
-
-    const debouncedFigureIdFromSearch = useDebouncedValue(figureIdFromSearchFilter);
-
-    const [
-        figureStatusFromFilter,
-        setFigureStatusFromFilter,
+        figureStatusFilter,
+        setFigureStatusFilter,
     ] = useState<FigureFilterType>('all');
 
     const handleSelectedFigureChange: React.Dispatch<
@@ -994,147 +977,6 @@ function EntryForm(props: EntryFormProps) {
         },
     });
 
-    const variablesForFiguresQuery = useMemo(
-        (): FiguresForEntryQueryVariables | undefined => {
-            if (isNotDefined(entryId)) {
-                return undefined;
-            }
-            return {
-                entryId,
-                page: 1,
-                pageSize: MAX_FIGURES_PER_PAGE,
-            };
-        },
-        [entryId],
-    );
-
-    const {
-        loading: getFiguresLoading,
-        previousData: previousFiguresData,
-        data: figuresData = previousFiguresData,
-        fetchMore: fetchMoreFigures,
-    } = useQuery<FiguresForEntryQuery, FiguresForEntryQueryVariables>(FIGURES_FOR_ENTRY, {
-        skip: !variablesForFiguresQuery,
-        variables: variablesForFiguresQuery,
-        notifyOnNetworkStatusChange: true,
-    });
-
-    const totalFiguresCount = figuresData?.figureList?.totalCount;
-    const [figureFetchPending, setFigureFetchPending] = useState<boolean>(true);
-
-    const handleFigureFetchComplete = useCallback(() => {
-        const figures = figuresData?.figureList?.results;
-        const {
-            organizationsForState,
-            eventsForState,
-            figuresForState,
-            tagOptionsForState,
-            violenceContextOptionsForState,
-        } = getValuesFromFigures(figures ?? []);
-
-        handleEventOptionsChange(eventsForState);
-        setTagOptions(tagOptionsForState);
-        setViolenceContextOptions(violenceContextOptionsForState);
-        setOrganizations((oldOrganizations) => {
-            const organizationsAll = [
-                ...oldOrganizations ?? [],
-                ...organizationsForState,
-            ];
-            return organizationsAll;
-        });
-
-        onValueChange(figuresForState.filter(isDefined), 'figures' as const);
-
-        const mainFigure = figures?.find((element) => (
-            element.id === initialFigureId
-        ));
-
-        setSelectedFigure(mainFigure?.uuid);
-        setSelectedFieldType(initialFieldType ?? undefined);
-
-        const mapping = listToMap(
-            figures ?? [],
-            (figure) => figure.uuid,
-            (figure) => ({
-                role: figure.role,
-                reviewStatus: figure.reviewStatus,
-                fieldStatuses: figure.lastReviewCommentStatus,
-            }),
-        );
-        setFigureMetadataMapping(mapping);
-    }, [
-        handleEventOptionsChange,
-        initialFieldType,
-        initialFigureId,
-        onValueChange,
-        setOrganizations,
-        setTagOptions,
-        setViolenceContextOptions,
-        figuresData?.figureList?.results,
-    ]);
-
-    useEffect(() => {
-        if (!figuresData) {
-            return;
-        }
-        const fetchedSoFar = figurePage * MAX_FIGURES_PER_PAGE;
-
-        if (fetchedSoFar < (totalFiguresCount ?? 0)) {
-            fetchMoreFigures({
-                variables: {
-                    entryId,
-                    page: figurePage + 1,
-                    pageSize: MAX_FIGURES_PER_PAGE,
-                },
-                updateQuery: (previousResult, { fetchMoreResult }) => {
-                    if (!previousResult.figureList?.results) {
-                        return previousResult;
-                    }
-
-                    const newFigures = fetchMoreResult?.figureList;
-
-                    if (!newFigures) {
-                        return previousResult;
-                    }
-
-                    return ({
-                        ...previousResult,
-                        figureList: {
-                            ...newFigures,
-                            results: [
-                                ...(previousResult.figureList.results ?? []),
-                                ...(newFigures.results ?? []),
-                            ],
-                        },
-                    });
-                },
-            });
-            setFigurePage((page) => page + 1);
-        } else {
-            handleFigureFetchComplete();
-            setFigureFetchPending(false);
-        }
-    }, [
-        entryId,
-        fetchMoreFigures,
-        figurePage,
-        totalFiguresCount,
-        figuresData,
-        handleFigureFetchComplete,
-    ]);
-
-    const loading = (
-        getEntryLoading
-        || pending
-        || saveLoading
-        || updateLoading
-        || updateFiguresLoading
-        || createAttachmentLoading
-        || parkedItemDataLoading
-        || createSourcePreviewLoading
-        || getFiguresLoading
-    );
-
     const handleSubmit = useCallback((finalValue: PartialFormValues) => {
         const figuresToDelete = finalValue?.figures
             ?.map((item) => {
@@ -1311,6 +1153,7 @@ function EntryForm(props: EntryFormProps) {
 
             const newFigure: PartialForm<FigureFormProps> = {
                 uuid,
+                stale: true,
                 includeIdu: false,
                 isDisaggregated: false,
                 isHousingDestruction: false,
@@ -1392,159 +1235,217 @@ function EntryForm(props: EntryFormProps) {
         [entryFormRef],
     );
 
-    const erroredFigureList = useMemo(() => {
-        const erroredList = Object.keys(error?.fields?.figures?.members ?? {});
-        return value.figures
-            ?.filter((fig) => erroredList.includes(fig.uuid));
+    const erroredFigureCount = useMemo(() => {
+        const erroredSet = new Set(Object.keys(error?.fields?.figures?.members ?? {}));
+        return value.figures?.filter(
+            (fig) => erroredSet.has(fig.uuid) && !fig.deleted,
+        ).length;
     }, [
         error?.fields?.figures,
         value.figures,
     ]);
-    const unsavedFigureList = useMemo(() => value.figures?.filter((fig) => fig.stale),
-        [value.figures]);
+    const unsavedFigureCount = useMemo(
+        () => value.figures?.filter(
+            (fig) => fig.stale && !fig.deleted,
+        ).length,
+        [value.figures],
+    );
 
-    const figureStatusOptionsForFilter: BasicFigureStatusEntity[] = useMemo(() => ([
+    const figureStatusOptionsForFilter: FigureFilterOption[] = useMemo(() => ([
         {
             id: 'all',
-            name: `All (${value.figures?.length ?? 0})`,
+            name: `All (${value.figures?.filter((fig) => !fig.deleted).length ?? 0})`,
         },
         {
             id: 'errored',
-            name: `Error (${erroredFigureList?.length ?? 0})`,
+            name: `Error (${erroredFigureCount ?? 0})`,
         },
         {
             id: 'unsaved',
-            name: `Unsaved (${unsavedFigureList?.length ?? 0})`,
+            name: `Unsaved (${unsavedFigureCount ?? 0})`,
         },
     ]), [
-        erroredFigureList?.length,
-        value.figures?.length,
-        unsavedFigureList?.length,
-    ]);
-
-    const getIndexFromFigureUuid = useCallback((figureUuid: string | undefined) => {
-        const requiredIndex = value.figures?.findIndex(
-            (item) => item.uuid === figureUuid,
-        );
-        return requiredIndex;
-    }, [value.figures]);
-
-    const activeFiguresToDisplay = useMemo(() => {
-        if (isDefined(debouncedFigureIdFromSearch)) {
-            const selectedFigureItem = value.figures
-                ?.find((fig) => fig.id === debouncedFigureIdFromSearch);
-            setSelectedFigure(selectedFigureItem?.uuid);
-            return [selectedFigureItem].filter(isDefined);
-        }
-        if (figureStatusFromFilter === 'errored') {
-            return erroredFigureList;
-        }
-        if (figureStatusFromFilter === 'unsaved') {
-            return unsavedFigureList;
-        }
-        return value.figures;
-    }, [
-        figureStatusFromFilter,
         value.figures,
-        debouncedFigureIdFromSearch,
-        erroredFigureList,
-        unsavedFigureList,
+        erroredFigureCount,
+        unsavedFigureCount,
     ]);
 
     const urlProcessed = !!preview;
     const attachmentProcessed = !!attachment;
     const processed = attachmentProcessed || urlProcessed;
 
+    const handleFigureFetchComplete = useCallback((figures: FigureItem[] | undefined | null) => {
+        const {
+            organizationsForState,
+            eventsForState,
+            figuresForState,
+            tagOptionsForState,
+            violenceContextOptionsForState,
+        } = getValuesFromFigures(figures ?? []);
+
+        handleEventOptionsChange(eventsForState);
+        setTagOptions(tagOptionsForState);
+        setViolenceContextOptions(violenceContextOptionsForState);
+        setOrganizations((oldOrganizations) => {
+            const organizationsAll = [
+                ...oldOrganizations ?? [],
+                ...organizationsForState,
+            ];
+            return organizationsAll;
+        });
+
+        // NOTE: using onValueSet instead of onValueChange
+        // to avoid pristine change after fetching all figures
+        onValueSet((oldValue) => ({
+            ...oldValue,
+            figures: figuresForState.filter(isDefined),
+        }));
+
+        const mainFigure = figures?.find((element) => (
+            element.id === initialFigureId
+        ));
+
+        setSelectedFigure(mainFigure?.uuid);
+        setSelectedFieldType(initialFieldType ?? undefined);
+
+        const mapping = listToMap(
+            figures ?? [],
+            (figure) => figure.uuid,
+            (figure) => ({
+                role: figure.role,
+                reviewStatus: figure.reviewStatus,
+                fieldStatuses: figure.lastReviewCommentStatus,
+            }),
+        );
+        setFigureMetadataMapping(mapping);
+    }, [
+        handleEventOptionsChange,
+        initialFieldType,
+        initialFigureId,
+        onValueSet,
+        setOrganizations,
+        setTagOptions,
+        setViolenceContextOptions,
+    ]);
+
+    const {
+        figuresData,
+        figureFetchPending,
+        totalFiguresCount,
+        figureFetchErrored,
+    } = usePaginatedFigures(
+        entryId,
+        handleFigureFetchComplete,
+    );
+
+    const loading = (
+        getEntryLoading
+        || pending
+        || saveLoading
+        || updateLoading
+        || updateFiguresLoading
+        || createAttachmentLoading
+        || parkedItemDataLoading
+        || createSourcePreviewLoading
+        || figureFetchPending
+    );
+
     const figuresContent = useMemo(() => {
-        if (figureFetchPending) {
+        const erroredSet = new Set(Object.keys(error?.fields?.figures?.members ?? {}));
+        if (figureFetchErrored) {
             return (
-                <ProgressBar
-                    label="Fetching figures"
-                    value={activeFiguresToDisplay?.length ?? 0}
-                    total={totalFiguresCount}
+                <Message
+                    message="Failed to fetch figures."
                 />
             );
-        } if (!activeFiguresToDisplay || activeFiguresToDisplay.length === 0) {
+        }
+        const figuresToDisplay = value.figures?.map((fig, index) => {
+            if (fig.deleted) {
+                return null;
+            }
+            if (figureStatusFilter === 'unsaved' && !fig.stale) {
+                return null;
+            }
+            if (figureStatusFilter === 'errored' && !erroredSet.has(fig.uuid)) {
+                return null;
+            }
+            return (
+                <FigureInput
+                    key={fig.uuid}
+                    selectedFigure={selectedFigure}
+                    setSelectedFigure={handleSelectedFigureChange}
+                    index={index}
+                    value={fig}
+                    onChange={handleFigureChange}
+                    onRemove={handleFigureRemove}
+                    // eslint-disable-next-line max-len
+                    error={error?.fields?.figures?.members?.[fig.uuid]}
+                    disabled={loading || !processed}
+                    mode={mode}
+                    // eslint-disable-next-line max-len
+                    optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
+                    events={events}
+                    setEvents={handleEventOptionsChange}
+                    // eslint-disable-next-line max-len
+                    causeOptions={figureOptionsData?.crisisType?.enumValues as CauseOptions}
+                    // eslint-disable-next-line max-len
+                    accuracyOptions={figureOptionsData?.accuracyList?.enumValues as AccuracyOptions}
+                    // eslint-disable-next-line max-len
+                    categoryOptions={figureOptionsData?.figureCategoryList?.enumValues as CategoryOptions}
+                    // eslint-disable-next-line max-len
+                    unitOptions={figureOptionsData?.unitList?.enumValues as UnitOptions}
+                    // eslint-disable-next-line max-len
+                    termOptions={figureOptionsData?.figureTermList?.enumValues as TermOptions}
+                    // eslint-disable-next-line max-len
+                    roleOptions={figureOptionsData?.roleList?.enumValues as RoleOptions}
+                    // eslint-disable-next-line max-len
+                    displacementOptions={figureOptionsData?.displacementOccurence?.enumValues as DisplacementOptions}
+                    // eslint-disable-next-line max-len
+                    identifierOptions={figureOptionsData?.identifierList?.enumValues as IdentifierOptions}
+                    // eslint-disable-next-line max-len
+                    geocoderOptions={figureOptionsData?.geocoderList?.enumValues as GeocoderOptions}
+                    // eslint-disable-next-line max-len
+                    genderCategoryOptions={figureOptionsData?.disaggregatedGenderList?.enumValues as GenderOptions}
+                    // eslint-disable-next-line max-len
+                    quantifierOptions={figureOptionsData?.quantifierList?.enumValues as QuantifierOptions}
+                    // eslint-disable-next-line max-len
+                    dateAccuracyOptions={figureOptionsData?.dateAccuracy?.enumValues as DateAccuracyOptions}
+                    // eslint-disable-next-line max-len
+                    disasterCategoryOptions={figureOptionsData?.disasterCategoryList}
+                    // eslint-disable-next-line max-len
+                    violenceCategoryOptions={figureOptionsData?.violenceList}
+                    // eslint-disable-next-line max-len
+                    osvSubTypeOptions={figureOptionsData?.osvSubTypeList}
+                    // eslint-disable-next-line max-len
+                    otherSubTypeOptions={figureOptionsData?.otherSubTypeList}
+                    trafficLightShown={trafficLightShown}
+                    onFigureClone={handleFigureClone}
+                    metadata={figureMetadataMapping[fig.uuid]}
+                    setMetadata={handleFigureMetadataChange}
+                    defaultShownField={selectedFieldType}
+                />
+            );
+        });
+
+        if (!figuresToDisplay?.some((fig) => fig !== null)) {
             return (
                 <div className={styles.emptyMessage}>
                     No figures yet
                 </div>
             );
         }
+
         return (
             <div className={styles.figures}>
-                {activeFiguresToDisplay?.map((fig) => {
-                    if (fig.deleted) {
-                        return null;
-                    }
-                    const indexForFigure = getIndexFromFigureUuid(fig.uuid);
-                    if (isNotDefined(indexForFigure)) {
-                        return null;
-                    }
-                    return (
-                        <FigureInput
-                            key={fig.uuid}
-                            selectedFigure={selectedFigure}
-                            setSelectedFigure={handleSelectedFigureChange}
-                            index={indexForFigure}
-                            value={fig}
-                            onChange={handleFigureChange}
-                            onRemove={handleFigureRemove}
-                            // eslint-disable-next-line max-len
-                            error={error?.fields?.figures?.members?.[fig.uuid]}
-                            disabled={loading || !processed}
-                            mode={mode}
-                            // eslint-disable-next-line max-len
-                            optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
-                            events={events}
-                            setEvents={handleEventOptionsChange}
-                            // eslint-disable-next-line max-len
-                            causeOptions={figureOptionsData?.crisisType?.enumValues as CauseOptions}
-                            // eslint-disable-next-line max-len
-                            accuracyOptions={figureOptionsData?.accuracyList?.enumValues as AccuracyOptions}
-                            // eslint-disable-next-line max-len
-                            categoryOptions={figureOptionsData?.figureCategoryList?.enumValues as CategoryOptions}
-                            // eslint-disable-next-line max-len
-                            unitOptions={figureOptionsData?.unitList?.enumValues as UnitOptions}
-                            // eslint-disable-next-line max-len
-                            termOptions={figureOptionsData?.figureTermList?.enumValues as TermOptions}
-                            // eslint-disable-next-line max-len
-                            roleOptions={figureOptionsData?.roleList?.enumValues as RoleOptions}
-                            // eslint-disable-next-line max-len
-                            displacementOptions={figureOptionsData?.displacementOccurence?.enumValues as DisplacementOptions}
-                            // eslint-disable-next-line max-len
-                            identifierOptions={figureOptionsData?.identifierList?.enumValues as IdentifierOptions}
-                            // eslint-disable-next-line max-len
-                            geocoderOptions={figureOptionsData?.geocoderList?.enumValues as GeocoderOptions}
-                            // eslint-disable-next-line max-len
-                            genderCategoryOptions={figureOptionsData?.disaggregatedGenderList?.enumValues as GenderOptions}
-                            // eslint-disable-next-line max-len
-                            quantifierOptions={figureOptionsData?.quantifierList?.enumValues as QuantifierOptions}
-                            // eslint-disable-next-line max-len
-                            dateAccuracyOptions={figureOptionsData?.dateAccuracy?.enumValues as DateAccuracyOptions}
-                            // eslint-disable-next-line max-len
-                            disasterCategoryOptions={figureOptionsData?.disasterCategoryList}
-                            // eslint-disable-next-line max-len
-                            violenceCategoryOptions={figureOptionsData?.violenceList}
-                            // eslint-disable-next-line max-len
-                            osvSubTypeOptions={figureOptionsData?.osvSubTypeList}
-                            // eslint-disable-next-line max-len
-                            otherSubTypeOptions={figureOptionsData?.otherSubTypeList}
-                            trafficLightShown={trafficLightShown}
-                            onFigureClone={handleFigureClone}
-                            metadata={figureMetadataMapping[fig.uuid]}
-                            setMetadata={handleFigureMetadataChange}
-                            defaultShownField={selectedFieldType}
-                        />
-                    );
-                })}
+                {figuresToDisplay}
             </div>
         );
     }, [
-        activeFiguresToDisplay,
+        figureFetchErrored,
+        figureStatusFilter,
+        value.figures,
         error?.fields?.figures?.members,
         events,
-        figureFetchPending,
         figureMetadataMapping,
         figureOptionsData,
         figureOptionsError,
@@ -1560,7 +1461,6 @@ function EntryForm(props: EntryFormProps) {
         processed,
         selectedFieldType,
         selectedFigure,
-        totalFiguresCount,
         trafficLightShown,
     ]);
 
@@ -1629,7 +1529,19 @@ function EntryForm(props: EntryFormProps) {
                 onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
                 ref={entryFormRef}
             >
-                {loading && <Loading absolute />}
+                {loading && (
+                    <Loading
+                        message={(
+                            <ProgressBar
+                                className={styles.progressBar}
+                                label="Fetching figures"
+                                value={figuresData?.figureList?.results?.length ?? 0}
+                                total={totalFiguresCount}
+                            />
+                        )}
+                        absolute
+                    />
+                )}
                 <Tabs
                     useHash
                     defaultHash="details"
@@ -1700,25 +1612,17 @@ function EntryForm(props: EntryFormProps) {
                                 </Button>
                             )}
                         >
-                            <div className={styles.filters}>
-                                <TextInput
-                                    name="figureId"
-                                    type="number"
-                                    label="Search by figure id"
-                                    value={figureIdFromSearchFilter}
-                                    onChange={setFigureIdFromSearchFilter}
+                            {editMode && (
+                                <SegmentInput
+                                    name="figure status"
+                                    label="Status"
+                                    keySelector={keySelector}
+                                    labelSelector={labelSelector}
+                                    options={figureStatusOptionsForFilter}
+                                    onChange={setFigureStatusFilter}
+                                    value={figureStatusFilter}
                                 />
-                                {editMode && (
-                                    <SegmentInput
-                                        name="figure status"
-                                        keySelector={keySelector}
-                                        labelSelector={labelSelector}
-                                        options={figureStatusOptionsForFilter}
-                                        onChange={setFigureStatusFromFilter}
-                                        value={figureStatusFromFilter}
-                                    />
-                                )}
-                            </div>
+                            )}
                             <NonFieldError>
                                 {error?.fields?.figures?.$internal}
                             </NonFieldError>
