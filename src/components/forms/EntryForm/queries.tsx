@@ -319,6 +319,40 @@ export const CREATE_ATTACHMENT = gql`
     }
 `;
 
+export const CREATE_BIG_FILE_ATTACHMENT = gql`
+mutation CreateBigFileAttachment(
+    $fileName: String!,
+    $mimeType: String!,
+){
+    createBigFileAttachment(data: {
+        fileName: $fileName,
+        attachmentFor: "0",
+        mimetype: $mimeType,
+    }) {
+    ok
+    errors
+    result {
+        attachment
+        s3PresignedUrl
+        id
+    }
+  }
+}
+`;
+
+export const MARK_ATTACHMENT_FILE_AS_UPLOADED = gql`
+    mutation MarkAttachmentFileAsUploaded($attachmentId: ID!){
+        markBigAttachmentFileAsUploaded(attachmentId: $attachmentId) {
+            ok
+            errors
+            result {
+                id
+                attachment
+            }
+        }
+    }
+`;
+
 export const CREATE_SOURCE_PREVIEW = gql`
     mutation CreateSourcePreview($url: String!) {
         createSourcePreview(data: {url: $url}) {
