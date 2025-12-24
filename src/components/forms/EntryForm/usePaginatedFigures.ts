@@ -17,7 +17,7 @@ import {
     FIGURES_FOR_ENTRY,
 } from './queries';
 
-const MAX_FIGURES_PER_PAGE = 50;
+const MAX_FIGURES_PER_PAGE = 25;
 
 type FigureItem = NonNullable<NonNullable<NonNullable<FiguresForEntryQuery['figureList']>['results']>[number]>;
 
@@ -25,15 +25,13 @@ function usePaginatedFigures(
     entryId: string | undefined,
     onComplete: (figures: FigureItem[] | undefined | null) => void,
 ) {
-    const figurePageRef = useRef<number>(1);
-    const [figureFetchPending, setFigureFetchPending] = useState<boolean>(isDefined(entryId));
+    const pageRef = useRef<number>(1);
+    const [fetchPending, setFetchPending] = useState<boolean>(isDefined(entryId));
     const [errored, setErrored] = useState(false);
 
-    const {
-        notify,
-    } = useContext(NotificationContext);
+    const { notify } = useContext(NotificationContext);
 
-    const variablesForFiguresQuery = useMemo(
+    const variables = useMemo(
         (): FiguresForEntryQueryVariables | undefined => {
             if (isNotDefined(entryId)) {
                 return undefined;
@@ -51,89 +49,101 @@ function usePaginatedFigures(
         data: figuresData = previousFiguresData,
         fetchMore: fetchMoreFigures,
     } = useQuery<FiguresForEntryQuery, FiguresForEntryQueryVariables>(FIGURES_FOR_ENTRY, {
-        skip: !variablesForFiguresQuery,
-        variables: variablesForFiguresQuery,
+        skip: !variables,
+        variables,
         notifyOnNetworkStatusChange: true,
         onCompleted: (response) => {
             const figuresResponse = response?.figureList?.results;
             if (!figuresResponse) {
-                setFigureFetchPending(false);
+                setFetchPending(false);
                 setErrored(true);
             }
+            // NOTE: the else case will be handled by the following useEffect
         },
         onError: (err) => {
             notify({
                 children: err.message,
                 variant: 'error',
             });
+            setFetchPending(false);
             setErrored(true);
-            setFigureFetchPending(false);
         },
     });
 
     const hasResponse = !!figuresData?.figureList;
-    const fetchedSoFar = figuresData?.figureList?.results?.length;
+    const fetchedFiguresCount = figuresData?.figureList?.results?.length;
     const totalFiguresCount = figuresData?.figureList?.totalCount;
+
     const figures = figuresData?.figureList?.results;
 
     useEffect(() => {
-        if (!hasResponse) {
+        // NOTE: We don't want to fetch more unless first request is complete
+        if (!hasResponse || typeof totalFiguresCount !== 'number') {
             return;
         }
 
-        if ((fetchedSoFar ?? 0) < (totalFiguresCount ?? 0)) {
-            fetchMoreFigures({
-                variables: {
-                    entryId,
-                    page: figurePageRef.current + 1,
-                    pageSize: MAX_FIGURES_PER_PAGE,
-                },
-                updateQuery: (previousResult, { fetchMoreResult }) => ({
-                    ...previousResult,
-                    ...fetchMoreResult,
-                    figureList: {
-                        ...previousResult.figureList,
-                        ...fetchMoreResult?.figureList,
-                        results: [
-                            ...(previousResult.figureList?.results ?? []),
-                            ...(fetchMoreResult?.figureList?.results ?? []),
-                        ],
-                    },
-                }),
-            });
-            figurePageRef.current += 1;
+        // FIXME: We also need to handle cases where figures are added/deleted while
+        // fetching the list. The total no. of expected figures can change in this scenario.
+        if ((fetchedFiguresCount ?? 0) >= totalFiguresCount) {
+            return;
         }
+
+        pageRef.current += 1;
+        fetchMoreFigures({
+            variables: {
+                entryId,
+                page: pageRef.current,
+                pageSize: MAX_FIGURES_PER_PAGE,
+            },
+            updateQuery: (previousResult, { fetchMoreResult }) => ({
+                ...previousResult,
+                ...fetchMoreResult,
+                figureList: {
+                    ...previousResult.figureList,
+                    ...fetchMoreResult?.figureList,
+                    // NOTE: we are concatenating the figues from each request to the same response
+                    results: [
+                        ...(previousResult.figureList?.results ?? []),
+                        ...(fetchMoreResult?.figureList?.results ?? []),
+                    ],
+                },
+            }),
+        });
     }, [
         entryId,
         fetchMoreFigures,
         hasResponse,
-        fetchedSoFar,
+        fetchedFiguresCount,
         totalFiguresCount,
     ]);
 
     useEffect(() => {
-        if (!hasResponse) {
+        if (!hasResponse || !figures || typeof totalFiguresCount !== 'number') {
             return;
         }
-        if (
-            isDefined(figures)
-            && typeof totalFiguresCount === 'number'
-            && figures?.length === totalFiguresCount
-        ) {
-            onComplete(figures);
-            setFigureFetchPending(false);
+
+        // FIXME: We also need to handle cases where figures are added/deleted while
+        // fetching the list. The total no. of expected figures can change in this scenario.
+        if ((fetchedFiguresCount ?? 0) < totalFiguresCount) {
+            return;
         }
+
+        onComplete(figures);
+        setFetchPending(false);
     }, [
         onComplete,
         hasResponse,
-        figures,
+        fetchedFiguresCount,
         totalFiguresCount,
+        // NOTE: We are splitting the if/else case into 2 separate useEffects
+        // to avoid 'figures' dependency while fetching more figures
+        figures,
     ]);
 
     return ({
-        figuresData,
-        figureFetchPending,
-        totalFiguresCount: figuresData?.figureList?.totalCount ?? 0,
+        figureFetchPending: fetchPending,
+        fetchedFiguresCount: fetchedFiguresCount ?? 0,
+        totalFiguresCount,
         figureFetchErrored: errored,
     });
 }

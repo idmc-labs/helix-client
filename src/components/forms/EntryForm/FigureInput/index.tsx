@@ -74,7 +74,6 @@ import TrafficLightInput from '#components/TrafficLightInput';
 import FigureTagMultiSelectInput from '#components/selections/FigureTagMultiSelectInput';
 import EventListSelectInput, { EventListOption } from '#components/selections/EventListSelectInput';
 import ViolenceContextMultiSelectInput from '#components/selections/ViolenceContextMultiSelectInput';
-import QuickActionButton from '#components/QuickActionButton';
 import {
     enumKeySelector,
     enumLabelSelector,
@@ -313,6 +312,8 @@ const householdKeySelector = (item: HouseholdSize) => String(item.size);
 
 const defaultValue: FigureInputValue = {
     uuid: 'random',
+    deleted: false,
+    stale: true,
 };
 
 interface FigureInputProps {
@@ -1251,34 +1252,33 @@ function FigureInput(props: FigureInputProps) {
         </>
     );
 
-    const handleShareFigureClick = useCallback(
-        (id: string | undefined, e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleCopyFigureLink = useCallback(
+        (id: string, e: React.MouseEvent<HTMLButtonElement>) => {
             // NOTE: To avoid expanding the container on this button click
             e.stopPropagation();
+
             if (isNotDefined(value.entry)) {
                 console.error('Could not find entry id.');
                 return;
             }
-            if (isNotDefined(id)) {
-                console.error('Could not find figure id.');
-                return;
-            }
-            const path = generatePath(
+
+            const relativeUrl = generatePath(
                 route.entryEdit.path,
                 { entryId: value.entry },
             );
-            const linkToFigure = new URL(
-                path,
+            const absoluteUrl = new URL(
+                relativeUrl,
                 window.location.origin,
             );
-            linkToFigure.searchParams.set(
+            absoluteUrl.searchParams.set(
                 'id',
                 id,
             );
-            linkToFigure.hash = '/figures-and-analysis';
-            navigator.clipboard.writeText(linkToFigure.href.toString());
+            absoluteUrl.hash = '/figures-and-analysis';
+
+            navigator.clipboard.writeText(absoluteUrl.href.toString());
             notify({
-                children: `Link to figure #${id} has been copied to clipboard`,
+                children: `Figure #${id} link copied to clipboard`,
                 variant: 'success',
             });
         }, [
@@ -1297,32 +1297,24 @@ function FigureInput(props: FigureInputProps) {
             isExpanded={expanded}
             icons={(
                 <div className={styles.icons}>
-                    <div className={styles.figureId}>
-                        {isDefined(value.id)
-                            ? `#${value.id}`
-                            : '[draft]'}
-                    </div>
-                    <div className={styles.shareButton}>
+                    <div className={styles.shareButtonContainer}>
                         {isDefined(value.id) && (
-                            <QuickActionButton
+                            <Button
                                 name={value.id}
-                                title="Copy link to this figure"
-                                onClick={handleShareFigureClick}
+                                title="Copy figure link"
+                                onClick={handleCopyFigureLink}
                                 transparent
+                                actions={(<IoShareSocialOutline />)}
                             >
-                                <IoShareSocialOutline />
-                            </QuickActionButton>
+                                {`#${value.id}`}
+                            </Button>
                         )}
                     </div>
-                    <Status
-                        status={reviewStatus}
-                    />
+                    <Status status={reviewStatus} />
                 </div>
             )}
             actions={value.stale && (
-                <Chip>
-                    Unsaved
-                </Chip>
+                <Chip>Unsaved</Chip>
             )}
             contentClassName={styles.content}
         >

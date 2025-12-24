@@ -8,13 +8,9 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-small);
-    .figure-id {
-        flex-shrink: 0;
-        width: 3rem;
-    }
-    .share-button {
-        flex-shrink: 0;
-        width: 2rem;
+
+    .share-button-container {
+        width: 6rem;
     }
 }
 .errored {
