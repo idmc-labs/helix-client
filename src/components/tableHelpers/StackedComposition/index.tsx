@@ -1,10 +1,10 @@
 import React, { useMemo, memo } from 'react';
 import { _cs } from '@togglecorp/fujs';
-import ProgressBar from '#components/ProgressBar';
+import CompositionBar from '#components/CompositionBar';
 
 import styles from './styles.module.css';
 
-export interface StackedProgressProps {
+export interface StackedCompositionProps {
     className?: string;
     barHeight?: number;
 
@@ -14,7 +14,7 @@ export interface StackedProgressProps {
     reRequested?: number | null | undefined;
 }
 
-function StackedProgress(props: StackedProgressProps) {
+function StackedComposition(props: StackedCompositionProps) {
     const {
         className,
         barHeight = 10,
@@ -55,7 +55,7 @@ function StackedProgress(props: StackedProgressProps) {
         <div
             className={_cs(styles.stackedProgress, className)}
         >
-            <ProgressBar
+            <CompositionBar
                 barHeight={barHeight}
                 data={data}
             />
@@ -63,4 +63,4 @@ function StackedProgress(props: StackedProgressProps) {
     );
 }
 
-export default memo(StackedProgress);
+export default memo(StackedComposition);

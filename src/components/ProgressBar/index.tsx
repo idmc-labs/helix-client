@@ -1,88 +1,59 @@
 import React, { useMemo } from 'react';
-import { _cs, sum, isDefined, isNotDefined } from '@togglecorp/fujs';
-import {
-    IoSquare,
-} from 'react-icons/io5';
-
-import Tooltip from '#components/Tooltip';
+import { _cs, isNotDefined } from '@togglecorp/fujs';
 
 import styles from './styles.module.css';
 
 export interface ProgressBarProps {
-    className?: string | null | undefined;
-    barHeight: number;
-    data: {
-        title: string | undefined | null,
-        color: string | undefined | null,
-        value: number | undefined | null,
-    }[];
+    className?: string;
+    value: number;
+    total: number | undefined | null;
+    // eslint-disable-next-line max-len
+    message?: string | ((value: number, totalValue: number | null | undefined) => (string | undefined));
+    height?: number;
 }
 
 function ProgressBar(props: ProgressBarProps) {
     const {
         className,
-        barHeight,
-        data,
+        value,
+        total,
+        height = 12,
+        message,
     } = props;
 
-    const totalSum = useMemo(
-        () => (
-            sum(data.map((item) => item.value).filter(isDefined))
-        ), [data],
-    );
+    const percentage = useMemo(() => {
+        if (isNotDefined(total) || total <= 0) {
+            return 0;
+        }
+        const safeValue = Math.min(value, total);
+        return Math.round((safeValue / total) * 100);
+    }, [value, total]);
 
-    const avgResult = useMemo(
-        () => (
-            data.map(({ value, ...other }) => ({
-                ...other,
-                percentage: isDefined(value) && totalSum > 0
-                    ? ((value / totalSum) * 100)
-                    : undefined,
-            }))
-        ), [data, totalSum],
-    );
+    // eslint-disable-next-line no-nested-ternary
+    const label = isNotDefined(message)
+        ? undefined
+        : typeof message === 'string'
+            ? message
+            : message(value, total);
 
     return (
-        <div
-            className={_cs(styles.progressWrapper, className)}
-            style={{ height: `${barHeight}px` }}
-        >
-            <Tooltip
-                description={(
-                    <div className={styles.items}>
-                        {data.map((datum) => (
-                            <div
-                                className={styles.item}
-                                key={datum.title}
-                            >
-                                <IoSquare
-                                    className={styles.icon}
-                                    style={{ color: datum.color ?? 'transparent' }}
-                                />
-                                <div className={styles.title}>
-                                    {datum.title}
-                                </div>
-                                <div className={styles.value}>
-                                    {datum.value ?? 0}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            />
-            {avgResult.map((item) => {
-                if (isNotDefined(item.percentage) || item.percentage === 0) {
-                    return null;
-                }
-                return (
-                    <div
-                        key={item.title}
-                        className={styles.data}
-                        style={{ width: `${item.percentage}%`, backgroundColor: `${item.color}` }}
-                    />
-                );
-            })}
+        <div className={_cs(styles.progressBar, className)}>
+            <div
+                className={styles.track}
+                style={{ height }}
+            >
+                <div
+                    className={styles.bar}
+                    style={{ width: `${percentage}%` }}
+                />
+            </div>
+            {label && (
+                <div className={styles.label}>
+                    {label}
+                </div>
+            )}
         </div>
     );
 }
+
 export default ProgressBar;

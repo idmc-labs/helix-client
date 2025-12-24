@@ -233,11 +233,31 @@ export const ENTRY_FRAGMENT = gql`
 
 export const ENTRY = gql`
     ${ENTRY_FRAGMENT}
-    ${FIGURE_FRAGMENT}
     query Entry($id: ID!) {
         entry(id: $id) {
             ...EntryResponse
-            figures {
+        }
+    }
+`;
+
+export const FIGURES_FOR_ENTRY = gql`
+    ${FIGURE_FRAGMENT}
+    query FiguresForEntry(
+        $page: Int,
+        $pageSize: Int,
+        $entryId: String,
+    ) {
+        figureList(
+            page: $page,
+            pageSize: $pageSize,
+            filters: {
+                filterFigureEntry: $entryId,
+            },
+        ) {
+            page
+            pageSize
+            totalCount
+            results {
                 ...FigureResponse
             }
         }
