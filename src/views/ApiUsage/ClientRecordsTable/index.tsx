@@ -72,6 +72,7 @@ const CLIENT_LIST = gql`
                 contactWebsite
                 isActive
                 name
+                shareSource
                 useCases
                 useCasesDisplay
                 optedOutOfEmails
@@ -284,6 +285,12 @@ function ClientRecordsTable(props: ClientRecordProps) {
                 'is_active',
                 'Active',
                 (item) => item.isActive,
+                { sortable: true },
+            ),
+            createYesNoColumn<ClientFields, string>(
+                'shareSource',
+                'Share source',
+                (item) => item.shareSource,
                 { sortable: true },
             ),
             createActionColumn<ClientFields, string>(

@@ -71,6 +71,7 @@ const GET_CLIENT = gql`
             }
             isActive
             name
+            shareSource
             useCases
             optedOutOfEmails
             otherNotes
@@ -90,6 +91,7 @@ const CREATE_CLIENT = gql`
                 contactWebsite
                 isActive
                 name
+                shareSource
                 optedOutOfEmails
                 otherNotes
                 useCases
@@ -117,6 +119,7 @@ const UPDATE_CLIENT = gql`
                 id
                 isActive
                 name
+                shareSource
                 optedOutOfEmails
                 otherNotes
                 useCases
@@ -160,6 +163,7 @@ const schema: FormSchema = {
             contactEmail: [requiredStringCondition, emailCondition],
             contactWebsite: [urlCondition],
             isActive: [requiredCondition],
+            shareSource: [requiredCondition],
             useCases: [arrayCondition, requiredListCondition],
             optedOutOfEmails: [requiredCondition],
         });
@@ -179,6 +183,7 @@ const schema: FormSchema = {
 
 const defaultFormValues: PartialForm<FormType> = {
     isActive: false,
+    shareSource: false,
     optedOutOfEmails: false,
 };
 
@@ -456,6 +461,14 @@ function ClientRecordForm(props: ClientRecordProps) {
                 labelSelector={enumLabelSelector}
                 error={error?.fields?.useCases?.$internal}
                 disabled={clientOptionsLoading || !!clientOptionsError}
+                readOnly={readOnly}
+            />
+            <BooleanInput
+                label="Share source *"
+                name="shareSource"
+                value={value.shareSource}
+                onChange={onValueChange}
+                error={error?.fields?.shareSource}
                 readOnly={readOnly}
             />
             {visibleNotes && (
