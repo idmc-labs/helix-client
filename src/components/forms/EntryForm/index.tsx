@@ -48,12 +48,8 @@ import {
     CreateEntryMutationVariables,
     CreateAttachmentMutation,
     CreateAttachmentMutationVariables,
-    CreateBigFileAttachmentMutation,
-    CreateBigFileAttachmentMutationVariables,
     CreateSourcePreviewMutation,
     CreateSourcePreviewMutationVariables,
-    MarkAttachmentFileAsUploadedMutation,
-    MarkAttachmentFileAsUploadedMutationVariables,
     UpdateEntryMutation,
     UpdateEntryMutationVariables,
     UpdateFiguresMutation,
@@ -74,9 +70,7 @@ import {
     ENTRY,
     CREATE_ENTRY,
     CREATE_ATTACHMENT,
-    CREATE_BIG_FILE_ATTACHMENT,
     CREATE_SOURCE_PREVIEW,
-    MARK_ATTACHMENT_FILE_AS_UPLOADED,
     UPDATE_ENTRY,
     FIGURE_OPTIONS,
     PARKED_ITEM_FOR_ENTRY,
@@ -88,7 +82,7 @@ import AnalysisInput from './AnalysisInput';
 import usePaginatedFigures from './usePaginatedFigures';
 import { schema, initialFormValues } from './schema';
 import { transformErrorForEntry } from './utils';
-import uploadFileToPresignedUrl from './bigFileUpload';
+import useBigFileUploader, { AttachmentResult } from './useBigFileUploader';
 import {
     Attachment,
     FigureFormProps,
@@ -273,6 +267,12 @@ interface FigureFilterOption {
 
 const keySelector = (item: FigureFilterOption) => item.id;
 const labelSelector = (item: FigureFilterOption) => item.name;
+
+const BIG_FILE_SIZE_THRESHOLD = 20 * 1024 * 1024; // filesize in bytes
+
+// NOTE: S3 allows upto 5GB without multipart upload
+// so setting it as maximum file size limit for attachments
+const MAX_FILE_SIZE_LIMIT = 5 * 1024 * 1024 * 1024;
 
 interface EntryFormProps {
     className?: string;
@@ -501,133 +501,21 @@ function EntryForm(props: EntryFormProps) {
         },
     );
 
-    const [currentFile, setCurrentFile] = useState<File | undefined>();
-
-    const [
-        markAttachmentFileAsUploaded,
-        { loading: markAttachmentFileAsUploadedPending },
-    ] = useMutation<
-        MarkAttachmentFileAsUploadedMutation,
-        MarkAttachmentFileAsUploadedMutationVariables
-    >(
-        MARK_ATTACHMENT_FILE_AS_UPLOADED,
-        {
-            onCompleted: (response) => {
-                const { markBigAttachmentFileAsUploaded } = response;
-                if (!markBigAttachmentFileAsUploaded) {
-                    return;
-                }
-                const {
-                    errors,
-                    ok,
-                    result,
-                } = markBigAttachmentFileAsUploaded;
-
-                if (errors) {
-                    notifyGQLError(errors);
-                }
-
-                if (ok && result) {
-                    notify({
-                        children: 'File uploaded successfully!',
-                        variant: 'success',
-                    });
-                    setAttachment(result);
-                    onValueSet((oldValue) => ({
-                        ...oldValue,
-                        details: {
-                            ...oldValue.details,
-                            document: result.id,
-                        },
-                    }));
-                    onPristineSet(false);
-                }
+    const onComplete = useCallback((result: AttachmentResult) => {
+        setAttachment(result);
+        onValueSet((oldValue) => ({
+            ...oldValue,
+            details: {
+                ...oldValue.details,
+                document: result.id,
             },
-            onError: (err) => {
-                notify({
-                    children: err.message,
-                    variant: 'error',
-                });
-            },
-        },
-    );
-
-    const [bigFileUploadProgress, setBigFileUploadProgress] = useState(0);
-    const [bigFileUploadLoading, setBigFileUploadLoading] = useState(false);
-
-    const [
-        createBigFileAttachment,
-        { loading: createBigFileAttachmentLoading },
-    ] = useMutation<CreateBigFileAttachmentMutation, CreateBigFileAttachmentMutationVariables>(
-        CREATE_BIG_FILE_ATTACHMENT,
-        {
-            onCompleted: (response) => {
-                const { createBigFileAttachment: createBigFileAttachmentRes } = response;
-                if (!createBigFileAttachmentRes) {
-                    return;
-                }
-
-                const { errors, result } = createBigFileAttachmentRes;
-
-                if (errors) {
-                    notifyGQLError(errors);
-                }
-
-                if (!result) {
-                    notify({
-                        // TODO: Specify the error
-                        children: 'Some error occured during file upload.',
-                        variant: 'error',
-                    });
-                }
-
-                if (
-                    isDefined(currentFile)
-                    && isDefined(result)
-                    && isDefined(result?.s3PresignedUrl)
-                ) {
-                    setBigFileUploadLoading(true);
-                    uploadFileToPresignedUrl({
-                        file: currentFile,
-                        url: result.s3PresignedUrl,
-                        onProgress: ({ percent }) => {
-                            setBigFileUploadProgress(percent);
-                        },
-                        onComplete: () => {
-                            setBigFileUploadLoading(false);
-                            markAttachmentFileAsUploaded({
-                                variables: {
-                                    attachmentId: result?.id,
-                                },
-                            });
-                        },
-                        onError: (err) => {
-                            setBigFileUploadLoading(false);
-                            notify({
-                                children: err,
-                                variant: 'error',
-                            });
-                        },
-                        // NOTE: onAbort is only necessary if we add a cancel button
-                        onAbort: () => {
-                            setBigFileUploadLoading(false);
-                            notify({
-                                children: 'Attachment upload aborted.',
-                                variant: 'error',
-                            });
-                        },
-
-                    });
-                }
-            },
-            onError: (err) => {
-                notify({
-                    children: err.message,
-                    variant: 'error',
-                });
-            },
-        },
-    );
+        }));
+        onPristineSet(false);
+    }, [
+        onPristineSet,
+        onValueSet,
+        setAttachment,
+    ]);
 
     const [
         createSourcePreview,
@@ -1033,6 +921,7 @@ function EntryForm(props: EntryFormProps) {
                     } = getValuesFromEntry(result);
 
                     setOrganizations(organizationsForState);
+
                     setSourcePreview(result.preview ?? undefined);
                     setAttachment(result.document ?? undefined);
 
@@ -1209,30 +1098,25 @@ function EntryForm(props: EntryFormProps) {
         [setAttachment, onValueSet, onPristineSet],
     );
 
+    const {
+        startUpload: startBigFileUpload,
+        progress: uploadProgress,
+        uploading: bigfileUploading,
+    } = useBigFileUploader(onComplete);
+
     const handleAttachmentProcess = useCallback(
         (files: File[]) => {
             const fileMetadata = files[0];
-            const fileSize = (fileMetadata.size / (1024 * 1024));
-            // NOTE: Checking for files larger than 2GB
-            if (fileSize > (2 * 1024)) {
+            const fileSize = fileMetadata.size; // filesize in bytes
+            // NOTE: Checking for large files
+            if (fileSize > MAX_FILE_SIZE_LIMIT) {
                 notify({
-                    children: 'File size too big. Please upload a files less than 2GB.',
+                    children: `File size too big. Please upload a files less than ${MAX_FILE_SIZE_LIMIT / (1024 * 1024 * 1024)}GB.`,
                     variant: 'error',
                 });
             }
-            if (fileSize > 25) {
-                setCurrentFile(fileMetadata);
-                // FIXME: @tnagorra how can I better handle this? Should I set the currentFile
-                // by making the current Uploader work like an input?
-                setTimeout(() => {
-                    createBigFileAttachment({
-                        variables: {
-                            fileName: fileMetadata.name,
-                            // TODO: Need to handle cases when filetype is undefined
-                            mimeType: fileMetadata.type,
-                        },
-                    });
-                }, 0);
+            if (fileSize > BIG_FILE_SIZE_THRESHOLD) {
+                startBigFileUpload(fileMetadata);
             } else {
                 createAttachment({
                     variables: { attachment: files[0] },
@@ -1245,7 +1129,7 @@ function EntryForm(props: EntryFormProps) {
         [
             notify,
             createAttachment,
-            createBigFileAttachment,
+            startBigFileUpload,
         ],
     );
 
@@ -1520,9 +1404,7 @@ function EntryForm(props: EntryFormProps) {
         || createAttachmentLoading
         || parkedItemDataLoading
         || createSourcePreviewLoading
-        || markAttachmentFileAsUploadedPending
-        || createBigFileAttachmentLoading
-        || bigFileUploadLoading
+        || bigfileUploading
     );
 
     const loadingMessage = useMemo(
@@ -1575,8 +1457,6 @@ function EntryForm(props: EntryFormProps) {
             if (
                 createAttachmentLoading
                 || createSourcePreviewLoading
-                || markAttachmentFileAsUploadedPending
-                || createBigFileAttachmentLoading
             ) {
                 return (
                     <ProgressBar
@@ -1588,12 +1468,12 @@ function EntryForm(props: EntryFormProps) {
                 );
             }
 
-            if (bigFileUploadLoading) {
+            if (bigfileUploading) {
                 return (
                     <ProgressBar
                         className={styles.progressBar}
-                        message="Uploading document"
-                        value={bigFileUploadProgress}
+                        message="Uploading file"
+                        value={uploadProgress}
                         total={100}
                     />
                 );
@@ -1625,10 +1505,8 @@ function EntryForm(props: EntryFormProps) {
             parkedItemDataLoading,
             createSourcePreviewLoading,
             loading,
-            bigFileUploadLoading,
-            bigFileUploadProgress,
-            createBigFileAttachmentLoading,
-            markAttachmentFileAsUploadedPending,
+            uploadProgress,
+            bigfileUploading,
         ],
     );
 

@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { _cs } from '@togglecorp/fujs';
+import {
+    _cs,
+    isDefined,
+} from '@togglecorp/fujs';
 import { PartialForm } from '@togglecorp/toggle-form';
 import {
     IoAlertOutline,
@@ -20,6 +23,8 @@ import UrlPreview from '#components/UrlPreview';
 
 import styles from './styles.module.css';
 
+const MAX_FILE_SIZE_FOR_PREVIEW = 50 * 1024 * 1024; // filesize in bytes
+
 type PreviewType = PartialForm<SourcePreview>
 type AttachmentType = PartialForm<Attachment>
 
@@ -38,10 +43,22 @@ function Preview(props: Props) {
 
     const [activeTab, setActiveTab] = useState<'preview' | 'cached-preview' | undefined>('preview');
 
-    if (!preview && !attachment) {
+    if (!preview && (!attachment || !attachment.isFileUploaded)) {
         return (
             <div className={_cs(className, styles.error)}>
                 No preview available!
+            </div>
+        );
+    }
+
+    if (
+        isDefined(attachment)
+        && isDefined(attachment.fileSize)
+        && attachment.fileSize > MAX_FILE_SIZE_FOR_PREVIEW
+    ) {
+        return (
+            <div className={_cs(className, styles.error)}>
+                No preview available for large files!
             </div>
         );
     }

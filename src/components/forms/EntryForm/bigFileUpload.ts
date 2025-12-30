@@ -1,17 +1,11 @@
-type UploadProgress = {
-    loaded: number;
-    total: number;
-    percent: number;
-};
-
 type UploadOptions = {
     file: File;
     url: string;
-    onProgress: (progress: UploadProgress) => void;
+    onProgress: (percent: number) => void;
     onAbort: () => void;
     onError: (error: string | undefined) => void;
     onComplete: () => void;
-    delay?: number;
+    timeout?: number;
 };
 
 export default function uploadFileToPresignedUrl({
@@ -21,75 +15,63 @@ export default function uploadFileToPresignedUrl({
     onAbort,
     onError,
     onComplete,
-    delay = 0, // 0 = no timeout (recommended for large files)
+    timeout,
 }: UploadOptions) {
     const xhr = new XMLHttpRequest();
 
-    try {
-        xhr.open('PUT', url);
+    const abort = () => {
+        if (xhr.readyState !== XMLHttpRequest.DONE) {
+            xhr.abort();
+        }
+    };
 
-        xhr.setRequestHeader('Content-Type', file.type);
+    xhr.open('PUT', url);
 
-        if (delay > 0) {
-            xhr.timeout = delay;
+    xhr.setRequestHeader('Content-Type', file.type);
+
+    if (timeout) {
+        xhr.timeout = timeout;
+    }
+
+    xhr.upload.onprogress = (event: ProgressEvent) => {
+        if (!event.lengthComputable) {
+            return;
         }
 
-        xhr.upload.onprogress = (event: ProgressEvent) => {
-            if (!event.lengthComputable) {
-                return;
-            }
+        const percent = Math.min(
+            100,
+            Math.round((event.loaded / event.total) * 100),
+        );
 
-            const percent = Math.min(
-                100,
-                Math.round((event.loaded / event.total) * 100),
-            );
+        onProgress(percent);
+    };
 
-            onProgress({
-                loaded: event.loaded,
-                total: event.total,
-                percent,
-            });
-        };
+    xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            onComplete();
+            return;
+        }
 
-        xhr.onload = () => {
-            // S3 usually return 200 or 204
-            if (xhr.status >= 200 && xhr.status < 300) {
-                onComplete();
-                return;
-            }
+        onError(`Upload failed with status ${xhr.status}: ${xhr.statusText}`);
+    };
 
-            // Expired presigned URLs often return 403
-            if (xhr.status === 403) {
-                onError('Upload failed: presigned URL expired or invalid.');
-                return;
-            }
+    xhr.onerror = () => {
+        onError('Network error during file upload.');
+    };
 
-            onError(`Upload failed with status ${xhr.status}: ${xhr.statusText}`);
-        };
+    xhr.ontimeout = () => {
+        onError('Upload timed out.');
+    };
 
-        xhr.onerror = () => {
-            onError('Network error during file upload.');
-        };
+    xhr.onabort = () => {
+        onAbort();
+    };
 
-        xhr.ontimeout = () => {
-            onError('Upload timed out.');
-        };
-
-        xhr.onabort = () => {
-            onAbort();
-        };
-
-        xhr.send(file);
-    } catch (err) {
-        onError('Unknown upload error');
-    }
+    xhr.send(file);
 
     // Allow user to cancel upload
     return {
-        abort: () => {
-            if (xhr.readyState !== XMLHttpRequest.DONE) {
-                xhr.abort();
-            }
-        },
+        abort,
+        request: xhr,
     };
 }
