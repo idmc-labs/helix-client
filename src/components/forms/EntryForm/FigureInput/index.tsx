@@ -875,11 +875,18 @@ function FigureInput(props: FigureInputProps) {
         [selectedSources],
     );
     const handleCountryChange = useCallback(
-        (countryValue: string | undefined, countryName: 'country') => {
+        (countryValue: string | undefined) => {
             setLocationsShown(true);
-            onValueChange(countryValue, countryName);
+            onChange((prevVal) => ({
+                ...prevVal,
+                geoLocations: undefined,
+                country: countryValue,
+            }), index);
         },
-        [onValueChange],
+        [
+            onChange,
+            index,
+        ],
     );
 
     const handleAgeAdd = useCallback(() => {
@@ -906,10 +913,18 @@ function FigureInput(props: FigureInputProps) {
             if (!prevVal) {
                 return defaultValue;
             }
+            const countryFromOldEvent = prevVal.country;
+            const countriesFromChangedEvent = safeOption?.countries?.map((c) => c.id);
+            const oldCountryExistsInNewEvent = countryFromOldEvent
+                ? countriesFromChangedEvent?.includes(countryFromOldEvent)
+                : false;
+
             return {
                 ...prevVal,
                 event: val,
+                country: oldCountryExistsInNewEvent ? countryFromOldEvent : undefined,
                 figureCause: safeOption.eventType,
+                geoLocations: oldCountryExistsInNewEvent ? prevVal.geoLocations : undefined,
                 contextOfViolence: safeOption.contextOfViolence?.map((c) => c.id),
                 osvSubType: safeOption.osvSubType?.id,
                 violenceSubType: safeOption.violenceSubType?.id,
@@ -1362,7 +1377,7 @@ function FigureInput(props: FigureInputProps) {
                         value={value.event}
                         onChange={handleEventChange}
                         disabled={disabled || figureOptionsDisabled}
-                        readOnly={!editMode || !!value.country}
+                        readOnly={!editMode}
                         actions={(
                             <>
                                 {value.event && (
@@ -1583,7 +1598,7 @@ function FigureInput(props: FigureInputProps) {
                         disabled={disabled || eventNotChosen}
                         // NOTE: Disable changing country when there are
                         // more than one geolocation
-                        readOnly={!editMode || (value.geoLocations?.length ?? 0) > 0}
+                        readOnly={!editMode}
                         icons={trafficLightShown && figureId && eventId && (
                             <TrafficLightInput
                                 name="FIGURE_COUNTRY"
