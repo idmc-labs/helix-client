@@ -879,7 +879,7 @@ function FigureInput(props: FigureInputProps) {
             setLocationsShown(true);
             onChange((prevVal) => ({
                 ...prevVal,
-                geoLocations: undefined,
+                geoLocations: prevVal.country === countryValue ? prevVal.geoLocations : [],
                 country: countryValue,
             }), index);
         },
@@ -913,18 +913,17 @@ function FigureInput(props: FigureInputProps) {
             if (!prevVal) {
                 return defaultValue;
             }
-            const countryFromOldEvent = prevVal.country;
-            const countriesFromChangedEvent = safeOption?.countries?.map((c) => c.id);
-            const oldCountryExistsInNewEvent = countryFromOldEvent
-                ? countriesFromChangedEvent?.includes(countryFromOldEvent)
-                : false;
+            const prevCountry = prevVal.country;
+            const countriesFromNewEvent = safeOption?.countries?.map((c) => c.id) ?? [];
+            const oldCountryExistsInNewEvent = isDefined(prevCountry)
+                && countriesFromNewEvent.includes(prevCountry);
 
             return {
                 ...prevVal,
                 event: val,
-                country: oldCountryExistsInNewEvent ? countryFromOldEvent : undefined,
+                country: oldCountryExistsInNewEvent ? prevCountry : undefined,
                 figureCause: safeOption.eventType,
-                geoLocations: oldCountryExistsInNewEvent ? prevVal.geoLocations : undefined,
+                geoLocations: oldCountryExistsInNewEvent ? prevVal.geoLocations : [],
                 contextOfViolence: safeOption.contextOfViolence?.map((c) => c.id),
                 osvSubType: safeOption.osvSubType?.id,
                 violenceSubType: safeOption.violenceSubType?.id,
@@ -1596,8 +1595,6 @@ function FigureInput(props: FigureInputProps) {
                         labelSelector={countryLabelSelector}
                         onChange={handleCountryChange}
                         disabled={disabled || eventNotChosen}
-                        // NOTE: Disable changing country when there are
-                        // more than one geolocation
                         readOnly={!editMode}
                         icons={trafficLightShown && figureId && eventId && (
                             <TrafficLightInput
