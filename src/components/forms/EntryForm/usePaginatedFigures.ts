@@ -26,6 +26,9 @@ function usePaginatedFigures(
     onComplete: (figures: FigureItem[] | undefined | null) => void,
 ) {
     const pageRef = useRef<number>(1);
+    // NOTE: Checking if figures have been set initially after first fetch of figures
+    // to avoid resetting of initial figures which is happening likely because of Apollo's cache
+    const figuresFetchedInitiallyRef = useRef(false);
     const [fetchPending, setFetchPending] = useState<boolean>(isDefined(entryId));
     const [errored, setErrored] = useState(false);
 
@@ -128,7 +131,12 @@ function usePaginatedFigures(
             return;
         }
 
-        onComplete(figures);
+        if (figuresFetchedInitiallyRef.current) {
+            console.error('Figures fetch complete should not be called more than once.');
+        } else {
+            onComplete(figures);
+            figuresFetchedInitiallyRef.current = true;
+        }
         setFetchPending(false);
     }, [
         onComplete,
