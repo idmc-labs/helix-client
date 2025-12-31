@@ -915,15 +915,15 @@ function FigureInput(props: FigureInputProps) {
             }
             const prevCountry = prevVal.country;
             const countriesFromNewEvent = safeOption?.countries?.map((c) => c.id) ?? [];
-            const oldCountryExistsInNewEvent = isDefined(prevCountry)
+            const prevCountryExistsInNewEvent = isDefined(prevCountry)
                 && countriesFromNewEvent.includes(prevCountry);
 
             return {
                 ...prevVal,
                 event: val,
-                country: oldCountryExistsInNewEvent ? prevCountry : undefined,
+                country: prevCountryExistsInNewEvent ? prevCountry : undefined,
                 figureCause: safeOption.eventType,
-                geoLocations: oldCountryExistsInNewEvent ? prevVal.geoLocations : [],
+                geoLocations: prevCountryExistsInNewEvent ? prevVal.geoLocations : [],
                 contextOfViolence: safeOption.contextOfViolence?.map((c) => c.id),
                 osvSubType: safeOption.osvSubType?.id,
                 violenceSubType: safeOption.violenceSubType?.id,
