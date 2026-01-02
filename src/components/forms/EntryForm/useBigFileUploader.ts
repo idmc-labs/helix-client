@@ -20,7 +20,7 @@ import {
     MarkAttachmentFileAsUploadedMutationVariables,
 } from '#generated/types';
 
-import uploadFileToPresignedUrl from './bigFileUpload';
+import uploadFileUsingXhr from './bigFileUpload';
 import {
     CREATE_BIG_ATTACHMENT,
     MARK_ATTACHMENT_FILE_AS_UPLOADED,
@@ -36,8 +36,9 @@ export default function useBigFileUploader(
         notifyGQLError,
     } = useContext(NotificationContext);
 
-    const currentFileRef = useRef<File | undefined | null>(null);
+    const currentFileRef = useRef<File | null>(null);
     const xhrRef = useRef<XMLHttpRequest | null>(null);
+
     const [fileUploadProgress, setFileUploadProgress] = useState(0);
     const [fileUploading, setFileUploading] = useState(false);
 
@@ -51,7 +52,7 @@ export default function useBigFileUploader(
     const handleUploadError = useCallback((notifyCallback?: () => void) => {
         if (isNotDefined(notifyCallback)) {
             notify({
-                children: 'Some error occured during file upload.',
+                children: 'Some error occurred during file upload.',
                 variant: 'error',
             });
         } else {
@@ -98,23 +99,26 @@ export default function useBigFileUploader(
                 } = markBigAttachmentFileAsUploaded;
 
                 if (errors) {
-                    handleUploadError(
-                        () => notifyGQLError(errors),
-                    );
+                    handleUploadError(() => {
+                        notifyGQLError(errors);
+                    });
                 }
 
-                if (ok && result) {
-                    onComplete(result);
-                    handleUploadComplete();
+                if (!ok || !result) {
+                    handleUploadError();
+                    return;
                 }
+
+                handleUploadComplete();
+                onComplete(result);
             },
             onError: (err) => {
-                handleUploadError(
-                    () => notify({
+                handleUploadError(() => {
+                    notify({
                         children: err.message,
                         variant: 'error',
-                    }),
-                );
+                    });
+                });
             },
         },
     );
@@ -135,9 +139,9 @@ export default function useBigFileUploader(
                 const { ok, errors, result } = createBigAttachmentRes;
 
                 if (errors) {
-                    handleUploadError(
-                        () => notifyGQLError(errors),
-                    );
+                    handleUploadError(() => {
+                        notifyGQLError(errors);
+                    });
                     return;
                 }
 
@@ -145,16 +149,16 @@ export default function useBigFileUploader(
                     handleUploadError();
                     return;
                 }
-                const presignedUrl = createBigAttachmentRes.s3PresignedUploadUrl;
 
+                const presignedUrl = createBigAttachmentRes.s3PresignedUploadUrl;
                 if (isNotDefined(presignedUrl)) {
-                    handleUploadError();
                     console.error('Presigned URL undefined.');
+                    handleUploadError();
                     return;
                 }
                 if (isNotDefined(currentFileRef.current)) {
-                    handleUploadError();
                     console.error('Attachment file not found');
+                    handleUploadError();
                     return;
                 }
 
@@ -169,23 +173,32 @@ export default function useBigFileUploader(
                             },
                         });
                     },
-                    onError: (error) => handleUploadError(
-                        () => notify({
-                            children: error,
-                            variant: 'error',
-                        }),
-                    ),
-                    onAbort: () => handleUploadError(
-                        () => notify({
-                            children: 'File upload aborted',
-                            variant: 'error',
-                        }),
-                    ),
+                    onError: (error) => {
+                        handleUploadError(
+                            () => notify({
+                                children: error,
+                                variant: 'error',
+                            }),
+                        );
+                    },
+                    onAbort: () => {
+                        handleUploadError(
+                            () => notify({
+                                children: 'File upload aborted',
+                                variant: 'error',
+                            }),
+                        );
+                    },
                 });
             },
-            onError: (error) => handleUploadError(
-                () => notify({ children: error.message, variant: 'error' }),
-            ),
+            onError: (error) => {
+                handleUploadError(() => {
+                    notify({
+                        children: error.message,
+                        variant: 'error',
+                    });
+                });
+            },
         },
     );
 
