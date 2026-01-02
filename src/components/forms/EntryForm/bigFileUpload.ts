@@ -8,7 +8,7 @@ type UploadOptions = {
     timeout?: number;
 };
 
-export default function uploadFileToPresignedUrl({
+export default function uploadFileUsingXhr({
     file,
     url,
     onProgress,
