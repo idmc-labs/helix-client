@@ -19,14 +19,7 @@ export default function uploadFileToPresignedUrl({
 }: UploadOptions) {
     const xhr = new XMLHttpRequest();
 
-    const abort = () => {
-        if (xhr.readyState !== XMLHttpRequest.DONE) {
-            xhr.abort();
-        }
-    };
-
     xhr.open('PUT', url);
-
     xhr.setRequestHeader('Content-Type', file.type);
 
     if (timeout) {
@@ -69,9 +62,5 @@ export default function uploadFileToPresignedUrl({
 
     xhr.send(file);
 
-    // Allow user to cancel upload
-    return {
-        abort,
-        request: xhr,
-    };
+    return xhr;
 }

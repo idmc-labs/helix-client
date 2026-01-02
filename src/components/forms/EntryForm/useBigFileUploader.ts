@@ -150,7 +150,7 @@ export default function useBigFileUploader(
                 }
 
                 setFileUploading(true);
-                const { request } = uploadFileToPresignedUrl({
+                xhrRef.current = uploadFileUsingXhr({
                     file: currentFileRef.current,
                     url: presignedUrl,
                     onProgress: setFileUploadProgress,
@@ -174,7 +174,6 @@ export default function useBigFileUploader(
                         }),
                     ),
                 });
-                xhrRef.current = request;
             },
             onError: (error) => handleUploadError(
                 () => notify({ children: error.message, variant: 'error' }),
@@ -197,11 +196,18 @@ export default function useBigFileUploader(
         createBigAttachment,
     ]);
 
-    useEffect(() => () => {
-        // NOTE: Aborting the upload request if component unmounts
-        if (xhrRef.current) {
-            xhrRef.current.abort();
-        }
+    // NOTE: Aborting the upload request if component unmounts
+    useEffect(() => {
+        const abortXhr = () => {
+            const xhr = xhrRef.current;
+            if (!xhr) {
+                return;
+            }
+            if (xhr.readyState !== XMLHttpRequest.DONE) {
+                xhr.abort();
+            }
+        };
+        return abortXhr;
     }, []);
 
     return {
