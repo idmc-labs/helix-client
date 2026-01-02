@@ -26,6 +26,8 @@ export default function uploadFileToPresignedUrl({
         xhr.timeout = timeout;
     }
 
+    let lastProgress: number | undefined;
+
     xhr.upload.onprogress = (event: ProgressEvent) => {
         if (!event.lengthComputable) {
             return;
@@ -36,7 +38,10 @@ export default function uploadFileToPresignedUrl({
             Math.round((event.loaded / event.total) * 100),
         );
 
-        onProgress(percent);
+        if (percent !== lastProgress) {
+            lastProgress = percent;
+            onProgress(percent);
+        }
     };
 
     xhr.onload = () => {
