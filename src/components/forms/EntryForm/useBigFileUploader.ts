@@ -102,6 +102,7 @@ export default function useBigFileUploader(
                     handleUploadError(() => {
                         notifyGQLError(errors);
                     });
+                    return;
                 }
 
                 if (!ok || !result) {
