@@ -41,6 +41,13 @@ export default function useBigFileUploader(
     const [fileUploadProgress, setFileUploadProgress] = useState(0);
     const [fileUploading, setFileUploading] = useState(false);
 
+    const handleUploadStart = useCallback((file: File) => {
+        xhrRef.current = null;
+        currentFileRef.current = file;
+        setFileUploading(true);
+        setFileUploadProgress(0);
+    }, []);
+
     const handleUploadError = useCallback((notifyCallback?: () => void) => {
         if (isNotDefined(notifyCallback)) {
             notify({
@@ -51,6 +58,7 @@ export default function useBigFileUploader(
             notifyCallback();
         }
         setFileUploading(false);
+        setFileUploadProgress(0);
         currentFileRef.current = null;
         xhrRef.current = null;
     }, [notify]);
@@ -61,6 +69,7 @@ export default function useBigFileUploader(
             variant: 'success',
         });
         setFileUploading(false);
+        setFileUploadProgress(0);
         currentFileRef.current = null;
         xhrRef.current = null;
     }, [
@@ -149,7 +158,6 @@ export default function useBigFileUploader(
                     return;
                 }
 
-                setFileUploading(true);
                 xhrRef.current = uploadFileUsingXhr({
                     file: currentFileRef.current,
                     url: presignedUrl,
@@ -182,8 +190,7 @@ export default function useBigFileUploader(
     );
 
     const startUpload = useCallback((file: File) => {
-        xhrRef.current = null;
-        currentFileRef.current = file;
+        handleUploadStart(file);
 
         createBigAttachment({
             variables: {
@@ -193,6 +200,7 @@ export default function useBigFileUploader(
             },
         });
     }, [
+        handleUploadStart,
         createBigAttachment,
     ]);
 
