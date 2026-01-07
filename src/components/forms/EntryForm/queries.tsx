@@ -198,6 +198,8 @@ export const ENTRY_FRAGMENT = gql`
         document {
             id
             attachment
+            fileSize
+            isFileUploaded
         }
         documentUrl
         id
@@ -312,8 +314,48 @@ export const CREATE_ATTACHMENT = gql`
             errors
             ok
             result {
-                attachment
                 id
+                attachment
+                fileSize
+                isFileUploaded
+            }
+        }
+    }
+`;
+
+export const CREATE_BIG_ATTACHMENT = gql`
+mutation CreateBigAttachment(
+    $fileName: String!,
+    $mimeType: String!,
+){
+    createBigAttachment(data: {
+        fileName: $fileName,
+        attachmentFor: "0",
+        mimetype: $mimeType,
+    }) {
+    ok
+    errors
+    s3PresignedUploadUrl
+    result {
+        id
+        attachment
+        fileSize
+        isFileUploaded
+    }
+  }
+}
+`;
+
+export const MARK_ATTACHMENT_FILE_AS_UPLOADED = gql`
+    mutation MarkAttachmentFileAsUploaded($attachmentId: ID!){
+        markBigAttachmentFileAsUploaded(attachmentId: $attachmentId) {
+            ok
+            errors
+            result {
+                id
+                attachment
+                fileSize
+                isFileUploaded
             }
         }
     }
@@ -510,6 +552,8 @@ export const FIGURE_LIST = gql`
                     document {
                         id
                         attachment
+                        fileSize
+                        isFileUploaded
                     }
                     preview {
                         status

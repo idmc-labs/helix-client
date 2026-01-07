@@ -82,6 +82,7 @@ import AnalysisInput from './AnalysisInput';
 import usePaginatedFigures from './usePaginatedFigures';
 import { schema, initialFormValues } from './schema';
 import { transformErrorForEntry } from './utils';
+import useBigFileUploader, { AttachmentResult } from './useBigFileUploader';
 import {
     Attachment,
     FigureFormProps,
@@ -266,6 +267,13 @@ interface FigureFilterOption {
 
 const keySelector = (item: FigureFilterOption) => item.id;
 const labelSelector = (item: FigureFilterOption) => item.name;
+
+// NOTE: We want to only uploading using s3 if file size is larger than this threshold
+const BIG_FILE_SIZE_THRESHOLD = 20 * 1024 * 1024;
+
+// NOTE: S3 allows upto 5GB without multipart upload
+// so setting it as maximum file size limit for attachments
+const MAX_FILE_SIZE_LIMIT = 5 * 1024 * 1024 * 1024;
 
 interface EntryFormProps {
     className?: string;
@@ -493,6 +501,22 @@ function EntryForm(props: EntryFormProps) {
             },
         },
     );
+
+    const handleBigFileUploadComplete = useCallback((result: AttachmentResult) => {
+        setAttachment(result);
+        onValueSet((oldValue) => ({
+            ...oldValue,
+            details: {
+                ...oldValue.details,
+                document: result.id,
+            },
+        }));
+        onPristineSet(false);
+    }, [
+        onPristineSet,
+        onValueSet,
+        setAttachment,
+    ]);
 
     const [
         createSourcePreview,
@@ -898,6 +922,7 @@ function EntryForm(props: EntryFormProps) {
                     } = getValuesFromEntry(result);
 
                     setOrganizations(organizationsForState);
+
                     setSourcePreview(result.preview ?? undefined);
                     setAttachment(result.document ?? undefined);
 
@@ -1074,16 +1099,38 @@ function EntryForm(props: EntryFormProps) {
         [setAttachment, onValueSet, onPristineSet],
     );
 
+    const {
+        startUpload: startBigFileUpload,
+        progress: bigFileUploadProgress,
+        uploading: bigfileUploading,
+    } = useBigFileUploader(handleBigFileUploadComplete);
+
     const handleAttachmentProcess = useCallback(
         (files: File[]) => {
-            createAttachment({
-                variables: { attachment: files[0] },
-                context: {
-                    hasUpload: true, // activate Upload link
-                },
-            });
+            const fileMetadata = files[0];
+            const fileSize = fileMetadata.size;
+            if (fileSize > MAX_FILE_SIZE_LIMIT) {
+                notify({
+                    children: `File size too big. Please upload a files less than ${MAX_FILE_SIZE_LIMIT / (1024 * 1024 * 1024)}GB.`,
+                    variant: 'error',
+                });
+            }
+            if (fileSize > BIG_FILE_SIZE_THRESHOLD) {
+                startBigFileUpload(fileMetadata);
+            } else {
+                createAttachment({
+                    variables: { attachment: files[0] },
+                    context: {
+                        hasUpload: true, // activate Upload link
+                    },
+                });
+            }
         },
-        [createAttachment],
+        [
+            notify,
+            createAttachment,
+            startBigFileUpload,
+        ],
     );
 
     const {
@@ -1357,6 +1404,7 @@ function EntryForm(props: EntryFormProps) {
         || createAttachmentLoading
         || parkedItemDataLoading
         || createSourcePreviewLoading
+        || bigfileUploading
     );
 
     const loadingMessage = useMemo(
@@ -1417,6 +1465,17 @@ function EntryForm(props: EntryFormProps) {
                 );
             }
 
+            if (bigfileUploading) {
+                return (
+                    <ProgressBar
+                        className={styles.progressBar}
+                        message="Uploading document file"
+                        value={bigFileUploadProgress}
+                        total={100}
+                    />
+                );
+            }
+
             if (loading) {
                 return (
                     <ProgressBar
@@ -1443,6 +1502,8 @@ function EntryForm(props: EntryFormProps) {
             parkedItemDataLoading,
             createSourcePreviewLoading,
             loading,
+            bigFileUploadProgress,
+            bigfileUploading,
         ],
     );
 
