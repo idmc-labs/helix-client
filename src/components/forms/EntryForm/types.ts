@@ -4,7 +4,7 @@ import {
     CreateAttachmentMutation,
     CreateSourcePreviewMutation,
     FigureOptionsForEntryFormQuery,
-    EntryQuery,
+    FiguresForEntryQuery,
 } from '#generated/types';
 import {
     GetEnumOptions,
@@ -95,7 +95,7 @@ export type OtherSubTypeOptions = NonNullable<FigureOptionsForEntryFormQuery['ot
 export type Attachment = NonNullable<NonNullable<CreateAttachmentMutation['createAttachment']>['result']>;
 export type SourcePreview = NonNullable<NonNullable<CreateSourcePreviewMutation['createSourcePreview']>['result']>;
 
-type FigureResponse = NonNullable<NonNullable<EntryQuery['entry']>['figures']>[number];
+type FigureResponse = NonNullable<NonNullable<FiguresForEntryQuery['figureList']>['results']>[number];
 export type FigureMetadata = {
     role: FigureResponse['role'],
     reviewStatus: FigureResponse['reviewStatus'],

@@ -198,6 +198,8 @@ export const ENTRY_FRAGMENT = gql`
         document {
             id
             attachment
+            fileSize
+            isFileUploaded
         }
         documentUrl
         id
@@ -233,11 +235,31 @@ export const ENTRY_FRAGMENT = gql`
 
 export const ENTRY = gql`
     ${ENTRY_FRAGMENT}
-    ${FIGURE_FRAGMENT}
     query Entry($id: ID!) {
         entry(id: $id) {
             ...EntryResponse
-            figures {
+        }
+    }
+`;
+
+export const FIGURES_FOR_ENTRY = gql`
+    ${FIGURE_FRAGMENT}
+    query FiguresForEntry(
+        $page: Int,
+        $pageSize: Int,
+        $entryId: String,
+    ) {
+        figureList(
+            page: $page,
+            pageSize: $pageSize,
+            filters: {
+                filterFigureEntry: $entryId,
+            },
+        ) {
+            page
+            pageSize
+            totalCount
+            results {
                 ...FigureResponse
             }
         }
@@ -292,8 +314,48 @@ export const CREATE_ATTACHMENT = gql`
             errors
             ok
             result {
-                attachment
                 id
+                attachment
+                fileSize
+                isFileUploaded
+            }
+        }
+    }
+`;
+
+export const CREATE_BIG_ATTACHMENT = gql`
+mutation CreateBigAttachment(
+    $fileName: String!,
+    $mimeType: String!,
+){
+    createBigAttachment(data: {
+        fileName: $fileName,
+        attachmentFor: "0",
+        mimetype: $mimeType,
+    }) {
+    ok
+    errors
+    s3PresignedUploadUrl
+    result {
+        id
+        attachment
+        fileSize
+        isFileUploaded
+    }
+  }
+}
+`;
+
+export const MARK_ATTACHMENT_FILE_AS_UPLOADED = gql`
+    mutation MarkAttachmentFileAsUploaded($attachmentId: ID!){
+        markBigAttachmentFileAsUploaded(attachmentId: $attachmentId) {
+            ok
+            errors
+            result {
+                id
+                attachment
+                fileSize
+                isFileUploaded
             }
         }
     }
@@ -490,6 +552,8 @@ export const FIGURE_LIST = gql`
                     document {
                         id
                         attachment
+                        fileSize
+                        isFileUploaded
                     }
                     preview {
                         status

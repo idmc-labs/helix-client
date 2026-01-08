@@ -5,7 +5,7 @@ import styles from './styles.module.css';
 
 interface LoadingProps {
     className?: string;
-    message?: string | null;
+    message?: React.ReactNode | string | null;
     delay?: number;
     absolute?: boolean;
 }

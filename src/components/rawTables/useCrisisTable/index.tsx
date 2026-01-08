@@ -28,7 +28,7 @@ import {
 } from '#components/tableHelpers';
 import Loading from '#components/Loading';
 import CrisisForm, { CrisisFormProps } from '#components/forms/CrisisForm';
-import StackedProgressCell, { StackedProgressProps } from '#components/tableHelpers/StackedProgress';
+import StackedCompositionCell, { StackedCompositionProps } from '#components/tableHelpers/StackedComposition';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
@@ -275,14 +275,14 @@ function useCrisisTable(props: Props) {
     const columns = useMemo(
         () => {
             // eslint-disable-next-line max-len
-            const progressColumn: TableColumn<CrisisFields, string, StackedProgressProps, TableHeaderCellProps> = {
+            const compositionColumn: TableColumn<CrisisFields, string, StackedCompositionProps, TableHeaderCellProps> = {
                 id: 'progress',
                 title: 'Progress',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     sortable: true,
                 },
-                cellRenderer: StackedProgressCell,
+                cellRenderer: StackedCompositionCell,
                 cellRendererParams: (_, item) => ({
                     approved: item.reviewCount?.reviewApprovedCount,
                     inProgress: item.reviewCount?.reviewInProgressCount,
@@ -362,7 +362,7 @@ function useCrisisTable(props: Props) {
                     (item) => item.totalStockIdpFigures,
                     { sortable: true },
                 ),
-                progressColumn,
+                compositionColumn,
                 createActionColumn<CrisisFields, string>(
                     'action',
                     '',
