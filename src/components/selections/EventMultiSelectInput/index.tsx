@@ -1,14 +1,31 @@
-import React, { useMemo, useState } from 'react';
+import React, {
+    useContext,
+    useCallback,
+    useMemo,
+    useState,
+} from 'react';
 import {
     gql,
     useQuery,
 } from '@apollo/client';
-import { _cs } from '@togglecorp/fujs';
+import {
+    _cs,
+    isDefined,
+} from '@togglecorp/fujs';
 import {
     SearchMultiSelectInput,
     SearchMultiSelectInputProps,
+    Tabs,
+    TabList,
+    Tab,
 } from '@togglecorp/toggle-ui';
+import {
+    IoOpenOutline,
+} from 'react-icons/io5';
 
+import ButtonLikeLink from '#components/ButtonLikeLink';
+import DomainContext from '#components/DomainContext';
+import route from '#config/routes';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import useOptions from '#hooks/useOptions';
 import { GetEventQuery, GetEventQueryVariables } from '#generated/types';
@@ -36,8 +53,23 @@ const EVENT = gql`
 
 export type EventOption = NonNullable<NonNullable<GetEventQuery['eventList']>['results']>[number];
 
+const emptyArray: string[] = [];
+
 const keySelector = (d: EventOption) => d.id;
 const labelSelector = (d: EventOption) => d.name;
+const actionsSelector = (d: EventOption) => (
+    <ButtonLikeLink
+        route={route.event}
+        attrs={{ eventId: d.id }}
+        title="Open Event"
+        target="_blank"
+        rel="noopener noreferrer"
+        compact
+        transparent
+    >
+        <IoOpenOutline />
+    </ButtonLikeLink>
+);
 
 type Def = { containerClassName?: string };
 type MultiSelectInputProps<
@@ -63,10 +95,29 @@ function EventMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>
         ...otherProps
     } = props;
 
+    const { user } = useContext(DomainContext);
+
+    const currentUserId = user?.id;
     const [searchText, setSearchText] = useState('');
     const [opened, setOpened] = useState(false);
 
     const debouncedSearchText = useDebouncedValue(searchText);
+
+    const [eventVisibilityFilter, setEventVisibilityFilter] = useState<'all' | 'createdByMe'>('all');
+
+    const handleDropdownChange = useCallback((newVal: boolean) => {
+        setEventVisibilityFilter('all');
+        setOpened(newVal);
+    }, []);
+
+    const showOnlyEventsCreatedByMe = eventVisibilityFilter === 'createdByMe';
+
+    const handleTabChange = useCallback((tabValue: 'all' | 'createdByMe' | undefined) => {
+        if (!tabValue) {
+            return;
+        }
+        setEventVisibilityFilter(tabValue);
+    }, []);
 
     const searchVariable = useMemo(
         (): GetEventQueryVariables => (
@@ -75,16 +126,22 @@ function EventMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>
                     search: debouncedSearchText,
                     countries,
                     crisisByIds: crises,
+                    createdByIds: (
+                        showOnlyEventsCreatedByMe && isDefined(currentUserId)
+                    ) ? [currentUserId] : emptyArray,
                 },
             } : {
                 ordering: '-created_at',
                 filters: {
                     countries,
                     crisisByIds: crises,
+                    createdByIds: (
+                        showOnlyEventsCreatedByMe && isDefined(currentUserId)
+                    ) ? [currentUserId] : emptyArray,
                 },
             }
         ),
-        [debouncedSearchText, countries, crises],
+        [debouncedSearchText, countries, crises, currentUserId, showOnlyEventsCreatedByMe],
     );
 
     const {
@@ -101,6 +158,28 @@ function EventMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>
 
     const [options, setOptions] = useOptions('event');
 
+    const popupHeader = (
+        <Tabs
+            value={eventVisibilityFilter}
+            onChange={handleTabChange}
+        >
+            <TabList>
+                <Tab
+                    className={styles.tab}
+                    name="all"
+                >
+                    All
+                </Tab>
+                <Tab
+                    className={styles.tab}
+                    name="createdByMe"
+                >
+                    Created By Me
+                </Tab>
+            </TabList>
+        </Tabs>
+    );
+
     if (chip) {
         return (
             <SearchMultiSelectInputWithChip
@@ -109,13 +188,15 @@ function EventMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>
                 className={_cs(styles.eventMultiSelectInput, className)}
                 keySelector={keySelector}
                 labelSelector={labelSelector}
+                actionsSelector={actionsSelector}
                 onSearchValueChange={setSearchText}
-                onShowDropdownChange={setOpened}
+                onShowDropdownChange={handleDropdownChange}
                 searchOptions={searchOptions}
                 optionsPending={loading}
                 totalOptionsCount={totalOptionsCount ?? undefined}
                 options={options}
                 onOptionsChange={setOptions}
+                popupHeader={popupHeader}
             />
         );
     }
@@ -127,13 +208,15 @@ function EventMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>
             className={_cs(styles.eventMultiSelectInput, className)}
             keySelector={keySelector}
             labelSelector={labelSelector}
+            actionsSelector={actionsSelector}
             onSearchValueChange={setSearchText}
-            onShowDropdownChange={setOpened}
+            onShowDropdownChange={handleDropdownChange}
             searchOptions={searchOptions}
             optionsPending={loading}
             totalOptionsCount={totalOptionsCount ?? undefined}
             options={options}
             onOptionsChange={setOptions}
+            popupHeader={popupHeader}
         />
     );
 }

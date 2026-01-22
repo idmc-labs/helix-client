@@ -23,7 +23,11 @@ import {
     ArraySchema,
     PartialForm,
 } from '@togglecorp/toggle-form';
-import { IoCalculatorOutline, IoAddOutline } from 'react-icons/io5';
+import {
+    IoCalculatorOutline,
+    IoAddOutline,
+    IoOpenOutline,
+} from 'react-icons/io5';
 import {
     gql,
     useQuery,
@@ -32,6 +36,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 
 import useOptions from '#hooks/useOptions';
+import ButtonLikeLink from '#components/ButtonLikeLink';
 import DomainContext from '#components/DomainContext';
 import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
@@ -45,6 +50,7 @@ import ActorSelectInput from '#components/selections/ActorSelectInput';
 import Section from '#components/Section';
 import Message from '#components/Message';
 import MarkdownEditor from '#components/MarkdownEditor';
+import route from '#config/routes';
 import useModalState from '#hooks/useModalState';
 import { transformToFormError } from '#utils/errorTransform';
 import {
@@ -1116,17 +1122,34 @@ function EventForm(props: EventFormProps) {
                 onChange={onValueChange}
                 disabled={disabled}
                 readOnly={disabledFields.includes('crisis') || readOnly}
-                actions={!disabledFields.includes('crisis') && !readOnly && crisisPermissions?.add && (
-                    <Button
-                        name={undefined}
-                        onClick={showAddCrisisModal}
-                        disabled={disabled}
-                        compact
-                        transparent
-                        title="Add Crisis"
-                    >
-                        <IoAddOutline />
-                    </Button>
+                actions={(
+                    <>
+                        {value.crisis && (
+                            <ButtonLikeLink
+                                route={route.crisis}
+                                attrs={{ crisisId: value.crisis }}
+                                transparent
+                                compact
+                                title="Open Crisis"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <IoOpenOutline />
+                            </ButtonLikeLink>
+                        )}
+                        {!disabledFields.includes('crisis') && !readOnly && crisisPermissions?.add && (
+                            <Button
+                                name={undefined}
+                                onClick={showAddCrisisModal}
+                                disabled={disabled}
+                                compact
+                                transparent
+                                title="Add Crisis"
+                            >
+                                <IoAddOutline />
+                            </Button>
+                        )}
+                    </>
                 )}
             />
             {shouldShowAddCrisisModal && (
