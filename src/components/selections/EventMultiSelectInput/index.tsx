@@ -72,7 +72,7 @@ function EventMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>
         (): GetEventQueryVariables => (
             debouncedSearchText ? {
                 filters: {
-                    name: debouncedSearchText,
+                    search: debouncedSearchText,
                     countries,
                     crisisByIds: crises,
                 },

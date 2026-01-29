@@ -75,7 +75,7 @@ function UserMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>)
         (): GetUserQueryVariables => (
             debouncedSearchText ? {
                 filters: {
-                    fullName: debouncedSearchText,
+                    search: debouncedSearchText,
                     permissions,
                 },
             } : {

@@ -36,7 +36,7 @@ const createSchema = (yearFilterHidden: boolean | undefined): FormSchema => ({
         let basicFields: FormSchemaFields = {
             regionByIds: [arrayCondition],
             geoGroupByIds: [arrayCondition],
-            countryName: [],
+            search: [],
         };
         if (!yearFilterHidden) {
             basicFields = {
@@ -122,11 +122,11 @@ function CountriesFilter(props: CountriesFiltersProps) {
                     className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Name"
-                    name="countryName"
-                    value={value.countryName}
+                    name="search"
+                    value={value.search}
                     onChange={onValueChange}
                     placeholder="Search"
-                    error={error?.fields?.countryName}
+                    error={error?.fields?.search}
                 />
                 <RegionMultiSelectInput
                     className={styles.input}

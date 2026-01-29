@@ -68,7 +68,7 @@ function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputP
                 ? undefined
                 : 'name',
             filters: {
-                name_Unaccent_Icontains: debouncedSearchText,
+                search: debouncedSearchText,
                 orderCountryFirst: country ? [country] : undefined,
             },
         }),

@@ -22,7 +22,7 @@ const FIGURE_TAGS = gql`
     ) {
         figureTagList(
             ordering: $ordering,
-            filters: { name_Unaccent_Icontains: $search },
+            filters: { search: $search },
         ) {
             totalCount
             results {

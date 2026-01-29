@@ -25,7 +25,7 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        subjectContains: [],
+        search: [],
     }),
 };
 
@@ -93,10 +93,10 @@ function ContactsFilter(props: ContactsFilterProps) {
                     className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Subject"
-                    name="subjectContains"
-                    value={value.subjectContains}
+                    name="search"
+                    value={value.search}
                     onChange={onValueChange}
-                    error={error?.fields?.subjectContains}
+                    error={error?.fields?.search}
                 />
                 <div className={styles.formButtons}>
                     <Button

@@ -46,12 +46,12 @@ type RegionFields = NonNullable<NonNullable<MonitoringRegionsQuery['monitoringSu
 
 const REGION_LIST = gql`
     query monitoringRegions(
-        $name: String,
+        $search: String,
         $ordering: String,
     ) {
         monitoringSubRegionList(
             ordering: $ordering,
-            filters: { name: $name },
+            filters: { search: $search },
         ) {
             pageSize
             page

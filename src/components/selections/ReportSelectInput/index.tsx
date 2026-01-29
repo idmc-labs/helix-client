@@ -19,7 +19,7 @@ const REPORT = gql`
     ) {
         reportList(
             filters: {
-                name_Unaccent_Icontains: $search,
+                search: $search,
             },
             ordering: $ordering,
         ) {
