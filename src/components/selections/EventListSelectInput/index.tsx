@@ -74,7 +74,7 @@ function EventListSelectInput<K extends string>(props: SelectInputProps<K>) {
         (): GetEventListQueryVariables => (
             debouncedSearchText ? {
                 filters: {
-                    name: debouncedSearchText,
+                    search: debouncedSearchText,
                     countries,
                     crisisByIds: crises,
                 },

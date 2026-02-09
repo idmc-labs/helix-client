@@ -52,7 +52,7 @@ const CRISIS_OPTIONS = gql`
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         crisisTypes: [arrayCondition],
-        name: [],
+        search: [],
         events: [arrayCondition],
         createdByIds: [arrayCondition],
         startDate_Gte: [],
@@ -132,8 +132,8 @@ function CrisesFilter(props: CrisesFilterProps) {
                     className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Name"
-                    name="name"
-                    value={value.name}
+                    name="search"
+                    value={value.search}
                     onChange={onValueChange}
                     placeholder="Search by name/event name"
                 />

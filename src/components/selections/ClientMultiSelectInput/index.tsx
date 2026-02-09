@@ -22,7 +22,7 @@ const GET_CLIENT_CODE_OPTIONS = gql`
     ) {
         clientList(
             ordering: $ordering,
-            filters: { name: $search },
+            filters: { search: $search },
         ) {
             totalCount
             results {

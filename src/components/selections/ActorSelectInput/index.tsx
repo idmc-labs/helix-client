@@ -22,7 +22,7 @@ const ACTOR = gql`
     ) {
         actorList(
             ordering: $ordering,
-            filters: { name_Unaccent_Icontains: $search },
+            filters: { search: $search },
         ){
             totalCount
             results {

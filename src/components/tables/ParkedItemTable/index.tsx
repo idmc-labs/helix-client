@@ -62,7 +62,7 @@ const PARKING_LOT_LIST = gql`
             page: $page,
             pageSize: $pageSize,
             filters: $filters,
-            # check title_Unaccent_Icontains: $title,
+            # check search: $title,
         ) {
             totalCount
             page

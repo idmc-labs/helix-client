@@ -47,7 +47,7 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        title_Unaccent_Icontains: [],
+        search: [],
         statusIn: [],
         assignedToIn: [],
     }),
@@ -131,10 +131,10 @@ function ParkedItemFilter(props: ParkedItemFilterProps) {
                     className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Search"
-                    name="title_Unaccent_Icontains"
-                    value={value.title_Unaccent_Icontains}
+                    name="search"
+                    value={value.search}
                     onChange={onValueChange}
-                    error={error?.fields?.title_Unaccent_Icontains}
+                    error={error?.fields?.search}
                 />
                 {!assignedUser && (
                     <UserMultiSelectInput

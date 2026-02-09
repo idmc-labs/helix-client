@@ -22,7 +22,7 @@ const GEOGRAPHIC_GROUP = gql`
     ) {
         geographicalGroupList(
             ordering: $ordering,
-            filters: { name: $search },
+            filters: { search: $search },
         ) {
             totalCount
             results {

@@ -75,7 +75,7 @@ function CrisisMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
             }
             return {
                 filters: {
-                    name: debouncedSearchText,
+                    search: debouncedSearchText,
                     countries: countries ?? undefined,
                 },
             };

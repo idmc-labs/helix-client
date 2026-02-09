@@ -18,12 +18,12 @@ import styles from './styles.module.css';
 
 const VIOLENCE_CONTEXT = gql`
     query GetViolenceContext(
-        $name_Icontains: String,
+        $search: String,
         $ordering: String,
     ) {
         contextOfViolenceList(
             ordering: $ordering,
-            filters: { name_Icontains: $name_Icontains },
+            filters: { search: $search },
         ) {
             totalCount
             results {
@@ -64,7 +64,7 @@ function ViolenceContextMultiSelectInput<K extends string>(props: MultiSelectInp
 
     const searchVariable = useMemo(
         (): GetViolenceContextQueryVariables => (
-            debouncedSearchText ? { name_Icontains: debouncedSearchText } : { ordering: '-created_at' }
+            debouncedSearchText ? { search: debouncedSearchText } : { ordering: '-created_at' }
         ),
         [debouncedSearchText],
     );

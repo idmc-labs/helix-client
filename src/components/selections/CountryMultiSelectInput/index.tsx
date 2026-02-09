@@ -84,7 +84,7 @@ function CountryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
             }
             return {
                 filters: {
-                    countryName: debouncedSearchText,
+                    search: debouncedSearchText,
                     regionByIds: regions ?? undefined,
                     events,
                     crises,

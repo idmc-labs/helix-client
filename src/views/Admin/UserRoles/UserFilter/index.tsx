@@ -48,7 +48,7 @@ const GET_ROLES_LIST = gql`
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        fullName: [],
+        search: [],
         roleIn: [],
         isActive: [],
     }),
@@ -133,10 +133,10 @@ function UserFilter(props: UsersFilterProps) {
                     className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Name"
-                    name="fullName"
-                    value={value.fullName}
+                    name="search"
+                    value={value.search}
                     onChange={onValueChange}
-                    error={error?.fields?.fullName}
+                    error={error?.fields?.search}
                 />
                 <MultiSelectInput
                     className={styles.input}

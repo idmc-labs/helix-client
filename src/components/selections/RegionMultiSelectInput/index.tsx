@@ -22,7 +22,7 @@ const COUNTRY_REGION = gql`
     ) {
         countryRegionList(
             ordering: $ordering,
-            filters: { name: $search },
+            filters: { search: $search },
         ) {
             totalCount
             results {

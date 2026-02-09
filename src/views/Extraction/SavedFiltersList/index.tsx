@@ -31,7 +31,7 @@ export const GET_SAVED_QUERY_LIST = gql`
         $pageSize: Int,
     ) {
         extractionQueryList(
-            filters: { name_Unaccent_Icontains: $search },
+            filters: { search: $search },
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,

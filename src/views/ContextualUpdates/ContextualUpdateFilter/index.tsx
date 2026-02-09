@@ -27,7 +27,7 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        articleTitle: [],
+        search: [],
         countries: [arrayCondition],
         publishers: [arrayCondition],
         sources: [arrayCondition],
@@ -98,10 +98,10 @@ function ContextualFilter(props: ContextualFilterProps) {
                     className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Search"
-                    name="articleTitle"
-                    value={value.articleTitle}
+                    name="search"
+                    value={value.search}
                     onChange={onValueChange}
-                    error={error?.fields?.articleTitle}
+                    error={error?.fields?.search}
                 />
                 <CountryMultiSelectInput
                     className={styles.input}

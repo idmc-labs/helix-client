@@ -125,7 +125,7 @@ const schema: FormSchema = {
             eventTypes: [arrayCondition],
             reviewStatus: [arrayCondition],
             crisisByIds: [arrayCondition],
-            name: [],
+            search: [],
             createdByIds: [arrayCondition],
             startDate_Gte: [],
             endDate_Lte: [],
@@ -288,8 +288,8 @@ function EventsFilter(props: EventsFilterProps) {
                 <TextInput
                     icons={<IoSearchOutline />}
                     label="Name"
-                    name="name"
-                    value={value.name}
+                    name="search"
+                    value={value.search}
                     onChange={onValueChange}
                     placeholder="Search by event name"
                 />
