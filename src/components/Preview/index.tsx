@@ -9,6 +9,7 @@ import {
     IoTimeOutline,
 } from 'react-icons/io5';
 import {
+    Button,
     Tab,
     TabList,
     TabPanel,
@@ -19,7 +20,9 @@ import {
     Attachment,
     SourcePreview,
 } from '#components/forms/EntryForm/types';
+import Message from '#components/Message';
 import UrlPreview from '#components/UrlPreview';
+import useBooleanState from '#utils/useBooleanState';
 
 import styles from './styles.module.css';
 
@@ -42,24 +45,36 @@ function Preview(props: Props) {
     } = props;
 
     const [activeTab, setActiveTab] = useState<'preview' | 'cached-preview' | undefined>('preview');
+    const [forcePreview, setForcePreviewTrue] = useBooleanState(false);
 
     if (!preview && (!attachment || !attachment.isFileUploaded)) {
         return (
-            <div className={_cs(className, styles.error)}>
-                No preview available!
-            </div>
+            <Message
+                className={_cs(className, styles.error)}
+                message="No preview available!"
+            />
         );
     }
 
-    if (
-        isDefined(attachment)
+    const isLargeFile = isDefined(attachment)
         && isDefined(attachment.fileSize)
-        && attachment.fileSize > MAX_FILE_SIZE_FOR_PREVIEW
-    ) {
+        && attachment.fileSize > MAX_FILE_SIZE_FOR_PREVIEW;
+
+    if (isLargeFile && !forcePreview) {
         return (
-            <div className={_cs(className, styles.error)}>
-                No preview available for large files!
-            </div>
+            <Message
+                className={_cs(className, styles.previewPrompt)}
+                heading="Preview is disabled!"
+                message="The file is too large, so we’ve disabled the preview to keep things running smoothly. You can still enable it if you’d like."
+                actions={(
+                    <Button
+                        name={undefined}
+                        onClick={setForcePreviewTrue}
+                    >
+                        Enable preview
+                    </Button>
+                )}
+            />
         );
     }
 

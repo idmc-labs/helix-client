@@ -6,6 +6,20 @@
     border-radius: var(--radius-card);
     background-color: var(--color-foreground);
 }
+.preview-prompt {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    border: var(--width-separator-thin) solid var(--color-separator-light);
+    border-radius: var(--radius-card);
+    background-color: var(--color-foreground);
+    padding: var(--spacing-medium);
+    text-align: center;
+    * {
+        max-width: 30rem;
+    }
+}
 
 .preview-content {
     display: flex;
