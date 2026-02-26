@@ -176,6 +176,7 @@ function ReportsTable(props: ReportsProps) {
             name: 'created_at',
             direction: 'dsc',
         },
+        persistenceKey: 'report',
     });
 
     const reportsVariables = useMemo(

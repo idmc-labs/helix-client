@@ -13,6 +13,7 @@ services:
       REACT_APP_HCATPCHA_SITEKEY: ${REACT_APP_HCATPCHA_SITEKEY:-10000000-ffff-ffff-ffff-000000000001}
       REACT_APP_MMP_ENDPOINT: ${REACT_APP_MMP_ENDPOINT:-https://media-monitoring.idmcdb.org}
       GRAPHQL_CODEGEN_ENDPOINT: ${GRAPHQL_CODEGEN_ENDPOINT:-http://host.docker.internal:9000/graphql}
+      REACT_APP_FILTER_VERSION: ${REACT_APP_FILTER_VERSION:-1}
     env_file:
       - .env
     volumes:

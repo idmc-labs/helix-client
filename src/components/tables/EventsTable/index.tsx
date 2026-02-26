@@ -139,6 +139,7 @@ function EventsTable(props: EventsProps) {
             name: 'created_at',
             direction: 'dsc',
         },
+        persistenceKey: 'event',
     });
 
     const eventsVariables = useMemo(
