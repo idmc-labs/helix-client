@@ -33,8 +33,8 @@ importers:
         specifier: ^0.2.0-beta.6
         version: 0.2.0-beta.7(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
       '@togglecorp/toggle-ui':
-        specifier: ^0.18.3
-        version: 0.18.3(@types/react@17.0.85)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
+        specifier: ^0.18.7
+        version: 0.18.7(@types/react@17.0.85)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
       '@turf/bbox':
         specifier: ^6.0.1
         version: 6.5.0
@@ -1430,6 +1430,7 @@ packages:
 
   '@graphql-tools/prisma-loader@6.3.0':
     resolution: {integrity: sha512-9V3W/kzsFBmUQqOsd96V4a4k7Didz66yh/IK89B1/rrvy9rYj+ULjEqR73x9BYZ+ww9FV8yP8LasWAJwWaqqJQ==}
+    deprecated: 'This package was intended to be used with an older versions of Prisma.\nThe newer versions of Prisma has a different approach to GraphQL integration.\nTherefore, this package is no longer needed and has been deprecated and removed.\nLearn more: https://www.prisma.io/graphql'
     peerDependencies:
       graphql: ^14.0.0 || ^15.0.0
 
@@ -2152,8 +2153,8 @@ packages:
       react: ^16.13.1
       react-dom: ^16.13.1
 
-  '@togglecorp/toggle-ui@0.18.3':
-    resolution: {integrity: sha512-fRnKVmuoUhG10Z0a2op/CB7Mnoo4c5mGTD2nFBURm3FzwTWNrg2qZ0JYeKQdng6VOLxL1zTR5QSBsoGzQ0YPHA==}
+  '@togglecorp/toggle-ui@0.18.7':
+    resolution: {integrity: sha512-4zZV60ALZF5+V+kGuMbI1poylFpGD7DEBQN8gfR5XjYdte0qR3oJDDC6jdXJrWRIs7pXVjxnmVUXoPhLGT+weg==}
     peerDependencies:
       react: ^17.0.2
       react-dom: ^17.0.2
@@ -7916,10 +7917,12 @@ packages:
 
   whatwg-encoding@1.0.5:
     resolution: {integrity: sha512-b5lim54JOPN9HtzvK9HFXvBma/rnfFeqsic0hSpjtDbVxR3dJKLc+KB4V6GgiGOvl7CY/KNh8rxSo9DKQrnUEw==}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-encoding@3.1.1:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
     engines: {node: '>=18'}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-fetch@3.6.20:
     resolution: {integrity: sha512-EqhiFU6daOA8kpjOWTL0olhVOF3i7OrFzSYiGsEMB8GcXS+RrzauAERX65xMeNWVqxA6HXH2m69Z9LaKKdisfg==}
@@ -9783,7 +9786,7 @@ snapshots:
       '@types/istanbul-lib-coverage': 2.0.6
       collect-v8-coverage: 1.0.2
 
-  '@jest/test-sequencer@26.6.3':
+  '@jest/test-sequencer@26.6.3(ts-node@9.1.1(typescript@4.9.5))':
     dependencies:
       '@jest/test-result': 26.6.2
       graceful-fs: 4.2.11
@@ -9791,7 +9794,11 @@ snapshots:
       jest-runner: 26.6.3(ts-node@9.1.1(typescript@4.9.5))
       jest-runtime: 26.6.3(ts-node@9.1.1(typescript@4.9.5))
     transitivePeerDependencies:
+      - bufferutil
+      - canvas
       - supports-color
+      - ts-node
+      - utf-8-validate
 
   '@jest/transform@26.6.2':
     dependencies:
@@ -10531,7 +10538,7 @@ snapshots:
       react: 17.0.2
       react-dom: 17.0.2(react@17.0.2)
 
-  '@togglecorp/toggle-ui@0.18.3(@types/react@17.0.85)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)':
+  '@togglecorp/toggle-ui@0.18.7(@types/react@17.0.85)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)':
     dependencies:
       '@babel/runtime-corejs3': 7.27.0
       '@tanem/svg-injector': 10.1.68
@@ -14143,7 +14150,7 @@ snapshots:
   jest-config@26.6.3(ts-node@9.1.1(typescript@4.9.5)):
     dependencies:
       '@babel/core': 7.26.10
-      '@jest/test-sequencer': 26.6.3
+      '@jest/test-sequencer': 26.6.3(ts-node@9.1.1(typescript@4.9.5))
       '@jest/types': 26.6.2
       babel-jest: 26.6.3(@babel/core@7.26.10)
       chalk: 4.1.2

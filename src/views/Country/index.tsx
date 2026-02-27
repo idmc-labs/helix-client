@@ -320,6 +320,7 @@ function Country(props: CountryProps) {
                             onChange={handleCountryChange}
                             placeholder="Select a country"
                             nonClearable
+                            actionLinkDisabled
                         />
                     )}
                     description={!showSidebar && (

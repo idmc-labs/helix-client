@@ -1,16 +1,33 @@
-import React, { useMemo, useState } from 'react';
+import React, {
+    useMemo,
+    useCallback,
+    useState,
+    useContext,
+} from 'react';
 import {
     gql,
     useQuery,
 } from '@apollo/client';
-import { _cs } from '@togglecorp/fujs';
+import {
+    _cs,
+    isDefined,
+} from '@togglecorp/fujs';
 import {
     SearchSelectInput,
     SearchSelectInputProps,
     TextInput,
+    Tabs,
+    TabList,
+    Tab,
 } from '@togglecorp/toggle-ui';
+import {
+    IoOpenOutline,
+} from 'react-icons/io5';
 
 import NumberBlock from '#components/NumberBlock';
+import ButtonLikeLink from '#components/ButtonLikeLink';
+import DomainContext from '#components/DomainContext';
+import route from '#config/routes';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { GetEventListQuery, GetEventListQueryVariables } from '#generated/types';
 import { EVENT_FRAGMENT } from '#components/forms/EntryForm/queries';
@@ -39,7 +56,21 @@ export type EventListOption = NonNullable<NonNullable<GetEventListQuery['eventLi
 
 const keySelector = (d: EventListOption) => d.id;
 const labelSelector = (d: EventListOption) => d.name;
+const actionsSelector = (d: EventListOption) => (
+    <ButtonLikeLink
+        route={route.event}
+        attrs={{ eventId: d.id }}
+        title="Open Event"
+        target="_blank"
+        rel="noopener noreferrer"
+        compact
+        transparent
+    >
+        <IoOpenOutline />
+    </ButtonLikeLink>
+);
 
+const emptyArray: string[] = [];
 type Def = { containerClassName?: string };
 type SelectInputProps<
     K extends string,
@@ -65,6 +96,20 @@ function EventListSelectInput<K extends string>(props: SelectInputProps<K>) {
         ...otherProps
     } = props;
 
+    const { user } = useContext(DomainContext);
+
+    const [eventVisibilityFilter, setEventVisibilityFilter] = useState<'all' | 'createdByMe'>('all');
+
+    const showOnlyEventsCreatedByMe = eventVisibilityFilter === 'createdByMe';
+
+    const handleTabChange = useCallback((tabValue: 'all' | 'createdByMe' | undefined) => {
+        if (!tabValue) {
+            return;
+        }
+        setEventVisibilityFilter(tabValue);
+    }, []);
+
+    const currentUserId = user?.id;
     const [searchText, setSearchText] = useState('');
     const [opened, setOpened] = useState(false);
 
@@ -77,16 +122,22 @@ function EventListSelectInput<K extends string>(props: SelectInputProps<K>) {
                     search: debouncedSearchText,
                     countries,
                     crisisByIds: crises,
+                    createdByIds: (
+                        showOnlyEventsCreatedByMe && isDefined(currentUserId)
+                    ) ? [currentUserId] : emptyArray,
                 },
             } : {
                 ordering: '-created_at',
                 filters: {
                     countries,
                     crisisByIds: crises,
+                    createdByIds: (
+                        showOnlyEventsCreatedByMe && isDefined(currentUserId)
+                    ) ? [currentUserId] : emptyArray,
                 },
             }
         ),
-        [debouncedSearchText, countries, crises],
+        [debouncedSearchText, countries, crises, currentUserId, showOnlyEventsCreatedByMe],
     );
 
     const {
@@ -102,6 +153,10 @@ function EventListSelectInput<K extends string>(props: SelectInputProps<K>) {
     const totalOptionsCount = data?.eventList?.totalCount;
 
     const selectedEvent = options?.find((event) => event.id === value);
+    const handleDropdownChange = useCallback((newVal: boolean) => {
+        setEventVisibilityFilter('all');
+        setOpened(newVal);
+    }, []);
 
     return (
         <>
@@ -114,11 +169,33 @@ function EventListSelectInput<K extends string>(props: SelectInputProps<K>) {
                 className={_cs(styles.eventListSelectInput, className)}
                 keySelector={keySelector}
                 labelSelector={labelSelector}
+                actionsSelector={actionsSelector}
                 onSearchValueChange={setSearchText}
-                onShowDropdownChange={setOpened}
+                onShowDropdownChange={handleDropdownChange}
                 searchOptions={searchOptions}
                 optionsPending={loading}
                 totalOptionsCount={totalOptionsCount ?? undefined}
+                popupHeader={(
+                    <Tabs
+                        value={eventVisibilityFilter}
+                        onChange={handleTabChange}
+                    >
+                        <TabList>
+                            <Tab
+                                className={styles.tab}
+                                name="all"
+                            >
+                                All
+                            </Tab>
+                            <Tab
+                                className={styles.tab}
+                                name="createdByMe"
+                            >
+                                Created By Me
+                            </Tab>
+                        </TabList>
+                    </Tabs>
+                )}
             />
             {selectedEvent && (
                 <>

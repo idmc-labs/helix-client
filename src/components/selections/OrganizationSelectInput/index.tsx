@@ -86,7 +86,7 @@ function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
         (): GetOrganizationQueryVariables => ({
             ordering: debouncedSearchText || country
                 ? undefined
-                : 'name',
+                : '-created_at',
             filters: {
                 search: debouncedSearchText,
                 orderCountryFirst: country ? [country] : undefined,

@@ -1,3 +1,6 @@
 .querytag-select-input {
     display: block;
 }
+.tab {
+    flex-grow: 1;
+}
