@@ -4,7 +4,8 @@ const EXTRA_KEYS = ['options', 'filterVersion'] as const;
 type ExtraKeyType = typeof EXTRA_KEYS[number];
 type LocalStorageKeyType = ExtraKeyType | PersistenceKeyType;
 
-const FILTER_VERSION = import.meta.env.REACT_APP_FILTER_VERSION;
+// NOTE: Update this if there are any changes made to filters
+const FILTER_VERSION = '1';
 
 export const filterStorage = {
     set: (key: LocalStorageKeyType, value: unknown) => {

@@ -56,7 +56,6 @@ jobs:
           BUILD_OUTPUT_DIR: build-dev/
           UPLOAD_ARTIFACT_NAME: helix-dev
           REACT_APP_ENV: "dev"
-          REACT_APP_FILTER_VERSION: "1"
           REACT_APP_MAPBOX_ACCESS_TOKEN: ${{ secrets.REACT_APP_MAPBOX_ACCESS_TOKEN }}
           REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}
           REACT_APP_HCATPCHA_SITEKEY: ${{ secrets.REACT_APP_HCATPCHA_SITEKEY }}
@@ -86,7 +85,6 @@ jobs:
           BUILD_OUTPUT_DIR: build-staging/
           UPLOAD_ARTIFACT_NAME: helix-staging
           REACT_APP_ENV: "staging"
-          REACT_APP_FILTER_VERSION: ${{ secrets.REACT_APP_FILTER_VERSION }}
           REACT_APP_MAPBOX_ACCESS_TOKEN: ${{ secrets.REACT_APP_MAPBOX_ACCESS_TOKEN }}
           REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}
           REACT_APP_HCATPCHA_SITEKEY: ${{ secrets.REACT_APP_HCATPCHA_SITEKEY }}
@@ -102,7 +100,6 @@ jobs:
           BUILD_OUTPUT_DIR: build-prod/
           UPLOAD_ARTIFACT_NAME: helix-prod
           REACT_APP_ENV: "prod"
-          REACT_APP_FILTER_VERSION: ${{ secrets.REACT_APP_FILTER_VERSION }}
           REACT_APP_MAPBOX_ACCESS_TOKEN: ${{ secrets.REACT_APP_MAPBOX_ACCESS_TOKEN }}
           REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}
           REACT_APP_HCATPCHA_SITEKEY: ${{ secrets.REACT_APP_HCATPCHA_SITEKEY }}
