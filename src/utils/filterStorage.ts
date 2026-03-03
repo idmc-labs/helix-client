@@ -5,7 +5,7 @@ type ExtraKeyType = typeof EXTRA_KEYS[number];
 type LocalStorageKeyType = ExtraKeyType | PersistenceKeyType;
 
 // NOTE: Update this if there are any changes made to filters
-const FILTER_VERSION = '1';
+export const FILTER_VERSION = '1';
 
 export const filterStorage = {
     set: (key: LocalStorageKeyType, value: unknown) => {
@@ -16,17 +16,27 @@ export const filterStorage = {
         }
     },
     get: (key: LocalStorageKeyType) => {
-        const item = localStorage.getItem(key);
-        return item ? JSON.parse(item) : null;
+        try {
+            const item = localStorage.getItem(key);
+            return item ? JSON.parse(item) : undefined;
+        } catch (e) {
+            localStorage.removeItem(key);
+            console.error('Error parsing JSON from LocalStorage', e);
+            return undefined;
+        }
     },
     clearAll: () => {
-        [...FILTER_KEYS, ...EXTRA_KEYS].forEach((key) => localStorage.removeItem(key));
+        try {
+            [...FILTER_KEYS, ...EXTRA_KEYS].forEach((key) => localStorage.removeItem(key));
+        } catch (e) {
+            console.error('Error clearing local storage', e);
+        }
     },
     checkVersionAndClear: () => {
-        const savedVersion = localStorage.getItem('filterVersion');
+        const savedVersion = filterStorage.get('filterVersion');
         if (savedVersion !== FILTER_VERSION) {
             filterStorage.clearAll();
-            localStorage.setItem('filterVersion', FILTER_VERSION);
+            filterStorage.set('filterVersion', FILTER_VERSION);
         }
     },
 };
