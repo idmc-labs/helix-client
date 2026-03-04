@@ -1,8 +1,8 @@
-import React, { Suspense, useState, useCallback, useMemo } from 'react';
+import React, { Suspense, useState, useCallback, useMemo, useEffect } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { setUser as setUserOnSentry, withSentryRouting } from '@sentry/react';
 import { Switch, Route as RawRoute } from 'react-router-dom';
-import { _cs, isTruthyString } from '@togglecorp/fujs';
+import { _cs, isTruthyString, isNotDefined } from '@togglecorp/fujs';
 import { removeNull } from '@togglecorp/toggle-form';
 import { v4 as uuidv4 } from 'uuid';
 import { IoAlertCircleOutline, IoCloseCircleOutline, IoCheckmarkCircleOutline } from 'react-icons/io5';
@@ -18,6 +18,7 @@ import Loading from '#components/Loading';
 import ExternalLink from '#components/tableHelpers/ExternalLink';
 import { ObjectError } from '#utils/errorTransform';
 import { getNow } from '#utils/common';
+import { filterStorage } from '#utils/filterStorage';
 
 import {
     User,
@@ -126,12 +127,25 @@ function Multiplexer(props: Props) {
     } = props;
 
     const [user, setUser] = useState<PurgeNull<MeQuery['me']> | undefined>();
-    const [options, setOptions] = useState<Options>({});
+    const [options, setOptions] = useState<Options>(() => {
+        const savedFilterOptions = filterStorage.get('options');
+        if (isNotDefined(savedFilterOptions)) {
+            return {};
+        }
+        return savedFilterOptions;
+    });
+
     const [waiting, setWaiting] = useState(true);
     const [navbarVisibility, setNavbarVisibility] = useState(false);
     const [notifications, setNotifications] = useState<{
         [key: string]: Notification;
     }>({});
+
+    // NOTE: Checking filter version compatibility on first load
+    // Local storage is cleared in case of version mismatch
+    useEffect(() => {
+        filterStorage.checkVersionAndClear();
+    }, []);
 
     const userWithPermissions = useMemo(
         (): User | undefined => {

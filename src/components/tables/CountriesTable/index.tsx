@@ -52,6 +52,7 @@ function CountriesTable(props: CountriesProps) {
             name: 'idmc_short_name',
             direction: 'asc',
         },
+        persistenceKey: 'country',
     });
 
     const countriesVariables = useMemo(

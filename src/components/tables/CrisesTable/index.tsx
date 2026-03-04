@@ -51,6 +51,7 @@ function CrisesTable(props: CrisesProps) {
             name: 'created_at',
             direction: 'dsc',
         },
+        persistenceKey: 'crisis',
     });
 
     const crisesVariables = useMemo(

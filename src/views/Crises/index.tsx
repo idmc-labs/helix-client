@@ -39,6 +39,7 @@ function Crises(props: CrisesProps) {
             name: 'created_at',
             direction: 'dsc',
         },
+        persistenceKey: 'crisisFigure',
     });
 
     const {

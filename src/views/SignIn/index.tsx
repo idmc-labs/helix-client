@@ -28,6 +28,7 @@ import NotificationContext from '#components/NotificationContext';
 import logo from '#resources/img/logo.png';
 
 import { transformToFormError } from '#utils/errorTransform';
+import { filterStorage, FILTER_VERSION } from '#utils/filterStorage';
 
 import { LoginMutation, LoginMutationVariables, LoginInputType } from '#generated/types';
 import route from '#config/routes';
@@ -147,6 +148,8 @@ function SignIn() {
                 } else if (ok) {
                     // NOTE: there can be case where errors is empty but it still errored
                     setUser(removeNull(result));
+                    // NOTE: Setting filter version to local storage
+                    filterStorage.set('filterVersion', FILTER_VERSION);
                     const urlParams = new URLSearchParams(window.location.search);
                     const redirect = urlParams.get('redirect-to-mmp');
                     if (

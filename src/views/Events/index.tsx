@@ -41,6 +41,7 @@ function Events(props: EventsProps) {
             name: 'created_at',
             direction: 'dsc',
         },
+        persistenceKey: 'eventFigure',
     });
 
     const {

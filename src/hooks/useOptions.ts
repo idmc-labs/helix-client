@@ -1,9 +1,16 @@
-import { useContext, useCallback, SetStateAction } from 'react';
+import { useContext, useCallback, useEffect, SetStateAction } from 'react';
 import { unique } from '@togglecorp/fujs';
 import OptionContext, { Options } from '#components/OptionContext';
+import { filterStorage } from '#utils/filterStorage';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 
 function useOptions<K extends keyof Options>(key: K) {
     const { options, setOptions } = useContext(OptionContext);
+
+    const debouncedOptions = useDebouncedValue(options);
+    useEffect(() => {
+        filterStorage.set('options', debouncedOptions);
+    }, [debouncedOptions]);
 
     const setIndividualOption = useCallback(
         (value: SetStateAction<Options[K] | null | undefined>) => {
