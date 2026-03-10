@@ -541,34 +541,51 @@ const otherCrisisById : Record<string, {label: string; iduText: string}> = {
     },
 };
 
+function numberToWordsLessThanTen(num?: number): string | undefined {
+    if (num === undefined || num === null) {
+        return undefined;
+    }
+
+    const words = [
+        'zero', 'one', 'two', 'three', 'four',
+        'five', 'six', 'seven', 'eight', 'nine',
+    ];
+
+    if (num >= 0 && num < 10) {
+        return words[num];
+    }
+
+    return formatNumber(num);
+}
+
 function generateIduText(
     mainTriggerInfo?: string | undefined | null,
     quantifierInfo?: string | undefined | null,
-    figureInfo?: number | undefined,
+    totalFigure?: number | undefined,
     unitInfo?: string | undefined | null,
     termInfo?: string | undefined | null,
     locationInfo?: string | undefined | null,
-    startDateInfo?: string | undefined | null,
+    dateRangeInfo?: string | undefined | null,
     sourceTypeInfo?: string | undefined | null,
 ) {
     const causeField = mainTriggerInfo || '(Main trigger)';
     const quantifierField = quantifierInfo || 'Quantifier: More than, Around, Less than, At least...'; // here
-    const figureField = formatNumber(figureInfo) ?? '(Figure)';
+    const figureField = numberToWordsLessThanTen(totalFigure) ?? '(Figure)';
     const unitField = unitInfo || '(People or Household)';
     const locationField = locationInfo || '(Location)';
-    const startDateField = startDateInfo || '(Start Date of Event DD/MM/YYY)';
+    const dateRange = dateRangeInfo || '(Date of Event DD/MM/YYY)';
 
-    const verb = figureInfo === 1 ? 'was' : 'were';
+    const verb = totalFigure === 1 ? 'was' : 'were';
     const sourceType = sourceTypeInfo || '(Source Type)';
 
     const rand = Math.floor(Math.random() * 3);
     if (rand === 0) {
-        return `According to ${sourceType}, ${quantifierField} ${figureField} ${unitField} ${verb} reported ${termInfo} ${locationField} after ${causeField} ${startDateField}.`;
+        return `According to ${sourceType}, ${quantifierField} ${figureField} ${unitField} ${verb} reported ${termInfo} ${locationField} after ${causeField} ${dateRange}.`;
     }
     if (rand === 1) {
-        return `${capitalizeFirstLetter(quantifierField)} ${figureField} ${unitField} ${verb} reported ${locationField} ${termInfo} after ${causeField} ${startDateField}, according to ${sourceType}.`;
+        return `${capitalizeFirstLetter(quantifierField)} ${figureField} ${unitField} ${verb} reported ${locationField} ${termInfo} after ${causeField} ${dateRange}, according to ${sourceType}.`;
     }
-    return `${capitalizeFirstLetter(causeField)} resulted in ${quantifierField} ${figureField} ${unitField} being reported ${termInfo} ${locationField} ${startDateField}, according to ${sourceType}.`;
+    return `${capitalizeFirstLetter(causeField)} resulted in ${quantifierField} ${figureField} ${unitField} being reported ${termInfo} ${locationField} ${dateRange}, according to ${sourceType}.`;
 }
 
 const countryKeySelector = (data: { id: string; idmcShortName: string }) => data.id;
