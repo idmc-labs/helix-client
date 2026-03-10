@@ -169,6 +169,9 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
             options={options}
             onOptionsChange={setOptions}
             actionsSelector={actionsSelector}
+            optionsPopupClassName={styles.popup}
+            optionsPopupContentClassName={styles.popupContent}
+            popupHeaderClassName={styles.tabList}
             popupHeader={(
                 <Tabs
                     value={eventVisibilityFilter}

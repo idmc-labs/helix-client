@@ -169,6 +169,9 @@ function CrisisMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
             totalOptionsCount={totalOptionsCount ?? undefined}
             options={options}
             onOptionsChange={setOptions}
+            optionsPopupClassName={styles.popup}
+            optionsPopupContentClassName={styles.popupContent}
+            popupHeaderClassName={styles.tabList}
             popupHeader={(
                 <Tabs
                     value={crisisVisibilityFilter}
