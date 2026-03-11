@@ -175,6 +175,9 @@ function EventListSelectInput<K extends string>(props: SelectInputProps<K>) {
                 searchOptions={searchOptions}
                 optionsPending={loading}
                 totalOptionsCount={totalOptionsCount ?? undefined}
+                optionsPopupClassName={styles.popup}
+                optionsPopupContentClassName={styles.popupContent}
+                popupHeaderClassName={styles.tabList}
                 popupHeader={(
                     <Tabs
                         value={eventVisibilityFilter}

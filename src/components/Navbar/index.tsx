@@ -17,6 +17,7 @@ import DomainContext from '#components/DomainContext';
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import UserProfileUpdateForm from '#components/forms/UserProfileUpdateForm';
 import UserPasswordChangeForm from '#components/forms/UserPasswordChangeForm';
+import OptionContext from '#components/OptionContext';
 
 import { LogoutMutation } from '#generated/types';
 import useModalState from '#hooks/useModalState';
@@ -60,6 +61,8 @@ function Navbar(props: Props) {
         hideUserPasswordChange,
     ] = useModalState();
 
+    const { setOptions } = useContext(OptionContext);
+
     const [logout] = useMutation<LogoutMutation>(
         LOGOUT,
         {
@@ -68,6 +71,9 @@ function Navbar(props: Props) {
                     setUser(undefined);
                     // NOTE: Clear all local storage values on logout
                     filterStorage.clearAll();
+                    // NOTE: clearing options upon logout to prevent maintaining same state
+                    // in case the user logs back in without a full page refresh.
+                    setOptions({});
                 }
                 // TODO: handle error
             },
