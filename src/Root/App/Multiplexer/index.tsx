@@ -369,6 +369,11 @@ function Multiplexer(props: Props) {
                                         />
                                         <Route
                                             exact
+                                            path={routeSettings.averageHouseholdSize.path}
+                                            render={routeSettings.averageHouseholdSize.load}
+                                        />
+                                        <Route
+                                            exact
                                             path={routeSettings.contextualUpdateView.path}
                                             render={routeSettings.contextualUpdateView.load}
                                         />

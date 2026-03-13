@@ -1,6 +1,7 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 
+import useDocumentTitle from '#hooks/useDocumentTitle';
 import styles from './styles.module.css';
 
 interface Props {
@@ -11,18 +12,22 @@ interface Props {
     actions?: React.ReactNode;
     icons?: React.ReactNode;
     iconsClassName?: string;
+    pageName?: string;
 }
 
 function PageHeader(props: Props) {
     const {
         className,
         title,
+        pageName,
         actions,
         description,
         icons,
         iconsClassName,
         status,
     } = props;
+
+    useDocumentTitle(pageName);
 
     return (
         <header className={_cs(styles.header, className)}>
