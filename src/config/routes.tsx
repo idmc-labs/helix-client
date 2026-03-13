@@ -374,6 +374,16 @@ const routeSettings = {
             || permissions.event?.delete
         ),
     }),
+    averageHouseholdSize: wrap({
+        path: '/average-household-size/',
+        title: 'Average Household Size',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/AverageHouseholdSize')),
+        componentProps: {
+            className: styles.view,
+        },
+        visibility: 'is-authenticated',
+    }),
     signIn: wrap({
         path: '/sign-in/',
         title: 'Sign In',
