@@ -79,7 +79,6 @@ import {
     enumLabelSelector,
     formatDateYmd,
     formatNumber,
-    capitalizeFirstLetter,
     calculateHouseHoldSize,
     basicEntityKeySelector,
     basicEntityLabelSelector,
@@ -578,14 +577,7 @@ function generateIduText(
     const verb = totalFigure === 1 ? 'was' : 'were';
     const sourceType = sourceTypeInfo || '(Source Type)';
 
-    const rand = Math.floor(Math.random() * 3);
-    if (rand === 0) {
-        return `According to ${sourceType}, ${quantifierField} ${figureField} ${unitField} ${verb} reported ${termInfo} ${locationField} after ${causeField} ${dateRange}.`;
-    }
-    if (rand === 1) {
-        return `${capitalizeFirstLetter(quantifierField)} ${figureField} ${unitField} ${verb} reported ${locationField} ${termInfo} after ${causeField} ${dateRange}, according to ${sourceType}.`;
-    }
-    return `${capitalizeFirstLetter(causeField)} resulted in ${quantifierField} ${figureField} ${unitField} being reported ${termInfo} ${locationField} ${dateRange}, according to ${sourceType}.`;
+    return `According to ${sourceType}, ${quantifierField} ${figureField} ${unitField} ${verb} reported ${termInfo} ${locationField} after ${causeField} ${dateRange}.`;
 }
 
 const countryKeySelector = (data: { id: string; idmcShortName: string }) => data.id;
@@ -1369,7 +1361,7 @@ function FigureInput(props: FigureInputProps) {
         let unitText: string | undefined;
         if (isDefined(value.reported)) {
             if (value.unit === person) {
-                unitText = value.reported === 1 ? 'displacement' : 'displacements';
+                unitText = value.reported === 1 ? 'person' : 'people';
             } else if (value.unit === household) {
                 unitText = value.reported === 1 ? 'household' : 'households';
             }
