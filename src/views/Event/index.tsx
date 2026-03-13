@@ -291,13 +291,15 @@ function Event(props: EventProps) {
     );
 
     const narrative = eventData?.event?.eventNarrative;
+    const eventName = eventData?.event?.name;
 
     return (
         <div className={_cs(styles.event, containerClassName, className)}>
             {sidebarSpaceReserverElement}
             <div className={styles.pageContent}>
                 <PageHeader
-                    title={eventData?.event?.name ?? 'Event'}
+                    pageName={eventName && `${eventName} - Event`}
+                    title={eventName ?? 'Event'}
                     icons={!!eventStatus && (
                         <Status
                             className={styles.eventStatus}
