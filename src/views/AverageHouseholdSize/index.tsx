@@ -1,10 +1,11 @@
-import React, { useMemo, useCallback, useContext } from 'react';
+import React, { useMemo, useContext, useCallback, useEffect, useState } from 'react';
 import { getOperationName } from 'apollo-link';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isDefined, isNotDefined } from '@togglecorp/fujs';
 import {
     gql,
-    useQuery,
+    useLazyQuery,
     useMutation,
+    useQuery,
 } from '@apollo/client';
 import {
     ConfirmButton,
@@ -14,6 +15,7 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
+import DomainContext from '#components/DomainContext';
 import Loading from '#components/Loading';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import NotificationContext from '#components/NotificationContext';
@@ -27,12 +29,19 @@ import useFilterState from '#hooks/useFilterState';
 import { PurgeNull } from '#types';
 import { hasNoData } from '#utils/common';
 import {
+    AhhsCarryOverStatusQuery,
+    AhhsCarryOverStatusQueryVariables,
+    CarryOverAhhsMutation,
+    CarryOverAhhsMutationVariables,
     ExportHouseholdSizeMutation,
     ExportHouseholdSizeMutationVariables,
     HouseholdSizeListQuery,
     HouseholdSizeListQueryVariables,
+    LatestAhhsTriggeredYearQuery,
+    LatestAhhsTriggeredYearQueryVariables,
 } from '#generated/types';
 import HouseholdSizeRecordsFilter from './HouseholdSizeRecordsFilter';
+import ActivityLogs, { AHHS_ACTIVITY_LOG } from './ActivityLogs';
 import styles from './styles.module.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
@@ -82,6 +91,47 @@ const EXPORT_HOUSEHOLD_SIZE = gql`
     }
 `;
 
+const LATEST_AHHS_TRIGGERED_YEAR = gql`
+    query LatestAhhsTriggeredYear {
+        householdSizeList(ordering: "-year") {
+            results {
+                id
+                year
+            }
+        }
+    }
+`;
+
+const CARRY_OVER_AHHS = gql`
+    mutation CarryOverAhhs {
+        carryOverHouseholdSize {
+            errors
+            ok
+            result {
+                id
+            }
+        }
+    }
+`;
+
+const AHHS_CARRY_OVER_STATUS = gql`
+    query AhhsCarryOverStatus(
+        $id: ID!,
+    ) {
+        householdSizeBulkOperation(
+            id: $id,
+        ) {
+            id
+            status
+            statusDisplay
+        }
+    }
+`;
+
+const CONTACT_PERSON = import.meta.env.REACT_APP_HELIX_CONTACT_PERSON;
+
+const activityLogsQueryName = getOperationName(AHHS_ACTIVITY_LOG);
+
 type HouseholdSizeFields = NonNullable<NonNullable<HouseholdSizeListQuery['householdSizeList']>['results']>[number];
 
 const keySelector = (item: HouseholdSizeFields) => item.id;
@@ -117,6 +167,11 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
         },
     });
 
+    const [ahhsCarryOverId, setAhhsCarryOverId] = useState<string | undefined>();
+
+    const { user } = useContext(DomainContext);
+    const ahhsTriggerPermission = user?.permissions?.householdsize?.carry_over;
+
     const {
         notify,
         notifyGQLError,
@@ -146,47 +201,18 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
         variables: householdSizeListVariables,
     });
 
-    const totalHouseholdSizeCount = householdSizeListData?.householdSizeList?.totalCount ?? 0;
-    const householdSizeRecords = householdSizeListData?.householdSizeList?.results;
+    const {
+        data: latestAhhsYearResponse,
+        loading: latestAhhsYearPending,
+    } = useQuery<
+        LatestAhhsTriggeredYearQuery, LatestAhhsTriggeredYearQueryVariables
+    >(LATEST_AHHS_TRIGGERED_YEAR);
 
-    const columns = useMemo(
-        () => ([
-            createTextColumn<HouseholdSizeFields, string>(
-                'country',
-                'Country',
-                (item) => item.country.name,
-                { sortable: true },
-                'small',
-            ),
-            createTextColumn<HouseholdSizeFields, string>(
-                'year',
-                'Year',
-                (item) => String(item.year),
-                { sortable: true },
-                'very-small',
-            ),
-            createNumberColumn<HouseholdSizeFields, string>(
-                'size',
-                'AHHS',
-                (item) => item.size,
-                { sortable: true },
-                'medium-large',
-            ),
-            createTextColumn<HouseholdSizeFields, string>(
-                'source',
-                'Source',
-                (item) => item.source,
-            ),
-            createTextColumn<HouseholdSizeFields, string>(
-                'notes',
-                'Notes',
-                (item) => item.notes,
-                undefined,
-                'large',
-            ),
-        ]),
-        [],
-    );
+    const latestAhhsYearData = latestAhhsYearResponse
+        ?.householdSizeList?.results?.[0];
+    const latestAhhsTriggeredYear = latestAhhsYearData?.year;
+    const currentYear = new Date().getFullYear();
+
     const [
         exportHouseholdSizes,
         { loading: householdSizesExportPending },
@@ -232,6 +258,130 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
         ],
     );
 
+    const carryOverStatusVariables = useMemo(
+        (): AhhsCarryOverStatusQueryVariables | undefined => {
+            if (isNotDefined(ahhsCarryOverId)) {
+                return undefined;
+            }
+            return {
+                id: ahhsCarryOverId,
+            };
+        },
+        [ahhsCarryOverId],
+    );
+    const [
+        startPolling,
+        {
+            data: ahhsCarryOverStatusResponse,
+            loading: ahhsCarryOverStatusPending,
+            stopPolling,
+        },
+    ] = useLazyQuery<AhhsCarryOverStatusQuery, AhhsCarryOverStatusQueryVariables>(
+        AHHS_CARRY_OVER_STATUS,
+        {
+            variables: carryOverStatusVariables,
+            pollInterval: 5_000,
+            // NOTE: onCompleted is only called once if the following option is not set
+            // https://github.com/apollographql/apollo-client/issues/5531
+            notifyOnNetworkStatusChange: true,
+            fetchPolicy: 'network-only',
+        },
+    );
+
+    const ahhsCarryOverStatus = ahhsCarryOverStatusResponse?.householdSizeBulkOperation?.status;
+    const carryOverCompleted = isDefined(ahhsCarryOverStatus) && (ahhsCarryOverStatus === 'COMPLETED'
+            || ahhsCarryOverStatus === 'FAILED'
+            || ahhsCarryOverStatus === 'KILLED');
+
+    useEffect(
+        () => {
+            if (carryOverCompleted) {
+                stopPolling();
+            }
+        },
+        [stopPolling, carryOverCompleted],
+    );
+
+    const ahhsTriggerDisabled = latestAhhsTriggeredYear === currentYear
+        || latestAhhsYearPending
+        || ahhsCarryOverStatusPending
+        || ahhsCarryOverStatus === 'IN_PROGRESS'
+        || ahhsCarryOverStatus === 'COMPLETED'
+        || ahhsCarryOverStatus === 'PENDING';
+
+    const [
+        carryOverAhhs,
+        { loading: carryOverAhhsPending },
+    ] = useMutation<CarryOverAhhsMutation, CarryOverAhhsMutationVariables>(
+        CARRY_OVER_AHHS,
+        {
+            refetchQueries: [activityLogsQueryName].filter(isDefined),
+            onCompleted: (response) => {
+                const { carryOverHouseholdSize: carryOverAhhsResponse } = response;
+                if (!carryOverAhhsResponse) {
+                    return;
+                }
+                const { errors, ok, result } = carryOverAhhsResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    setAhhsCarryOverId(result?.id);
+                    startPolling();
+                    notify({
+                        children: 'AHHS carry over initiated successfully.',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const totalHouseholdSizeCount = householdSizeListData?.householdSizeList?.totalCount ?? 0;
+    const householdSizeRecords = householdSizeListData?.householdSizeList?.results;
+
+    const columns = useMemo(
+        () => ([
+            createTextColumn<HouseholdSizeFields, string>(
+                'country',
+                'Country',
+                (item) => item.country.name,
+            ),
+            createTextColumn<HouseholdSizeFields, string>(
+                'year',
+                'Year',
+                (item) => String(item.year),
+                { sortable: true },
+                'very-small',
+            ),
+            createNumberColumn<HouseholdSizeFields, string>(
+                'size',
+                'Average Household Size (AHHS)',
+                (item) => item.size,
+                { sortable: true },
+                'medium-large',
+            ),
+            createTextColumn<HouseholdSizeFields, string>(
+                'source',
+                'Source',
+                (item) => item.source,
+            ),
+            createTextColumn<HouseholdSizeFields, string>(
+                'notes',
+                'Notes',
+                (item) => item.notes,
+                undefined,
+                'large',
+            ),
+        ]),
+        [],
+    );
+
     return (
         <div className={_cs(styles.householdSize, className)}>
             <div className={styles.mainContent}>
@@ -243,15 +393,31 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
                     contentClassName={styles.content}
                     heading="AHHS"
                     headerActions={(
-                        <ConfirmButton
-                            confirmationHeader="Confirm Export"
-                            confirmationMessage="Are you sure you want to export this table data?"
-                            name={undefined}
-                            onConfirm={handleExportTableData}
-                            disabled={householdSizesExportPending}
-                        >
-                            Export
-                        </ConfirmButton>
+                        <>
+                            <ConfirmButton
+                                confirmationHeader="Confirm Export"
+                                confirmationMessage="Are you sure you want to export this table data?"
+                                name={undefined}
+                                onConfirm={handleExportTableData}
+                                disabled={householdSizesExportPending}
+                            >
+                                Export
+                            </ConfirmButton>
+                            {ahhsTriggerPermission && (
+                                <ConfirmButton
+                                    confirmationHeader="Confirmation"
+                                    confirmationMessage="Are you sure you want to carry over Household size data?"
+                                    name={undefined}
+                                    onConfirm={carryOverAhhs}
+                                    disabled={ahhsTriggerDisabled || carryOverAhhsPending}
+                                    title={ahhsTriggerDisabled
+                                        ? `Carrying over AHHS has already been triggered for this year. For any updates to AHHS, contact ${CONTACT_PERSON ?? 'admin'}.`
+                                        : 'Carry over AHHS data'}
+                                >
+                                    Carry over AHHS
+                                </ConfirmButton>
+                            )}
+                        </>
                     )}
                     description={(
                         <HouseholdSizeRecordsFilter
@@ -294,6 +460,11 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
                         />
                     )}
                 </Container>
+            </div>
+            <div className={styles.sideContent}>
+                <div className={styles.stickyContainer}>
+                    <ActivityLogs />
+                </div>
             </div>
         </div>
     );
