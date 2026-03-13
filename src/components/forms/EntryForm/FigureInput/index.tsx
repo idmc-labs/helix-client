@@ -77,8 +77,8 @@ import ViolenceContextMultiSelectInput from '#components/selections/ViolenceCont
 import {
     enumKeySelector,
     enumLabelSelector,
-    formatDate,
     formatDateYmd,
+    formatNumber,
     capitalizeFirstLetter,
     calculateHouseHoldSize,
     basicEntityKeySelector,
@@ -103,6 +103,7 @@ import {
     ReReviewFigureMutationVariables,
 
     Identifier,
+    OrganizationKindObjectType,
 } from '#generated/types';
 import {
     isFlowCategory,
@@ -246,34 +247,345 @@ function generateFigureTitle(
     ].filter(isDefined).join(' - ');
 }
 
+const quantifierMapping: Record<Quantifier, string[]> = {
+    EXACT: [
+        'a total of',
+        'at least',
+    ],
+    APPROXIMATELY: [
+        'around',
+        'about',
+    ],
+    MORE_THAN_OR_EQUAL: [
+        'more than',
+        'at least',
+    ],
+    LESS_THAN_OR_EQUAL: [
+        'up to',
+        'fewer than',
+    ],
+};
+
+function getQuantifierText(q: Quantifier | undefined) {
+    if (!q) {
+        return undefined;
+    }
+    const variants = quantifierMapping[q];
+    const index = Math.floor(Math.random() * variants.length);
+
+    return variants[index];
+}
+
+function toOrdinal(n: number): string {
+    const mod100 = n % 100;
+
+    if (mod100 >= 11 && mod100 <= 13) {
+        return `${n}th`;
+    }
+    if (n % 10 === 1) {
+        return `${n}st`;
+    }
+    if (n % 10 === 2) {
+        return `${n}nd`;
+    }
+    if (n % 10 === 3) {
+        return `${n}rd`;
+    }
+    return `${n}th`;
+}
+function formatDateRange(start?: string, end?: string) {
+    if (!start) {
+        return undefined;
+    }
+
+    const locale = 'en-US';
+    const startDate = new Date(start);
+    const endDate = end ? new Date(end) : undefined;
+
+    const sameYear = isDefined(endDate) && startDate.getFullYear() === endDate.getFullYear();
+    const sameMonth = isDefined(endDate) && sameYear && startDate.getMonth() === endDate.getMonth();
+    const sameDay = isDefined(endDate) && sameYear && sameMonth
+        && startDate.getDay() === endDate.getDay();
+
+    const formatDay = (d: Date) => toOrdinal(d.getDate());
+
+    if (!endDate || sameDay) {
+        return `on ${startDate.toLocaleDateString(locale, {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+        })}`;
+    }
+
+    if (sameMonth) {
+        return `between the ${formatDay(startDate)} and ${formatDay(endDate)} of ${startDate.toLocaleDateString(locale, {
+            month: 'long',
+            year: 'numeric',
+        })}`;
+    }
+
+    if (sameYear) {
+        return `between ${startDate.toLocaleDateString(locale, {
+            day: 'numeric',
+            month: 'long',
+        })} and ${endDate.toLocaleDateString(locale, {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+        })}`;
+    }
+
+    return `between ${startDate.toLocaleDateString(locale, {
+        month: 'long',
+        year: 'numeric',
+    })} and ${endDate.toLocaleDateString(locale, {
+        month: 'long',
+        year: 'numeric',
+    })}`;
+}
+type OrganizationKind = Pick<OrganizationKindObjectType, 'id' | 'name'> | null | undefined;
+
+function formatSource(sources: {name: string; organizationKind?: OrganizationKind}[]) {
+    if (!sources || sources?.length <= 0) {
+        return 'reported sources';
+    }
+
+    const authorities = sources.filter(
+        (s) => s.organizationKind?.name === 'Government' || s.organizationKind?.name === 'Local Authority',
+    );
+
+    if (authorities.length > 0) {
+        return authorities.length === 1
+            ? 'national authorities'
+            : 'local authorities';
+    }
+
+    const mediaSources = sources.filter(
+        (s) => s.organizationKind?.name === 'Media',
+    );
+    if (mediaSources.length > 0) {
+        return 'media sources';
+    }
+
+    const namedSources = sources
+        .map((s) => s.name)
+        .filter(isDefined);
+
+    if (namedSources.length === 1) {
+        return namedSources[0];
+    }
+
+    if (namedSources.length === 2) {
+        return `${namedSources[0]} and ${namedSources[1]}`;
+    }
+
+    if (namedSources.length > 2) {
+        const allButLast = namedSources.slice(0, -1).join(', ');
+        const last = namedSources[namedSources.length - 1];
+        return `${allButLast}, and ${last}`;
+    }
+
+    return 'reported sources';
+}
+
+const hazardMapById: Record<string, {label: string; iduText: string}> = {
+    1: {
+        label: 'earthquake',
+        iduText: 'an earthquake',
+    },
+    2: {
+        label: 'tsunami',
+        iduText: 'a tsunami',
+    },
+    3: {
+        label: 'dry mass movement',
+        iduText: 'dry mass movement',
+    },
+    4: {
+        label: 'sinkhole',
+        iduText: 'a sinkhole',
+    },
+    5: {
+        label: 'volcanic activity',
+        iduText: 'volcanic activity',
+    },
+    6: {
+        label: 'desertification',
+        iduText: 'desertification',
+    },
+    7: {
+        label: 'drought',
+        iduText: 'a drought',
+    },
+    8: {
+        label: 'erosion',
+        iduText: 'erosion',
+    },
+    9: {
+        label: 'salinization',
+        iduText: 'salinization',
+    },
+    10: {
+        label: 'sea level rise',
+        iduText: 'sea level rise',
+    },
+    11: {
+        label: 'wildfire',
+        iduText: 'a wildfire',
+    },
+    12: {
+        label: 'dam release flood',
+        iduText: 'flooding caused by a dam release',
+    },
+    13: {
+        label: 'flood',
+        iduText: 'flooding',
+    },
+    14: {
+        label: 'avalanche',
+        iduText: 'an avalanche',
+    },
+    15: {
+        label: 'landslide/wet mass movement',
+        iduText: 'a landslide',
+    },
+    16: {
+        label: 'rogue wave',
+        iduText: 'a rogue wave',
+    },
+    17: {
+        label: 'cold wave',
+        iduText: 'a cold wave',
+    },
+    18: {
+        label: 'heat wave',
+        iduText: 'a heat wave',
+    },
+    19: {
+        label: 'hailstorm',
+        iduText: 'a hailstorm',
+    },
+    20: {
+        label: 'sand/dust storm',
+        iduText: 'a sandstorm',
+    },
+    21: {
+        label: 'storm',
+        iduText: 'a storm',
+    },
+    22: {
+        label: 'storm surge',
+        iduText: 'storm surge',
+    },
+    23: {
+        label: 'tornado',
+        iduText: 'a tornado',
+    },
+    24: {
+        label: 'typhoon/hurricane/cyclone',
+        iduText: 'a tropical cyclone',
+    },
+    25: {
+        label: 'winter storm/blizzard',
+        iduText: 'a winter storm',
+    },
+    26: {
+        label: 'mixed disasters',
+        iduText: 'mixed disasters',
+    },
+};
+
+const conflictMapById: Record<string, {label: string; iduText: string}> = {
+    2: {
+        label: 'International armed conflict',
+        iduText: 'international armed conflict',
+    },
+    7: {
+        label: 'Non-international armed conflict',
+        iduText: 'non-international armed conflict',
+    },
+    11: {
+        label: 'Civilian state violence',
+        iduText: 'civilian state violence',
+    },
+    12: {
+        label: 'Crime-related violence',
+        iduText: 'crime related violence',
+    },
+    13: {
+        label: 'Communal violence',
+        iduText: 'communal violence',
+    },
+    14: {
+        label: 'Other',
+        iduText: 'conflict',
+    },
+    17: {
+        label: 'Unclear or unknown',
+        iduText: 'conflict',
+    },
+};
+
+const otherCrisisById : Record<string, {label: string; iduText: string}> = {
+    1: {
+        label: 'Development',
+        iduText: 'development',
+    },
+    2: {
+        label: 'Eviction',
+        iduText: 'eviction',
+    },
+    3: {
+        label: 'Technical Disaster',
+        iduText: 'a technical disaster',
+    },
+};
+
+function numberToWordsLessThanTen(num?: number): string | undefined {
+    if (num === undefined || num === null) {
+        return undefined;
+    }
+
+    const words = [
+        'zero', 'one', 'two', 'three', 'four',
+        'five', 'six', 'seven', 'eight', 'nine',
+    ];
+
+    if (num >= 0 && num < 10) {
+        return words[num];
+    }
+
+    return formatNumber(num);
+}
+
 function generateIduText(
     mainTriggerInfo?: string | undefined | null,
     quantifierInfo?: string | undefined | null,
-    figureInfo?: number | undefined,
+    totalFigure?: number | undefined,
     unitInfo?: string | undefined | null,
-    displacementInfo?: string | undefined | null,
+    termInfo?: string | undefined | null,
     locationInfo?: string | undefined | null,
-    startDateInfo?: string | undefined | null,
+    dateRangeInfo?: string | undefined | null,
     sourceTypeInfo?: string | undefined | null,
 ) {
     const causeField = mainTriggerInfo || '(Main trigger)';
     const quantifierField = quantifierInfo || 'Quantifier: More than, Around, Less than, At least...'; // here
-    const figureField = figureInfo ?? '(Figure)';
+    const figureField = numberToWordsLessThanTen(totalFigure) ?? '(Figure)';
     const unitField = unitInfo || '(People or Household)';
-    const displacementField = displacementInfo || '(Displacement term: Displaced, ...)'; // here
     const locationField = locationInfo || '(Location)';
-    const startDateField = startDateInfo || '(Start Date of Event DD/MM/YYY)';
+    const dateRange = dateRangeInfo || '(Date of Event DD/MM/YYY)';
 
+    const verb = totalFigure === 1 ? 'was' : 'were';
     const sourceType = sourceTypeInfo || '(Source Type)';
 
     const rand = Math.floor(Math.random() * 3);
     if (rand === 0) {
-        return `According to ${sourceType}, ${quantifierField} ${figureField} ${unitField} were ${displacementField} in ${locationField} due to ${causeField} on ${startDateField}`;
+        return `According to ${sourceType}, ${quantifierField} ${figureField} ${unitField} ${verb} reported ${termInfo} ${locationField} after ${causeField} ${dateRange}.`;
     }
     if (rand === 1) {
-        return `${capitalizeFirstLetter(quantifierField)} ${figureField} ${unitField} were ${displacementField} due to ${causeField} on ${startDateField} in ${locationField}, according to ${sourceType}.`;
+        return `${capitalizeFirstLetter(quantifierField)} ${figureField} ${unitField} ${verb} reported ${locationField} ${termInfo} after ${causeField} ${dateRange}, according to ${sourceType}.`;
     }
-    return `${capitalizeFirstLetter(causeField)} resulted in ${quantifierField} ${figureField} ${unitField} being ${displacementField} in ${locationField} on ${startDateField}, according to ${sourceType}.`;
+    return `${capitalizeFirstLetter(causeField)} resulted in ${quantifierField} ${figureField} ${unitField} being reported ${termInfo} ${locationField} ${dateRange}, according to ${sourceType}.`;
 }
 
 const countryKeySelector = (data: { id: string; idmcShortName: string }) => data.id;
@@ -999,101 +1311,95 @@ function FigureInput(props: FigureInputProps) {
     }, [setSelectedFigure]);
 
     const handleIduGenerate = useCallback(() => {
-        const sortedLocations = [...(value.geoLocations ?? [])].sort((a, b) => {
-            if (a.identifier === 'ORIGIN' && b.identifier === 'DESTINATION') {
-                return -1;
-            }
+        const geoLocations = value.geoLocations ?? [];
 
-            if (a.identifier === 'DESTINATION' && b.identifier === 'ORIGIN') {
-                return 1;
-            }
-
-            return 0;
-        });
-        const locationsText = unique(
-            // FIXME: get admin 1 for locations
-            sortedLocations.map((loc) => loc.displayName),
+        // origins = ORIGIN
+        const origins = removeNull(
+            geoLocations
+                .filter((loc) => loc.identifier === 'ORIGIN')
+                // FIXME: get admin 1 for locations
+                .map((loc) => loc.displayName),
         ).join(', ');
+
+        // destinations = DESTINATION
+        const destinations = removeNull(
+            geoLocations
+                .filter((loc) => loc.identifier === 'DESTINATION')
+            // FIXME: get admin 1 for locations
+                .map((loc) => loc.displayName),
+        ).join(', ');
+
+        // originAndDestinations = ORIGIN_AND_DESTINATION
+        const originAndDestinations = removeNull(
+            geoLocations
+                .filter((loc) => loc.identifier === 'ORIGIN_AND_DESTINATION')
+            // FIXME: get admin 1 for locations
+                .map((loc) => loc.displayName),
+        );
+
+        let locationText: string | undefined;
+
+        if (origins.length > 0 && destinations.length > 0) {
+            locationText = `from ${origins} to ${destinations}`;
+        } else if (originAndDestinations.length > 0) {
+            locationText = `within ${originAndDestinations}`;
+        } else {
+            const allLocations = removeNull(
+                // FIXME: get admin 1 for locations
+                geoLocations.map((loc) => loc.displayName),
+            ).join(', ');
+
+            locationText = allLocations
+                ? `in ${allLocations}`
+                : undefined;
+        }
 
         const totalFigure = value.reported;
 
-        let mainTrigger: string | undefined;
-        if (isDefined(value.figureCause)) {
-            if (value.figureCause === conflict && isDefined(value.violenceSubType)) {
-                mainTrigger = violenceSubTypeOptions
-                    ?.find((item) => item.id === value.violenceSubType)
-                    ?.name;
-            } else if (value.figureCause === disaster && isDefined(value.disasterSubType)) {
-                mainTrigger = disasterSubTypeOptions
-                    ?.find((item) => item.id === value.disasterSubType)
-                    ?.name;
-            } else if (value.figureCause === other && isDefined(value.otherSubType)) {
-                mainTrigger = otherSubTypeOptions?.results
-                    ?.find((item) => item.id === value.otherSubType)
-                    ?.name;
-            }
+        let causeText;
+        if (value.figureCause === 'DISASTER' && isDefined(value.disasterSubType)) {
+            causeText = hazardMapById[value.disasterSubType].iduText;
+        } else if (value.figureCause === 'CONFLICT' && isDefined(value.violenceSubType)) {
+            causeText = conflictMapById[value.violenceSubType].iduText;
+        } else if (value.figureCause === 'OTHER' && isDefined(value.otherSubType)) {
+            causeText = otherCrisisById[value.otherSubType].iduText;
         }
-
-        const startDateFormatted = formatDate(value.startDate);
-
-        const quantifierValue = value.quantifier as (Quantifier | undefined);
-        // NOTE: we have an exception to quanitifier text
-        const quantifierText = quantifierValue === 'EXACT'
-            ? 'a total of'
-            : quantifierOptions
-                ?.find((q) => q.name === quantifierValue)
-                ?.description;
-
         const termValue = value.term as (FigureTerms | undefined);
-        const termText = termValue === 'DESTROYED_HOUSING'
-            ? 'displaced due to destroyed housing'
-            : termOptions
-                ?.find((term) => term.name === value.term)
-                ?.description;
 
         let unitText: string | undefined;
         if (isDefined(value.reported)) {
             if (value.unit === person) {
-                unitText = value.reported === 1 ? 'person' : 'people';
+                unitText = value.reported === 1 ? 'displacement' : 'displacements';
             } else if (value.unit === household) {
                 unitText = value.reported === 1 ? 'household' : 'households';
             }
         }
 
-        const sourceTypes = unique(
-            selectedSources
-                ?.map((item) => {
-                    const { organizationKind, name } = item;
-                    // FIXME: we need to add a boolean on server to
-                    // indicate that organization name should be used
-                    if (
-                        !organizationKind
-                        || organizationKind.name === 'United Nations'
-                        || organizationKind.name === 'International Organisations'
-                    ) {
-                        // NOTE: Let's not lowercase organization names
-                        return name;
-                    }
-                    if (organizationKind.name === 'National/Regional Disaster Authority') {
-                        return 'national/regional disaster authorities';
-                    }
-                    return organizationKind.name.toLowerCase();
-                }) ?? [],
-            (organizationKind) => organizationKind,
-        ).join(', ');
+        const termDesc = termOptions?.find((term) => term.name === value.term)?.description;
+        let termText;
+        if (value.unit === 'PERSON') {
+            termText = termValue === 'DESTROYED_HOUSING'
+                ? 'due to destroyed housing'
+                : termDesc?.toLowerCase();
+        } else if (value.unit === 'HOUSEHOLD') {
+            termText = termValue === 'DESTROYED_HOUSING'
+                ? 'displaced as homes were destroyed'
+                : termDesc?.toLowerCase();
+        }
 
         const excerptIduText = generateIduText(
-            mainTrigger?.toLowerCase(),
-            quantifierText?.toLowerCase(),
+            causeText,
+            getQuantifierText(value.quantifier),
             totalFigure,
             unitText,
-            termText?.toLowerCase(),
-            locationsText,
-            startDateFormatted,
-            sourceTypes,
+            termText,
+            locationText,
+            formatDateRange(value.startDate, value.endDate),
+            formatSource(selectedSources ?? []),
         );
         onValueChange(excerptIduText, 'excerptIdu' as const);
     }, [
+        value.endDate,
         onValueChange,
         value.unit,
         value.term,
@@ -1103,11 +1409,7 @@ function FigureInput(props: FigureInputProps) {
         value.geoLocations,
         value.startDate,
         termOptions,
-        quantifierOptions,
         selectedSources,
-        violenceSubTypeOptions,
-        disasterSubTypeOptions,
-        otherSubTypeOptions?.results,
         value.disasterSubType,
         value.otherSubType,
         value.violenceSubType,
