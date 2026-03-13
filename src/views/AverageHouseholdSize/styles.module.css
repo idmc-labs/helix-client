@@ -18,4 +18,12 @@
         overflow-x: auto;
         gap: var(--spacing-large);
     }
+
+    .side-content {
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        width: calc(160px + 16vw);
+        gap: var(--spacing-large);
+    }
 }
