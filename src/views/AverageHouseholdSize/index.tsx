@@ -134,7 +134,7 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
     });
 
     const { user } = useContext(DomainContext);
-    const ahhsTriggerPermission = user?.permissions?.householdsize?.change;
+    const ahhsTriggerPermission = user?.permissions?.householdsize?.carry_over;
 
     const householdSizeListVariables = useMemo(
         (): HouseholdSizeListQueryVariables => ({
@@ -167,6 +167,7 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
 
     const {
         data: latestAhhsTriggeredYearResponse,
+        refetch: retriggerLatestAhhs,
     } = useQuery<LatestAhhsTriggeredYearQuery>(LATEST_AHHS_TRIGGERED_YEAR);
 
     const latestAhhsTriggeredYear = latestAhhsTriggeredYearResponse
@@ -234,6 +235,7 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
                     notifyGQLError(errors);
                 }
                 if (ok) {
+                    retriggerLatestAhhs();
                     notify({
                         children: 'AHHS carried over successfully.',
                     });
@@ -246,13 +248,6 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
                 });
             },
         },
-    );
-
-    const handleCarryOverAhhsData = useCallback(
-        () => {
-            carryOverAhhs();
-        },
-        [carryOverAhhs],
     );
 
     const totalHouseholdSizeCount = householdSizeListData?.householdSizeList?.totalCount ?? 0;
@@ -270,12 +265,14 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
                 'Year',
                 (item) => String(item.year),
                 { sortable: true },
+                'very-small',
             ),
             createNumberColumn<HouseholdSizeFields, string>(
                 'size',
                 'Average Household Size (AHHS)',
                 (item) => item.size,
                 { sortable: true },
+                'medium-large',
             ),
             createTextColumn<HouseholdSizeFields, string>(
                 'source',
@@ -286,6 +283,8 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
                 'notes',
                 'Notes',
                 (item) => item.notes,
+                undefined,
+                'large',
             ),
         ]),
         [],
@@ -316,7 +315,7 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
                                 confirmationHeader="Confirmation"
                                 confirmationMessage="Are you sure you want to carry over Household size data?"
                                 name={undefined}
-                                onConfirm={handleCarryOverAhhsData}
+                                onConfirm={carryOverAhhs}
                                 disabled={ahhsTriggerDisabled || carryOverAhhsPending}
                                 title={ahhsTriggerDisabled
                                     ? 'Carrying over AHHS has already been triggered for this year. For any updates to AHHS, contact Maria Teresa.'
