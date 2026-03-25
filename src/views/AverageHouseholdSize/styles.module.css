@@ -1,6 +1,5 @@
 .household-size{
     display: flex;
-    flex-direction: column;
     width: 100%;
     gap: var(--spacing-large);
 
@@ -9,6 +8,22 @@
         flex-direction: column;
         flex-grow: 1;
         overflow-x: auto;
+        gap: var(--spacing-large);
+    }
+
+    .main-content {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        overflow-x: auto;
+        gap: var(--spacing-large);
+    }
+
+    .side-content {
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        width: calc(160px + 16vw);
         gap: var(--spacing-large);
     }
 }
