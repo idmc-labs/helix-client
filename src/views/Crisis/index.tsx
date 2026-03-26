@@ -217,13 +217,15 @@ function Crisis(props: CrisisProps) {
     ).filter(Boolean).length;
 
     const narrative = crisisData?.crisis?.crisisNarrative;
+    const crisisName = crisisData?.crisis?.name;
 
     return (
         <div className={_cs(styles.crisis, containerClassName, className)}>
             {sidebarSpaceReserverElement}
             <div className={styles.pageContent}>
                 <PageHeader
-                    title={crisisData?.crisis?.name ?? 'Crisis'}
+                    pageName={crisisName && `${crisisName} - Crisis`}
+                    title={crisisName ?? 'Crisis'}
                     description={!showSidebar && (
                         <Button
                             name={undefined}

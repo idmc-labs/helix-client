@@ -39,7 +39,6 @@ import useModalState from '#hooks/useModalState';
 import Message from '#components/Message';
 import route from '#config/routes';
 import useCombinedChartData from '#hooks/useCombinedChartData';
-import useDocumentTitle from '#hooks/useDocumentTitle';
 
 import CountriesEntriesFiguresTable from './CountriesEntriesFiguresTable';
 import styles from './styles.module.css';
@@ -195,7 +194,6 @@ function Event(props: EventProps) {
             setEventOptions([{ id, name }]);
         },
     });
-    useDocumentTitle(eventData?.event?.name ? `${eventData?.event?.name} - Event` : 'Event');
 
     const {
         data: eventAggregations,
@@ -293,13 +291,15 @@ function Event(props: EventProps) {
     );
 
     const narrative = eventData?.event?.eventNarrative;
+    const eventName = eventData?.event?.name;
 
     return (
         <div className={_cs(styles.event, containerClassName, className)}>
             {sidebarSpaceReserverElement}
             <div className={styles.pageContent}>
                 <PageHeader
-                    title={eventData?.event?.name ?? 'Event'}
+                    pageName={eventName && `${eventName} - Event`}
+                    title={eventName ?? 'Event'}
                     icons={!!eventStatus && (
                         <Status
                             className={styles.eventStatus}
