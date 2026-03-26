@@ -61,6 +61,7 @@ function HouseholdSizeRecordsFilter(props: HouseholdSizeFilterProps) {
         onErrorSet,
         onValueSet,
     } = useForm(currentFilter, schema);
+
     // NOTE: Set the form value when initialFilter and currentFilter is changed on parent
     // We cannot only use initialFilter as it will change the form value when
     // currentFilter != initialFilter on mount
@@ -99,31 +100,31 @@ function HouseholdSizeRecordsFilter(props: HouseholdSizeFilterProps) {
             <div className={styles.contentContainer}>
                 <TextInput
                     className={styles.input}
-                    icons={<IoSearchOutline />}
-                    label="Country"
                     name="search"
+                    label="Country"
                     value={value.search}
                     onChange={onValueChange}
+                    icons={<IoSearchOutline />}
                     placeholder="Search by country name"
                 />
                 <NumberInput
                     className={styles.input}
-                    label="Year"
                     name="filterIdmcReportingYear"
+                    label="Year"
                     value={value.filterIdmcReportingYear}
                     onChange={onValueChange}
                 />
                 <NumberInput
                     className={styles.input}
-                    label="Average Household Size (AHHS)"
                     name="filterAhhsSize"
+                    label="Average Household Size (AHHS)"
                     value={value.filterAhhsSize}
                     onChange={onValueChange}
                 />
                 <TextInput
                     className={styles.input}
-                    label="Source"
                     name="filterAhhsSource"
+                    label="Source"
                     value={value.filterAhhsSource}
                     onChange={onValueChange}
                 />

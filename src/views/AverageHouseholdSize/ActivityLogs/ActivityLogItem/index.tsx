@@ -69,7 +69,7 @@ function ActivityLogItem(props: Props) {
                 <div>
                     {description}
                 </div>
-                {triggeredDate && completedDate && (
+                {triggeredDate && completedDate && status !== 'PENDING' && status !== 'IN_PROGRESS' && (
                     <div>
                         {`The process took ${formatElapsedTime(diff(completedDate, triggeredDate))}.`}
                     </div>
