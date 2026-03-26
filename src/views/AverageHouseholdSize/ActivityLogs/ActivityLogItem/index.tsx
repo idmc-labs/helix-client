@@ -19,7 +19,7 @@ type HouseholdSizeStatusType = ActivityLogItemType['status'];
 
 interface Props {
     className?: string;
-    startedDate: string;
+    startedDate: string | null | undefined;
     completedDate: string | null | undefined;
     targetYear: number;
     triggeredBy: {
@@ -33,7 +33,7 @@ interface Props {
 function ActivityLogItem(props: Props) {
     const {
         className,
-        startedDate: triggeredDate,
+        startedDate,
         completedDate,
         triggeredBy,
         targetYear,
@@ -69,16 +69,18 @@ function ActivityLogItem(props: Props) {
                 <div>
                     {description}
                 </div>
-                {triggeredDate && completedDate && status !== 'PENDING' && status !== 'IN_PROGRESS' && (
+                {completedDate && startedDate && (
                     <div>
-                        {`The process took ${formatElapsedTime(diff(completedDate, triggeredDate))}.`}
+                        {`The process took ${formatElapsedTime(diff(completedDate, startedDate))}.`}
                     </div>
                 )}
-                <DateTime
-                    className={styles.date}
-                    value={triggeredDate}
-                    format="datetime"
-                />
+                {startedDate && (
+                    <DateTime
+                        className={styles.date}
+                        value={startedDate}
+                        format="datetime"
+                    />
+                )}
             </div>
         </div>
     );

@@ -158,8 +158,8 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
     } = useFilterState<PurgeNull<NonNullable<HouseholdSizeListQueryVariables['filters']>>>({
         filter: {},
         ordering: {
-            name: 'country',
-            direction: 'asc',
+            name: 'year',
+            direction: 'dsc',
         },
     });
 

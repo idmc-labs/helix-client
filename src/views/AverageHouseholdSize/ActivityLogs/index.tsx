@@ -74,7 +74,7 @@ function ActivityLogs(props: ActivityLogsProps) {
 
     const activityLogVariables = useMemo(
         (): AhhsActivityLogQueryVariables => ({
-            ordering: '-started_at',
+            ordering: '-created_at',
             page,
             pageSize,
         }),
@@ -89,6 +89,8 @@ function ActivityLogs(props: ActivityLogsProps) {
             variables: activityLogVariables,
         },
     );
+
+    console.log('here', ahhsActivitiesResponse);
 
     const ahhsActivities = ahhsActivitiesResponse
         ?.householdSizeBulkOperationList?.results;
