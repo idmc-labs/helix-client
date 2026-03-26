@@ -124,7 +124,7 @@ const AHHS_CARRY_OVER_STATUS = gql`
     }
 `;
 
-const MAINTAINER = import.meta.env.REACT_APP_CONTACT_PERSON;
+const CONTACT_PERSON = import.meta.env.REACT_APP_CONTACT_PERSON;
 
 const activityLogsQueryName = getOperationName(AHHS_ACTIVITY_LOG);
 
@@ -406,7 +406,7 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
                                     onConfirm={carryOverAhhs}
                                     disabled={ahhsTriggerDisabled || carryOverAhhsPending}
                                     title={ahhsTriggerDisabled
-                                        ? `Carrying over AHHS has already been triggered for this year. For any updates to AHHS, contact ${MAINTAINER ?? 'admin'}.`
+                                        ? `Carrying over AHHS has already been triggered for this year. For any updates to AHHS, contact ${CONTACT_PERSON ?? 'admin'}.`
                                         : 'Carry over AHHS data'}
                                 >
                                     Carry over AHHS
