@@ -88,13 +88,13 @@ const EXPORT_HOUSEHOLD_SIZE = gql`
 `;
 
 const LATEST_AHHS_TRIGGERED_YEAR = gql`
-query LatestAhhsTriggeredYear {
-    householdSizeList(ordering: "-year") {
-        results {
-            id
-            year
+    query LatestAhhsTriggeredYear {
+        householdSizeList(ordering: "-year") {
+            results {
+                id
+                year
+            }
         }
-    }
     }
 `;
 
@@ -123,6 +123,8 @@ const AHHS_CARRY_OVER_STATUS = gql`
         }
     }
 `;
+
+const MAINTAINER = import.meta.env.REACT_APP_HELIX_MAINTAINER;
 
 const activityLogsQueryName = getOperationName(AHHS_ACTIVITY_LOG);
 
@@ -396,7 +398,7 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
                                     onConfirm={carryOverAhhs}
                                     disabled={ahhsTriggerDisabled || carryOverAhhsPending}
                                     title={ahhsTriggerDisabled
-                                        ? 'Carrying over AHHS has already been triggered for this year. For any updates to AHHS, contact Maria Teresa.'
+                                        ? `Carrying over AHHS has already been triggered for this year. For any updates to AHHS, contact ${MAINTAINER ?? 'admin'}.`
                                         : 'Carry over AHHS data'}
                                 >
                                     Carry over AHHS
