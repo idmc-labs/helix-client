@@ -124,7 +124,7 @@ const AHHS_CARRY_OVER_STATUS = gql`
     }
 `;
 
-const MAINTAINER = import.meta.env.REACT_APP_HELIX_MAINTAINER;
+const MAINTAINER = import.meta.env.REACT_APP_CONTACT_PERSON;
 
 const activityLogsQueryName = getOperationName(AHHS_ACTIVITY_LOG);
 
@@ -166,7 +166,7 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
     const [ahhsCarryOverId, setAhhsCarryOverId] = useState<string | undefined>();
 
     const { user } = useContext(DomainContext);
-    const ahhsTriggerPermission = user?.permissions?.householdsize?.change;
+    const ahhsTriggerPermission = user?.permissions?.householdsize?.carry_over;
 
     const {
         notify,
@@ -199,6 +199,7 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
 
     const {
         data: latestAhhsYearResponse,
+        loading: latestAhhsYearPending,
     } = useQuery<
         LatestAhhsTriggeredYearQuery, LatestAhhsTriggeredYearQueryVariables
     >(LATEST_AHHS_TRIGGERED_YEAR);
@@ -207,7 +208,6 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
         ?.householdSizeList?.results?.[0];
     const latestAhhsTriggeredYear = latestAhhsYearData?.year;
     const currentYear = new Date().getFullYear();
-    const ahhsTriggerDisabled = latestAhhsTriggeredYear === currentYear;
 
     const [
         exportHouseholdSizes,
@@ -268,6 +268,7 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
         startPolling,
         {
             data: ahhsCarryOverStatusResponse,
+            loading: ahhsCarryOverStatusPending,
             stopPolling,
         },
     ] = useLazyQuery<AhhsCarryOverStatusQuery, AhhsCarryOverStatusQueryVariables>(
@@ -296,6 +297,13 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
         [stopPolling, carryOverCompleted],
     );
 
+    const ahhsTriggerDisabled = latestAhhsTriggeredYear === currentYear
+        || latestAhhsYearPending
+        || ahhsCarryOverStatusPending
+        || ahhsCarryOverStatus === 'IN_PROGRESS'
+        || ahhsCarryOverStatus === 'COMPLETED'
+        || ahhsCarryOverStatus === 'PENDING';
+
     const [
         carryOverAhhs,
         { loading: carryOverAhhsPending },
@@ -316,7 +324,7 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
                     setAhhsCarryOverId(result?.id);
                     startPolling();
                     notify({
-                        children: 'AHHS carried over successfully.',
+                        children: 'AHHS carry over initiated successfully.',
                     });
                 }
             },

@@ -195,7 +195,7 @@ function Event(props: EventProps) {
             setEventOptions([{ id, name }]);
         },
     });
-    useDocumentTitle(eventData?.event?.name ? `Event - ${eventData?.event?.name}` : 'Event');
+    useDocumentTitle(eventData?.event?.name ? `${eventData?.event?.name} - Event` : 'Event');
 
     const {
         data: eventAggregations,
