@@ -39,6 +39,7 @@ import useModalState from '#hooks/useModalState';
 import Message from '#components/Message';
 import route from '#config/routes';
 import useCombinedChartData from '#hooks/useCombinedChartData';
+import useDocumentTitle from '#hooks/useDocumentTitle';
 
 import CountriesEntriesFiguresTable from './CountriesEntriesFiguresTable';
 import styles from './styles.module.css';
@@ -194,6 +195,7 @@ function Event(props: EventProps) {
             setEventOptions([{ id, name }]);
         },
     });
+    useDocumentTitle(eventData?.event?.name ? `Event - ${eventData?.event?.name}` : 'Event');
 
     const {
         data: eventAggregations,
