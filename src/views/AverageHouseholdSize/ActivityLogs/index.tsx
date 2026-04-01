@@ -90,8 +90,6 @@ function ActivityLogs(props: ActivityLogsProps) {
         },
     );
 
-    console.log('here', ahhsActivitiesResponse);
-
     const ahhsActivities = ahhsActivitiesResponse
         ?.householdSizeBulkOperationList?.results;
     const totalAhhsActivitiesCount = ahhsActivitiesResponse
