@@ -59,7 +59,7 @@ jobs:
           REACT_APP_MAPBOX_ACCESS_TOKEN: ${{ secrets.REACT_APP_MAPBOX_ACCESS_TOKEN }}
           REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}
           REACT_APP_HCATPCHA_SITEKEY: ${{ secrets.REACT_APP_HCATPCHA_SITEKEY }}
-          REACT_APP_HELIX_CONTACT_PERSON: ${{ secrets.REACT_APP_HELIX_CONTACT_PERSON }}
+          REACT_APP_HELIX_CONTACT_PERSON !g: ${{ secrets.REACT_APP_HELIX_CONTACT_PERSON }}
 
   run_build:
     name: 🚴 Build 🚴
@@ -89,7 +89,7 @@ jobs:
           REACT_APP_MAPBOX_ACCESS_TOKEN: ${{ secrets.REACT_APP_MAPBOX_ACCESS_TOKEN }}
           REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}
           REACT_APP_HCATPCHA_SITEKEY: ${{ secrets.REACT_APP_HCATPCHA_SITEKEY }}
-          REACT_APP_HELIX_CONTACT_PERSON: ${{ secrets.REACT_APP_HELIX_CONTACT_PERSON }}
+          REACT_APP_HELIX_CONTACT_PERSON !g: ${{ secrets.REACT_APP_HELIX_CONTACT_PERSON }}
           # Overwrite
           REACT_APP_GRAPHQL_ENDPOINT: "https://helix-tools-api-staging.idmcdb.org/graphql"
           REACT_APP_GRAPHIQL_ENDPOINT: "https://helix-tools-api-staging.idmcdb.org/graphiql"
@@ -105,7 +105,7 @@ jobs:
           REACT_APP_MAPBOX_ACCESS_TOKEN: ${{ secrets.REACT_APP_MAPBOX_ACCESS_TOKEN }}
           REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}
           REACT_APP_HCATPCHA_SITEKEY: ${{ secrets.REACT_APP_HCATPCHA_SITEKEY }}
-          REACT_APP_HELIX_CONTACT_PERSON: ${{ secrets.REACT_APP_HELIX_CONTACT_PERSON }}
+          REACT_APP_HELIX_CONTACT_PERSON !g: ${{ secrets.REACT_APP_HELIX_CONTACT_PERSON }}
 
   helix_staging_deploy:
     name: HELIX-STAGING

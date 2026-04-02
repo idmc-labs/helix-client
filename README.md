@@ -83,7 +83,7 @@ JavaScript practices and TypeScript for enhanced type safety.
    REACT_APP_GRAPHQL_ENDPOINT=http://localhost:9000/graphql
    REACT_APP_ENV=dev
    GRAPHQL_CODEGEN_ENDPOINT=your_graphql_endpoint
-   REACT_APP_CONTACT_PERSON=contact_person_name
+   REACT_APP_HELIX_CONTACT_PERSON=contact_person_name
    REACT_APP_MMP_ENDPOINT=your_mmp_endpoint (optional)
    REACT_APP_SENTRY_DSN=your_sentry_dsn (optional)
    REACT_APP_MAPBOX_ACCESS_TOKEN=your_mapbox_token (optional)

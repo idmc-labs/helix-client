@@ -124,7 +124,7 @@ const AHHS_CARRY_OVER_STATUS = gql`
     }
 `;
 
-const CONTACT_PERSON = import.meta.env.REACT_APP_CONTACT_PERSON;
+const CONTACT_PERSON = import.meta.env.REACT_APP_HELIX_CONTACT_PERSON;
 
 const activityLogsQueryName = getOperationName(AHHS_ACTIVITY_LOG);
 
