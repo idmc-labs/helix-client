@@ -1159,6 +1159,7 @@ function Report(props: ReportProps) {
         <div className={_cs(styles.report, className)}>
             <div className={styles.pageContent}>
                 <PageHeader
+                    pageName={reportData?.report?.name && `${reportData?.report?.name} - Report`}
                     title={(
                         <ReportSelectInput
                             name="report"

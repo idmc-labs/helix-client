@@ -313,6 +313,7 @@ function Country(props: CountryProps) {
             {sidebarSpaceReserverElement}
             <div className={styles.pageContent}>
                 <PageHeader
+                    pageName={countryData?.country?.idmcShortName}
                     title={(
                         <CountrySelectInput
                             name="country"

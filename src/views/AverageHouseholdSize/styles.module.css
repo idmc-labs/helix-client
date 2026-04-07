@@ -1,0 +1,21 @@
+.household-size{
+    display: flex;
+    width: 100%;
+    gap: var(--spacing-large);
+
+    .content {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        overflow-x: auto;
+        gap: var(--spacing-large);
+    }
+
+    .main-content {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        overflow-x: auto;
+        gap: var(--spacing-large);
+    }
+}
