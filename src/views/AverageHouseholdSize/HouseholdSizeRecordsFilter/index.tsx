@@ -15,6 +15,7 @@ import {
 import { IoSearchOutline } from 'react-icons/io5';
 
 import NonFieldError from '#components/NonFieldError';
+import CountryMultiSelectInput from '#components/selections/CountryMultiSelectInput';
 import {
     HouseholdSizeListQueryVariables,
 } from '#generated/types';
@@ -30,7 +31,8 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         search: [],
-        filterIdmcReportingYear: [],
+        year: [],
+        countries: [],
     }),
 };
 
@@ -105,12 +107,19 @@ function HouseholdSizeRecordsFilter(props: HouseholdSizeFilterProps) {
                     icons={<IoSearchOutline />}
                     placeholder="Search by country, source or notes"
                 />
+                <CountryMultiSelectInput
+                    label="Countries"
+                    name="countries"
+                    value={value.countries}
+                    onChange={onValueChange}
+                    error={error?.fields?.countries?.$internal}
+                />
                 <NumberInput
                     className={styles.input}
-                    name="filterIdmcReportingYear"
+                    name="year"
                     label="Year"
-                    value={value.filterIdmcReportingYear}
-                    error={error?.fields?.filterIdmcReportingYear}
+                    value={value.year}
+                    error={error?.fields?.year}
                     onChange={onValueChange}
                 />
                 <div className={styles.formButtons}>

@@ -155,6 +155,8 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
                 'country',
                 'Country',
                 (item) => item.country.name,
+                { sortable: true },
+                'small',
             ),
             createTextColumn<HouseholdSizeFields, string>(
                 'year',
