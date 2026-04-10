@@ -50,7 +50,6 @@ import {
     IoAddOutline,
     IoEyeOutline,
     IoEyeOffOutline,
-    IoOpenOutline,
     IoShareSocialOutline,
 } from 'react-icons/io5';
 
@@ -1673,19 +1672,6 @@ function FigureInput(props: FigureInputProps) {
                         readOnly={!editMode}
                         actions={(
                             <>
-                                {value.event && (
-                                    <ButtonLikeLink
-                                        route={route.event}
-                                        attrs={{ eventId: value.event }}
-                                        transparent
-                                        compact
-                                        title="Open Event"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        <IoOpenOutline />
-                                    </ButtonLikeLink>
-                                )}
                                 <Button
                                     onClick={toggleEventDetailsShown}
                                     name={undefined}

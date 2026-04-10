@@ -59,6 +59,7 @@ const keySelector = (d: EventOption) => d.id;
 const labelSelector = (d: EventOption) => d.name;
 const actionsSelector = (d: EventOption) => (
     <ButtonLikeLink
+        className={styles.actionButton}
         route={route.event}
         attrs={{ eventId: d.id }}
         title="Open Event"

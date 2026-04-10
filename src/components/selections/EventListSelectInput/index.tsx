@@ -58,6 +58,7 @@ const keySelector = (d: EventListOption) => d.id;
 const labelSelector = (d: EventListOption) => d.name;
 const actionsSelector = (d: EventListOption) => (
     <ButtonLikeLink
+        className={styles.actionButton}
         route={route.event}
         attrs={{ eventId: d.id }}
         title="Open Event"
@@ -93,6 +94,7 @@ function EventListSelectInput<K extends string>(props: SelectInputProps<K>) {
         disabled,
         countries,
         crises,
+        actions,
         ...otherProps
     } = props;
 
@@ -198,6 +200,24 @@ function EventListSelectInput<K extends string>(props: SelectInputProps<K>) {
                             </Tab>
                         </TabList>
                     </Tabs>
+                )}
+                actions={(
+                    <>
+                        {value && (
+                            <ButtonLikeLink
+                                route={route.event}
+                                attrs={{ eventId: value }}
+                                transparent
+                                compact
+                                title="Open Event"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <IoOpenOutline />
+                            </ButtonLikeLink>
+                        )}
+                        {actions}
+                    </>
                 )}
             />
             {selectedEvent && (

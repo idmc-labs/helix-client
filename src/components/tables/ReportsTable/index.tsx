@@ -26,6 +26,7 @@ import {
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
 import useFilterState from '#hooks/useFilterState';
+import { PersistenceKeyType } from '#utils/filterStorage';
 import { expandObject, hasNoData } from '#utils/common';
 import useModalState from '#hooks/useModalState';
 import DomainContext from '#components/DomainContext';
@@ -132,6 +133,7 @@ interface ReportsProps {
 
     isGiddReport?: boolean;
     isPfaVisibleInGidd?: boolean;
+    persistenceKey?: PersistenceKeyType;
 }
 
 function ReportsTable(props: ReportsProps) {
@@ -140,6 +142,7 @@ function ReportsTable(props: ReportsProps) {
         title,
         isGiddReport,
         isPfaVisibleInGidd,
+        persistenceKey,
     } = props;
 
     const {
@@ -176,7 +179,7 @@ function ReportsTable(props: ReportsProps) {
             name: 'created_at',
             direction: 'dsc',
         },
-        persistenceKey: 'report',
+        persistenceKey,
     });
 
     const reportsVariables = useMemo(

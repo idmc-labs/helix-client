@@ -56,6 +56,7 @@ const keySelector = (d: CrisisOption) => d.id;
 const labelSelector = (d: CrisisOption) => d.name;
 const actionsSelector = (d: CrisisOption) => (
     <ButtonLikeLink
+        className={styles.actionButton}
         route={route.crisis}
         attrs={{ crisisId: d.id }}
         title="Open Crisis"
@@ -87,6 +88,7 @@ function CrisisSelectInput<K extends string>(props: SelectInputProps<K>) {
         className,
         countries,
         actions,
+        value,
         ...otherProps
     } = props;
 
@@ -158,6 +160,7 @@ function CrisisSelectInput<K extends string>(props: SelectInputProps<K>) {
         <SearchSelectInput
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...otherProps}
+            value={value}
             className={_cs(styles.crisisSelectInput, className)}
             keySelector={keySelector}
             labelSelector={labelSelector}
@@ -193,7 +196,24 @@ function CrisisSelectInput<K extends string>(props: SelectInputProps<K>) {
                     </TabList>
                 </Tabs>
             )}
-            actions={actions}
+            actions={(
+                <>
+                    {value && (
+                        <ButtonLikeLink
+                            route={route.crisis}
+                            attrs={{ crisisId: value }}
+                            transparent
+                            compact
+                            title="Open Crisis"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <IoOpenOutline />
+                        </ButtonLikeLink>
+                    )}
+                    {actions}
+                </>
+            )}
         />
     );
 }

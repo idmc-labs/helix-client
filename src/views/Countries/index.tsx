@@ -19,6 +19,7 @@ function Countries(props: CountriesProps) {
             />
             <CountriesTable
                 className={styles.container}
+                persistenceKey="filter_countryPage"
             />
         </div>
     );

@@ -15,6 +15,8 @@ import useDebouncedValue from '#hooks/useDebouncedValue';
 import { GetReportQuery, GetReportQueryVariables } from '#generated/types';
 import route from '#config/routes';
 
+import styles from './styles.module.css';
+
 const REPORT = gql`
     query GetReport(
         $search: String,
@@ -41,6 +43,7 @@ const keySelector = (d: ReportOption) => d.id;
 const labelSelector = (d: ReportOption) => d.name;
 const actionsSelector = (d: ReportOption) => (
     <ButtonLikeLink
+        className={styles.actionButton}
         route={route.report}
         attrs={{ reportId: d.id }}
         title="Open Report"
