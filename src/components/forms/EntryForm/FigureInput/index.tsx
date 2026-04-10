@@ -58,6 +58,7 @@ import Message from '#components/Message';
 import { EVENT_FRAGMENT } from '#components/forms/EntryForm/queries';
 import Status from '#components/tableHelpers/Status';
 import OrganizationMultiSelectInput from '#components/selections/OrganizationMultiSelectInput';
+import CountrySelectInput from '#components/selections/CountrySelectInput';
 import CollapsibleContent from '#components/CollapsibleContent';
 import MarkdownEditor from '#components/MarkdownEditor';
 import NotificationContext from '#components/NotificationContext';
@@ -578,9 +579,6 @@ function generateIduText(
 
     return `According to ${sourceType}, ${quantifierField} ${figureField} ${unitField} ${verb} reported ${termInfo} ${locationField} after ${causeField} ${dateRange}.`;
 }
-
-const countryKeySelector = (data: { id: string; idmcShortName: string }) => data.id;
-const countryLabelSelector = (data: { id: string; idmcShortName: string }) => data.idmcShortName;
 
 interface ViolenceOption {
     violenceTypeId: string;
@@ -1865,14 +1863,12 @@ function FigureInput(props: FigureInputProps) {
                     heading="Geospatial"
                     headerClassName={_cs(geospatialErrored && styles.errored)}
                 >
-                    <SelectInput
-                        error={error?.fields?.country}
+                    <CountrySelectInput
                         label="Country *"
                         name="country"
-                        options={selectedEvent?.countries}
                         value={value.country}
-                        keySelector={countryKeySelector}
-                        labelSelector={countryLabelSelector}
+                        error={error?.fields?.country}
+                        events={isDefined(value.event) ? [value.event] : []}
                         onChange={handleCountryChange}
                         disabled={disabled || eventNotChosen}
                         readOnly={!editMode}
