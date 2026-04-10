@@ -12,6 +12,7 @@ import {
 } from '#generated/types';
 import useFilterState from '#hooks/useFilterState';
 import { expandObject, getNow } from '#utils/common';
+import { PersistenceKeyType } from '#utils/filterStorage';
 
 import styles from './styles.module.css';
 
@@ -22,12 +23,14 @@ const defaultFilter: PurgeNull<CountriesFilterFields> = {
 interface CountriesProps {
     className?: string;
     title?: string;
+    persistenceKey?: PersistenceKeyType;
 }
 
 function CountriesTable(props: CountriesProps) {
     const {
         className,
         title,
+        persistenceKey,
     } = props;
 
     const {
@@ -52,7 +55,7 @@ function CountriesTable(props: CountriesProps) {
             name: 'idmc_short_name',
             direction: 'asc',
         },
-        persistenceKey: 'country',
+        persistenceKey,
     });
 
     const countriesVariables = useMemo(

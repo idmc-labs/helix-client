@@ -251,7 +251,7 @@ function Extraction(props: ExtractionProps) {
             name: 'created_at',
             direction: 'dsc',
         },
-        persistenceKey: isNotDefined(queryId) ? 'extractionFigure' : undefined,
+        persistenceKey: isNotDefined(queryId) ? 'filter_extractionFigure' : undefined,
     });
     const entriesFilterState = useFilterState<PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>>({
         filter: {},
@@ -259,7 +259,7 @@ function Extraction(props: ExtractionProps) {
             name: 'created_at',
             direction: 'dsc',
         },
-        persistenceKey: isNotDefined(queryId) ? 'extractionEntry' : undefined,
+        persistenceKey: isNotDefined(queryId) ? 'filter_extractionEntry' : undefined,
     });
 
     const {
@@ -288,9 +288,6 @@ function Extraction(props: ExtractionProps) {
     // NOTE: Do we need to reset this here instead of onCompleted of the query?
     useLayoutEffect(
         () => {
-            // NOTE: Do we need to reset the filter at all @tnagorra?
-            // This conflicts with the persistent filters.
-            // setFilter({}, true);
             setExtractionQueryFiltersMeta({});
         },
         [queryId, setFilter],

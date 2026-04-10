@@ -56,6 +56,7 @@ const keySelector = (d: CrisisOption) => d.id;
 const labelSelector = (d: CrisisOption) => d.name;
 const actionsSelector = (d: CrisisOption) => (
     <ButtonLikeLink
+        className={styles.actionButton}
         route={route.crisis}
         attrs={{ crisisId: d.id }}
         title="Open Crisis"

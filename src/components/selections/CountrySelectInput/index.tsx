@@ -45,6 +45,7 @@ const keySelector = (d: CountryOption) => d.id;
 const labelSelector = (d: CountryOption) => d.idmcShortName;
 const actionsSelector = (d: CountryOption) => (
     <ButtonLikeLink
+        className={styles.actionButton}
         route={route.country}
         attrs={{ countryId: d.id }}
         title="Open Country"

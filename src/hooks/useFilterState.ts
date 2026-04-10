@@ -10,7 +10,7 @@ import { EntriesAsList } from '@togglecorp/toggle-form';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { hasNoData } from '#utils/common';
-import { filterStorage, type PersistenceKeyType } from '#utils/filterStorage';
+import { filterStorage, PersistenceKeyType } from '#utils/filterStorage';
 
 export interface FilterStateResponse<T> {
     rawFilter: T;
@@ -122,13 +122,15 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
     ) => FilterState<FILTER>;
 
     const initializer = useCallback((baseFilters: FilterState<FILTER> | undefined) => {
-        if (persistenceKey) {
-            const savedFilters = filterStorage.get(persistenceKey);
-            if (savedFilters) {
-                return savedFilters;
-            }
+        if (isNotDefined(persistenceKey)) {
+            return baseFilters;
         }
-        return baseFilters;
+        const savedFilters = filterStorage.get(persistenceKey);
+        if (isNotDefined(savedFilters)) {
+            return baseFilters;
+        }
+
+        return savedFilters;
     }, [persistenceKey]);
 
     const [state, dispatch] = useReducer<Reducer, FilterState<FILTER> | undefined>(
@@ -265,9 +267,9 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
 
     useEffect(() => {
         if (persistenceKey) {
-            filterStorage.set(persistenceKey, state);
+            filterStorage.set(persistenceKey, debouncedState);
         }
-    }, [persistenceKey, state]);
+    }, [persistenceKey, debouncedState]);
 
     return {
         rawFilter: state.filter,

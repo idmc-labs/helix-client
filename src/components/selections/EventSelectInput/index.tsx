@@ -56,6 +56,7 @@ const keySelector = (d: EventOption) => d.id;
 const labelSelector = (d: EventOption) => d.name;
 const actionsSelector = (d: EventOption) => (
     <ButtonLikeLink
+        className={styles.actionButton}
         route={route.event}
         attrs={{ eventId: d.id }}
         title="Open Event"
@@ -89,6 +90,7 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
         countries,
         crises,
         actions,
+        value,
         ...otherProps
     } = props;
 
@@ -158,6 +160,7 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
         <SearchSelectInput
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...otherProps}
+            value={value}
             className={_cs(styles.eventSelectInput, className)}
             keySelector={keySelector}
             labelSelector={labelSelector}
@@ -193,7 +196,24 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
                     </TabList>
                 </Tabs>
             )}
-            actions={actions}
+            actions={(
+                <>
+                    {value && (
+                        <ButtonLikeLink
+                            route={route.event}
+                            attrs={{ eventId: value }}
+                            transparent
+                            compact
+                            title="Open Event"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <IoOpenOutline />
+                        </ButtonLikeLink>
+                    )}
+                    {actions}
+                </>
+            )}
         />
     );
 }

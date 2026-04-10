@@ -12,6 +12,7 @@ import {
 } from '#generated/types';
 import useFilterState from '#hooks/useFilterState';
 import { expandObject } from '#utils/common';
+import { PersistenceKeyType } from '#utils/filterStorage';
 import { PurgeNull } from '#types';
 
 import styles from './styles.module.css';
@@ -20,6 +21,7 @@ interface CrisesProps {
     className?: string;
     title?: string;
     figuresFilter?: FigureExtractionFilterDataInputType;
+    persistenceKey?: PersistenceKeyType;
 }
 
 function CrisesTable(props: CrisesProps) {
@@ -27,6 +29,7 @@ function CrisesTable(props: CrisesProps) {
         className,
         title,
         figuresFilter,
+        persistenceKey,
     } = props;
 
     const {
@@ -51,7 +54,7 @@ function CrisesTable(props: CrisesProps) {
             name: 'created_at',
             direction: 'dsc',
         },
-        persistenceKey: 'crisis',
+        persistenceKey,
     });
 
     const crisesVariables = useMemo(

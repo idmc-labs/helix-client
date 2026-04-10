@@ -39,7 +39,7 @@ function Crises(props: CrisesProps) {
             name: 'created_at',
             direction: 'dsc',
         },
-        persistenceKey: 'crisisFigure',
+        persistenceKey: 'filter_crisisPageFigure',
     });
 
     const {
@@ -86,6 +86,7 @@ function Crises(props: CrisesProps) {
                     <CrisesTable
                         className={styles.container}
                         figuresFilter={figuresFilter}
+                        persistenceKey="filter_crisisPage"
                     />
                 </div>
                 <Container

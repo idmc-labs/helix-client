@@ -1,4 +1,10 @@
-const FILTER_KEYS = ['report', 'crisis', 'crisisFigure', 'event', 'eventFigure', 'country', 'extractionEntry', 'extractionFigure'] as const;
+const FILTER_KEYS = [
+    'filter_crisisPage', 'filter_crisisPageFigure',
+    'filter_eventPage', 'filter_eventPageFigure',
+    'filter_extractionEntry', 'filter_extractionFigure',
+    'filter_countryPage',
+    'filter_reportPage',
+] as const;
 export type PersistenceKeyType = typeof FILTER_KEYS[number];
 const EXTRA_KEYS = ['options', 'filterVersion'] as const;
 type ExtraKeyType = typeof EXTRA_KEYS[number];
@@ -32,7 +38,7 @@ export const filterStorage = {
             console.error('Error clearing local storage', e);
         }
     },
-    checkVersionAndClear: () => {
+    clearOnVersionMismatch: () => {
         const savedVersion = filterStorage.get('filterVersion');
         if (savedVersion !== FILTER_VERSION) {
             filterStorage.clearAll();
