@@ -218,6 +218,10 @@ function getValuesFromFigures(figures: (FigureItem | null | undefined)[]) {
         ?.flatMap((item) => item?.contextOfViolence)
         .filter(isDefined);
 
+    const countriesForState = figures
+        ?.map((item) => item?.country)
+        .filter(isDefined);
+
     const figuresForState = figures?.map((figure) => {
         if (!figure) {
             return figure;
@@ -254,6 +258,7 @@ function getValuesFromFigures(figures: (FigureItem | null | undefined)[]) {
         eventsForState,
         tagOptionsForState,
         violenceContextOptionsForState,
+        countriesForState,
         figuresForState,
     };
 }
@@ -388,6 +393,7 @@ function EntryForm(props: EntryFormProps) {
     const [, setOrganizations] = useOptions('organization');
     const [, setTagOptions] = useOptions('tag');
     const [, setViolenceContextOptions] = useOptions('contextOfViolence');
+    const [, setCountries] = useOptions('country');
 
     const {
         data: figureOptionsData,
@@ -637,6 +643,7 @@ function EntryForm(props: EntryFormProps) {
                 eventsForState,
                 tagOptionsForState,
                 violenceContextOptionsForState,
+                countriesForState,
                 figuresForState,
             } = getValuesFromFigures(saveResponses ?? []);
 
@@ -735,6 +742,7 @@ function EntryForm(props: EntryFormProps) {
             );
 
             setOrganizations(organizationsForState);
+            setCountries(countriesForState);
             // NOTE: We need to add to the event state and not remove anything
             handleEventOptionsChange(eventsForState);
             setTagOptions(tagOptionsForState);
@@ -836,6 +844,7 @@ function EntryForm(props: EntryFormProps) {
             setOrganizations,
             setTagOptions,
             setViolenceContextOptions,
+            setCountries,
             handleEventOptionsChange,
         ],
     );
@@ -1337,11 +1346,13 @@ function EntryForm(props: EntryFormProps) {
             figuresForState,
             tagOptionsForState,
             violenceContextOptionsForState,
+            countriesForState,
         } = getValuesFromFigures(figures ?? []);
 
         handleEventOptionsChange(eventsForState);
         setTagOptions(tagOptionsForState);
         setViolenceContextOptions(violenceContextOptionsForState);
+        setCountries(countriesForState);
         setOrganizations((oldOrganizations) => {
             const organizationsAll = [
                 ...oldOrganizations ?? [],
@@ -1382,6 +1393,7 @@ function EntryForm(props: EntryFormProps) {
         setOrganizations,
         setTagOptions,
         setViolenceContextOptions,
+        setCountries,
     ]);
 
     const {
