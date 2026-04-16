@@ -78,16 +78,8 @@ JavaScript practices and TypeScript for enhanced type safety.
 - Docker (optional)
 
 ### Environment Setup
-1. Create a `.env` file in the root directory with the following content:
-   ```
-   REACT_APP_GRAPHQL_ENDPOINT=http://localhost:9000/graphql
-   REACT_APP_ENV=dev
-   GRAPHQL_CODEGEN_ENDPOINT=your_graphql_endpoint
-   REACT_APP_MMP_ENDPOINT=your_mmp_endpoint (optional)
-   REACT_APP_SENTRY_DSN=your_sentry_dsn (optional)
-   REACT_APP_MAPBOX_ACCESS_TOKEN=your_mapbox_token (optional)
-   REACT_APP_HCATPCHA_SITEKEY=the_captcha_key (optional)
-   ```
+
+1. Create an empty `.env` file in the root directory. Please check docker-compose.yml to get list of environment variables.
 
 ### Installation
 1. Clone the repository:

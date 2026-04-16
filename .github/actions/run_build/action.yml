@@ -22,6 +22,10 @@ inputs:
     description: ''
     required: true
   # Optional
+  REACT_APP_OSMNAME_ENDPOINT:
+    description: ''
+    required: false
+    default: https://osmnames.idmcdb.org
   REACT_APP_GRAPHQL_ENDPOINT:
     description: ''
     required: false
@@ -47,6 +51,7 @@ runs:
           REACT_APP_HCATPCHA_SITEKEY: ${{ inputs.REACT_APP_HCATPCHA_SITEKEY }}
           # Default values
           # -- Helix
+          REACT_APP_OSMNAME_ENDPOINT: ${{ inputs.REACT_APP_OSMNAME_ENDPOINT }}
           REACT_APP_GRAPHQL_ENDPOINT: ${{ inputs.REACT_APP_GRAPHQL_ENDPOINT }}
           REACT_APP_GRAPHIQL_ENDPOINT: ${{ inputs.REACT_APP_GRAPHIQL_ENDPOINT }}
           REACT_APP_SWAGGER_ENDPOINT: ${{ inputs.REACT_APP_SWAGGER_ENDPOINT }}
