@@ -66,9 +66,9 @@ function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputP
         (): GetOrganizationQueryVariables => ({
             ordering: debouncedSearchText || country
                 ? undefined
-                : 'name',
+                : '-created_at',
             filters: {
-                name_Unaccent_Icontains: debouncedSearchText,
+                search: debouncedSearchText,
                 orderCountryFirst: country ? [country] : undefined,
             },
         }),

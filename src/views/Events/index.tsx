@@ -41,6 +41,7 @@ function Events(props: EventsProps) {
             name: 'created_at',
             direction: 'dsc',
         },
+        persistenceKey: 'filter_eventPageFigure',
     });
 
     const {
@@ -87,6 +88,7 @@ function Events(props: EventsProps) {
                     <EventsTable
                         className={styles.container}
                         figuresFilter={figuresFilter}
+                        persistenceKey="filter_eventPage"
                     />
                 </div>
                 <Container

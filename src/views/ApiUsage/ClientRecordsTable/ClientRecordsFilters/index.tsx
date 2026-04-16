@@ -48,7 +48,7 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         isActive: [],
-        name: [],
+        search: [],
         useCases: [arrayCondition],
         shareSource: [],
     }),
@@ -133,8 +133,8 @@ function ClientRecordsFilter(props: ClientFilterProps) {
                     className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Name"
-                    name="name"
-                    value={value.name}
+                    name="search"
+                    value={value.search}
                     onChange={onValueChange}
                     placeholder="Search by name, acronym, contact name or contact email"
                 />

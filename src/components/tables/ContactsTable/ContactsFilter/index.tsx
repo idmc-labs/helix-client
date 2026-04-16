@@ -25,7 +25,7 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        nameContains: [],
+        search: [],
         countriesOfOperation: [],
     }),
 };
@@ -94,10 +94,10 @@ function ContactsFilter(props: ContactsFilterProps) {
                     className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Search"
-                    name="nameContains"
-                    value={value.nameContains}
+                    name="search"
+                    value={value.search}
                     onChange={onValueChange}
-                    error={error?.fields?.nameContains}
+                    error={error?.fields?.search}
                 />
                 <CountryMultiSelectInput
                     className={styles.input}

@@ -73,7 +73,7 @@ const schema: FormSchema = {
                 && isTruthyString(value?.confirmEmail)
                 && value?.email !== value?.confirmEmail
         ) {
-            return 'The passwords do no match';
+            return 'The emails do no match';
         }
         return undefined;
     },

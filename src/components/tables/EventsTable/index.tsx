@@ -13,6 +13,7 @@ import {
     User_Role as UserRole,
 } from '#generated/types';
 import useFilterState from '#hooks/useFilterState';
+import { PersistenceKeyType } from '#utils/filterStorage';
 import DomainContext from '#components/DomainContext';
 import { User } from '#types';
 import { expandObject } from '#utils/common';
@@ -41,6 +42,7 @@ interface EventsProps {
     assignee?: string | null;
     qaMode?: 'MULTIPLE_RF' | 'NO_RF' | 'IGNORE_QA' | undefined;
     figuresFilter?: FigureExtractionFilterDataInputType;
+    persistenceKey?: PersistenceKeyType;
 }
 
 function EventsTable(props: EventsProps) {
@@ -51,6 +53,7 @@ function EventsTable(props: EventsProps) {
         assignee,
         reviewStatus,
         figuresFilter,
+        persistenceKey,
     } = props;
 
     const { user } = useContext(DomainContext);
@@ -139,6 +142,7 @@ function EventsTable(props: EventsProps) {
             name: 'created_at',
             direction: 'dsc',
         },
+        persistenceKey,
     });
 
     const eventsVariables = useMemo(

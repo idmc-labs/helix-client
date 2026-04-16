@@ -23,7 +23,10 @@ import {
     ArraySchema,
     PartialForm,
 } from '@togglecorp/toggle-form';
-import { IoCalculatorOutline, IoAddOutline } from 'react-icons/io5';
+import {
+    IoCalculatorOutline,
+    IoAddOutline,
+} from 'react-icons/io5';
 import {
     gql,
     useQuery,

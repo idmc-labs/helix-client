@@ -3,12 +3,14 @@ import {
     useReducer,
     useCallback,
     useMemo,
+    useEffect,
 } from 'react';
 import { isNotDefined } from '@togglecorp/fujs';
 import { EntriesAsList } from '@togglecorp/toggle-form';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { hasNoData } from '#utils/common';
+import { filterStorage, PersistenceKeyType } from '#utils/filterStorage';
 
 export interface FilterStateResponse<T> {
     rawFilter: T;
@@ -103,6 +105,7 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
     page?: number,
     pageSize?: number,
     debounceTime?: number,
+    persistenceKey?: PersistenceKeyType,
 }): FilterStateResponse<FILTER> {
     const {
         filter,
@@ -110,6 +113,7 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
         page = 1,
         pageSize = 10,
         debounceTime = 200,
+        persistenceKey,
     } = options;
 
     type Reducer = (
@@ -117,7 +121,19 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
         action: FilterActions<FILTER>,
     ) => FilterState<FILTER>;
 
-    const [state, dispatch] = useReducer<Reducer>(
+    const initializer = useCallback((baseFilters: FilterState<FILTER> | undefined) => {
+        if (isNotDefined(persistenceKey)) {
+            return baseFilters;
+        }
+        const savedFilters = filterStorage.get(persistenceKey);
+        if (isNotDefined(savedFilters)) {
+            return baseFilters;
+        }
+
+        return savedFilters;
+    }, [persistenceKey]);
+
+    const [state, dispatch] = useReducer<Reducer, FilterState<FILTER> | undefined>(
         (prevState, action) => {
             if (action.type === 'reset-filter') {
                 return {
@@ -170,6 +186,7 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
             page,
             pageSize,
         },
+        initializer,
     );
 
     const setFilter = useCallback(
@@ -247,6 +264,12 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
         () => !hasNoData(debouncedState.filter),
         [debouncedState.filter],
     );
+
+    useEffect(() => {
+        if (persistenceKey) {
+            filterStorage.set(persistenceKey, debouncedState);
+        }
+    }, [persistenceKey, debouncedState]);
 
     return {
         rawFilter: state.filter,

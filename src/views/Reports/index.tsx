@@ -20,6 +20,7 @@ function Reports(props: ReportsProps) {
             />
             <ReportsTable
                 className={styles.container}
+                persistenceKey="filter_reportPage"
             />
         </div>
     );

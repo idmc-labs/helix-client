@@ -17,10 +17,12 @@ import DomainContext from '#components/DomainContext';
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import UserProfileUpdateForm from '#components/forms/UserProfileUpdateForm';
 import UserPasswordChangeForm from '#components/forms/UserPasswordChangeForm';
+import OptionContext from '#components/OptionContext';
 
 import { LogoutMutation } from '#generated/types';
 import useModalState from '#hooks/useModalState';
 import route from '#config/routes';
+import { filterStorage } from '#utils/filterStorage';
 
 import Downloads from './Downloads';
 import Notifications from './Notifications';
@@ -59,12 +61,19 @@ function Navbar(props: Props) {
         hideUserPasswordChange,
     ] = useModalState();
 
+    const { setOptions } = useContext(OptionContext);
+
     const [logout] = useMutation<LogoutMutation>(
         LOGOUT,
         {
             onCompleted: (data) => {
                 if (data.logout?.ok) {
                     setUser(undefined);
+                    // NOTE: Clear all local storage values on logout
+                    filterStorage.clearAll();
+                    // NOTE: clearing options upon logout to prevent maintaining same state
+                    // in case the user logs back in without a full page refresh.
+                    setOptions({});
                 }
                 // TODO: handle error
             },
@@ -203,6 +212,13 @@ function Navbar(props: Props) {
                             transparent
                         >
                             {route.apiUsage.title}
+                        </ButtonLikeLink>
+                        <ButtonLikeLink
+                            className={styles.button}
+                            route={route.averageHouseholdSize}
+                            transparent
+                        >
+                            {route.averageHouseholdSize.title}
                         </ButtonLikeLink>
                         <div className={styles.rowLine} />
                         <ButtonLikeLink

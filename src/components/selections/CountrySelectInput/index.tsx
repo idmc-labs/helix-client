@@ -8,7 +8,10 @@ import {
     SearchSelectInput,
     SearchSelectInputProps,
 } from '@togglecorp/toggle-ui';
+import { IoOpenOutline } from 'react-icons/io5';
 
+import route from '#config/routes';
+import ButtonLikeLink from '#components/ButtonLikeLink';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import useOptions from '#hooks/useOptions';
 import { GetCountryQuery, GetCountryQueryVariables } from '#generated/types';
@@ -40,6 +43,20 @@ export type CountryOption = NonNullable<NonNullable<GetCountryQuery['countryList
 
 const keySelector = (d: CountryOption) => d.id;
 const labelSelector = (d: CountryOption) => d.idmcShortName;
+const actionsSelector = (d: CountryOption) => (
+    <ButtonLikeLink
+        className={styles.actionButton}
+        route={route.country}
+        attrs={{ countryId: d.id }}
+        title="Open Country"
+        target="_blank"
+        rel="noopener noreferrer"
+        compact
+        transparent
+    >
+        <IoOpenOutline />
+    </ButtonLikeLink>
+);
 
 type Def = { containerClassName?: string };
 type SelectInputProps<
@@ -54,6 +71,7 @@ type SelectInputProps<
     regions?: string[] | null,
     events?: string[] | null;
     crises?: string[] | null;
+    actionLinkDisabled?: boolean;
 };
 
 function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -62,6 +80,8 @@ function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
         regions,
         events,
         crises,
+        value,
+        actionLinkDisabled = false,
         ...otherProps
     } = props;
 
@@ -84,7 +104,7 @@ function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
             }
             return {
                 filters: {
-                    countryName: debouncedSearchText,
+                    search: debouncedSearchText,
                     regionByIds: regions ?? undefined,
                     events,
                     crises,
@@ -112,8 +132,10 @@ function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
         <SearchSelectInput
             {...otherProps}
             className={_cs(styles.countrySelectInput, className)}
+            value={value}
             keySelector={keySelector}
             labelSelector={labelSelector}
+            actionsSelector={actionsSelector}
             onSearchValueChange={setSearchText}
             onShowDropdownChange={setOpened}
             searchOptions={searchOptions}
@@ -121,6 +143,19 @@ function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
             totalOptionsCount={totalOptionsCount ?? undefined}
             options={options}
             onOptionsChange={setOptions}
+            actions={value && !actionLinkDisabled && (
+                <ButtonLikeLink
+                    route={route.country}
+                    attrs={{ countryId: value }}
+                    transparent
+                    compact
+                    title="Open Country"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <IoOpenOutline />
+                </ButtonLikeLink>
+            )}
         />
     );
 }

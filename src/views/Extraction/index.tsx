@@ -1,6 +1,6 @@
 import React, { useState, useLayoutEffect, useContext, useRef, useCallback, useMemo } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { _cs, isDefined } from '@togglecorp/fujs';
+import { _cs, isDefined, isNotDefined } from '@togglecorp/fujs';
 import {
     Button,
     PopupButton,
@@ -251,6 +251,7 @@ function Extraction(props: ExtractionProps) {
             name: 'created_at',
             direction: 'dsc',
         },
+        persistenceKey: isNotDefined(queryId) ? 'filter_extractionFigure' : undefined,
     });
     const entriesFilterState = useFilterState<PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>>({
         filter: {},
@@ -258,6 +259,7 @@ function Extraction(props: ExtractionProps) {
             name: 'created_at',
             direction: 'dsc',
         },
+        persistenceKey: isNotDefined(queryId) ? 'filter_extractionEntry' : undefined,
     });
 
     const {
@@ -265,6 +267,7 @@ function Extraction(props: ExtractionProps) {
         rawFilter: rawFiguresFilter,
         initialFilter: initialFiguresFilter,
     } = figuresFilterState;
+
     const {
         setFilter: setEntriesFilter,
     } = entriesFilterState;
@@ -285,7 +288,6 @@ function Extraction(props: ExtractionProps) {
     // NOTE: Do we need to reset this here instead of onCompleted of the query?
     useLayoutEffect(
         () => {
-            setFilter({}, true);
             setExtractionQueryFiltersMeta({});
         },
         [queryId, setFilter],

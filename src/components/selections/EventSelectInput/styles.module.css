@@ -1,3 +1,31 @@
 .event-select-input {
     display: block;
 }
+
+.popup {
+    --popup-width: 300px;
+
+    width: var(--popup-width);
+    min-width: max(var(--popup-width), 35vw);
+    max-width: max(var(--popup-width), 35vw);
+
+    .popup-content {
+        min-width: unset!important;
+        max-width: unset!important;
+    }
+}
+
+.tab-list {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: var(--tui-color-foreground);
+
+    .tab {
+        flex-grow: 1;
+    }
+}
+
+.action-button {
+    flex-shrink: 0;
+}

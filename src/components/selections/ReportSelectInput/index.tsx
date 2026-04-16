@@ -7,10 +7,15 @@ import {
     SearchSelectInput,
     SearchSelectInputProps,
 } from '@togglecorp/toggle-ui';
+import { IoOpenOutline } from 'react-icons/io5';
 
+import ButtonLikeLink from '#components/ButtonLikeLink';
 import useOptions from '#hooks/useOptions';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { GetReportQuery, GetReportQueryVariables } from '#generated/types';
+import route from '#config/routes';
+
+import styles from './styles.module.css';
 
 const REPORT = gql`
     query GetReport(
@@ -19,7 +24,7 @@ const REPORT = gql`
     ) {
         reportList(
             filters: {
-                name_Unaccent_Icontains: $search,
+                search: $search,
             },
             ordering: $ordering,
         ) {
@@ -36,6 +41,20 @@ export type ReportOption = NonNullable<NonNullable<GetReportQuery['reportList']>
 
 const keySelector = (d: ReportOption) => d.id;
 const labelSelector = (d: ReportOption) => d.name;
+const actionsSelector = (d: ReportOption) => (
+    <ButtonLikeLink
+        className={styles.actionButton}
+        route={route.report}
+        attrs={{ reportId: d.id }}
+        title="Open Report"
+        target="_blank"
+        rel="noopener noreferrer"
+        compact
+        transparent
+    >
+        <IoOpenOutline />
+    </ButtonLikeLink>
+);
 
 type Def = { containerClassName?: string };
 type SelectInputProps<
@@ -86,6 +105,7 @@ function ReportSelectInput<K extends string>(props: SelectInputProps<K>) {
             className={className}
             keySelector={keySelector}
             labelSelector={labelSelector}
+            actionsSelector={actionsSelector}
             onSearchValueChange={setSearchText}
             onShowDropdownChange={setOpened}
             searchOptions={searchOptions}

@@ -39,7 +39,7 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         filterFigureCountries: [arrayCondition],
-        name_Unaccent_Icontains: [],
+        search: [],
         reviewStatus: [arrayCondition],
         startDateAfter: [],
         endDateBefore: [],
@@ -135,8 +135,8 @@ function ReportFilter(props: ReportFilterProps) {
                     className={styles.input}
                     icons={<IoSearchOutline />}
                     label="Name"
-                    name="name_Unaccent_Icontains"
-                    value={value.name_Unaccent_Icontains}
+                    name="search"
+                    value={value.search}
                     onChange={onValueChange}
                     placeholder="Search"
                 />
