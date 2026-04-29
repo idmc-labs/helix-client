@@ -8,6 +8,13 @@ on:
       - deploy-prod
 
 jobs:
+  commit_lint:
+    name: Commit Lint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@main
+    - uses: toggle-corp/commit-lint@main
+
   lint_test:
     name: 🚴 Lint + Test 🚴
     runs-on: ubuntu-latest
