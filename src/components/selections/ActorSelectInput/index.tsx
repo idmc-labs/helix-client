@@ -61,11 +61,10 @@ function ActorSelectInput<K extends string>(props: SelectInputProps<K>) {
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetActorQueryVariables => (
-            debouncedSearchText
-                ? { search: debouncedSearchText }
-                : { ordering: '-created_at' }
-        ),
+        (): GetActorQueryVariables => ({
+            ordering: '-created_at',
+            search: debouncedSearchText ?? '',
+        }),
         [debouncedSearchText],
     );
 

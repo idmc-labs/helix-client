@@ -84,9 +84,7 @@ function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
 
     const searchVariable = useMemo(
         (): GetOrganizationQueryVariables => ({
-            ordering: debouncedSearchText || country
-                ? undefined
-                : '-created_at',
+            ordering: '-created_at',
             filters: {
                 search: debouncedSearchText,
                 orderCountryFirst: country ? [country] : undefined,

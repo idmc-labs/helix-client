@@ -121,27 +121,17 @@ function EventMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>
     }, []);
 
     const searchVariable = useMemo(
-        (): GetEventQueryVariables => (
-            debouncedSearchText ? {
-                filters: {
-                    search: debouncedSearchText,
-                    countries,
-                    crisisByIds: crises,
-                    createdByIds: (
-                        showOnlyEventsCreatedByMe && isDefined(currentUserId)
-                    ) ? [currentUserId] : emptyArray,
-                },
-            } : {
-                ordering: '-created_at',
-                filters: {
-                    countries,
-                    crisisByIds: crises,
-                    createdByIds: (
-                        showOnlyEventsCreatedByMe && isDefined(currentUserId)
-                    ) ? [currentUserId] : emptyArray,
-                },
-            }
-        ),
+        (): GetEventQueryVariables => ({
+            ordering: '-start_date',
+            filters: {
+                search: debouncedSearchText ?? '',
+                countries,
+                crisisByIds: crises,
+                createdByIds: (
+                    showOnlyEventsCreatedByMe && isDefined(currentUserId)
+                ) ? [currentUserId] : emptyArray,
+            },
+        }),
         [debouncedSearchText, countries, crises, currentUserId, showOnlyEventsCreatedByMe],
     );
 
