@@ -1,10 +1,11 @@
 import React, { useContext, useCallback, useMemo, useState } from 'react';
 import { isDefined, _cs } from '@togglecorp/fujs';
 import {
-    TextInput,
     Button,
-    Switch,
     MultiSelectInput,
+    Switch,
+    TextArea,
+    TextInput,
 } from '@togglecorp/toggle-ui';
 import {
     idCondition,
@@ -71,6 +72,7 @@ const GET_CLIENT = gql`
             }
             isActive
             name
+            description
             shareSource
             useCases
             optedOutOfEmails
@@ -91,6 +93,7 @@ const CREATE_CLIENT = gql`
                 contactWebsite
                 isActive
                 name
+                description
                 shareSource
                 optedOutOfEmails
                 otherNotes
@@ -119,6 +122,7 @@ const UPDATE_CLIENT = gql`
                 id
                 isActive
                 name
+                description
                 shareSource
                 optedOutOfEmails
                 otherNotes
@@ -158,6 +162,7 @@ const schema: FormSchema = {
         const baseSchema: FormSchemaFields = ({
             id: [idCondition],
             acronym: [],
+            description: [],
             name: [requiredStringCondition],
             contactName: [requiredStringCondition],
             contactEmail: [requiredStringCondition, emailCondition],
@@ -415,6 +420,15 @@ function ClientRecordForm(props: ClientRecordProps) {
                 error={error?.fields?.name}
                 readOnly={readOnly}
                 disabled={disabled}
+            />
+            <TextArea
+                label="Description"
+                name="description"
+                value={value.description}
+                onChange={onValueChange}
+                disabled={disabled}
+                error={error?.fields?.description}
+                readOnly={readOnly}
             />
             <TextInput
                 label="Contact Name *"
