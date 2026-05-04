@@ -91,26 +91,15 @@ function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetCountryQueryVariables => {
-            if (!debouncedSearchText) {
-                return {
-                    ordering: 'idmc_short_name',
-                    filters: {
-                        regionByIds: regions ?? undefined,
-                        events,
-                        crises,
-                    },
-                };
-            }
-            return {
-                filters: {
-                    search: debouncedSearchText,
-                    regionByIds: regions ?? undefined,
-                    events,
-                    crises,
-                },
-            };
-        },
+        (): GetCountryQueryVariables => ({
+            ordering: 'idmc_short_name',
+            filters: {
+                search: debouncedSearchText ?? '',
+                regionByIds: regions ?? undefined,
+                events,
+                crises,
+            },
+        }),
         [debouncedSearchText, regions, events, crises],
     );
 

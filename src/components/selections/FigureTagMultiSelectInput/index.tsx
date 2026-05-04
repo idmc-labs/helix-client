@@ -61,9 +61,10 @@ function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>)
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetFigureTagListQueryVariables => (
-            debouncedSearchText ? { search: debouncedSearchText } : { ordering: 'name' }
-        ),
+        (): GetFigureTagListQueryVariables => ({
+            search: debouncedSearchText ?? '',
+            ordering: 'name',
+        }),
         [debouncedSearchText],
     );
 

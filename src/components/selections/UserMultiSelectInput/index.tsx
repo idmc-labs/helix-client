@@ -72,19 +72,13 @@ function UserMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>)
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetUserQueryVariables => (
-            debouncedSearchText ? {
-                filters: {
-                    search: debouncedSearchText,
-                    permissions,
-                },
-            } : {
-                ordering: 'full_name',
-                filters: {
-                    permissions,
-                },
-            }
-        ),
+        (): GetUserQueryVariables => ({
+            ordering: 'full_name',
+            filters: {
+                search: debouncedSearchText ?? '',
+                permissions,
+            },
+        }),
         [debouncedSearchText, permissions],
     );
 

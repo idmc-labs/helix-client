@@ -64,7 +64,7 @@ function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputP
 
     const searchVariable = useMemo(
         (): GetOrganizationQueryVariables => ({
-            ordering: '-created_at',
+            ordering: country ? undefined : '-created_at',
             filters: {
                 search: debouncedSearchText,
                 orderCountryFirst: country ? [country] : undefined,

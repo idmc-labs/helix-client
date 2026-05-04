@@ -63,9 +63,10 @@ function ViolenceContextMultiSelectInput<K extends string>(props: MultiSelectInp
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetViolenceContextQueryVariables => (
-            debouncedSearchText ? { search: debouncedSearchText } : { ordering: '-created_at' }
-        ),
+        (): GetViolenceContextQueryVariables => ({
+            search: debouncedSearchText ?? '',
+            ordering: '-created_at',
+        }),
         [debouncedSearchText],
     );
 
