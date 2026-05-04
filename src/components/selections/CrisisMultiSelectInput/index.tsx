@@ -112,28 +112,16 @@ function CrisisMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetCrisesQueryVariables => {
-            if (!debouncedSearchText) {
-                return {
-                    ordering: '-created_at',
-                    filters: {
-                        countries: countries ?? undefined,
-                        createdByIds: (
-                            showOnlyCrisesCreatedByMe && isDefined(currentUserId)
-                        ) ? [currentUserId] : emptyArray,
-                    },
-                };
-            }
-            return {
-                filters: {
-                    search: debouncedSearchText,
-                    countries: countries ?? undefined,
-                    createdByIds: (
-                        showOnlyCrisesCreatedByMe && isDefined(currentUserId)
-                    ) ? [currentUserId] : emptyArray,
-                },
-            };
-        },
+        (): GetCrisesQueryVariables => ({
+            ordering: '-start_date',
+            filters: {
+                search: debouncedSearchText ?? '',
+                countries: countries ?? undefined,
+                createdByIds: (
+                    showOnlyCrisesCreatedByMe && isDefined(currentUserId)
+                ) ? [currentUserId] : emptyArray,
+            },
+        }),
         [debouncedSearchText, countries, currentUserId, showOnlyCrisesCreatedByMe],
     );
 

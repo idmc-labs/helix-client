@@ -62,11 +62,10 @@ function ClientMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): ApiClientListQueryVariables => (
-            debouncedSearchText
-                ? { search: debouncedSearchText }
-                : { ordering: '-created_at' }
-        ),
+        (): ApiClientListQueryVariables => ({
+            search: debouncedSearchText ?? '',
+            ordering: '-created_at',
+        }),
         [debouncedSearchText],
     );
 

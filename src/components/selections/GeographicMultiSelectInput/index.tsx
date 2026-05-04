@@ -61,9 +61,10 @@ function GeographicMultiSelectInput<K extends string>(props: SelectInputProps<K>
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetGeographicGroupQueryVariables => (
-            debouncedSearchText ? { search: debouncedSearchText } : { ordering: 'name' }
-        ),
+        (): GetGeographicGroupQueryVariables => ({
+            search: debouncedSearchText ?? '',
+            ordering: 'name',
+        }),
         [debouncedSearchText],
     );
 

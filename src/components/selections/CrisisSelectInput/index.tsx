@@ -113,28 +113,16 @@ function CrisisSelectInput<K extends string>(props: SelectInputProps<K>) {
     const currentUserId = user?.id;
 
     const searchVariable = useMemo(
-        (): GetCrisisQueryVariables => {
-            if (!debouncedSearchText) {
-                return {
-                    ordering: '-created_at',
-                    filters: {
-                        countries: countries ?? undefined,
-                        createdByIds: (
-                            showOnlyCrisesCreatedByMe && isDefined(currentUserId)
-                        ) ? [currentUserId] : emptyArray,
-                    },
-                };
-            }
-            return {
-                filters: {
-                    search: debouncedSearchText,
-                    countries: countries ?? undefined,
-                    createdByIds: (
-                        showOnlyCrisesCreatedByMe && isDefined(currentUserId)
-                    ) ? [currentUserId] : emptyArray,
-                },
-            };
-        },
+        (): GetCrisisQueryVariables => ({
+            ordering: '-start_date',
+            filters: {
+                search: debouncedSearchText ?? '',
+                countries: countries ?? undefined,
+                createdByIds: (
+                    showOnlyCrisesCreatedByMe && isDefined(currentUserId)
+                ) ? [currentUserId] : emptyArray,
+            },
+        }),
         [debouncedSearchText, countries, currentUserId, showOnlyCrisesCreatedByMe],
     );
 

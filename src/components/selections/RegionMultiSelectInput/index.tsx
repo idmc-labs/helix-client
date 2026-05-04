@@ -61,9 +61,10 @@ function RegionMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetRegionQueryVariables => (
-            debouncedSearchText ? { search: debouncedSearchText } : { ordering: 'name' }
-        ),
+        (): GetRegionQueryVariables => ({
+            search: debouncedSearchText ?? '',
+            ordering: 'name',
+        }),
         [debouncedSearchText],
     );
 
