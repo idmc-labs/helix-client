@@ -136,7 +136,7 @@ function ClientRecordsFilter(props: ClientFilterProps) {
                     name="search"
                     value={value.search}
                     onChange={onValueChange}
-                    placeholder="Search by name, acronym, contact name or contact email"
+                    placeholder="Search by name, acronym, client code, contact name or contact email"
                 />
                 <BooleanInput
                     className={styles.input}
