@@ -3,7 +3,6 @@ import {
     requiredStringCondition,
     requiredListCondition,
     requiredCondition,
-    urlCondition,
     idCondition,
     nullCondition,
     integerCondition,
@@ -27,6 +26,7 @@ import {
 import {
     getDateFromDateStringOrTimestamp,
     getNow,
+    urlConditionWithProtocolCheck,
 } from '#utils/common';
 import {
     Unit,
@@ -75,13 +75,13 @@ const details: Details = {
             isConfidential: [],
             document: [],
 
-            url: [urlCondition],
+            url: [urlConditionWithProtocolCheck],
             documentUrl: [nullCondition],
         };
         if (value?.document) {
             basicFields = {
                 ...basicFields,
-                documentUrl: [urlCondition],
+                documentUrl: [urlConditionWithProtocolCheck],
                 url: [nullCondition],
             };
         }

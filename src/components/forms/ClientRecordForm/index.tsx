@@ -18,7 +18,6 @@ import {
     PartialForm,
     PurgeNull,
     emailCondition,
-    urlCondition,
     nullCondition,
     arrayCondition,
 } from '@togglecorp/toggle-form';
@@ -42,6 +41,7 @@ import {
     enumLabelSelector,
     GetEnumOptions,
     WithId,
+    urlConditionWithProtocolCheck,
 } from '#utils/common';
 
 import {
@@ -161,7 +161,7 @@ const schema: FormSchema = {
             name: [requiredStringCondition],
             contactName: [requiredStringCondition],
             contactEmail: [requiredStringCondition, emailCondition],
-            contactWebsite: [urlCondition],
+            contactWebsite: [urlConditionWithProtocolCheck],
             isActive: [requiredCondition],
             shareSource: [requiredCondition],
             useCases: [arrayCondition, requiredListCondition],
