@@ -41,6 +41,8 @@ const schema: FormSchema = {
         filterFigureCountries: [arrayCondition],
         search: [],
         reviewStatus: [arrayCondition],
+        filterFigureCategories: [arrayCondition],
+        filterFigureCrisisTypes: [arrayCondition],
         startDateAfter: [],
         endDateBefore: [],
         isPublic: [],
@@ -53,9 +55,23 @@ const schema: FormSchema = {
     }),
 };
 
-const STATUS_OPTIONS = gql`
+const FILTER_OPTIONS = gql`
     query ReportFilterOptions {
         reportReviewFilter: __type(name: "REPORT_REVIEW_FILTER") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        crisisType: __type(name: "CRISIS_TYPE") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        figureCategoryList: __type(name: "FIGURE_CATEGORY_TYPES") {
             name
             enumValues {
                 name
@@ -102,10 +118,10 @@ function ReportFilter(props: ReportFilterProps) {
     );
 
     const {
-        data: statusOptions,
-        loading: statusOptionsLoading,
-        error: statusOptionsError,
-    } = useQuery<ReportFilterOptionsQuery>(STATUS_OPTIONS);
+        data: filterOptions,
+        loading: filterOptionsLoading,
+        error: filterOptionsError,
+    } = useQuery<ReportFilterOptionsQuery>(FILTER_OPTIONS);
 
     const onResetFilters = useCallback(
         () => {
@@ -150,7 +166,7 @@ function ReportFilter(props: ReportFilterProps) {
                 />
                 <MultiSelectInput
                     className={styles.input}
-                    options={statusOptions?.reportReviewFilter?.enumValues}
+                    options={filterOptions?.reportReviewFilter?.enumValues}
                     label="Status"
                     name="reviewStatus"
                     value={value.reviewStatus}
@@ -158,7 +174,29 @@ function ReportFilter(props: ReportFilterProps) {
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     error={error?.fields?.reviewStatus?.$internal}
-                    disabled={statusOptionsLoading || !!statusOptionsError}
+                    disabled={filterOptionsLoading || !!filterOptionsError}
+                />
+                <MultiSelectInput
+                    options={filterOptions?.crisisType?.enumValues}
+                    label="Cause"
+                    name="filterFigureCrisisTypes"
+                    value={value.filterFigureCrisisTypes}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.filterFigureCrisisTypes?.$internal}
+                    disabled={filterOptionsLoading || !!filterOptionsError}
+                />
+                <MultiSelectInput
+                    options={filterOptions?.figureCategoryList?.enumValues}
+                    label="Category"
+                    name="filterFigureCategories"
+                    value={value.filterFigureCategories}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.filterFigureCategories?.$internal}
+                    disabled={filterOptionsLoading || !!filterOptionsError}
                 />
                 <BooleanInput
                     className={styles.input}
