@@ -15,6 +15,7 @@ import {
     isTruthyString,
     sum,
 } from '@togglecorp/fujs';
+import { urlCondition } from '@togglecorp/toggle-form';
 import { v4 as uuidv4 } from 'uuid';
 import {
     BasicEntity,
@@ -411,4 +412,12 @@ export function ghost<T extends { id?: string; uuid: string }>(value: T): T {
         id: undefined,
         uuid: uuidv4(),
     };
+}
+
+export function urlConditionWithProtocolCheck(value: Maybe<string>): string | undefined {
+    const hasError = urlCondition(value);
+
+    return (hasError && isDefined(value) && !urlCondition(`https://${value}`))
+        ? 'The URL is missing a protocol (e.g. https://)'
+        : hasError;
 }

@@ -16,7 +16,6 @@ import {
     idCondition,
     arrayCondition,
     lengthGreaterThanCondition,
-    urlCondition,
     PartialForm,
     PurgeNull,
 } from '@togglecorp/toggle-form';
@@ -36,7 +35,10 @@ import NotificationContext from '#components/NotificationContext';
 import useBasicToggle from '#hooks/useBasicToggle';
 
 import useOptions from '#hooks/useOptions';
-import { WithId } from '#utils/common';
+import {
+    WithId,
+    urlConditionWithProtocolCheck,
+} from '#utils/common';
 import CountryMultiSelectInput from '#components/selections/CountryMultiSelectInput';
 
 import {
@@ -151,7 +153,7 @@ const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         id: [idCondition],
         name: [requiredStringCondition, lengthGreaterThanCondition(3)],
-        url: [requiredStringCondition, urlCondition],
+        url: [requiredStringCondition, urlConditionWithProtocolCheck],
         group: [],
         countries: [requiredListCondition, arrayCondition],
     }),
