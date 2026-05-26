@@ -66,6 +66,7 @@ jobs:
           REACT_APP_MAPBOX_ACCESS_TOKEN: ${{ secrets.REACT_APP_MAPBOX_ACCESS_TOKEN }}
           REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}
           REACT_APP_HCATPCHA_SITEKEY: ${{ secrets.REACT_APP_HCATPCHA_SITEKEY }}
+          REACT_APP_GOOGLE_ANALYTICS_ID: ${{ secrets.REACT_APP_GOOGLE_ANALYTICS_ID}}
 
   run_build:
     name: 🚴 Build 🚴
@@ -95,6 +96,7 @@ jobs:
           REACT_APP_MAPBOX_ACCESS_TOKEN: ${{ secrets.REACT_APP_MAPBOX_ACCESS_TOKEN }}
           REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}
           REACT_APP_HCATPCHA_SITEKEY: ${{ secrets.REACT_APP_HCATPCHA_SITEKEY }}
+          REACT_APP_GOOGLE_ANALYTICS_ID: ${{ secrets.REACT_APP_GOOGLE_ANALYTICS_ID}}
           # Overwrite
           REACT_APP_GRAPHQL_ENDPOINT: "https://helix-tools-api-staging.idmcdb.org/graphql"
           REACT_APP_GRAPHIQL_ENDPOINT: "https://helix-tools-api-staging.idmcdb.org/graphiql"
@@ -110,6 +112,7 @@ jobs:
           REACT_APP_MAPBOX_ACCESS_TOKEN: ${{ secrets.REACT_APP_MAPBOX_ACCESS_TOKEN }}
           REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}
           REACT_APP_HCATPCHA_SITEKEY: ${{ secrets.REACT_APP_HCATPCHA_SITEKEY }}
+          REACT_APP_GOOGLE_ANALYTICS_ID: ${{ secrets.REACT_APP_GOOGLE_ANALYTICS_ID}}
 
   helix_staging_deploy:
     name: HELIX-STAGING

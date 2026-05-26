@@ -1,5 +1,6 @@
-import React from 'react';
-import { Router } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Router, useLocation } from 'react-router-dom';
+import ReactGA from 'react-ga4';
 import { createBrowserHistory } from 'history';
 import {
     init,
@@ -55,6 +56,15 @@ if (sentryDsn) {
 if (mapboxToken) {
     mapboxgl.accessToken = mapboxToken;
 }
+const AnalyticsTracker = () => {
+    const location = useLocation();
+
+    useEffect(() => {
+        ReactGA.send({ hitType: 'pageview', page: location.pathname + location.search });
+    }, [location]);
+
+    return null;
+};
 
 // TODO: upload sourcemaps
 // TODO: track performance monitoring
@@ -69,6 +79,7 @@ function Root(props: Props) {
             showDialog
         >
             <Router history={history}>
+                <AnalyticsTracker />
                 <App {...props} />
             </Router>
         </ErrorBoundary>
