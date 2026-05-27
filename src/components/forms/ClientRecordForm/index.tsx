@@ -3,6 +3,7 @@ import { isDefined, _cs } from '@togglecorp/fujs';
 import {
     Button,
     MultiSelectInput,
+    SelectInput,
     Switch,
     TextArea,
     TextInput,
@@ -54,6 +55,8 @@ import {
     CreateClientMutationVariables,
     UpdateClientMutation,
     UpdateClientMutationVariables,
+    // eslint-disable-next-line camelcase
+    Client_Type,
 } from '#generated/types';
 import styles from './styles.module.css';
 
@@ -70,6 +73,8 @@ const GET_CLIENT = gql`
                 id
                 fullName
             }
+            type
+            typeDisplay
             isActive
             name
             description
@@ -98,6 +103,8 @@ const CREATE_CLIENT = gql`
                 optedOutOfEmails
                 otherNotes
                 useCases
+                type
+                typeDisplay
                 createdAt
                 createdBy {
                     id
@@ -127,6 +134,8 @@ const UPDATE_CLIENT = gql`
                 optedOutOfEmails
                 otherNotes
                 useCases
+                type
+                typeDisplay
                 createdAt
                 createdBy {
                     id
@@ -142,6 +151,13 @@ const UPDATE_CLIENT = gql`
 const CLIENT_OPTIONS = gql`
     query ClientOptions {
         useCaseTypes: __type(name: "USE_CASE_TYPES") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        clientType: __type(name: "CLIENT_TYPE") {
             name
             enumValues {
                 name
@@ -171,6 +187,7 @@ const schema: FormSchema = {
             shareSource: [requiredCondition],
             useCases: [arrayCondition, requiredListCondition],
             optedOutOfEmails: [requiredCondition],
+            type: [requiredCondition],
         });
 
         if (val?.useCases?.includes('OTHER')) {
@@ -191,6 +208,9 @@ const defaultFormValues: PartialForm<FormType> = {
     shareSource: false,
     optedOutOfEmails: false,
 };
+
+// eslint-disable-next-line camelcase
+const clientTypeKeySelector = (option: { name: string }) => option.name as Client_Type;
 
 interface ClientRecordProps {
     className?: string;
@@ -355,6 +375,11 @@ function ClientRecordForm(props: ClientRecordProps) {
         typeof useCaseTypes,
         NonNullable<typeof value.useCases>[number]
     >;
+    const clientTypes = clientOptions?.clientType?.enumValues;
+    type ClientTypeOptions = GetEnumOptions<
+        typeof useCaseTypes,
+        NonNullable<typeof value.type>[number]
+    >;
 
     const handleCopy = useCallback(
         () => {
@@ -474,6 +499,18 @@ function ClientRecordForm(props: ClientRecordProps) {
                 keySelector={enumKeySelector}
                 labelSelector={enumLabelSelector}
                 error={error?.fields?.useCases?.$internal}
+                disabled={clientOptionsLoading || !!clientOptionsError}
+                readOnly={readOnly}
+            />
+            <SelectInput
+                label="Type *"
+                name="type"
+                options={clientTypes as ClientTypeOptions}
+                value={value.type}
+                onChange={onValueChange}
+                keySelector={clientTypeKeySelector}
+                labelSelector={enumLabelSelector}
+                error={error?.fields?.type}
                 disabled={clientOptionsLoading || !!clientOptionsError}
                 readOnly={readOnly}
             />

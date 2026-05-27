@@ -20,16 +20,23 @@ import NonFieldError from '#components/NonFieldError';
 import BooleanInput from '#components/selections/BooleanInput';
 import {
     ClientListQueryVariables,
-    ClientUseCaseOptionsQuery,
-    ClientUseCaseOptionsQueryVariables,
+    ClientEnumOptionsQuery,
+    ClientEnumOptionsQueryVariables,
 } from '#generated/types';
 import { enumKeySelector, enumLabelSelector, GetEnumOptions } from '#utils/common';
 
 import styles from './styles.module.css';
 
-const CLIENT_USE_CASE_OPTIONS = gql`
-    query ClientUseCaseOptions {
+const CLIENT_ENUM_OPTIONS = gql`
+    query ClientEnumOptions {
         useCaseTypes: __type(name: "USE_CASE_TYPES") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        clientType: __type(name: "CLIENT_TYPE") {
             name
             enumValues {
                 name
@@ -51,6 +58,7 @@ const schema: FormSchema = {
         search: [],
         useCases: [arrayCondition],
         shareSource: [],
+        type: [arrayCondition],
     }),
 };
 
@@ -95,9 +103,9 @@ function ClientRecordsFilter(props: ClientFilterProps) {
         loading: optionsLoading,
         error: optionsError,
     } = useQuery<
-        ClientUseCaseOptionsQuery,
-        ClientUseCaseOptionsQueryVariables
-    >(CLIENT_USE_CASE_OPTIONS);
+        ClientEnumOptionsQuery,
+        ClientEnumOptionsQueryVariables
+    >(CLIENT_ENUM_OPTIONS);
 
     const onResetFilters = useCallback(
         () => {
@@ -116,6 +124,11 @@ function ClientRecordsFilter(props: ClientFilterProps) {
     type UseCaseTypeOptions = GetEnumOptions<
         typeof useCaseTypes,
         NonNullable<typeof value.useCases>[number]
+    >;
+    const clientTypes = options?.clientType?.enumValues;
+    type ClientTypeOptions = GetEnumOptions<
+        typeof clientTypes,
+        NonNullable<typeof value.type>[number]
     >;
 
     const filterChanged = initialFilter !== value;
@@ -155,6 +168,17 @@ function ClientRecordsFilter(props: ClientFilterProps) {
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     error={error?.fields?.useCases?.$internal}
+                    disabled={optionsLoading || !!optionsError}
+                />
+                <MultiSelectInput
+                    label="Type"
+                    name="type"
+                    options={clientTypes as ClientTypeOptions}
+                    value={value.type}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.type?.$internal}
                     disabled={optionsLoading || !!optionsError}
                 />
                 <BooleanInput
