@@ -60,6 +60,9 @@ const HOUSEHOLD_SIZE_LIST = gql`
                 source
                 sourceLink
                 notes
+                gapFillingMethod
+                gapFillingMethodDisplay
+                referenceYear
                 country {
                     id
                     iso3
@@ -165,6 +168,13 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
                 { sortable: true },
                 'very-small',
             ),
+            createTextColumn<HouseholdSizeFields, string>(
+                'referenceYear',
+                'Reference Year',
+                (item) => String(item.referenceYear),
+                { sortable: true },
+                'very-small',
+            ),
             createNumberColumn<HouseholdSizeFields, string>(
                 'size',
                 'AHHS',
@@ -176,6 +186,11 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
                 'source',
                 'Source',
                 (item) => item.source,
+            ),
+            createTextColumn<HouseholdSizeFields, string>(
+                'gapFillingMethod',
+                'Gap Filling Method',
+                (item) => item.gapFillingMethodDisplay,
             ),
             createTextColumn<HouseholdSizeFields, string>(
                 'notes',
