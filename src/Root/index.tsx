@@ -56,11 +56,25 @@ if (sentryDsn) {
 if (mapboxToken) {
     mapboxgl.accessToken = mapboxToken;
 }
+
+const getPageCategory = (pathname: string): string => {
+    const match = pathname.match(/^\/([^/]+)/);
+    if (match) {
+        return match[1];
+    }
+    return 'dashboard';
+};
+
 const AnalyticsTracker = () => {
     const location = useLocation();
 
     useEffect(() => {
-        ReactGA.send({ hitType: 'pageview', page: location.pathname + location.search });
+        const category = getPageCategory(location.pathname);
+        ReactGA.send({
+            hitType: 'pageview',
+            page: location.pathname + location.search,
+            content_group: category,
+        });
     }, [location]);
 
     return null;
