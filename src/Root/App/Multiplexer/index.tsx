@@ -1,4 +1,4 @@
-import React, { Suspense, useState, useCallback, useMemo } from 'react';
+import React, { Suspense, useState, useCallback, useMemo, useEffect } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { setUser as setUserOnSentry, withSentryRouting } from '@sentry/react';
 import { Switch, Route as RawRoute } from 'react-router-dom';
@@ -141,6 +141,12 @@ function Multiplexer(props: Props) {
         [key: string]: Notification;
     }>({});
 
+    useEffect(() => {
+        // NOTE: Checking filter version compatibility on login
+        // Local storage is cleared in case of version mismatch
+        filterStorage.clearOnVersionMismatch();
+    }, []);
+
     const userWithPermissions = useMemo(
         (): User | undefined => {
             if (!user) {
@@ -164,11 +170,19 @@ function Multiplexer(props: Props) {
                     const newUser = u(oldUser);
                     sync(!!newUser, newUser?.id);
                     setUserOnSentry(newUser === undefined ? null : newUser);
+                    if (isNotDefined(newUser)) {
+                        // NOTE: Clearing persistent filters if user is undefined
+                        filterStorage.clearAll();
+                    }
                     return newUser;
                 });
             } else {
                 sync(!!u, u?.id);
                 setUserOnSentry(u === undefined ? null : u);
+                if (isNotDefined(u)) {
+                    // NOTE: Clearing persistent filters if user is undefined
+                    filterStorage.clearAll();
+                }
                 setUser(u);
             }
         },
@@ -183,13 +197,6 @@ function Multiplexer(props: Props) {
         onCompleted: (data) => {
             setUserWithSentry(removeNull(data.me));
             setWaiting(false);
-            // NOTE: Checking filter version compatibility on login
-            // Local storage is cleared in case of version mismatch
-            filterStorage.clearOnVersionMismatch();
-        },
-        onError: () => {
-            // NOTE: Clearing all persistent filters on user session end
-            filterStorage.clearAll();
         },
     });
 
