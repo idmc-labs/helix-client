@@ -137,6 +137,7 @@ function OrganizationFilter(props: OrganizationFilterProps) {
                     icons={<IoSearchOutline />}
                     label="Search"
                     name="search"
+                    placeholder="Search by name or country"
                     value={value.search}
                     onChange={onValueChange}
                     error={error?.fields?.search}
