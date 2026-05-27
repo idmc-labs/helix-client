@@ -76,6 +76,8 @@ const CLIENT_LIST = gql`
                 useCases
                 useCasesDisplay
                 optedOutOfEmails
+                type
+                typeDisplay
                 createdAt
                 createdBy {
                     id
@@ -280,6 +282,11 @@ function ClientRecordsTable(props: ClientRecordProps) {
                 'useCasesDisplay',
                 'Use Cases',
                 (item) => item?.useCasesDisplay?.map((useCase) => useCase).join(', '),
+            ),
+            createTextColumn<ClientFields, string>(
+                'type',
+                'Type',
+                (item) => item.typeDisplay,
             ),
             createYesNoColumn<ClientFields, string>(
                 'is_active',
