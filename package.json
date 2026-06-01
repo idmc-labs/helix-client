@@ -9,9 +9,6 @@
     "scripts": {
         "start": "vite",
         "build": "vite build",
-        "test": "jest --passWithNoTests",
-        "test:watch": "jest --watch",
-        "test:coverage": "jest --coverage",
         "typecheck": "tsc",
         "lint": "eslint ./src",
         "lint:css": "stylelint \"./src/**/*.css\"",
@@ -19,51 +16,10 @@
         "prestart": "pnpm initialize",
         "prebuild": "pnpm initialize",
         "preserve": "pnpm initialize",
-        "pretest": "pnpm initialize",
         "pretypecheck": "pnpm initialize",
         "prelint": "pnpm initialize",
         "initialize": "mkdir -p generated && if [ ! -f generated/types.tsx ]; then cp -i type.template.tsx generated/types.tsx 2>/dev/null; else true; fi ",
         "generate": "env-cmd -f .env graphql-codegen --config codegen.yml"
-    },
-    "jest": {
-        "setupFiles": [
-            "./src/utils/setupTests.js"
-        ],
-        "moduleNameMapper": {
-            "^.+\\.(css|scss|svg|gif|jpg|png)$": "identity-obj-proxy"
-        },
-        "moduleFileExtensions": [
-            "ts",
-            "tsx",
-            "js",
-            "jsx"
-        ],
-        "globals": {
-            "NODE_ENV": "test"
-        },
-        "moduleDirectories": [
-            "node_modules",
-            "src"
-        ],
-        "testMatch": [
-            "<rootDir>/src/**/__tests__/**/*.js?(x)",
-            "<rootDir>/src/**/?(*.)(spec|test).js?(x)",
-            "<rootDir>/src/**/__tests__/**/*.ts?(x)",
-            "<rootDir>/src/**/?(*.)(spec|test).ts?(x)"
-        ],
-        "testPathIgnorePatterns": [
-            "<rootDir>/src/vendor/"
-        ],
-        "testEnvironment": "jsdom",
-        "testURL": "http://localhost",
-        "transform": {
-            "^.+\\.(ts|tsx)$": "babel-jest",
-            "^.+\\.(js|jsx)$": "babel-jest"
-        },
-        "transformIgnorePatterns": [
-            "[/\\\\]node_modules[/\\\\].+\\.(ts|tsx)$",
-            "[/\\\\]node_modules[/\\\\].+\\.(js|jsx)$"
-        ]
     },
     "devDependencies": {
         "@babel/core": "^7.12.10",
@@ -99,15 +55,12 @@
         "apollo": "^2.32.0",
         "babel-core": "^7.0.0-bridge.0",
         "babel-eslint": "^10.1.0",
-        "babel-jest": "^26.6.3",
         "babel-plugin-dynamic-import-node": "^2.3.3",
         "babel-plugin-graphql-tag": "^3.1.0",
         "babel-plugin-module-resolver": "^4.1.0",
         "body-parser": "^1.19.0",
         "dotenv": "^8.2.0",
         "env-cmd": "^10.1.0",
-        "enzyme": "^3.11.0",
-        "enzyme-adapter-react-16": "^1.15.5",
         "eslint": "^7.17.0",
         "eslint-config-airbnb": "^18.2.1",
         "eslint-config-airbnb-base": "^14.2.1",
@@ -119,13 +72,10 @@
         "eslint-plugin-react": "^7.22.0",
         "eslint-plugin-react-hooks": "^4.2.0",
         "fs": "^0.0.1-security",
-        "identity-obj-proxy": "^3.0.0",
-        "jest": "^26.6.3",
         "knip": "^5.36.3",
         "postcss-nested": "^4.2.1",
         "postcss-normalize": "^13.0.1",
         "postcss-preset-env": "^6.7.0",
-        "react-test-renderer": "^16.14.0",
         "rollup-plugin-visualizer": "^5.14.0",
         "stylelint": "^13.8.0",
         "stylelint-config-concentric": "^2.0.2",

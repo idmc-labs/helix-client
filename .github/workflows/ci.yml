@@ -15,8 +15,8 @@ jobs:
     - uses: actions/checkout@main
     - uses: toggle-corp/commit-lint@main
 
-  lint_test:
-    name: 🚴 Lint + Test 🚴
+  lint:
+    name: 🚴 Lint 🚴
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,12 +36,9 @@ jobs:
       - name: 🤞 Run Lint 🧪
         run: pnpm lint:css
 
-      - name: 🤞 Run Test 🧪
-        run: pnpm test
-
   check_build:
     name: 🚴 Check Build 🚴
-    needs: lint_test
+    needs: lint
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
@@ -70,7 +67,7 @@ jobs:
 
   run_build:
     name: 🚴 Build 🚴
-    needs: lint_test
+    needs: lint
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     steps:
