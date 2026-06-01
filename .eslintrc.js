@@ -14,20 +14,6 @@ const config = {
     ],
     settings: {
         'import/resolver': {
-            'babel-module': {
-                root: ['.'],
-                extensions: ['.js', '.jsx', '.ts', '.tsx'],
-                alias: {
-                    '#generated': './generated',
-                    '#components': './src/components',
-                    '#config': './src/config',
-                    '#resources': './src/resources',
-                    '#utils': './src/utils',
-                    '#views': './src/views',
-                    '#types': './src/types',
-                    '#hooks': './src/hooks',
-                },
-            },
             typescript: {
                 project: './tsconfig.json',
             },
