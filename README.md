@@ -87,6 +87,7 @@ JavaScript practices and TypeScript for enhanced type safety.
    REACT_APP_SENTRY_DSN=your_sentry_dsn (optional)
    REACT_APP_MAPBOX_ACCESS_TOKEN=your_mapbox_token (optional)
    REACT_APP_HCATPCHA_SITEKEY=the_captcha_key (optional)
+   REACT_APP_GOOGLE_ANALYTICS_ID=google_analytics_id(optional)
    ```
 
 ### Installation

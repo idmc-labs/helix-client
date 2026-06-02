@@ -28,6 +28,9 @@ const config = {
                     '#hooks': './src/hooks',
                 },
             },
+            typescript: {
+                project: './tsconfig.json',
+            },
         },
         react: {
             version: 'detect',
