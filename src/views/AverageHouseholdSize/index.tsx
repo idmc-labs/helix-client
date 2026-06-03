@@ -21,6 +21,7 @@ import PageHeader from '#components/PageHeader';
 import TableMessage from '#components/TableMessage';
 import {
     createTextColumn,
+    createDateColumn,
     createNumberColumn,
 } from '#components/tableHelpers';
 import useFilterState from '#hooks/useFilterState';
@@ -62,7 +63,7 @@ const HOUSEHOLD_SIZE_LIST = gql`
                 notes
                 gapFillingMethod
                 gapFillingMethodDisplay
-                referenceYear
+                referenceDate
                 country {
                     id
                     iso3
@@ -168,19 +169,18 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
                 { sortable: true },
                 'very-small',
             ),
-            createTextColumn<HouseholdSizeFields, string>(
-                'referenceYear',
-                'Reference Year',
-                (item) => String(item.referenceYear),
+            createDateColumn<HouseholdSizeFields, string>(
+                'referenceDate',
+                'Reference Date',
+                (item) => item.referenceDate,
                 { sortable: true },
-                'very-small',
             ),
             createNumberColumn<HouseholdSizeFields, string>(
                 'size',
                 'AHHS',
                 (item) => item.size,
                 { sortable: true },
-                'medium-large',
+                'small',
             ),
             createTextColumn<HouseholdSizeFields, string>(
                 'source',
