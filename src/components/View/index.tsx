@@ -1,5 +1,5 @@
 import React, { useEffect, lazy, useContext } from 'react';
-import { Redirect } from 'react-router-dom';
+import { Redirect, useLocation } from 'react-router-dom';
 import ReactGA from 'react-ga4';
 
 import DomainContext from '#components/DomainContext';
@@ -14,7 +14,7 @@ const FourHundredThree = lazy(
     () => import('../../views/FourHundredThree'),
 );
 
-type CategoryType = 'general' | 'authentication' | 'core' | 'review' | 'data' | 'addition' | 'error';
+type CategoryType = 'annotation' | 'authentication' | 'administration' | 'reporting' | 'review' | 'exploration' | 'notifications' | 'error';
 export interface ViewProps<T extends { className?: string }> {
     title: string;
     navbarVisibility: boolean;
@@ -50,15 +50,16 @@ function View<T extends { className?: string }>(props: ViewProps<T>) {
     const redirectToSignIn = visibility === 'is-authenticated' && !authenticated;
     const redirectToHome = visibility === 'is-not-authenticated' && authenticated;
     const redirect = redirectToSignIn || redirectToHome;
-
+    const location = useLocation();
     useEffect(() => {
+        const cleanPath = path.replace(/\([^)]*\)/g, '');
         ReactGA.send({
             hitType: 'pageview',
-            page: path,
+            page: cleanPath,
             title,
             content_group: category,
         });
-    }, [category, path, title]);
+    }, [category, path, title, location.pathname]);
 
     useEffect(
         () => {
