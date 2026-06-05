@@ -52,6 +52,7 @@ function View<T extends { className?: string }>(props: ViewProps<T>) {
     const redirect = redirectToSignIn || redirectToHome;
     const location = useLocation();
     useEffect(() => {
+        // NOTE: remove route parameter validation regex from the route pattern
         const cleanPath = path.replace(/\([^)]*\)/g, '');
         ReactGA.send({
             hitType: 'pageview',
@@ -59,7 +60,14 @@ function View<T extends { className?: string }>(props: ViewProps<T>) {
             title,
             content_group: category,
         });
-    }, [category, path, title, location.pathname]);
+    }, [
+        category,
+        path,
+        title,
+        // NOTE: Including location.pathname to dependency array
+        // to trigger sending the GA when URL changes for the same route pattern.
+        location.pathname,
+    ]);
 
     useEffect(
         () => {
