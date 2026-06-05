@@ -12,7 +12,8 @@ const debugMode = environment.startsWith('ALPHA') || environment.startsWith('dev
 
 if (TRACKING_ID) {
     ReactGA.initialize(TRACKING_ID, {
-        gaOptions: {
+        gtagOptions: {
+            send_page_view: false,
             debug_mode: debugMode, // NOTE: Enabling this to show hits in GA4 DebugView
         },
     });
