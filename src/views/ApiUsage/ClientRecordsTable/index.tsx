@@ -76,6 +76,8 @@ const CLIENT_LIST = gql`
                 useCases
                 useCasesDisplay
                 optedOutOfEmails
+                type
+                typeDisplay
                 createdAt
                 createdBy {
                     id
@@ -233,9 +235,10 @@ function ClientRecordsTable(props: ClientRecordProps) {
     const columns = useMemo(
         () => ([
             createDateColumn<ClientFields, string>(
-                'date_created',
+                'created_at',
                 'Date Created',
                 (item) => item.createdAt,
+                { sortable: true },
             ),
             createTextColumn<ClientFields, string>(
                 'created_by',
@@ -259,6 +262,11 @@ function ClientRecordsTable(props: ClientRecordProps) {
                 'Name',
                 (item) => item.name,
                 { sortable: true },
+            ),
+            createTextColumn<ClientFields, string>(
+                'type',
+                'Type',
+                (item) => item.typeDisplay,
             ),
             createTextColumn<ClientFields, string>(
                 'contactName',
