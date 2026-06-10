@@ -235,9 +235,10 @@ function ClientRecordsTable(props: ClientRecordProps) {
     const columns = useMemo(
         () => ([
             createDateColumn<ClientFields, string>(
-                'date_created',
+                'created_at',
                 'Date Created',
                 (item) => item.createdAt,
+                { sortable: true },
             ),
             createTextColumn<ClientFields, string>(
                 'created_by',
