@@ -33,6 +33,7 @@ import {
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
+import Row from '#components/Row';
 import Loading from '#components/Loading';
 import BooleanInput from '#components/selections/BooleanInput';
 
@@ -427,24 +428,38 @@ function ClientRecordForm(props: ClientRecordProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <TextInput
-                label="Acronym"
-                name="acronym"
-                value={value.acronym}
+            <Row>
+                <TextInput
+                    label="Name *"
+                    name="name"
+                    value={value.name}
+                    onChange={onValueChange}
+                    error={error?.fields?.name}
+                    readOnly={readOnly}
+                    autoFocus
+                    disabled={disabled}
+                />
+                <TextInput
+                    label="Acronym"
+                    name="acronym"
+                    value={value.acronym}
+                    onChange={onValueChange}
+                    error={error?.fields?.acronym}
+                    readOnly={readOnly}
+                    disabled={disabled}
+                />
+            </Row>
+            <SelectInput
+                label="Type *"
+                name="type"
+                options={clientTypes as ClientTypeOptions}
+                value={value.type}
                 onChange={onValueChange}
-                error={error?.fields?.acronym}
+                keySelector={clientTypeKeySelector}
+                labelSelector={enumLabelSelector}
+                error={error?.fields?.type}
+                disabled={clientOptionsLoading || !!clientOptionsError}
                 readOnly={readOnly}
-                autoFocus
-                disabled={disabled}
-            />
-            <TextInput
-                label="Name *"
-                name="name"
-                value={value.name}
-                onChange={onValueChange}
-                error={error?.fields?.name}
-                readOnly={readOnly}
-                disabled={disabled}
             />
             <TextArea
                 label="Description"
@@ -455,24 +470,26 @@ function ClientRecordForm(props: ClientRecordProps) {
                 error={error?.fields?.description}
                 readOnly={readOnly}
             />
-            <TextInput
-                label="Contact Name *"
-                name="contactName"
-                value={value.contactName}
-                onChange={onValueChange}
-                error={error?.fields?.contactName}
-                readOnly={readOnly}
-                disabled={disabled}
-            />
-            <TextInput
-                label="Contact Email *"
-                name="contactEmail"
-                value={value.contactEmail}
-                onChange={onValueChange}
-                error={error?.fields?.contactEmail}
-                readOnly={readOnly}
-                disabled={disabled}
-            />
+            <Row>
+                <TextInput
+                    label="Contact Name *"
+                    name="contactName"
+                    value={value.contactName}
+                    onChange={onValueChange}
+                    error={error?.fields?.contactName}
+                    readOnly={readOnly}
+                    disabled={disabled}
+                />
+                <TextInput
+                    label="Contact Email *"
+                    name="contactEmail"
+                    value={value.contactEmail}
+                    onChange={onValueChange}
+                    error={error?.fields?.contactEmail}
+                    readOnly={readOnly}
+                    disabled={disabled}
+                />
+            </Row>
             <TextInput
                 label="Website"
                 name="contactWebsite"
@@ -481,14 +498,6 @@ function ClientRecordForm(props: ClientRecordProps) {
                 error={error?.fields?.contactWebsite}
                 readOnly={readOnly}
                 disabled={disabled}
-            />
-            <BooleanInput
-                label="Active *"
-                name="isActive"
-                value={value.isActive}
-                onChange={onValueChange}
-                error={error?.fields?.isActive}
-                readOnly={readOnly}
             />
             <MultiSelectInput
                 label="Use Cases *"
@@ -502,29 +511,9 @@ function ClientRecordForm(props: ClientRecordProps) {
                 disabled={clientOptionsLoading || !!clientOptionsError}
                 readOnly={readOnly}
             />
-            <SelectInput
-                label="Type *"
-                name="type"
-                options={clientTypes as ClientTypeOptions}
-                value={value.type}
-                onChange={onValueChange}
-                keySelector={clientTypeKeySelector}
-                labelSelector={enumLabelSelector}
-                error={error?.fields?.type}
-                disabled={clientOptionsLoading || !!clientOptionsError}
-                readOnly={readOnly}
-            />
-            <BooleanInput
-                label="Share source *"
-                name="shareSource"
-                value={value.shareSource}
-                onChange={onValueChange}
-                error={error?.fields?.shareSource}
-                readOnly={readOnly}
-            />
             {visibleNotes && (
                 <TextInput
-                    label="Notes *"
+                    label="Notes on Use Cases*"
                     name="otherNotes"
                     value={value.otherNotes}
                     onChange={onValueChange}
@@ -533,6 +522,24 @@ function ClientRecordForm(props: ClientRecordProps) {
                     disabled={disabled}
                 />
             )}
+            <Row>
+                <BooleanInput
+                    label="Active *"
+                    name="isActive"
+                    value={value.isActive}
+                    onChange={onValueChange}
+                    error={error?.fields?.isActive}
+                    readOnly={readOnly}
+                />
+                <BooleanInput
+                    label="Share source *"
+                    name="shareSource"
+                    value={value.shareSource}
+                    onChange={onValueChange}
+                    error={error?.fields?.shareSource}
+                    readOnly={readOnly}
+                />
+            </Row>
             <Switch
                 name="optedOutOfEmails"
                 label="Opted-out of receiving emails"
