@@ -263,6 +263,11 @@ function ClientRecordsTable(props: ClientRecordProps) {
                 { sortable: true },
             ),
             createTextColumn<ClientFields, string>(
+                'type',
+                'Type',
+                (item) => item.typeDisplay,
+            ),
+            createTextColumn<ClientFields, string>(
                 'contactName',
                 'Contact Name',
                 (item) => item.contactName,
@@ -282,11 +287,6 @@ function ClientRecordsTable(props: ClientRecordProps) {
                 'useCasesDisplay',
                 'Use Cases',
                 (item) => item?.useCasesDisplay?.map((useCase) => useCase).join(', '),
-            ),
-            createTextColumn<ClientFields, string>(
-                'type',
-                'Type',
-                (item) => item.typeDisplay,
             ),
             createYesNoColumn<ClientFields, string>(
                 'is_active',
