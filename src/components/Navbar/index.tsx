@@ -22,7 +22,6 @@ import OptionContext from '#components/OptionContext';
 import { LogoutMutation } from '#generated/types';
 import useModalState from '#hooks/useModalState';
 import route from '#config/routes';
-import { filterStorage } from '#utils/filterStorage';
 
 import Downloads from './Downloads';
 import Notifications from './Notifications';
@@ -69,8 +68,6 @@ function Navbar(props: Props) {
             onCompleted: (data) => {
                 if (data.logout?.ok) {
                     setUser(undefined);
-                    // NOTE: Clear all local storage values on logout
-                    filterStorage.clearAll();
                     // NOTE: clearing options upon logout to prevent maintaining same state
                     // in case the user logs back in without a full page refresh.
                     setOptions({});

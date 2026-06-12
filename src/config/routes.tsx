@@ -18,6 +18,7 @@ export function wrap<T extends string, K extends { className?: string }>(
         path,
         load: () => (
             <View
+                path={path}
                 component={component}
                 componentProps={componentProps}
                 {...otherProps}
@@ -36,6 +37,7 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-authenticated',
+        category: 'exploration',
     }),
     notifications: wrap({
         path: '/notifications/',
@@ -46,6 +48,7 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-authenticated',
+        category: 'notifications',
     }),
     regions: wrap({
         path: '/monitoring-regions/',
@@ -56,6 +59,7 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-authenticated',
+        category: 'exploration',
     }),
     countries: wrap({
         path: '/countries/',
@@ -66,6 +70,7 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-authenticated',
+        category: 'exploration',
     }),
     country: wrap({
         path: '/countries/:countryId(\\d+)/',
@@ -76,6 +81,7 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-authenticated',
+        category: 'exploration',
     }),
     event: wrap({
         path: '/events/:eventId(\\d+)/',
@@ -86,6 +92,7 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-authenticated',
+        category: 'annotation',
     }),
     crisis: wrap({
         path: '/crises/:crisisId(\\d+)/',
@@ -96,6 +103,7 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-authenticated',
+        category: 'annotation',
     }),
     crises: wrap({
         path: '/crises/',
@@ -106,6 +114,7 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-authenticated',
+        category: 'exploration',
     }),
     events: wrap({
         path: '/events/',
@@ -116,6 +125,7 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-authenticated',
+        category: 'exploration',
     }),
     extraction: wrap({
         path: '/extractions/:queryId(\\d+)/',
@@ -126,6 +136,7 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-authenticated',
+        category: 'annotation',
     }),
     extractions: wrap({
         path: '/extractions/',
@@ -136,6 +147,7 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-authenticated',
+        category: 'annotation',
     }),
     contextualUpdates: wrap({
         path: '/contextual-updates/',
@@ -146,6 +158,7 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-authenticated',
+        category: 'exploration',
     }),
     // TODO: add contextual Update page
     contextualUpdateView: wrap({
@@ -157,6 +170,7 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-authenticated',
+        category: 'exploration',
     }),
     newEntry: wrap({
         path: '/entries/new/',
@@ -169,6 +183,7 @@ const routeSettings = {
         },
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => permissions.entry?.add,
+        category: 'annotation',
     }),
     entryEdit: wrap({
         path: '/entries/:entryId(\\d+)/edit/',
@@ -181,6 +196,7 @@ const routeSettings = {
         },
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => permissions.entry?.change,
+        category: 'annotation',
     }),
     newEntryFromParkedItem: wrap({
         path: '/entries/new-from-parked-item/:parkedItemId(\\d+)/',
@@ -193,6 +209,7 @@ const routeSettings = {
         },
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => permissions.entry?.add,
+        category: 'annotation',
     }),
     entryView: wrap({
         path: '/entries/:entryId(\\d+)/',
@@ -204,6 +221,7 @@ const routeSettings = {
             mode: 'view',
         },
         visibility: 'is-authenticated',
+        category: 'review',
     }),
     reports: wrap({
         path: '/reports/',
@@ -214,6 +232,7 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-authenticated',
+        category: 'reporting',
     }),
     report: wrap({
         path: '/reports/:reportId(\\d+)/',
@@ -224,6 +243,7 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-authenticated',
+        category: 'reporting',
     }),
     contacts: wrap({
         path: '/contacts/',
@@ -239,6 +259,7 @@ const routeSettings = {
             || permissions.contact?.change
             || permissions.contact?.delete
         ),
+        category: 'administration',
     }),
     gidd: wrap({
         path: '/gidd/',
@@ -253,6 +274,7 @@ const routeSettings = {
             permissions.gidd?.update_gidd_data
             || permissions.gidd?.update_release_meta_data
         ),
+        category: 'reporting',
     }),
     admin: wrap({
         path: '/admin/',
@@ -268,6 +290,7 @@ const routeSettings = {
             || permissions.user?.change
             || permissions.user?.delete
         ),
+        category: 'administration',
     }),
     organizations: wrap({
         path: '/organizations/',
@@ -283,6 +306,7 @@ const routeSettings = {
             || permissions.organization?.change
             || permissions.organization?.delete
         ),
+        category: 'administration',
     }),
     actors: wrap({
         path: '/actors/',
@@ -298,6 +322,7 @@ const routeSettings = {
             || permissions.actor?.change
             || permissions.actor?.delete
         ),
+        category: 'administration',
     }),
     parkingLot: wrap({
         path: '/parking-lot/',
@@ -313,6 +338,7 @@ const routeSettings = {
             || permissions.parkeditem?.change
             || permissions.parkeditem?.delete
         ),
+        category: 'annotation',
     }),
     figureTags: wrap({
         path: '/tags/',
@@ -328,6 +354,7 @@ const routeSettings = {
             || permissions.figuretag?.change
             || permissions.figuretag?.delete
         ),
+        category: 'administration',
     }),
     violenceContext: wrap({
         path: '/violence-context/',
@@ -343,6 +370,7 @@ const routeSettings = {
             || permissions.contextofviolence?.change
             || permissions.contextofviolence?.delete
         ),
+        category: 'administration',
     }),
     qaDashboard: wrap({
         path: '/qa/',
@@ -358,6 +386,7 @@ const routeSettings = {
             || permissions.event?.change
             || permissions.event?.delete
         ),
+        category: 'review',
     }),
     apiUsage: wrap({
         path: '/api-usage/',
@@ -373,6 +402,7 @@ const routeSettings = {
             || permissions.event?.change
             || permissions.event?.delete
         ),
+        category: 'administration',
     }),
     averageHouseholdSize: wrap({
         path: '/ahhs/',
@@ -383,6 +413,7 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-authenticated',
+        category: 'administration',
     }),
     signIn: wrap({
         path: '/sign-in/',
@@ -393,6 +424,7 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-not-authenticated',
+        category: 'authentication',
     }),
     signUp: wrap({
         path: '/sign-up/',
@@ -403,6 +435,7 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-not-authenticated',
+        category: 'authentication',
     }),
     forgetPassword: wrap({
         path: '/forget-password/',
@@ -413,6 +446,7 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-not-authenticated',
+        category: 'authentication',
     }),
     resetPassword: wrap({
         path: '/reset-password/:userId/:resetToken/',
@@ -423,6 +457,7 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-not-authenticated',
+        category: 'authentication',
     }),
     eventReview: wrap({
         path: '/events/:eventId/review/',
@@ -437,6 +472,7 @@ const routeSettings = {
             permissions.event?.sign_off
             || permissions.figure?.approve
         ),
+        category: 'review',
     }),
     /*
     lost: wrap({
@@ -461,6 +497,8 @@ export const lostRoute = {
             }}
             visibility="is-anything"
             navbarVisibility
+            category="error"
+            path="*"
         />
     ),
 };

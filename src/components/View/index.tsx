@@ -1,5 +1,6 @@
 import React, { useEffect, lazy, useContext } from 'react';
-import { Redirect } from 'react-router-dom';
+import { Redirect, useLocation } from 'react-router-dom';
+import ReactGA from 'react-ga4';
 
 import DomainContext from '#components/DomainContext';
 import DocumentTitle from '#components/DocumentTitle';
@@ -13,6 +14,7 @@ const FourHundredThree = lazy(
     () => import('../../views/FourHundredThree'),
 );
 
+type CategoryType = 'annotation' | 'authentication' | 'administration' | 'reporting' | 'review' | 'exploration' | 'notifications' | 'error';
 export interface ViewProps<T extends { className?: string }> {
     title: string;
     navbarVisibility: boolean;
@@ -22,6 +24,8 @@ export interface ViewProps<T extends { className?: string }> {
     visibility: Visibility,
     // onlyAdminAccess?: boolean,
     checkPermissions?: (permissions: NonNullable<User['permissions']>) => boolean | undefined,
+    category: CategoryType;
+    path: string;
 }
 
 function View<T extends { className?: string }>(props: ViewProps<T>) {
@@ -33,6 +37,8 @@ function View<T extends { className?: string }>(props: ViewProps<T>) {
         visibility,
         // onlyAdminAccess,
         checkPermissions,
+        category,
+        path,
     } = props;
 
     const {
@@ -44,6 +50,24 @@ function View<T extends { className?: string }>(props: ViewProps<T>) {
     const redirectToSignIn = visibility === 'is-authenticated' && !authenticated;
     const redirectToHome = visibility === 'is-not-authenticated' && authenticated;
     const redirect = redirectToSignIn || redirectToHome;
+    const location = useLocation();
+    useEffect(() => {
+        // NOTE: remove route parameter validation regex from the route pattern
+        const cleanPath = path.replace(/\([^)]*\)/g, '');
+        ReactGA.send({
+            hitType: 'pageview',
+            page: cleanPath,
+            title,
+            content_group: category,
+        });
+    }, [
+        category,
+        path,
+        title,
+        // NOTE: Including location.pathname to dependency array
+        // to trigger sending the GA when URL changes for the same route pattern.
+        location.pathname,
+    ]);
 
     useEffect(
         () => {

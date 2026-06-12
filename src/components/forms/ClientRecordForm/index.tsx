@@ -1,10 +1,12 @@
 import React, { useContext, useCallback, useMemo, useState } from 'react';
 import { isDefined, _cs } from '@togglecorp/fujs';
 import {
-    TextInput,
     Button,
-    Switch,
     MultiSelectInput,
+    SelectInput,
+    Switch,
+    TextArea,
+    TextInput,
 } from '@togglecorp/toggle-ui';
 import {
     idCondition,
@@ -18,7 +20,6 @@ import {
     PartialForm,
     PurgeNull,
     emailCondition,
-    urlCondition,
     nullCondition,
     arrayCondition,
 } from '@togglecorp/toggle-form';
@@ -32,6 +33,7 @@ import {
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
+import Row from '#components/Row';
 import Loading from '#components/Loading';
 import BooleanInput from '#components/selections/BooleanInput';
 
@@ -42,6 +44,7 @@ import {
     enumLabelSelector,
     GetEnumOptions,
     WithId,
+    urlConditionWithProtocolCheck,
 } from '#utils/common';
 
 import {
@@ -53,6 +56,8 @@ import {
     CreateClientMutationVariables,
     UpdateClientMutation,
     UpdateClientMutationVariables,
+    // eslint-disable-next-line camelcase
+    Client_Type,
 } from '#generated/types';
 import styles from './styles.module.css';
 
@@ -69,8 +74,11 @@ const GET_CLIENT = gql`
                 id
                 fullName
             }
+            type
+            typeDisplay
             isActive
             name
+            description
             shareSource
             useCases
             optedOutOfEmails
@@ -91,10 +99,13 @@ const CREATE_CLIENT = gql`
                 contactWebsite
                 isActive
                 name
+                description
                 shareSource
                 optedOutOfEmails
                 otherNotes
                 useCases
+                type
+                typeDisplay
                 createdAt
                 createdBy {
                     id
@@ -119,10 +130,13 @@ const UPDATE_CLIENT = gql`
                 id
                 isActive
                 name
+                description
                 shareSource
                 optedOutOfEmails
                 otherNotes
                 useCases
+                type
+                typeDisplay
                 createdAt
                 createdBy {
                     id
@@ -144,6 +158,13 @@ const CLIENT_OPTIONS = gql`
                 description
             }
         }
+        clientType: __type(name: "CLIENT_TYPE") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
     }
 `;
 
@@ -158,14 +179,16 @@ const schema: FormSchema = {
         const baseSchema: FormSchemaFields = ({
             id: [idCondition],
             acronym: [],
+            description: [],
             name: [requiredStringCondition],
             contactName: [requiredStringCondition],
             contactEmail: [requiredStringCondition, emailCondition],
-            contactWebsite: [urlCondition],
+            contactWebsite: [urlConditionWithProtocolCheck],
             isActive: [requiredCondition],
             shareSource: [requiredCondition],
             useCases: [arrayCondition, requiredListCondition],
             optedOutOfEmails: [requiredCondition],
+            type: [requiredCondition],
         });
 
         if (val?.useCases?.includes('OTHER')) {
@@ -186,6 +209,9 @@ const defaultFormValues: PartialForm<FormType> = {
     shareSource: false,
     optedOutOfEmails: false,
 };
+
+// eslint-disable-next-line camelcase
+const clientTypeKeySelector = (option: { name: string }) => option.name as Client_Type;
 
 interface ClientRecordProps {
     className?: string;
@@ -350,6 +376,11 @@ function ClientRecordForm(props: ClientRecordProps) {
         typeof useCaseTypes,
         NonNullable<typeof value.useCases>[number]
     >;
+    const clientTypes = clientOptions?.clientType?.enumValues;
+    type ClientTypeOptions = GetEnumOptions<
+        typeof useCaseTypes,
+        NonNullable<typeof value.type>[number]
+    >;
 
     const handleCopy = useCallback(
         () => {
@@ -397,43 +428,68 @@ function ClientRecordForm(props: ClientRecordProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <TextInput
-                label="Acronym"
-                name="acronym"
-                value={value.acronym}
+            <Row>
+                <TextInput
+                    label="Name *"
+                    name="name"
+                    value={value.name}
+                    onChange={onValueChange}
+                    error={error?.fields?.name}
+                    readOnly={readOnly}
+                    autoFocus
+                    disabled={disabled}
+                />
+                <TextInput
+                    label="Acronym"
+                    name="acronym"
+                    value={value.acronym}
+                    onChange={onValueChange}
+                    error={error?.fields?.acronym}
+                    readOnly={readOnly}
+                    disabled={disabled}
+                />
+            </Row>
+            <SelectInput
+                label="Type *"
+                name="type"
+                options={clientTypes as ClientTypeOptions}
+                value={value.type}
                 onChange={onValueChange}
-                error={error?.fields?.acronym}
+                keySelector={clientTypeKeySelector}
+                labelSelector={enumLabelSelector}
+                error={error?.fields?.type}
+                disabled={clientOptionsLoading || !!clientOptionsError}
                 readOnly={readOnly}
-                autoFocus
-                disabled={disabled}
             />
-            <TextInput
-                label="Name *"
-                name="name"
-                value={value.name}
+            <TextArea
+                label="Description"
+                name="description"
+                value={value.description}
                 onChange={onValueChange}
-                error={error?.fields?.name}
-                readOnly={readOnly}
                 disabled={disabled}
-            />
-            <TextInput
-                label="Contact Name *"
-                name="contactName"
-                value={value.contactName}
-                onChange={onValueChange}
-                error={error?.fields?.contactName}
+                error={error?.fields?.description}
                 readOnly={readOnly}
-                disabled={disabled}
             />
-            <TextInput
-                label="Contact Email *"
-                name="contactEmail"
-                value={value.contactEmail}
-                onChange={onValueChange}
-                error={error?.fields?.contactEmail}
-                readOnly={readOnly}
-                disabled={disabled}
-            />
+            <Row>
+                <TextInput
+                    label="Contact Name *"
+                    name="contactName"
+                    value={value.contactName}
+                    onChange={onValueChange}
+                    error={error?.fields?.contactName}
+                    readOnly={readOnly}
+                    disabled={disabled}
+                />
+                <TextInput
+                    label="Contact Email *"
+                    name="contactEmail"
+                    value={value.contactEmail}
+                    onChange={onValueChange}
+                    error={error?.fields?.contactEmail}
+                    readOnly={readOnly}
+                    disabled={disabled}
+                />
+            </Row>
             <TextInput
                 label="Website"
                 name="contactWebsite"
@@ -442,14 +498,6 @@ function ClientRecordForm(props: ClientRecordProps) {
                 error={error?.fields?.contactWebsite}
                 readOnly={readOnly}
                 disabled={disabled}
-            />
-            <BooleanInput
-                label="Active *"
-                name="isActive"
-                value={value.isActive}
-                onChange={onValueChange}
-                error={error?.fields?.isActive}
-                readOnly={readOnly}
             />
             <MultiSelectInput
                 label="Use Cases *"
@@ -463,17 +511,9 @@ function ClientRecordForm(props: ClientRecordProps) {
                 disabled={clientOptionsLoading || !!clientOptionsError}
                 readOnly={readOnly}
             />
-            <BooleanInput
-                label="Share source *"
-                name="shareSource"
-                value={value.shareSource}
-                onChange={onValueChange}
-                error={error?.fields?.shareSource}
-                readOnly={readOnly}
-            />
             {visibleNotes && (
                 <TextInput
-                    label="Notes *"
+                    label="Notes on Use Cases*"
                     name="otherNotes"
                     value={value.otherNotes}
                     onChange={onValueChange}
@@ -482,6 +522,24 @@ function ClientRecordForm(props: ClientRecordProps) {
                     disabled={disabled}
                 />
             )}
+            <Row>
+                <BooleanInput
+                    label="Active *"
+                    name="isActive"
+                    value={value.isActive}
+                    onChange={onValueChange}
+                    error={error?.fields?.isActive}
+                    readOnly={readOnly}
+                />
+                <BooleanInput
+                    label="Share source *"
+                    name="shareSource"
+                    value={value.shareSource}
+                    onChange={onValueChange}
+                    error={error?.fields?.shareSource}
+                    readOnly={readOnly}
+                />
+            </Row>
             <Switch
                 name="optedOutOfEmails"
                 label="Opted-out of receiving emails"

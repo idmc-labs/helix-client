@@ -14,7 +14,6 @@ import {
     requiredCondition,
     requiredStringCondition,
     idCondition,
-    urlCondition,
     PartialForm,
     PurgeNull,
 } from '@togglecorp/toggle-form';
@@ -39,6 +38,7 @@ import {
     enumLabelSelector,
     WithId,
     GetEnumOptions,
+    urlConditionWithProtocolCheck,
 } from '#utils/common';
 
 import {
@@ -153,7 +153,7 @@ const schema: FormSchema = {
         id: [idCondition],
         country: [requiredCondition],
         title: [requiredStringCondition],
-        url: [requiredCondition, urlCondition],
+        url: [requiredCondition, urlConditionWithProtocolCheck],
         assignedTo: [requiredCondition],
         status: [requiredCondition],
         comments: [],
