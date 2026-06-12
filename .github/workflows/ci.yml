@@ -116,7 +116,7 @@ jobs:
 
   helix_staging_deploy:
     name: HELIX-STAGING
-    if: github.ref == 'refs/heads/deploy-staging'
+    if: github.ref == 'refs/heads/deploy'
     needs: run_build
     uses: ./.github/workflows/aws_deploy.yml
     secrets: inherit
@@ -127,7 +127,7 @@ jobs:
 
   helix_prod_deploy:
     name: HELIX-PROD
-    if: github.ref == 'refs/heads/deploy-prod'
+    if: github.ref == 'refs/heads/deploy'
     needs: run_build
     uses: ./.github/workflows/aws_deploy.yml
     secrets: inherit
