@@ -10,6 +10,7 @@ jobs:
   commit_lint:
     name: Commit Lint
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     steps:
     - uses: actions/checkout@main
     - uses: toggle-corp/commit-lint@main
