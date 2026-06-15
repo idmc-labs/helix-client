@@ -4,8 +4,7 @@ on:
   pull_request:
   push:
     branches:
-      - deploy-staging
-      - deploy-prod
+      - deploy
 
 jobs:
   commit_lint:
@@ -88,7 +87,7 @@ jobs:
 
       - name: 🤞 Run Build 🧪 (Helix-STAGING)
         uses: ./.github/actions/run_build
-        if: github.ref == 'refs/heads/deploy-staging'
+        if: github.ref == 'refs/heads/deploy'
         with:
           BUILD_OUTPUT_DIR: build-staging/
           UPLOAD_ARTIFACT_NAME: helix-staging
@@ -103,7 +102,7 @@ jobs:
           REACT_APP_SWAGGER_ENDPOINT:  "https://helix-tools-api-staging.idmcdb.org/external-api/"
 
       - name: 🤞 Run Build 🧪 (Helix-PROD)
-        if: github.ref == 'refs/heads/deploy-prod'
+        if: github.ref == 'refs/heads/deploy'
         uses: ./.github/actions/run_build
         with:
           BUILD_OUTPUT_DIR: build-prod/
@@ -128,7 +127,7 @@ jobs:
   helix_prod_deploy:
     name: HELIX-PROD
     if: github.ref == 'refs/heads/deploy'
-    needs: run_build
+    needs: helix_staging_deploy
     uses: ./.github/workflows/aws_deploy.yml
     secrets: inherit
     with:
