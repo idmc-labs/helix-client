@@ -246,33 +246,18 @@ function generateFigureTitle(
     ].filter(isDefined).join(' - ');
 }
 
-const quantifierMapping: Record<Quantifier, string[]> = {
-    EXACT: [
-        'a total of',
-        'at least',
-    ],
-    APPROXIMATELY: [
-        'around',
-        'about',
-    ],
-    MORE_THAN_OR_EQUAL: [
-        'more than',
-        'at least',
-    ],
-    LESS_THAN_OR_EQUAL: [
-        'up to',
-        'fewer than',
-    ],
+const quantifierMapping: Record<Quantifier, string | undefined> = {
+    EXACT: undefined,
+    APPROXIMATELY: 'around',
+    MORE_THAN_OR_EQUAL: 'more than',
+    LESS_THAN_OR_EQUAL: 'up to',
 };
 
 function getQuantifierText(q: Quantifier | undefined) {
     if (!q) {
         return undefined;
     }
-    const variants = quantifierMapping[q];
-    const index = Math.floor(Math.random() * variants.length);
-
-    return variants[index];
+    return quantifierMapping[q];
 }
 
 function toOrdinal(n: number): string {
@@ -540,6 +525,30 @@ const otherCrisisById : Record<string, {label: string; iduText: string}> = {
     },
 };
 
+const housingConditionTermText: Partial<Record<FigureTerms, {
+    household: string;
+    person: string;
+}>> = {
+    DESTROYED_HOUSING: {
+        household: 'destroyed',
+        person: 'affected as their housing was destroyed',
+    },
+    PARTIALLY_DESTROYED_HOUSING: {
+        household: 'partially destroyed',
+        person: 'affected as their housing was partially destroyed',
+    },
+    UNINHABITABLE_HOUSING: {
+        household: 'made uninhabitable',
+        person: 'affected as their housing was rendered uninhabitable',
+    },
+};
+
+const termTextOverrides: Partial<Record<FigureTerms, string>> = {
+    RETURNS: 'returned',
+    IN_RELIEF_CAMP: 'in a relief camp',
+    MULTIPLE_OR_OTHER: 'affected',
+};
+
 function numberToWordsLessThanTen(num?: number): string | undefined {
     if (num === undefined || num === null) {
         return undefined;
@@ -557,6 +566,13 @@ function numberToWordsLessThanTen(num?: number): string | undefined {
     return formatNumber(num);
 }
 
+function getLowestAdminLevel(displayName: string | null | undefined) {
+    if (!displayName) {
+        return undefined;
+    }
+    return displayName.split(',')[0].trim();
+}
+
 function generateIduText(
     mainTriggerInfo?: string | undefined | null,
     quantifierInfo?: string | undefined | null,
@@ -568,7 +584,6 @@ function generateIduText(
     sourceTypeInfo?: string | undefined | null,
 ) {
     const causeField = mainTriggerInfo || '(Main trigger)';
-    const quantifierField = quantifierInfo || 'Quantifier: More than, Around, Less than, At least...'; // here
     const figureField = numberToWordsLessThanTen(totalFigure) ?? '(Figure)';
     const unitField = unitInfo || '(People or Household)';
     const locationField = locationInfo || '(Location)';
@@ -577,7 +592,16 @@ function generateIduText(
     const verb = totalFigure === 1 ? 'was' : 'were';
     const sourceType = sourceTypeInfo || '(Source Type)';
 
-    return `According to ${sourceType}, ${quantifierField} ${figureField} ${unitField} ${verb} reported ${termInfo} ${locationField} after ${causeField} ${dateRange}.`;
+    const body = [
+        quantifierInfo,
+        figureField,
+        unitField,
+        verb,
+        termInfo,
+        locationField,
+    ].filter(isDefined).join(' ');
+
+    return `According to ${sourceType}, ${body} due to ${causeField} ${dateRange}.`;
 }
 
 interface ViolenceOption {
@@ -1309,24 +1333,21 @@ function FigureInput(props: FigureInputProps) {
         const origins = removeNull(
             geoLocations
                 .filter((loc) => loc.identifier === 'ORIGIN')
-                // FIXME: get admin 1 for locations
-                .map((loc) => loc.displayName),
+                .map((loc) => getLowestAdminLevel(loc.displayName)),
         ).join(', ');
 
         // destinations = DESTINATION
         const destinations = removeNull(
             geoLocations
                 .filter((loc) => loc.identifier === 'DESTINATION')
-            // FIXME: get admin 1 for locations
-                .map((loc) => loc.displayName),
+                .map((loc) => getLowestAdminLevel(loc.displayName)),
         ).join(', ');
 
         // originAndDestinations = ORIGIN_AND_DESTINATION
         const originAndDestinations = removeNull(
             geoLocations
                 .filter((loc) => loc.identifier === 'ORIGIN_AND_DESTINATION')
-            // FIXME: get admin 1 for locations
-                .map((loc) => loc.displayName),
+                .map((loc) => getLowestAdminLevel(loc.displayName)),
         );
 
         let locationText: string | undefined;
@@ -1337,8 +1358,7 @@ function FigureInput(props: FigureInputProps) {
             locationText = `within ${originAndDestinations}`;
         } else {
             const allLocations = removeNull(
-                // FIXME: get admin 1 for locations
-                geoLocations.map((loc) => loc.displayName),
+                geoLocations.map((loc) => getLowestAdminLevel(loc.displayName)),
             ).join(', ');
 
             locationText = allLocations
@@ -1357,26 +1377,28 @@ function FigureInput(props: FigureInputProps) {
             causeText = otherCrisisById[value.otherSubType].iduText;
         }
         const termValue = value.term as (FigureTerms | undefined);
+        const housingTermText = termValue ? housingConditionTermText[termValue] : undefined;
 
         let unitText: string | undefined;
         if (isDefined(value.reported)) {
+            const isPlural = value.reported !== 1;
             if (value.unit === person) {
-                unitText = value.reported === 1 ? 'person' : 'people';
+                unitText = isPlural ? 'people' : 'person';
+            } else if (value.unit === household && housingTermText) {
+                unitText = isPlural ? 'houses' : 'house';
             } else if (value.unit === household) {
-                unitText = value.reported === 1 ? 'household' : 'households';
+                unitText = isPlural ? 'households' : 'household';
             }
         }
 
         const termDesc = termOptions?.find((term) => term.name === value.term)?.description;
-        let termText;
-        if (value.unit === 'PERSON') {
-            termText = termValue === 'DESTROYED_HOUSING'
-                ? 'due to destroyed housing'
-                : termDesc?.toLowerCase();
-        } else if (value.unit === 'HOUSEHOLD') {
-            termText = termValue === 'DESTROYED_HOUSING'
-                ? 'displaced as homes were destroyed'
-                : termDesc?.toLowerCase();
+        let termText: string | undefined;
+        if (housingTermText) {
+            termText = value.unit === 'PERSON' ? housingTermText.person : housingTermText.household;
+        } else if (termValue && termTextOverrides[termValue]) {
+            termText = termTextOverrides[termValue];
+        } else {
+            termText = termDesc?.toLowerCase();
         }
 
         const excerptIduText = generateIduText(
