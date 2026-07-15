@@ -3,7 +3,7 @@ name: helix-client-helm
 description: "Wrapper Helm chart for helix-client, depends on web-app-serve-helm"
 type: application
 # Placeholder version; the CI (web-app-serve-action) rewrites SET-BY-CICD.
-version: 0.0.0-SET-BY-CICD
+version: 0.0.1-SET-BY-CICD
 dependencies:
   - name: web-app-serve-helm
     version: 0.1.1
