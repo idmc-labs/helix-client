@@ -1,0 +1,27 @@
+name: Publish web app serve
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+      - project/*
+
+permissions:
+  contents: read       # checkout
+  packages: write      # push image + helm chart to GHCR
+  pull-requests: read  # provenance writer resolves the PR from the commit
+
+jobs:
+  publish_image:
+    name: Publish Docker Image + Helm Chart
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publish web-app-serve
+        # TODO: pin once a helm-capable release of web-app-serve-action is cut
+        uses: toggle-corp/web-app-serve-action@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          helm_publish: true
