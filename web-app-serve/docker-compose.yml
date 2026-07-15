@@ -1,0 +1,26 @@
+name: ${COMPOSE_PROJECT_NAME:-idmc-helix-client}
+
+services:
+  web-app-serve:
+    build:
+      context: ../
+      target: web-app-serve
+    environment:
+      # web-app-serve config: dumps unreplaced placeholders + diffs at /__debug/
+      APPLY_CONFIG__ENABLE_DEBUG: "true"
+      # Dynamic configs (local defaults; override via an optional local .env)
+      REACT_APP_ENV: "${REACT_APP_ENV:-dev}"
+      REACT_APP_GRAPHQL_ENDPOINT: "${REACT_APP_GRAPHQL_ENDPOINT:-http://localhost:9000/graphql}"
+      REACT_APP_GRAPHIQL_ENDPOINT: "${REACT_APP_GRAPHIQL_ENDPOINT:-http://localhost:9000/graphiql}"
+      REACT_APP_SWAGGER_ENDPOINT: "${REACT_APP_SWAGGER_ENDPOINT:-http://localhost:9000/external-api/}"
+      REACT_APP_HCATPCHA_SITEKEY: "${REACT_APP_HCATPCHA_SITEKEY:-10000000-ffff-ffff-ffff-000000000001}"
+      REACT_APP_MAPBOX_ACCESS_TOKEN: "${REACT_APP_MAPBOX_ACCESS_TOKEN:-dummy-mapbox-access-token}"
+      REACT_APP_SENTRY_DSN: "${REACT_APP_SENTRY_DSN:-}"
+      REACT_APP_GOOGLE_ANALYTICS_ID: "${REACT_APP_GOOGLE_ANALYTICS_ID:-}"
+      # NOTE: REACT_APP_MMP_ENDPOINT is deliberately not listed — its default
+      # is baked into the image (Dockerfile final stage); override via .env
+    env_file:
+      - path: .env
+        required: false
+    ports:
+      - '8050:80'

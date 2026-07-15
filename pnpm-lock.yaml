@@ -14,9 +14,6 @@ importers:
       '@hcaptcha/react-hcaptcha':
         specifier: ^0.3.6
         version: 0.3.10(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
-      '@julr/vite-plugin-validate-env':
-        specifier: ^1.3.0
-        version: 1.3.0(vite@6.3.4(@types/node@22.15.3)(jiti@2.4.2)(sugarss@2.0.0)(tsx@4.19.4))(zod@3.24.3)
       '@sentry/react':
         specifier: ^8.54.0
         version: 8.55.0(react@17.0.2)
@@ -35,6 +32,9 @@ importers:
       '@togglecorp/toggle-ui':
         specifier: ^0.18.7
         version: 0.18.7(@types/react@17.0.85)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
+      '@togglecorp/vite-plugin-validate-env':
+        specifier: ^2.2.1
+        version: 2.2.1(vite@6.3.4(@types/node@22.15.3)(jiti@2.7.0)(sugarss@2.0.0)(tsx@4.19.4))
       '@turf/bbox':
         specifier: ^6.0.1
         version: 6.5.0
@@ -206,7 +206,7 @@ importers:
         version: 4.33.0(eslint@7.32.0)(typescript@4.9.5)
       '@vitejs/plugin-react-swc':
         specifier: ^3.9.0
-        version: 3.9.0(vite@6.3.4(@types/node@22.15.3)(jiti@2.4.2)(sugarss@2.0.0)(tsx@4.19.4))
+        version: 3.9.0(vite@6.3.4(@types/node@22.15.3)(jiti@2.7.0)(sugarss@2.0.0)(tsx@4.19.4))
       apollo:
         specifier: ^2.32.0
         version: 2.34.0(typescript@4.9.5)
@@ -317,28 +317,25 @@ importers:
         version: 4.9.5
       vite:
         specifier: ^6.3.4
-        version: 6.3.4(@types/node@22.15.3)(jiti@2.4.2)(sugarss@2.0.0)(tsx@4.19.4)
+        version: 6.3.4(@types/node@22.15.3)(jiti@2.7.0)(sugarss@2.0.0)(tsx@4.19.4)
       vite-plugin-compression2:
         specifier: ^1.3.3
-        version: 1.3.3(rollup@4.40.1)(vite@6.3.4(@types/node@22.15.3)(jiti@2.4.2)(sugarss@2.0.0)(tsx@4.19.4))
+        version: 1.3.3(rollup@4.40.1)(vite@6.3.4(@types/node@22.15.3)(jiti@2.7.0)(sugarss@2.0.0)(tsx@4.19.4))
       vite-plugin-svgr:
         specifier: ^4.3.0
-        version: 4.3.0(rollup@4.40.1)(typescript@4.9.5)(vite@6.3.4(@types/node@22.15.3)(jiti@2.4.2)(sugarss@2.0.0)(tsx@4.19.4))
+        version: 4.3.0(rollup@4.40.1)(typescript@4.9.5)(vite@6.3.4(@types/node@22.15.3)(jiti@2.7.0)(sugarss@2.0.0)(tsx@4.19.4))
       vite-plugin-webfont-dl:
         specifier: ^3.10.4
-        version: 3.10.4(vite@6.3.4(@types/node@22.15.3)(jiti@2.4.2)(sugarss@2.0.0)(tsx@4.19.4))
+        version: 3.10.4(vite@6.3.4(@types/node@22.15.3)(jiti@2.7.0)(sugarss@2.0.0)(tsx@4.19.4))
       vite-tsconfig-paths:
         specifier: ^5.1.4
-        version: 5.1.4(typescript@4.9.5)(vite@6.3.4(@types/node@22.15.3)(jiti@2.4.2)(sugarss@2.0.0)(tsx@4.19.4))
+        version: 5.1.4(typescript@4.9.5)(vite@6.3.4(@types/node@22.15.3)(jiti@2.7.0)(sugarss@2.0.0)(tsx@4.19.4))
 
 packages:
 
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
-
-  '@antfu/utils@8.1.1':
-    resolution: {integrity: sha512-Mex9nXf9vR6AhcXmMrlz/HVgYYZpVGJ6YlPgwl7UnaFpnshXs6EK/oa5Gpf3CzENMjkvEx2tQtntGnb7UtSTOQ==}
 
   '@apollo/client@3.5.7':
     resolution: {integrity: sha512-HSLqTGp3sp/PVIWYLLr5v3fjQSr6Fxg6Z5RQj5Q9ALyseIVudD8GZk1jHplaUblTFMBueXGw3Z6DXObuVAr3tw==}
@@ -1596,16 +1593,6 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
-  '@julr/vite-plugin-validate-env@1.3.0':
-    resolution: {integrity: sha512-J4SYsWh80cNspaUcVtAwqHNKlH37qOkNM0uAtI4MFKSVjU1j6TLcB9CjL8GFUIqUh2YG0PBn+GwrkRX3ywQVow==}
-    engines: {node: '>=16'}
-    peerDependencies:
-      vite: ^2.9.0 || ^3.0.0-0 || ^4.0.0 || ^5.0.0 || ^6.0.0
-      zod: ^3.0.0
-    peerDependenciesMeta:
-      zod:
-        optional: true
-
   '@keyv/serialize@1.0.3':
     resolution: {integrity: sha512-qnEovoOp5Np2JDGonIDL6Ayihw0RhnRh6vxPuHo4RDn1UOzwEo4AeIfpL6UGIrsceWrCMiVPgwRjbHu4vYFc3g==}
 
@@ -1748,8 +1735,11 @@ packages:
     resolution: {integrity: sha512-FA+nTU8p6OcSH4tLDY5JilGYr1bVWHpNmcLr7xmMEdbWmKHa+3QZ+DqefrXKmdjO/brHTnQZo20lLSjaO7ydog==}
     engines: {node: '>=18.16.0'}
 
-  '@poppinss/validator-lite@1.0.3':
-    resolution: {integrity: sha512-u4dmT7PDHwNtxY3q1jHVp/u+hMEEcBlkzd37QwwM4tVt/0mLlEDttSfPQ+TT7sqPG4VEtWKwVSlMInwPUYyJpA==}
+  '@poppinss/validator-lite@2.1.2':
+    resolution: {integrity: sha512-UhSG1ouT6r67VbEFHK/8ax3EMZYHioew9PqGmEZjV41G15aPZi6cyhXtBVvF9xqkHMflA5V680k7bQzV0kfD5w==}
+
+  '@quansync/fs@1.0.0':
+    resolution: {integrity: sha512-4TJ3DFtlf1L5LDMaM6CanJ/0lckGNtJcMjQ1NAV6zDmA0tEHKZtxNKin8EgPaVX1YzljbxckyT2tJrpQKAtngQ==}
 
   '@rollup/pluginutils@5.1.4':
     resolution: {integrity: sha512-USm05zrsFxYLPdWWq+K3STlWiT/3ELn3RcV5hJMghpeAIhxfsUIg6mt12CBJBInWMV4VneoV7SfGv8xIwo2qNQ==}
@@ -1934,6 +1924,9 @@ packages:
 
   '@sinonjs/fake-timers@6.0.1':
     resolution: {integrity: sha512-MZPUxrmFubI36XS1DI3qmI0YdN1gks62JtFZvxR67ljjSNCeK6U08Zx4msEWOXuofgqUt6zPHSi1H9fbjR/NRA==}
+
+  '@standard-schema/spec@1.1.0':
+    resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
 
   '@storybook/addons@6.5.16':
     resolution: {integrity: sha512-p3DqQi+8QRL5k7jXhXmJZLsE/GqHqyY6PcoA1oNTJr0try48uhTGUOYkgzmqtDaa/qPFO5LP+xCPzZXckGtquQ==}
@@ -2179,6 +2172,12 @@ packages:
     peerDependencies:
       react: ^17.0.2
       react-dom: ^17.0.2
+
+  '@togglecorp/vite-plugin-validate-env@2.2.1':
+    resolution: {integrity: sha512-K39bpXSOdliJPMNfHuK17pszgWWNRJfaB4NRDQBuWx9h4O4/qF1nl7DpwBqSB006e3E284jZAZEw2r7RoHdG4w==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      vite: ^2.9.0 || ^3.0.0-0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
 
   '@tootallnate/once@1.1.2':
     resolution: {integrity: sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==}
@@ -2760,6 +2759,7 @@ packages:
   apollo@2.34.0:
     resolution: {integrity: sha512-gDH+WBN+b6TA/tIrIuAyO6Df4tsHwAA/t3NZqUitOM0gKo/nXNOUZzskAFTjErL6fgp5+kYIP3rZ+bIleqXAKg==}
     engines: {node: '>=8', npm: '>=6'}
+    deprecated: The `apollo` package is deprecated and no longer maintained. It has been replaced by the Apollo Rover CLI (`@apollo/rover`) — see the migration guide at https://go.apollo.dev/t/migration for command equivalents.
     hasBin: true
 
   arg@4.1.3:
@@ -3081,12 +3081,6 @@ packages:
 
   buffer@6.0.3:
     resolution: {integrity: sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==}
-
-  bundle-require@5.1.0:
-    resolution: {integrity: sha512-3WrrOuZiyaaZPWiEt4G3+IffISVC9HYlWueJEBWED4ZH4aIAC2PnkdnuRrR94M+w6yGWn4AglWtJtBI8YqvgoA==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-    peerDependencies:
-      esbuild: '>=0.18'
 
   byline@5.0.0:
     resolution: {integrity: sha512-s6webAy+R4SR8XVuJWt2V2rGvhnrhxN+9S15GNuTK3wKPOXFF6RNc+8ug2XhH+2s4f+uudG4kUVYmYOQWL2g0Q==}
@@ -4432,9 +4426,6 @@ packages:
     resolution: {integrity: sha512-w9UMqWwJxHNOvoNzSJ2oPF5wvYcvP7jUvYzhp67yEhTi17ZDBBC1z9pTdGuzjD+EFIqLSYRweZjqfiPzQ06Ebg==}
     engines: {node: '>= 0.4'}
 
-  get-tsconfig@4.10.0:
-    resolution: {integrity: sha512-kGzZ3LWWQcGIAmg6iWvXn0ei6WDtV26wzHRMwDSzmAbcXrTEXxHy6IehI6/4eT6VRKyMP1eF1VqwrVUmE/LR7A==}
-
   get-tsconfig@4.14.0:
     resolution: {integrity: sha512-yTb+8DXzDREzgvYmh6s9vHsSVCHeC0G3PI5bEXNBHtmshPnO+S5O7qgLEOn0I5QvMy6kpZN8K1NKGyilLb93wA==}
 
@@ -4800,9 +4791,6 @@ packages:
     resolution: {integrity: sha512-2SPlun1JUPWoM6t3F0dw0FkCF/jWY8kttcY4f599GLTSjh2OCuuhdTkJQsEcZzBqbXZGKMK2OqW1oZsjtf/gQA==}
     engines: {node: '>=8'}
     hasBin: true
-
-  importx@0.5.2:
-    resolution: {integrity: sha512-YEwlK86Ml5WiTxN/ECUYC5U7jd1CisAVw7ya4i9ZppBoHfFkT2+hChhr3PE2fYxUKLkNyivxEQpa5Ruil1LJBQ==}
 
   imurmurhash@0.1.4:
     resolution: {integrity: sha512-JmXMZ6wuvDmLiHEml9ykzqO6lwFbof0GG4IkcGaENdCRDDmMVnny7s5HsIgHCbaq0w2MyPhDqkhTUgS2LU2PHA==}
@@ -5350,6 +5338,10 @@ packages:
     resolution: {integrity: sha512-rg9zJN+G4n2nfJl5MW3BMygZX56zKPNVEYYqq7adpmMh4Jn2QNEwhvQlFy6jPVdcod7txZtKHWnyZiA3a0zP7A==}
     hasBin: true
 
+  jiti@2.7.0:
+    resolution: {integrity: sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==}
+    hasBin: true
+
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
@@ -5545,10 +5537,6 @@ packages:
   load-json-file@5.3.0:
     resolution: {integrity: sha512-cJGP40Jc/VXUsp8/OrnyKyTZ1y6v/dphm3bioS+RrKXjK2BB6wHUd6JptZEFDGgGahMT+InnZO5i1Ei9mpC8Bw==}
     engines: {node: '>=6'}
-
-  load-tsconfig@0.2.5:
-    resolution: {integrity: sha512-IXO6OCs9yg8tMKzfPZ1YmheJbZCiEsnBdcB03l0OcfK9prKnJb96siuHCr5Fl37/yo9DnKU+TLpxzTUspw9shg==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   locate-path@3.0.0:
     resolution: {integrity: sha512-7AO748wWnIhNqAuaty2ZWHkQHRSNfPVIsPIfwEOWO22AmaoVrWavlOcMR5nzTLNYvp36X220/maaRsrec1G65A==}
@@ -6326,9 +6314,6 @@ packages:
     resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==}
     engines: {node: '>=8'}
 
-  pathe@2.0.3:
-    resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
-
   pbf@3.3.0:
     resolution: {integrity: sha512-XDF38WCH3z5OV/OVa8GKUNtLAyneuzbCisx7QUCF8Q6Nutx0WnJrQe5O+kOtBlLfRNUws98Y58Lblp+NJG5T4Q==}
     hasBin: true
@@ -6687,6 +6672,9 @@ packages:
   qs@6.5.3:
     resolution: {integrity: sha512-qxXIEh4pCGfHICj1mAJQ2/2XVZkjCDTcEgfoSQxc/fYivUZxTkk7L3bDBJSoNrEzXI17oUO5Dp07ktqE5KzczA==}
     engines: {node: '>=0.6'}
+
+  quansync@1.0.0:
+    resolution: {integrity: sha512-5xZacEEufv3HSTPQuchrvV6soaiACMFnq1H8wkVioctoH3TRha9Sz66lOxRwPK/qZj7HPiSveih9yAyh98gvqA==}
 
   query-string@6.14.1:
     resolution: {integrity: sha512-XDxAeVmpfu1/6IjyT/gXHOl+S0vQ9owggJ30hhWKdHAsNPOcasn5o9BW0eejZqL2e4vMjhAxoW3jVHcD6mbcYw==}
@@ -7675,6 +7663,7 @@ packages:
   tsconfck@3.1.5:
     resolution: {integrity: sha512-CLDfGgUp7XPswWnezWwsCRxNmgQjhYq3VXHM0/XIRxhVrKw0M1if9agzryh1QS3nxjCROvV+xWxoJO1YctzzWg==}
     engines: {node: ^18 || >=20}
+    deprecated: unmaintained
     hasBin: true
     peerDependencies:
       typescript: ^5.0.0
@@ -7802,8 +7791,11 @@ packages:
     resolution: {integrity: sha512-eXL4nmJT7oCpkZsHZUOJo8hcX3GbsiDOa0Qu9F646fi8dT3XuSVopVqAcEiVzSKKH7UoDti23wNX3qGFxcW5Qg==}
     engines: {node: '>=0.10.0'}
 
-  unconfig@0.6.1:
-    resolution: {integrity: sha512-cVU+/sPloZqOyJEAfNwnQSFCzFrZm85vcVkryH7lnlB/PiTycUkAjt5Ds79cfIshGOZ+M5v3PBDnKgpmlE5DtA==}
+  unconfig-core@7.5.0:
+    resolution: {integrity: sha512-Su3FauozOGP44ZmKdHy2oE6LPjk51M/TRRjHv2HNCWiDvfvCoxC2lno6jevMA91MYAdCdwP05QnWdWpSbncX/w==}
+
+  unconfig@7.5.0:
+    resolution: {integrity: sha512-oi8Qy2JV4D3UQ0PsopR28CzdQ3S/5A1zwsUwp/rosSbfhJ5z7b90bIyTwi/F7hCLD4SGcZVjDzd4XoUQcEanvA==}
 
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
@@ -7977,10 +7969,6 @@ packages:
 
   validate-npm-package-license@3.0.4:
     resolution: {integrity: sha512-DpKm2Ui/xN7/HQKCtpZxoRWBhZ9Z0kqtygG8XCgNQ8ZlDnxuQmWhj566j8fN4Cu3/JmbhsDo7fcAJq4s9h27Ew==}
-
-  validator@13.15.0:
-    resolution: {integrity: sha512-36B2ryl4+oL5QxZ3AzD0t5SsMNGvTtQHpjgFO5tbNxfXbMFkY822ktCDe1MnlqV3301QQI9SLHDNJokDI+Z9pA==}
-    engines: {node: '>= 0.10'}
 
   value-equal@1.0.1:
     resolution: {integrity: sha512-NOJ6JZCAWr0zlxZt+xqCHNTEKOsrks2HQd4MqhP1qy4z1SkbEP467eNx6TgDKXMvUOb+OENfJCZwM+16n7fRfw==}
@@ -8324,8 +8312,6 @@ snapshots:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.8
       '@jridgewell/trace-mapping': 0.3.25
-
-  '@antfu/utils@8.1.1': {}
 
   '@apollo/client@3.5.7(graphql@15.10.1)(react@17.0.2)(subscriptions-transport-ws@0.9.19(graphql@15.10.1))':
     dependencies:
@@ -10007,7 +9993,7 @@ snapshots:
       '@types/istanbul-lib-coverage': 2.0.6
       collect-v8-coverage: 1.0.2
 
-  '@jest/test-sequencer@26.6.3(ts-node@9.1.1(typescript@4.9.5))':
+  '@jest/test-sequencer@26.6.3':
     dependencies:
       '@jest/test-result': 26.6.2
       graceful-fs: 4.2.11
@@ -10015,11 +10001,7 @@ snapshots:
       jest-runner: 26.6.3(ts-node@9.1.1(typescript@4.9.5))
       jest-runtime: 26.6.3(ts-node@9.1.1(typescript@4.9.5))
     transitivePeerDependencies:
-      - bufferutil
-      - canvas
       - supports-color
-      - ts-node
-      - utf-8-validate
 
   '@jest/transform@26.6.2':
     dependencies:
@@ -10070,17 +10052,6 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
-
-  '@julr/vite-plugin-validate-env@1.3.0(vite@6.3.4(@types/node@22.15.3)(jiti@2.4.2)(sugarss@2.0.0)(tsx@4.19.4))(zod@3.24.3)':
-    dependencies:
-      '@poppinss/cliui': 6.4.3
-      '@poppinss/validator-lite': 1.0.3
-      unconfig: 0.6.1
-      vite: 6.3.4(@types/node@22.15.3)(jiti@2.4.2)(sugarss@2.0.0)(tsx@4.19.4)
-    optionalDependencies:
-      zod: 3.24.3
-    transitivePeerDependencies:
-      - supports-color
 
   '@keyv/serialize@1.0.3':
     dependencies:
@@ -10312,9 +10283,11 @@ snapshots:
     dependencies:
       kleur: 4.1.5
 
-  '@poppinss/validator-lite@1.0.3':
+  '@poppinss/validator-lite@2.1.2': {}
+
+  '@quansync/fs@1.0.0':
     dependencies:
-      validator: 13.15.0
+      quansync: 1.0.0
 
   '@rollup/pluginutils@5.1.4(rollup@4.40.1)':
     dependencies:
@@ -10459,6 +10432,8 @@ snapshots:
   '@sinonjs/fake-timers@6.0.1':
     dependencies:
       '@sinonjs/commons': 1.8.6
+
+  '@standard-schema/spec@1.1.0': {}
 
   '@storybook/addons@6.5.16(react-dom@17.0.2(react@17.0.2))(react@17.0.2)':
     dependencies:
@@ -10782,6 +10757,14 @@ snapshots:
       resize-observer-polyfill: 1.5.1
     transitivePeerDependencies:
       - '@types/react'
+
+  '@togglecorp/vite-plugin-validate-env@2.2.1(vite@6.3.4(@types/node@22.15.3)(jiti@2.7.0)(sugarss@2.0.0)(tsx@4.19.4))':
+    dependencies:
+      '@poppinss/cliui': 6.4.3
+      '@poppinss/validator-lite': 2.1.2
+      '@standard-schema/spec': 1.1.0
+      unconfig: 7.5.0
+      vite: 6.3.4(@types/node@22.15.3)(jiti@2.7.0)(sugarss@2.0.0)(tsx@4.19.4)
 
   '@tootallnate/once@1.1.2': {}
 
@@ -11124,10 +11107,10 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.12.2':
     optional: true
 
-  '@vitejs/plugin-react-swc@3.9.0(vite@6.3.4(@types/node@22.15.3)(jiti@2.4.2)(sugarss@2.0.0)(tsx@4.19.4))':
+  '@vitejs/plugin-react-swc@3.9.0(vite@6.3.4(@types/node@22.15.3)(jiti@2.7.0)(sugarss@2.0.0)(tsx@4.19.4))':
     dependencies:
       '@swc/core': 1.11.24
-      vite: 6.3.4(@types/node@22.15.3)(jiti@2.4.2)(sugarss@2.0.0)(tsx@4.19.4)
+      vite: 6.3.4(@types/node@22.15.3)(jiti@2.7.0)(sugarss@2.0.0)(tsx@4.19.4)
     transitivePeerDependencies:
       - '@swc/helpers'
 
@@ -11944,11 +11927,6 @@ snapshots:
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1
-
-  bundle-require@5.1.0(esbuild@0.25.3):
-    dependencies:
-      esbuild: 0.25.3
-      load-tsconfig: 0.2.5
 
   byline@5.0.0: {}
 
@@ -13591,10 +13569,6 @@ snapshots:
       es-errors: 1.3.0
       get-intrinsic: 1.3.0
 
-  get-tsconfig@4.10.0:
-    dependencies:
-      resolve-pkg-maps: 1.0.0
-
   get-tsconfig@4.14.0:
     dependencies:
       resolve-pkg-maps: 1.0.0
@@ -14046,17 +14020,6 @@ snapshots:
       pkg-dir: 4.2.0
       resolve-cwd: 3.0.0
 
-  importx@0.5.2:
-    dependencies:
-      bundle-require: 5.1.0(esbuild@0.25.3)
-      debug: 4.4.0(supports-color@8.1.1)
-      esbuild: 0.25.3
-      jiti: 2.4.2
-      pathe: 2.0.3
-      tsx: 4.19.4
-    transitivePeerDependencies:
-      - supports-color
-
   imurmurhash@0.1.4: {}
 
   indent-string@3.2.0: {}
@@ -14492,7 +14455,7 @@ snapshots:
   jest-config@26.6.3(ts-node@9.1.1(typescript@4.9.5)):
     dependencies:
       '@babel/core': 7.26.10
-      '@jest/test-sequencer': 26.6.3(ts-node@9.1.1(typescript@4.9.5))
+      '@jest/test-sequencer': 26.6.3
       '@jest/types': 26.6.2
       babel-jest: 26.6.3(@babel/core@7.26.10)
       chalk: 4.1.2
@@ -14802,6 +14765,8 @@ snapshots:
 
   jiti@2.4.2: {}
 
+  jiti@2.7.0: {}
+
   js-tokens@4.0.0: {}
 
   js-yaml@3.14.1:
@@ -15053,8 +15018,6 @@ snapshots:
       pify: 4.0.1
       strip-bom: 3.0.0
       type-fest: 0.3.1
-
-  load-tsconfig@0.2.5: {}
 
   locate-path@3.0.0:
     dependencies:
@@ -16096,8 +16059,6 @@ snapshots:
 
   path-type@4.0.0: {}
 
-  pathe@2.0.3: {}
-
   pbf@3.3.0:
     dependencies:
       ieee754: 1.2.1
@@ -16502,6 +16463,8 @@ snapshots:
       side-channel: 1.1.0
 
   qs@6.5.3: {}
+
+  quansync@1.0.0: {}
 
   query-string@6.14.1:
     dependencies:
@@ -17740,9 +17703,10 @@ snapshots:
   tsx@4.19.4:
     dependencies:
       esbuild: 0.25.3
-      get-tsconfig: 4.10.0
+      get-tsconfig: 4.14.0
     optionalDependencies:
       fsevents: 2.3.3
+    optional: true
 
   tty@1.0.1: {}
 
@@ -17829,13 +17793,18 @@ snapshots:
 
   unc-path-regex@0.1.2: {}
 
-  unconfig@0.6.1:
+  unconfig-core@7.5.0:
     dependencies:
-      '@antfu/utils': 8.1.1
+      '@quansync/fs': 1.0.0
+      quansync: 1.0.0
+
+  unconfig@7.5.0:
+    dependencies:
+      '@quansync/fs': 1.0.0
       defu: 6.1.4
-      importx: 0.5.2
-    transitivePeerDependencies:
-      - supports-color
+      jiti: 2.7.0
+      quansync: 1.0.0
+      unconfig-core: 7.5.0
 
   undici-types@6.21.0: {}
 
@@ -18037,8 +18006,6 @@ snapshots:
       spdx-correct: 3.2.0
       spdx-expression-parse: 3.0.1
 
-  validator@13.15.0: {}
-
   value-equal@1.0.1: {}
 
   value-or-promise@1.0.11: {}
@@ -18073,47 +18040,47 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
 
-  vite-plugin-compression2@1.3.3(rollup@4.40.1)(vite@6.3.4(@types/node@22.15.3)(jiti@2.4.2)(sugarss@2.0.0)(tsx@4.19.4)):
+  vite-plugin-compression2@1.3.3(rollup@4.40.1)(vite@6.3.4(@types/node@22.15.3)(jiti@2.7.0)(sugarss@2.0.0)(tsx@4.19.4)):
     dependencies:
       '@rollup/pluginutils': 5.1.4(rollup@4.40.1)
       tar-mini: 0.2.0
-      vite: 6.3.4(@types/node@22.15.3)(jiti@2.4.2)(sugarss@2.0.0)(tsx@4.19.4)
+      vite: 6.3.4(@types/node@22.15.3)(jiti@2.7.0)(sugarss@2.0.0)(tsx@4.19.4)
     transitivePeerDependencies:
       - rollup
 
-  vite-plugin-svgr@4.3.0(rollup@4.40.1)(typescript@4.9.5)(vite@6.3.4(@types/node@22.15.3)(jiti@2.4.2)(sugarss@2.0.0)(tsx@4.19.4)):
+  vite-plugin-svgr@4.3.0(rollup@4.40.1)(typescript@4.9.5)(vite@6.3.4(@types/node@22.15.3)(jiti@2.7.0)(sugarss@2.0.0)(tsx@4.19.4)):
     dependencies:
       '@rollup/pluginutils': 5.1.4(rollup@4.40.1)
       '@svgr/core': 8.1.0(typescript@4.9.5)
       '@svgr/plugin-jsx': 8.1.0(@svgr/core@8.1.0(typescript@4.9.5))
-      vite: 6.3.4(@types/node@22.15.3)(jiti@2.4.2)(sugarss@2.0.0)(tsx@4.19.4)
+      vite: 6.3.4(@types/node@22.15.3)(jiti@2.7.0)(sugarss@2.0.0)(tsx@4.19.4)
     transitivePeerDependencies:
       - rollup
       - supports-color
       - typescript
 
-  vite-plugin-webfont-dl@3.10.4(vite@6.3.4(@types/node@22.15.3)(jiti@2.4.2)(sugarss@2.0.0)(tsx@4.19.4)):
+  vite-plugin-webfont-dl@3.10.4(vite@6.3.4(@types/node@22.15.3)(jiti@2.7.0)(sugarss@2.0.0)(tsx@4.19.4)):
     dependencies:
       axios: 1.9.0
       clean-css: 5.3.3
       flat-cache: 6.1.8
       picocolors: 1.1.1
-      vite: 6.3.4(@types/node@22.15.3)(jiti@2.4.2)(sugarss@2.0.0)(tsx@4.19.4)
+      vite: 6.3.4(@types/node@22.15.3)(jiti@2.7.0)(sugarss@2.0.0)(tsx@4.19.4)
     transitivePeerDependencies:
       - debug
 
-  vite-tsconfig-paths@5.1.4(typescript@4.9.5)(vite@6.3.4(@types/node@22.15.3)(jiti@2.4.2)(sugarss@2.0.0)(tsx@4.19.4)):
+  vite-tsconfig-paths@5.1.4(typescript@4.9.5)(vite@6.3.4(@types/node@22.15.3)(jiti@2.7.0)(sugarss@2.0.0)(tsx@4.19.4)):
     dependencies:
       debug: 4.4.0(supports-color@8.1.1)
       globrex: 0.1.2
       tsconfck: 3.1.5(typescript@4.9.5)
     optionalDependencies:
-      vite: 6.3.4(@types/node@22.15.3)(jiti@2.4.2)(sugarss@2.0.0)(tsx@4.19.4)
+      vite: 6.3.4(@types/node@22.15.3)(jiti@2.7.0)(sugarss@2.0.0)(tsx@4.19.4)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite@6.3.4(@types/node@22.15.3)(jiti@2.4.2)(sugarss@2.0.0)(tsx@4.19.4):
+  vite@6.3.4(@types/node@22.15.3)(jiti@2.7.0)(sugarss@2.0.0)(tsx@4.19.4):
     dependencies:
       esbuild: 0.25.3
       fdir: 6.4.4(picomatch@4.0.2)
@@ -18124,7 +18091,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.15.3
       fsevents: 2.3.3
-      jiti: 2.4.2
+      jiti: 2.7.0
       sugarss: 2.0.0
       tsx: 4.19.4
 

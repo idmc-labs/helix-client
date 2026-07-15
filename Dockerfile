@@ -26,37 +26,43 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
 
 COPY . /code/
 
-# -------------------------- Nginx - Builder --------------------------------
+# -------------------------- Web App Serve - Builder ------------------------
 
-FROM builder AS nginx-build
+FROM builder AS web-app-serve-build
 
-# Static
-ENV REACT_APP_MMP_ENDPOINT=https://media-monitoring.idmcdb.org
+# Default (overridable) configs. Any valid dummy — only needs to pass env.ts
+# schema validation; the real default is baked in the final stage.
+ENV REACT_APP_MMP_ENDPOINT=https://web-app-serve-placeholder.com
 
 # Dynamic configs. Can be changed with containers. (Placeholder values)
-# Using ./nginx-serve/apply-config.sh
-ENV REACT_APP_ENV=REACT_APP_ENV_PLACEHOLDER
-ENV REACT_APP_GRAPHQL_ENDPOINT=https://REACT-APP-GRAPHQL-ENDPOINT-PLACEHOLDER.COM/
-ENV REACT_APP_GRAPHIQL_ENDPOINT=https://REACT-APP-GRAPHIQL-ENDPOINT-PLACEHOLDER.COM/
-ENV REACT_APP_SWAGGER_ENDPOINT=https://REACT-APP-SWAGGER-ENDPOINT-PLACEHOLDER.COM/external-api/
-ENV REACT_APP_MAPBOX_ACCESS_TOKEN=REACT_APP_MAPBOX_ACCESS_TOKEN_PLACEHOLDER
-ENV REACT_APP_SENTRY_DSN=REACT_APP_SENTRY_DSN_PLACEHOLDER
-ENV REACT_APP_HCATPCHA_SITEKEY=REACT_APP_HCATPCHA_SITEKEY_PLACEHOLDER
-ENV REACT_APP_GOOGLE_ANALYTICS_ID=REACT_APP_GOOGLE_ANALYTICS_ID_PLACEHOLDER
+# Using ./web-app-serve/apply-config.sh
+ENV REACT_APP_ENV=web-app-serve-placeholder
+ENV REACT_APP_GRAPHQL_ENDPOINT=https://web-app-serve-placeholder.com/graphql
+ENV REACT_APP_GRAPHIQL_ENDPOINT=https://web-app-serve-placeholder.com/graphiql
+ENV REACT_APP_SWAGGER_ENDPOINT=https://web-app-serve-placeholder.com/external-api/
+ENV REACT_APP_MAPBOX_ACCESS_TOKEN=web-app-serve-placeholder
+ENV REACT_APP_SENTRY_DSN=web-app-serve-placeholder
+ENV REACT_APP_HCATPCHA_SITEKEY=web-app-serve-placeholder
+ENV REACT_APP_GOOGLE_ANALYTICS_ID=web-app-serve-placeholder
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store env > .env && pnpm build
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store WEB_APP_SERVE_ENABLED=true pnpm build
 
 # ---------------------------------------------------------------------------
 
-FROM nginx:1 AS nginx-serve
+FROM ghcr.io/toggle-corp/web-app-serve:v0.1.2 AS web-app-serve
 
 LABEL maintainer="IDMC"
 LABEL org.opencontainers.image.source="github.com/idmc-labs/helix-client"
 
-COPY ./nginx-serve/apply-config.sh /docker-entrypoint.d/
-COPY ./nginx-serve/nginx.conf.template /etc/nginx/templates/default.conf.template
-COPY --from=nginx-build /code/build /code/build
-
 ENV APPLY_CONFIG__SOURCE_DIRECTORY=/code/build/
-ENV APPLY_CONFIG__DESTINATION_DIRECTORY=/usr/share/nginx/html/
-ENV APPLY_CONFIG__OVERWRITE_DESTINATION=true
+COPY --from=web-app-serve-build /code/build "$APPLY_CONFIG__SOURCE_DIRECTORY"
+
+# Custom apply-config: this project uses the REACT_APP_ prefix (the base
+# image's default script only substitutes APP_-prefixed variables)
+COPY ./web-app-serve/apply-config.sh /web-app-serve/react-app-apply-config.sh
+RUN chmod +x /web-app-serve/react-app-apply-config.sh
+ENV APPLY_CONFIG__APPLY_CONFIG_PATH=/web-app-serve/react-app-apply-config.sh
+
+# Default (overridable) configs. Substituted at startup like any other
+# variable, so deployments need not set them but can still override.
+ENV REACT_APP_MMP_ENDPOINT=https://media-monitoring.idmcdb.org

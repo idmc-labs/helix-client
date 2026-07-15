@@ -1,4 +1,4 @@
-import { ValidateEnv as validateEnv } from '@julr/vite-plugin-validate-env';
+import { ValidateEnv as validateEnv } from '@togglecorp/vite-plugin-validate-env';
 import { defineConfig, loadEnv } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import webfontDownload from 'vite-plugin-webfont-dl';
