@@ -1,0 +1,5 @@
+.env
+
+# helm dependency update artifacts (CI regenerates; dep is exact-pinned)
+helm/charts/
+helm/Chart.lock
