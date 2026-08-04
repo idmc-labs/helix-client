@@ -1,0 +1,27 @@
+.body {
+    display: flex;
+    flex-basis: auto;
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 0;
+    gap: var(--spacing-medium);
+}
+
+.virtuoso {
+    flex-basis: auto;
+    flex-grow: 1;
+    min-height: 0;
+}
+
+.load-more-container {
+    display: flex;
+    justify-content: center;
+    padding: var(--spacing-medium);
+}
+
+.scroll-to-top {
+    position: sticky;
+    bottom: var(--spacing-medium);
+    align-self: flex-end;
+    z-index: 1;
+}
