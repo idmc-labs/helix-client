@@ -78,7 +78,6 @@ import {
     enumKeySelector,
     enumLabelSelector,
     formatDateYmd,
-    formatNumber,
     calculateHouseHoldSize,
     basicEntityKeySelector,
     basicEntityLabelSelector,
@@ -102,7 +101,6 @@ import {
     ReReviewFigureMutationVariables,
 
     Identifier,
-    OrganizationKindObjectType,
 } from '#generated/types';
 import {
     isFlowCategory,
@@ -148,7 +146,6 @@ const disaster: CrisisType = 'DISASTER';
 const other: CrisisType = 'OTHER';
 
 const household: Unit = 'HOUSEHOLD';
-const person: Unit = 'PERSON';
 
 const FIGURE_STATUS_FRAGMENT = gql`
     ${EVENT_FRAGMENT}
@@ -246,16 +243,42 @@ function generateFigureTitle(
     ].filter(isDefined).join(' - ');
 }
 
+// Deterministic English number formatting (mirrors utils/common formatNumber for
+// the no-options case) so this module stays self-contained and testable.
+function formatNumber(n: number): string {
+    return new Intl.NumberFormat('en-US', {
+        maximumFractionDigits: Math.abs(n) >= 1000 ? 0 : 2,
+    }).format(n);
+}
+
+// Joins a list into English prose with an Oxford comma: [] -> "", [a] -> "a",
+// [a, b] -> "a and b", [a, b, c] -> "a, b, and c". Used for both source names
+// and locations so they read consistently.
+function joinWithAnd(items: string[]): string {
+    if (items.length === 0) {
+        return '';
+    }
+    if (items.length === 1) {
+        return items[0];
+    }
+    if (items.length === 2) {
+        return `${items[0]} and ${items[1]}`;
+    }
+    return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
+}
+
 const quantifierMapping: Record<Quantifier, string | undefined> = {
     EXACT: undefined,
     APPROXIMATELY: 'around',
-    MORE_THAN_OR_EQUAL: 'more than',
+    MORE_THAN_OR_EQUAL: 'at least',
     LESS_THAN_OR_EQUAL: 'up to',
 };
 
 function getQuantifierText(q: Quantifier | undefined) {
+    // NOTE: When no quantifier is selected yet, show a placeholder (matching
+    // the other field placeholders). EXACT intentionally emits no quantifier text.
     if (!q) {
-        return undefined;
+        return '(Quantifier)';
     }
     return quantifierMapping[q];
 }
@@ -286,18 +309,23 @@ function formatDateRange(start?: string, end?: string) {
     const startDate = new Date(start);
     const endDate = end ? new Date(end) : undefined;
 
-    const sameYear = isDefined(endDate) && startDate.getFullYear() === endDate.getFullYear();
-    const sameMonth = isDefined(endDate) && sameYear && startDate.getMonth() === endDate.getMonth();
+    // NOTE: date-only strings ("YYYY-MM-DD") parse as UTC midnight, so all
+    // component reads and formatting must use UTC to avoid a day-shift for
+    // users in negative-offset timezones.
+    const sameYear = isDefined(endDate) && startDate.getUTCFullYear() === endDate.getUTCFullYear();
+    const sameMonth = isDefined(endDate) && sameYear
+        && startDate.getUTCMonth() === endDate.getUTCMonth();
     const sameDay = isDefined(endDate) && sameYear && sameMonth
-        && startDate.getDay() === endDate.getDay();
+        && startDate.getUTCDate() === endDate.getUTCDate();
 
-    const formatDay = (d: Date) => toOrdinal(d.getDate());
+    const formatDay = (d: Date) => toOrdinal(d.getUTCDate());
 
     if (!endDate || sameDay) {
         return `on ${startDate.toLocaleDateString(locale, {
             day: 'numeric',
             month: 'long',
             year: 'numeric',
+            timeZone: 'UTC',
         })}`;
     }
 
@@ -305,6 +333,7 @@ function formatDateRange(start?: string, end?: string) {
         return `between the ${formatDay(startDate)} and ${formatDay(endDate)} of ${startDate.toLocaleDateString(locale, {
             month: 'long',
             year: 'numeric',
+            timeZone: 'UTC',
         })}`;
     }
 
@@ -312,24 +341,29 @@ function formatDateRange(start?: string, end?: string) {
         return `between ${startDate.toLocaleDateString(locale, {
             day: 'numeric',
             month: 'long',
+            timeZone: 'UTC',
         })} and ${endDate.toLocaleDateString(locale, {
             day: 'numeric',
             month: 'long',
             year: 'numeric',
+            timeZone: 'UTC',
         })}`;
     }
 
     return `between ${startDate.toLocaleDateString(locale, {
         month: 'long',
         year: 'numeric',
+        timeZone: 'UTC',
     })} and ${endDate.toLocaleDateString(locale, {
         month: 'long',
         year: 'numeric',
+        timeZone: 'UTC',
     })}`;
 }
-type OrganizationKind = Pick<OrganizationKindObjectType, 'id' | 'name'> | null | undefined;
-
-function formatSource(sources: {name: string; organizationKind?: OrganizationKind}[]) {
+function formatSource(sources: readonly {
+    name?: string | null;
+    organizationKind?: { name?: string | null } | null;
+}[]) {
     if (!sources || sources?.length <= 0) {
         return 'reported sources';
     }
@@ -355,18 +389,8 @@ function formatSource(sources: {name: string; organizationKind?: OrganizationKin
         .map((s) => s.name)
         .filter(isDefined);
 
-    if (namedSources.length === 1) {
-        return namedSources[0];
-    }
-
-    if (namedSources.length === 2) {
-        return `${namedSources[0]} and ${namedSources[1]}`;
-    }
-
-    if (namedSources.length > 2) {
-        const allButLast = namedSources.slice(0, -1).join(', ');
-        const last = namedSources[namedSources.length - 1];
-        return `${allButLast}, and ${last}`;
+    if (namedSources.length > 0) {
+        return joinWithAnd(namedSources);
     }
 
     return 'reported sources';
@@ -582,10 +606,14 @@ function generateIduText(
     locationInfo?: string | undefined | null,
     dateRangeInfo?: string | undefined | null,
     sourceTypeInfo?: string | undefined | null,
+    // NOTE: some terms (e.g. Returns) carry their own verb, so the auxiliary
+    // was/were must be dropped to avoid the passive "were returned".
+    omitVerb?: boolean,
 ) {
     const causeField = mainTriggerInfo || '(Main trigger)';
     const figureField = numberToWordsLessThanTen(totalFigure) ?? '(Figure)';
     const unitField = unitInfo || '(People or Household)';
+    const termField = termInfo || '(Term)';
     const locationField = locationInfo || '(Location)';
     const dateRange = dateRangeInfo || '(Date of Event DD/MM/YYY)';
 
@@ -596,8 +624,8 @@ function generateIduText(
         quantifierInfo,
         figureField,
         unitField,
-        verb,
-        termInfo,
+        omitVerb ? undefined : verb,
+        termField,
         locationField,
     ].filter(isDefined).join(' ');
 
@@ -1329,46 +1357,38 @@ function FigureInput(props: FigureInputProps) {
     const handleIduGenerate = useCallback(() => {
         const geoLocations = value.geoLocations ?? [];
 
-        // origins = ORIGIN
-        const origins = removeNull(
-            geoLocations
-                .filter((loc) => loc.identifier === 'ORIGIN')
-                .map((loc) => getLowestAdminLevel(loc.displayName)),
-        ).join(', ');
+        // Reduce each location to its lowest admin level and de-duplicate, because
+        // multiple locations can collapse to the same name (e.g. "Springfield, IL"
+        // and "Springfield, OH").
+        const lowestAdminLevels = (
+            locs: NonNullable<typeof value.geoLocations>,
+        ) => [...new Set(
+            locs.map((loc) => getLowestAdminLevel(loc.displayName)).filter(isDefined),
+        )];
 
-        // destinations = DESTINATION
-        const destinations = removeNull(
-            geoLocations
-                .filter((loc) => loc.identifier === 'DESTINATION')
-                .map((loc) => getLowestAdminLevel(loc.displayName)),
-        ).join(', ');
-
-        // originAndDestinations = ORIGIN_AND_DESTINATION
-        const originAndDestinations = removeNull(
-            geoLocations
-                .filter((loc) => loc.identifier === 'ORIGIN_AND_DESTINATION')
-                .map((loc) => getLowestAdminLevel(loc.displayName)),
+        const origins = joinWithAnd(lowestAdminLevels(
+            geoLocations.filter((loc) => loc.identifier === 'ORIGIN'),
+        ));
+        const destinations = joinWithAnd(lowestAdminLevels(
+            geoLocations.filter((loc) => loc.identifier === 'DESTINATION'),
+        ));
+        const originAndDestinations = lowestAdminLevels(
+            geoLocations.filter((loc) => loc.identifier === 'ORIGIN_AND_DESTINATION'),
         );
 
         let locationText: string | undefined;
-
         if (origins.length > 0 && destinations.length > 0) {
             locationText = `from ${origins} to ${destinations}`;
         } else if (originAndDestinations.length > 0) {
-            locationText = `within ${originAndDestinations}`;
+            locationText = `within ${joinWithAnd(originAndDestinations)}`;
         } else {
-            const allLocations = removeNull(
-                geoLocations.map((loc) => getLowestAdminLevel(loc.displayName)),
-            ).join(', ');
-
-            locationText = allLocations
-                ? `in ${allLocations}`
-                : undefined;
+            const allLocations = joinWithAnd(lowestAdminLevels(geoLocations));
+            locationText = allLocations ? `in ${allLocations}` : undefined;
         }
 
         const totalFigure = value.reported;
 
-        let causeText;
+        let causeText: string | undefined;
         if (value.figureCause === 'DISASTER' && isDefined(value.disasterSubType)) {
             causeText = hazardMapById[value.disasterSubType].iduText;
         } else if (value.figureCause === 'CONFLICT' && isDefined(value.violenceSubType)) {
@@ -1376,17 +1396,18 @@ function FigureInput(props: FigureInputProps) {
         } else if (value.figureCause === 'OTHER' && isDefined(value.otherSubType)) {
             causeText = otherCrisisById[value.otherSubType].iduText;
         }
+
         const termValue = value.term as (FigureTerms | undefined);
         const housingTermText = termValue ? housingConditionTermText[termValue] : undefined;
 
         let unitText: string | undefined;
         if (isDefined(value.reported)) {
             const isPlural = value.reported !== 1;
-            if (value.unit === person) {
+            if (value.unit === 'PERSON') {
                 unitText = isPlural ? 'people' : 'person';
-            } else if (value.unit === household && housingTermText) {
+            } else if (value.unit === 'HOUSEHOLD' && housingTermText) {
                 unitText = isPlural ? 'houses' : 'house';
-            } else if (value.unit === household) {
+            } else if (value.unit === 'HOUSEHOLD') {
                 unitText = isPlural ? 'households' : 'household';
             }
         }
@@ -1401,6 +1422,10 @@ function FigureInput(props: FigureInputProps) {
             termText = termDesc?.toLowerCase();
         }
 
+        // NOTE: Returns provides its own past-tense verb ("returned"), so the
+        // auxiliary was/were is omitted to read "... households returned ...".
+        const termHasOwnVerb = termValue === 'RETURNS';
+
         const excerptIduText = generateIduText(
             causeText,
             getQuantifierText(value.quantifier),
@@ -1410,6 +1435,7 @@ function FigureInput(props: FigureInputProps) {
             locationText,
             formatDateRange(value.startDate, value.endDate),
             formatSource(selectedSources ?? []),
+            termHasOwnVerb,
         );
         onValueChange(excerptIduText, 'excerptIdu' as const);
     }, [
