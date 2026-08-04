@@ -427,21 +427,29 @@ export function generateExcerptIduText(input: GenerateIduTextInput): string {
         locs.map((loc) => getLowestAdminLevel(loc.displayName)).filter(isDefined),
     )];
 
-    const origins = joinWithAnd(lowestAdminLevels(
+    const originLevels = lowestAdminLevels(
         geoLocations.filter((loc) => loc.identifier === 'ORIGIN'),
-    ));
-    const destinations = joinWithAnd(lowestAdminLevels(
+    );
+    const destinationLevels = lowestAdminLevels(
         geoLocations.filter((loc) => loc.identifier === 'DESTINATION'),
-    ));
-    const originAndDestinations = lowestAdminLevels(
+    );
+    const originAndDestinationLevels = lowestAdminLevels(
         geoLocations.filter((loc) => loc.identifier === 'ORIGIN_AND_DESTINATION'),
     );
 
+    // Separate origin and destination entries that resolve to the same place(s)
+    // read as "within", the same as an explicit origin-and-destination.
+    const sameOriginAndDestination = originLevels.length > 0
+        && originLevels.length === destinationLevels.length
+        && originLevels.every((loc) => destinationLevels.includes(loc));
+
     let locationText: string | undefined;
-    if (origins.length > 0 && destinations.length > 0) {
-        locationText = `from ${origins} to ${destinations}`;
-    } else if (originAndDestinations.length > 0) {
-        locationText = `within ${joinWithAnd(originAndDestinations)}`;
+    if (sameOriginAndDestination) {
+        locationText = `within ${joinWithAnd(originLevels)}`;
+    } else if (originLevels.length > 0 && destinationLevels.length > 0) {
+        locationText = `from ${joinWithAnd(originLevels)} to ${joinWithAnd(destinationLevels)}`;
+    } else if (originAndDestinationLevels.length > 0) {
+        locationText = `within ${joinWithAnd(originAndDestinationLevels)}`;
     } else {
         const allLocations = joinWithAnd(lowestAdminLevels(geoLocations));
         locationText = allLocations ? `in ${allLocations}` : undefined;

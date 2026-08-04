@@ -141,6 +141,14 @@ describe('array cardinality (1 and 3 items)', () => {
         expect(generateExcerptIduText({ ...frame, geoLocations: [geo('ORIGIN', 'Kharkiv, Ukraine'), geo('DESTINATION', 'Lviv, Ukraine')] }))
             .toBe(line('from Kharkiv to Lviv'));
     });
+    it('origin equals destination -> within', () => {
+        expect(generateExcerptIduText({ ...frame, geoLocations: [geo('ORIGIN', 'Kathmandu, Nepal'), geo('DESTINATION', 'Kathmandu, Nepal')] }))
+            .toBe(line('within Kathmandu'));
+    });
+    it('origin set equals destination set regardless of order -> within', () => {
+        expect(generateExcerptIduText({ ...frame, geoLocations: [geo('ORIGIN', 'Kharkiv, Ukraine'), geo('ORIGIN', 'Lviv, Ukraine'), geo('DESTINATION', 'Lviv, Ukraine'), geo('DESTINATION', 'Kharkiv, Ukraine')] }))
+            .toBe(line('within Kharkiv and Lviv'));
+    });
     it('3 origins + 3 destinations', () => {
         expect(generateExcerptIduText({ ...frame, geoLocations: [geo('ORIGIN', 'Kharkiv, Ukraine'), geo('ORIGIN', 'Poltava, Ukraine'), geo('ORIGIN', 'Sumy, Ukraine'), geo('DESTINATION', 'Lviv, Ukraine'), geo('DESTINATION', 'Odesa, Ukraine'), geo('DESTINATION', 'Kyiv, Ukraine')] }))
             .toBe(line('from Kharkiv, Poltava, and Sumy to Lviv, Odesa, and Kyiv'));
