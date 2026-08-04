@@ -30,8 +30,12 @@
             "./src/utils/setupTests.js"
         ],
         "moduleNameMapper": {
-            "^.+\\.(css|scss|svg|gif|jpg|png)$": "identity-obj-proxy"
+            "^.+\\.(css|scss|svg|gif|jpg|png)$": "identity-obj-proxy",
+            "^node:(.*)$": "$1"
         },
+        "collectCoverageFrom": [
+            "src/components/forms/EntryForm/FigureInput/iduText.ts"
+        ],
         "moduleFileExtensions": [
             "ts",
             "tsx",
