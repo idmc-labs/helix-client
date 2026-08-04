@@ -390,6 +390,7 @@ function EventReview(props: Props) {
                             value={fig}
                             onChange={noOp}
                             onRemove={noOp}
+                            onRestore={noOp}
                             error={undefined}
                             disabled={getFiguresLoading}
                             mode={mode}

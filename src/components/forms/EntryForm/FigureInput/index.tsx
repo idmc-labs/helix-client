@@ -623,6 +623,7 @@ interface FigureInputProps {
     error: Error<FigureFormProps> | undefined;
     onChange: (value: StateArg<PartialForm<FigureFormProps>>, index: number) => void;
     onRemove: (index: number) => void;
+    onRestore: (index: number) => void;
     disabled?: boolean;
     mode: 'view' | 'edit';
     trafficLightShown: boolean;
@@ -685,9 +686,10 @@ function FigureInput(props: FigureInputProps) {
         value,
         onChange,
         onRemove,
+        onRestore,
         error,
         index,
-        disabled,
+        disabled: disabledFromProps,
         mode,
         events,
 
@@ -740,6 +742,8 @@ function FigureInput(props: FigureInputProps) {
     const eventNotChosen = !value.event;
     const { country, startDate } = value;
 
+    const disabled = disabledFromProps || !!value.deleted;
+
     const [selectedAge, setSelectedAge] = useState<string | undefined>();
 
     const selected = selectedFigure === value.uuid;
@@ -748,8 +752,6 @@ function FigureInput(props: FigureInputProps) {
         reviewMode
         || (selected && !!defaultShownField),
     );
-
-    const jumpToElement = selected && !defaultShownField;
 
     const fieldStatusMapping = useMemo(
         () => listToMap(
@@ -775,13 +777,10 @@ function FigureInput(props: FigureInputProps) {
     ] = useModalState();
 
     useEffect(() => {
-        if (jumpToElement) {
-            elementRef.current?.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start',
-            });
+        if (selected) {
+            setExpanded(true);
         }
-    }, [jumpToElement]);
+    }, [selected]);
 
     const year = useMemo(
         () => (startDate?.match(/^\d+/)?.[0]),
@@ -1297,9 +1296,12 @@ function FigureInput(props: FigureInputProps) {
 
     const handleExpansionChange = useCallback((val: boolean, key: string) => {
         setExpanded(val);
-        setSelectedFigure((oldValue) => (
-            oldValue === key ? undefined : key
-        ));
+        if (val) {
+            setSelectedFigure(key);
+        } else {
+            // only clearing selection for tthe selected figures
+            setSelectedFigure((oldValue) => (oldValue === key ? undefined : oldValue));
+        }
     }, [setSelectedFigure]);
 
     const handleIduGenerate = useCallback(() => {
@@ -1477,29 +1479,39 @@ function FigureInput(props: FigureInputProps) {
     const sectionActions = (
         <>
             {editMode && (
-                <>
+                value.deleted ? (
                     <Button
-                        name={undefined}
-                        onClick={handleFigureCloneClick}
-                        disabled={disabled}
+                        name={index}
+                        onClick={onRestore}
+                        disabled={disabledFromProps}
                     >
-                        Clone
+                        Restore
                     </Button>
-                    <ConfirmButton
-                        name={index}
-                        onConfirm={handleClearForm}
-                        disabled={disabled}
-                    >
-                        Clear
-                    </ConfirmButton>
-                    <ConfirmButton
-                        name={index}
-                        onConfirm={onRemove}
-                        disabled={disabled}
-                    >
-                        Remove
-                    </ConfirmButton>
-                </>
+                ) : (
+                    <>
+                        <Button
+                            name={undefined}
+                            onClick={handleFigureCloneClick}
+                            disabled={disabled}
+                        >
+                            Clone
+                        </Button>
+                        <ConfirmButton
+                            name={index}
+                            onConfirm={handleClearForm}
+                            disabled={disabled}
+                        >
+                            Clear
+                        </ConfirmButton>
+                        <ConfirmButton
+                            name={index}
+                            onConfirm={onRemove}
+                            disabled={disabled}
+                        >
+                            Remove
+                        </ConfirmButton>
+                    </>
+                )
             )}
             {figureId && reviewMode && (
                 <>
@@ -1595,6 +1607,13 @@ function FigureInput(props: FigureInputProps) {
         ],
     );
 
+    let statusChip: React.ReactNode;
+    if (value.deleted) {
+        statusChip = <Chip>Deleted</Chip>;
+    } else if (value.stale) {
+        statusChip = <Chip>Unsaved</Chip>;
+    }
+
     return (
         <CollapsibleContent
             elementRef={elementRef}
@@ -1621,9 +1640,7 @@ function FigureInput(props: FigureInputProps) {
                     <Status status={reviewStatus} />
                 </div>
             )}
-            actions={value.stale && (
-                <Chip>Unsaved</Chip>
-            )}
+            actions={statusChip}
             contentClassName={styles.content}
         >
             {selectedEvent?.reviewStatus === 'APPROVED_BUT_CHANGED' && (

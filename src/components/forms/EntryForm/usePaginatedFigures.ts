@@ -1,10 +1,17 @@
-import { useEffect, useState, useContext, useMemo, useRef } from 'react';
+import {
+    useCallback,
+    useContext,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 
 import {
     isDefined,
     isNotDefined,
 } from '@togglecorp/fujs';
 import {
+    useLazyQuery,
     useQuery,
 } from '@apollo/client';
 
@@ -12,29 +19,37 @@ import NotificationContext from '#components/NotificationContext';
 import {
     FiguresForEntryQuery,
     FiguresForEntryQueryVariables,
+    FigureQuery,
+    FigureQueryVariables,
 } from '#generated/types';
 import {
+    FIGURE,
     FIGURES_FOR_ENTRY,
 } from './queries';
 
-const MAX_FIGURES_PER_PAGE = 25;
+const MAX_FIGURES_PER_PAGE = 5;
 
-type FigureItem = NonNullable<NonNullable<NonNullable<FiguresForEntryQuery['figureList']>['results']>[number]>;
+export type FigureItem = NonNullable<NonNullable<FiguresForEntryQuery['figureList']>['results']>[number];
 
 function usePaginatedFigures(
     entryId: string | undefined,
-    onComplete: (figures: FigureItem[] | undefined | null) => void,
+    initialFigureId: string | null | undefined,
+    onPageFetched: (figures: FigureItem[] | undefined | null) => void,
+    onPinnedFigureFetched: (figure: FigureItem) => void,
+    onPinnedFigureUnavailable: () => void,
 ) {
-    const pageRef = useRef<number>(1);
-    // NOTE: Checking if figures have been set initially after first fetch of figures
-    // to avoid resetting of initial figures which is happening likely because of Apollo's cache
-    const figuresFetchedInitiallyRef = useRef(false);
-    const [fetchPending, setFetchPending] = useState<boolean>(isDefined(entryId));
-    const [errored, setErrored] = useState(false);
-
     const { notify } = useContext(NotificationContext);
 
-    const variables = useMemo(
+    const pageRef = useRef<number>(1);
+
+    const [isLoadingInitial, setIsLoadingInitial] = useState<boolean>(isDefined(entryId));
+    const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
+    const [erroredInitial, setErroredInitial] = useState(false);
+
+    const [totalCount, setTotalCount] = useState<number | undefined>(undefined);
+    const [loadedCount, setLoadedCount] = useState<number>(0);
+
+    const initialVariables = useMemo(
         (): FiguresForEntryQueryVariables | undefined => {
             if (isNotDefined(entryId)) {
                 return undefined;
@@ -47,112 +62,119 @@ function usePaginatedFigures(
         },
         [entryId],
     );
-    const {
-        previousData: previousFiguresData,
-        data: figuresData = previousFiguresData,
-        fetchMore: fetchMoreFigures,
-    } = useQuery<FiguresForEntryQuery, FiguresForEntryQueryVariables>(FIGURES_FOR_ENTRY, {
-        skip: !variables,
-        variables,
-        notifyOnNetworkStatusChange: true,
+
+    useQuery<FiguresForEntryQuery, FiguresForEntryQueryVariables>(FIGURES_FOR_ENTRY, {
+        skip: !initialVariables,
+        variables: initialVariables,
         onCompleted: (response) => {
-            const figuresResponse = response?.figureList?.results;
-            if (!figuresResponse) {
-                setFetchPending(false);
-                setErrored(true);
+            setIsLoadingInitial(false);
+            const { figureList } = response;
+            if (!figureList) {
+                setErroredInitial(true);
+                return;
             }
-            // NOTE: the else case will be handled by the following useEffect
+            setTotalCount(figureList.totalCount ?? undefined);
+            setLoadedCount(figureList.results?.length ?? 0);
+            onPageFetched(figureList.results);
         },
         onError: (err) => {
+            setIsLoadingInitial(false);
+            setErroredInitial(true);
             notify({
                 children: err.message,
                 variant: 'error',
             });
-            setFetchPending(false);
-            setErrored(true);
         },
     });
 
-    const hasResponse = !!figuresData?.figureList;
-    const fetchedFiguresCount = figuresData?.figureList?.results?.length;
-    const totalFiguresCount = figuresData?.figureList?.totalCount;
+    const [fetchNextPage] = useLazyQuery<FiguresForEntryQuery, FiguresForEntryQueryVariables>(
+        FIGURES_FOR_ENTRY,
+        {
+            fetchPolicy: 'network-only',
+            onCompleted: (response) => {
+                setIsLoadingMore(false);
+                const { figureList } = response;
+                if (!figureList) {
+                    notify({
+                        children: 'Failed to load more figures.',
+                        variant: 'error',
+                    });
+                    return;
+                }
+                setTotalCount(figureList.totalCount ?? undefined);
+                setLoadedCount((oldValue) => oldValue + (figureList.results?.length ?? 0));
+                onPageFetched(figureList.results);
+            },
+            onError: (err) => {
+                setIsLoadingMore(false);
+                notify({
+                    children: err.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
 
-    const figures = figuresData?.figureList?.results;
-
-    useEffect(() => {
-        // NOTE: We don't want to fetch more unless first request is complete
-        if (!hasResponse || typeof totalFiguresCount !== 'number') {
+    const loadMore = useCallback(() => {
+        if (isNotDefined(entryId) || isLoadingMore || isLoadingInitial) {
             return;
         }
-
-        // FIXME: We also need to handle cases where figures are added/deleted while
-        // fetching the list. The total no. of expected figures can change in this scenario.
-        if ((fetchedFiguresCount ?? 0) >= totalFiguresCount) {
-            return;
-        }
-
         pageRef.current += 1;
-        fetchMoreFigures({
+        setIsLoadingMore(true);
+        fetchNextPage({
             variables: {
                 entryId,
                 page: pageRef.current,
                 pageSize: MAX_FIGURES_PER_PAGE,
             },
-            updateQuery: (previousResult, { fetchMoreResult }) => ({
-                ...previousResult,
-                ...fetchMoreResult,
-                figureList: {
-                    ...previousResult.figureList,
-                    ...fetchMoreResult?.figureList,
-                    // NOTE: we are concatenating the figues from each request to the same response
-                    results: [
-                        ...(previousResult.figureList?.results ?? []),
-                        ...(fetchMoreResult?.figureList?.results ?? []),
-                    ],
-                },
-            }),
         });
-    }, [
-        entryId,
-        fetchMoreFigures,
-        hasResponse,
-        fetchedFiguresCount,
-        totalFiguresCount,
-    ]);
+    }, [entryId, isLoadingMore, isLoadingInitial, fetchNextPage]);
 
-    useEffect(() => {
-        if (!hasResponse || !figures || typeof totalFiguresCount !== 'number') {
-            return;
-        }
+    const hasMore = isDefined(totalCount) && loadedCount < totalCount;
 
-        // FIXME: We also need to handle cases where figures are added/deleted while
-        // fetching the list. The total no. of expected figures can change in this scenario.
-        if ((fetchedFiguresCount ?? 0) < totalFiguresCount) {
-            return;
-        }
+    const pinnedVariables = useMemo(
+        (): FigureQueryVariables | undefined => (
+            isDefined(initialFigureId) ? { id: initialFigureId } : undefined
+        ),
+        [initialFigureId],
+    );
 
-        if (figuresFetchedInitiallyRef.current) {
-            console.error('Figures fetch complete should not be called more than once.');
-        } else {
-            onComplete(figures);
-            figuresFetchedInitiallyRef.current = true;
-        }
-        setFetchPending(false);
-    }, [
-        onComplete,
-        hasResponse,
-        fetchedFiguresCount,
-        totalFiguresCount,
-        // NOTE: We are splitting the if/else case into 2 separate useEffects
-        // to avoid 'figures' dependency while fetching more figures
-        figures,
-    ]);
+    const [pinnedFigureLoading, setPinnedFigureLoading] = useState(isDefined(initialFigureId));
 
-    return ({
-        figureFetchPending: fetchPending,
-        fetchedFiguresCount: fetchedFiguresCount ?? 0,
-        totalFiguresCount,
-        figureFetchErrored: errored,
+    useQuery<FigureQuery, FigureQueryVariables>(FIGURE, {
+        skip: !pinnedVariables,
+        variables: pinnedVariables,
+        onCompleted: (response) => {
+            setPinnedFigureLoading(false);
+            const { figure } = response;
+            if (!figure) {
+                notify({
+                    children: 'The figure you were looking for could not be found.',
+                    variant: 'error',
+                });
+                onPinnedFigureUnavailable();
+                return;
+            }
+            onPinnedFigureFetched(figure);
+        },
+        onError: (err) => {
+            setPinnedFigureLoading(false);
+            notify({
+                children: err.message,
+                variant: 'error',
+            });
+            onPinnedFigureUnavailable();
+        },
     });
+
+    return {
+        isLoadingInitial,
+        isLoadingMore,
+        hasMore,
+        loadMore,
+        erroredInitial,
+
+        pinnedFigureLoading,
+    };
 }
 export default usePaginatedFigures;
