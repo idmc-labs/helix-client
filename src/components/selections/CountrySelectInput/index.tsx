@@ -81,6 +81,7 @@ function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
         events,
         crises,
         value,
+        actions,
         actionLinkDisabled = false,
         ...otherProps
     } = props;
@@ -132,18 +133,23 @@ function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
             totalOptionsCount={totalOptionsCount ?? undefined}
             options={options}
             onOptionsChange={setOptions}
-            actions={value && !actionLinkDisabled && (
-                <ButtonLikeLink
-                    route={route.country}
-                    attrs={{ countryId: value }}
-                    transparent
-                    compact
-                    title="Open Country"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <IoOpenOutline />
-                </ButtonLikeLink>
+            actions={(
+                <>
+                    {value && !actionLinkDisabled && (
+                        <ButtonLikeLink
+                            route={route.country}
+                            attrs={{ countryId: value }}
+                            transparent
+                            compact
+                            title="Open Country"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <IoOpenOutline />
+                        </ButtonLikeLink>
+                    )}
+                    {actions}
+                </>
             )}
         />
     );
