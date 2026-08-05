@@ -130,6 +130,14 @@ describe('generateExcerptIduText (branch edges)', () => {
         expect(generateExcerptIduText({ ...base, term: 'DISPLACED', unit: 'HOUSEHOLD', reported: 50, quantifier: 'EXACT', geoLocations: [geo('ORIGIN', 'Beira, Mozambique')], ...disaster('13'), sources: [{ name: 'City of Beira', organizationKind: { name: 'Local Authority' } }], startDate: '2025-07-04' }))
             .toBe('According to local authorities, 50 households were displaced in Beira due to flooding on July 4, 2025.');
     });
+    it('returns with a destination-only location -> "to"', () => {
+        expect(generateExcerptIduText({ ...base, term: 'RETURNS', unit: 'PERSON', reported: 5, quantifier: 'EXACT', geoLocations: [geo('DESTINATION', 'Aleppo, Syria')], ...disaster('13'), sources: gov, startDate: '2025-05-01' }))
+            .toBe('According to national authorities, five people returned to Aleppo following flooding on May 1, 2025.');
+    });
+    it('returns with an origin-only location -> "in" (recorded area)', () => {
+        expect(generateExcerptIduText({ ...base, term: 'RETURNS', unit: 'PERSON', reported: 5, quantifier: 'EXACT', geoLocations: [geo('ORIGIN', 'Aleppo, Syria')], ...disaster('13'), sources: gov, startDate: '2025-05-01' }))
+            .toBe('According to national authorities, five people returned in Aleppo following flooding on May 1, 2025.');
+    });
 });
 
 describe('array cardinality (1 and 3 items)', () => {

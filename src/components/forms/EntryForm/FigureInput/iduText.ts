@@ -445,6 +445,11 @@ export function generateExcerptIduText(input: GenerateIduTextInput): string {
         locationText = `in ${joinWithAnd(originLevels)}`;
     } else if (originLevels.length > 0 && destinationLevels.length > 0) {
         locationText = `from ${joinWithAnd(originLevels)} to ${joinWithAnd(destinationLevels)}`;
+    } else if (input.term === 'RETURNS' && destinationLevels.length > 0) {
+        // Returns tagged with only a destination read "returned to <place>". A
+        // recorded area, origin-only, or return-in-place figure reads "in" (below);
+        // a single geolocation is the area returns were recorded in, not a vector.
+        locationText = `to ${joinWithAnd(destinationLevels)}`;
     } else if (originAndDestinationLevels.length > 0) {
         locationText = `in ${joinWithAnd(originAndDestinationLevels)}`;
     } else {
