@@ -111,11 +111,15 @@ export function formatDateRange(start?: string, end?: string) {
         })}`;
     }
 
+    // Cross-year: show full day, month, and year on both ends so the year is
+    // unambiguous.
     return `between ${startDate.toLocaleDateString(locale, {
+        day: 'numeric',
         month: 'long',
         year: 'numeric',
         timeZone: 'UTC',
     })} and ${endDate.toLocaleDateString(locale, {
+        day: 'numeric',
         month: 'long',
         year: 'numeric',
         timeZone: 'UTC',
@@ -125,36 +129,36 @@ export function formatSource(sources: readonly {
     name?: string | null;
     organizationKind?: { name?: string | null } | null;
 }[]) {
-    if (!sources || sources?.length <= 0) {
-        return 'reported sources';
+    const hasKind = (kind: string) => sources.some((s) => s.organizationKind?.name === kind);
+
+    // Each source kind maps to one label; distinct labels are joined in a fixed
+    // order (local, national, media, then named orgs) so the output is
+    // deterministic regardless of how sources were entered.
+    const labels: string[] = [];
+    if (hasKind('Local Authority')) {
+        labels.push('local authorities');
+    }
+    if (hasKind('Government')) {
+        labels.push('national authorities');
+    }
+    if (hasKind('Media')) {
+        labels.push('media sources');
     }
 
-    const authorities = sources.filter(
-        (s) => s.organizationKind?.name === 'Government' || s.organizationKind?.name === 'Local Authority',
-    );
-
-    if (authorities.length > 0) {
-        return authorities.length === 1
-            ? 'national authorities'
-            : 'local authorities';
-    }
-
-    const mediaSources = sources.filter(
-        (s) => s.organizationKind?.name === 'Media',
-    );
-    if (mediaSources.length > 0) {
-        return 'media sources';
-    }
-
+    // Any other kind (UN, NGOs, Disaster Authority, etc.) keeps its own name.
     const namedSources = sources
+        .filter((s) => {
+            const kind = s.organizationKind?.name;
+            return kind !== 'Local Authority' && kind !== 'Government' && kind !== 'Media';
+        })
         .map((s) => s.name)
         .filter(isDefined);
+    labels.push(...new Set(namedSources));
 
-    if (namedSources.length > 0) {
-        return joinWithAnd(namedSources);
+    if (labels.length === 0) {
+        return '(Source)';
     }
-
-    return 'reported sources';
+    return joinWithAnd(labels);
 }
 
 const hazardMapById: Record<string, {label: string; iduText: string}> = {
@@ -279,7 +283,7 @@ const conflictMapById: Record<string, {label: string; iduText: string}> = {
     },
     12: {
         label: 'Crime-related violence',
-        iduText: 'crime related violence',
+        iduText: 'crime-related violence',
     },
     13: {
         label: 'Communal violence',
@@ -310,28 +314,19 @@ const otherCrisisById : Record<string, {label: string; iduText: string}> = {
     },
 };
 
-const housingConditionTermText: Partial<Record<FigureTerms, {
-    household: string;
-    person: string;
-}>> = {
-    DESTROYED_HOUSING: {
-        household: 'destroyed',
-        person: 'affected as their housing was destroyed',
-    },
-    PARTIALLY_DESTROYED_HOUSING: {
-        household: 'partially destroyed',
-        person: 'affected as their housing was partially destroyed',
-    },
-    UNINHABITABLE_HOUSING: {
-        household: 'made uninhabitable',
-        person: 'affected as their housing was rendered uninhabitable',
-    },
+// Housing-condition terms share one condition word across units: households read
+// "houses were <condition>"; persons read "the housing of ... people were <condition>".
+const housingConditionText: Partial<Record<FigureTerms, string>> = {
+    DESTROYED_HOUSING: 'destroyed',
+    PARTIALLY_DESTROYED_HOUSING: 'partially destroyed',
+    UNINHABITABLE_HOUSING: 'rendered uninhabitable',
 };
 
 const termTextOverrides: Partial<Record<FigureTerms, string>> = {
     RETURNS: 'returned',
     IN_RELIEF_CAMP: 'in a relief camp',
-    MULTIPLE_OR_OTHER: 'affected',
+    MULTIPLE_OR_OTHER: 'displaced',
+    HOMELESS: 'rendered homeless',
 };
 
 export function numberToWordsLessThanTen(num?: number): string | undefined {
@@ -370,6 +365,10 @@ export function generateIduText(
     // NOTE: some terms (e.g. Returns) carry their own verb, so the auxiliary
     // was/were must be dropped to avoid the passive "were returned".
     omitVerb?: boolean,
+    // NOTE: person + housing terms prepend a subject, e.g. "the housing of".
+    subjectPrefix?: string | undefined | null,
+    // NOTE: Returns reads "... following <cause>"; everything else "... due to <cause>".
+    causeConnector?: string,
 ) {
     const causeField = mainTriggerInfo || '(Main trigger)';
     const figureField = numberToWordsLessThanTen(totalFigure) ?? '(Figure)';
@@ -377,11 +376,17 @@ export function generateIduText(
     const termField = termInfo || '(Term)';
     const locationField = locationInfo || '(Location)';
     const dateRange = dateRangeInfo || '(Date of Event DD/MM/YYY)';
+    const connector = causeConnector || 'due to';
 
-    const verb = totalFigure === 1 ? 'was' : 'were';
-    const sourceType = sourceTypeInfo || '(Source Type)';
+    // With a subject prefix ("the housing of ...") the grammatical subject is
+    // singular ("the housing"), so the verb is always "was" regardless of figure.
+    const verb = subjectPrefix || totalFigure === 1 ? 'was' : 'were';
+    // Same placeholder string as formatSource's no-source fallback, so an unset
+    // source reads identically however this helper is reached.
+    const sourceType = sourceTypeInfo || '(Source)';
 
     const body = [
+        subjectPrefix,
         quantifierInfo,
         figureField,
         unitField,
@@ -390,7 +395,7 @@ export function generateIduText(
         locationField,
     ].filter(isDefined).join(' ');
 
-    return `According to ${sourceType}, ${body} due to ${causeField} ${dateRange}.`;
+    return `According to ${sourceType}, ${body} ${connector} ${causeField} ${dateRange}.`;
 }
 
 export interface GenerateIduTextInput {
@@ -438,18 +443,23 @@ export function generateExcerptIduText(input: GenerateIduTextInput): string {
     );
 
     // Separate origin and destination entries that resolve to the same place(s)
-    // read as "within", the same as an explicit origin-and-destination.
+    // read as "in", the same as an explicit origin-and-destination.
     const sameOriginAndDestination = originLevels.length > 0
         && originLevels.length === destinationLevels.length
         && originLevels.every((loc) => destinationLevels.includes(loc));
 
     let locationText: string | undefined;
     if (sameOriginAndDestination) {
-        locationText = `within ${joinWithAnd(originLevels)}`;
+        locationText = `in ${joinWithAnd(originLevels)}`;
     } else if (originLevels.length > 0 && destinationLevels.length > 0) {
         locationText = `from ${joinWithAnd(originLevels)} to ${joinWithAnd(destinationLevels)}`;
+    } else if (input.term === 'RETURNS' && destinationLevels.length > 0) {
+        // Returns tagged with only a destination read "returned to <place>". A
+        // recorded area, origin-only, or return-in-place figure reads "in" (below);
+        // a single geolocation is the area returns were recorded in, not a vector.
+        locationText = `to ${joinWithAnd(destinationLevels)}`;
     } else if (originAndDestinationLevels.length > 0) {
-        locationText = `within ${joinWithAnd(originAndDestinationLevels)}`;
+        locationText = `in ${joinWithAnd(originAndDestinationLevels)}`;
     } else {
         const allLocations = joinWithAnd(lowestAdminLevels(geoLocations));
         locationText = allLocations ? `in ${allLocations}` : undefined;
@@ -457,24 +467,27 @@ export function generateExcerptIduText(input: GenerateIduTextInput): string {
 
     const totalFigure = input.reported ?? undefined;
 
+    // NOTE: the cause maps are keyed by backend subtype ids; guard the lookup so an
+    // unmapped id (a new backend subtype, or PK divergence) degrades to the
+    // "(Main trigger)" placeholder instead of throwing.
     let causeText: string | undefined;
     if (input.figureCause === 'DISASTER' && isDefined(input.disasterSubType)) {
-        causeText = hazardMapById[input.disasterSubType].iduText;
+        causeText = hazardMapById[input.disasterSubType]?.iduText;
     } else if (input.figureCause === 'CONFLICT' && isDefined(input.violenceSubType)) {
-        causeText = conflictMapById[input.violenceSubType].iduText;
+        causeText = conflictMapById[input.violenceSubType]?.iduText;
     } else if (input.figureCause === 'OTHER' && isDefined(input.otherSubType)) {
-        causeText = otherCrisisById[input.otherSubType].iduText;
+        causeText = otherCrisisById[input.otherSubType]?.iduText;
     }
 
     const termValue = input.term as (FigureTerms | undefined);
-    const housingTermText = termValue ? housingConditionTermText[termValue] : undefined;
+    const housingCondition = termValue ? housingConditionText[termValue] : undefined;
 
     let unitText: string | undefined;
     if (isDefined(input.reported)) {
         const isPlural = input.reported !== 1;
         if (input.unit === 'PERSON') {
             unitText = isPlural ? 'people' : 'person';
-        } else if (input.unit === 'HOUSEHOLD' && housingTermText) {
+        } else if (input.unit === 'HOUSEHOLD' && housingCondition) {
             unitText = isPlural ? 'houses' : 'house';
         } else if (input.unit === 'HOUSEHOLD') {
             unitText = isPlural ? 'households' : 'household';
@@ -483,21 +496,33 @@ export function generateExcerptIduText(input: GenerateIduTextInput): string {
 
     const termDesc = input.termOptions?.find((term) => term.name === input.term)?.description;
     let termText: string | undefined;
-    if (housingTermText) {
-        termText = input.unit === 'PERSON' ? housingTermText.person : housingTermText.household;
+    if (housingCondition) {
+        termText = housingCondition;
     } else if (termValue && termTextOverrides[termValue]) {
         termText = termTextOverrides[termValue];
     } else {
         termText = termDesc?.toLowerCase();
     }
 
+    // Person + housing reads "the housing of {figure} people were <condition>".
+    const subjectPrefix = housingCondition && input.unit === 'PERSON' ? 'the housing of' : undefined;
+
+    // Drop an inexact quantifier ("up to" / "around") when the figure is exactly one.
+    const dropQuantifierForOne = input.reported === 1
+        && (input.quantifier === 'LESS_THAN_OR_EQUAL' || input.quantifier === 'APPROXIMATELY');
+    const quantifierField = dropQuantifierForOne
+        ? undefined
+        : getQuantifierText(input.quantifier ?? undefined);
+
     // NOTE: Returns provides its own past-tense verb ("returned"), so the
     // auxiliary was/were is omitted to read "... households returned ...".
     const termHasOwnVerb = termValue === 'RETURNS';
+    // Returns reads "... following <cause>"; every other term reads "... due to <cause>".
+    const causeConnector = termValue === 'RETURNS' ? 'following' : 'due to';
 
     return generateIduText(
         causeText,
-        getQuantifierText(input.quantifier ?? undefined),
+        quantifierField,
         totalFigure,
         unitText,
         termText,
@@ -505,5 +530,7 @@ export function generateExcerptIduText(input: GenerateIduTextInput): string {
         formatDateRange(input.startDate ?? undefined, input.endDate ?? undefined),
         formatSource(input.sources ?? []),
         termHasOwnVerb,
+        subjectPrefix,
+        causeConnector,
     );
 }
