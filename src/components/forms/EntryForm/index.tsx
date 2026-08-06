@@ -1477,6 +1477,8 @@ function EntryForm(props: EntryFormProps) {
         hasMore,
         loadMore,
         erroredInitial: figuresErrored,
+        totalCount: totalFiguresCount,
+        loadedCount: loadedFiguresCount,
         pinnedFigureLoading,
     } = usePaginatedFigures(
         entryId,
@@ -1703,6 +1705,8 @@ function EntryForm(props: EntryFormProps) {
                     isLoadingMore={isLoadingMore}
                     onLoadMore={loadMore}
                     scrollToKey={selectedFigure}
+                    totalCount={totalFiguresCount}
+                    loadedCount={loadedFiguresCount}
                 />
             </div>
         );
@@ -1715,6 +1719,8 @@ function EntryForm(props: EntryFormProps) {
         hasMore,
         isLoadingMore,
         loadMore,
+        totalFiguresCount,
+        loadedFiguresCount,
         value.figures,
         error?.fields?.figures?.members,
         events,
@@ -1906,11 +1912,18 @@ function EntryForm(props: EntryFormProps) {
                                     </Tabs>
                                     <Checkbox
                                         name="erroredOnly"
-                                        className={styles.checkbox}
-                                        label={`Errored (${erroredCountForActiveTab})`}
+                                        className={_cs(
+                                            styles.checkbox,
+                                            erroredOnly && styles.active,
+                                            erroredCountForActiveTab <= 0 && styles.noErrors,
+                                        )}
+                                        label={`${erroredCountForActiveTab} errors`}
+                                        checkmarkClassName={styles.checkmark}
+                                        labelClassName={styles.label}
                                         value={erroredOnly}
                                         onChange={setErroredOnly}
-                                        disabled={loading || figuresErrored || !processed}
+                                        disabled={loading || figuresErrored
+                                            || !processed || erroredCountForActiveTab === 0}
                                     />
                                 </div>
                             )}

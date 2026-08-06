@@ -5,7 +5,7 @@ import React, {
     useState,
 } from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import { Button } from '@togglecorp/toggle-ui';
 import { IoChevronUpOutline } from 'react-icons/io5';
 
@@ -28,6 +28,8 @@ interface Props {
     isLoadingMore: boolean;
     onLoadMore: () => void;
     scrollToKey?: string;
+    loadedCount?: number;
+    totalCount?: number;
 }
 
 function FigureListBody(props: Props) {
@@ -38,6 +40,8 @@ function FigureListBody(props: Props) {
         isLoadingMore,
         onLoadMore,
         scrollToKey,
+        loadedCount,
+        totalCount,
     } = props;
 
     const virtuosoRef = useRef<VirtuosoHandle>(null);
@@ -86,17 +90,25 @@ function FigureListBody(props: Props) {
                 itemContent={nodeSelector}
                 atTopStateChange={setAtTop}
                 components={{
-                    Footer: () => (hasMore ? (
+                    Footer: () => (
                         <div className={styles.loadMoreContainer}>
-                            <Button
-                                name={undefined}
-                                onClick={onLoadMore}
-                                disabled={isLoadingMore}
-                            >
-                                {isLoadingMore ? 'Loading...' : 'Load more'}
-                            </Button>
+                            {isDefined(totalCount) && (
+                                <div className={styles.countText}>
+                                    {`Showing ${loadedCount ?? items.length} of ${totalCount} figures`}
+                                </div>
+                            )}
+                            {hasMore && (
+                                <Button
+                                    name={undefined}
+                                    onClick={onLoadMore}
+                                    disabled={isLoadingMore}
+                                    className={styles.loadMoreButton}
+                                >
+                                    {isLoadingMore ? 'Loading...' : 'Load more'}
+                                </Button>
+                            )}
                         </div>
-                    ) : null),
+                    ),
                 }}
             />
             {!atTop && (
