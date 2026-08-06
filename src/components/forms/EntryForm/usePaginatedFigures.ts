@@ -174,6 +174,9 @@ function usePaginatedFigures(
         loadMore,
         erroredInitial,
 
+        totalCount,
+        loadedCount,
+
         pinnedFigureLoading,
     };
 }

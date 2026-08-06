@@ -64,7 +64,28 @@
                 .checkbox {
                     display: flex;
                     flex-shrink: 0;
+                    border: 1px solid var(--color-danger);
+                    border-radius: var(--tui-radius-button);
+                    background-color: transparent;
                     padding: var(--spacing-small);
+                    color: var(--color-danger);
+
+                    /* stylelint-disable-next-line no-descending-specificity */
+                    .checkmark, .label {
+                        color: var(--color-danger) !important;
+                    }
+                    &.active {
+                        background-color: color-mix(in srgb, var(--color-danger) 20%, transparent);
+                    }
+                    &.no-errors {
+                        border-color: var(--tui-color-separator);
+                        color: var(--color-text-label);
+
+                        /* stylelint-disable-next-line no-descending-specificity */
+                        .checkmark, .label {
+                            color: var(--color-text-label) !important;
+                        }
+                    }
                 }
             }
 
