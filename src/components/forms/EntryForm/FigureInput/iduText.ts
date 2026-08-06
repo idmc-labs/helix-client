@@ -111,11 +111,15 @@ export function formatDateRange(start?: string, end?: string) {
         })}`;
     }
 
+    // Cross-year: show full day, month, and year on both ends so the year is
+    // unambiguous.
     return `between ${startDate.toLocaleDateString(locale, {
+        day: 'numeric',
         month: 'long',
         year: 'numeric',
         timeZone: 'UTC',
     })} and ${endDate.toLocaleDateString(locale, {
+        day: 'numeric',
         month: 'long',
         year: 'numeric',
         timeZone: 'UTC',
@@ -152,7 +156,7 @@ export function formatSource(sources: readonly {
     labels.push(...new Set(namedSources));
 
     if (labels.length === 0) {
-        return 'reported sources';
+        return '(Source)';
     }
     return joinWithAnd(labels);
 }
@@ -321,7 +325,7 @@ const housingConditionText: Partial<Record<FigureTerms, string>> = {
 const termTextOverrides: Partial<Record<FigureTerms, string>> = {
     RETURNS: 'returned',
     IN_RELIEF_CAMP: 'in a relief camp',
-    MULTIPLE_OR_OTHER: 'affected',
+    MULTIPLE_OR_OTHER: 'displaced',
     HOMELESS: 'rendered homeless',
 };
 
@@ -374,7 +378,9 @@ export function generateIduText(
     const dateRange = dateRangeInfo || '(Date of Event DD/MM/YYY)';
     const connector = causeConnector || 'due to';
 
-    const verb = totalFigure === 1 ? 'was' : 'were';
+    // With a subject prefix ("the housing of ...") the grammatical subject is
+    // singular ("the housing"), so the verb is always "was" regardless of figure.
+    const verb = subjectPrefix || totalFigure === 1 ? 'was' : 'were';
     const sourceType = sourceTypeInfo || '(Source Type)';
 
     const body = [
