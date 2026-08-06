@@ -283,7 +283,7 @@ const conflictMapById: Record<string, {label: string; iduText: string}> = {
     },
     12: {
         label: 'Crime-related violence',
-        iduText: 'crime related violence',
+        iduText: 'crime-related violence',
     },
     13: {
         label: 'Communal violence',
@@ -381,7 +381,9 @@ export function generateIduText(
     // With a subject prefix ("the housing of ...") the grammatical subject is
     // singular ("the housing"), so the verb is always "was" regardless of figure.
     const verb = subjectPrefix || totalFigure === 1 ? 'was' : 'were';
-    const sourceType = sourceTypeInfo || '(Source Type)';
+    // Same placeholder string as formatSource's no-source fallback, so an unset
+    // source reads identically however this helper is reached.
+    const sourceType = sourceTypeInfo || '(Source)';
 
     const body = [
         subjectPrefix,

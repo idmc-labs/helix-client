@@ -85,6 +85,22 @@ const cases: Case[] = [
     { n: 29, input: { ...base, term: 'DISPLACED', unit: 'HOUSEHOLD', reported: 100, quantifier: 'MORE_THAN_OR_EQUAL', geoLocations: [geo('ORIGIN', 'Kharkiv, Ukraine')], ...disaster('13'), sources: gov, startDate: '2025-10-01', endDate: '2025-10-08' }, expected: 'According to national authorities, at least 100 households were displaced in Kharkiv due to flooding between the 1st and 8th of October 2025.' },
     { n: 30, input: { ...base, term: 'DISPLACED', unit: 'HOUSEHOLD', reported: 100, quantifier: 'MORE_THAN_OR_EQUAL', geoLocations: [geo('ORIGIN', 'Kharkiv, Ukraine'), geo('ORIGIN', 'Sumy, Ukraine'), geo('DESTINATION', 'Poltava, Ukraine'), geo('DESTINATION', 'Lviv, Ukraine')], ...disaster('13'), sources: gov, startDate: '2025-07-04' }, expected: 'According to national authorities, at least 100 households were displaced from Kharkiv and Sumy to Poltava and Lviv due to flooding on July 4, 2025.' },
     { n: 31, input: { ...base, term: 'DISPLACED', unit: 'HOUSEHOLD', reported: 100, quantifier: 'MORE_THAN_OR_EQUAL', geoLocations: [geo('ORIGIN', 'Beira, Mozambique')], ...disaster('13'), sources: [{ name: 'Ministry', organizationKind: { name: 'Government' } }, { name: 'El Capital', organizationKind: { name: 'Media' } }], startDate: '2025-07-04' }, expected: 'According to national authorities and media sources, at least 100 households were displaced in Beira due to flooding on July 4, 2025.' },
+    // grammar-locking edge intersections (adversarial-review follow-ups)
+    // HOMELESS + PERSON must NOT get "the housing of" (HOMELESS is not a housing-condition term).
+    { n: 32, input: { ...base, term: 'HOMELESS', unit: 'PERSON', reported: 5, quantifier: 'APPROXIMATELY', geoLocations: [geo('ORIGIN', 'Poza Rica, Veracruz, Mexico')], ...disaster('13'), sources: gov, startDate: '2025-10-01' }, expected: 'According to national authorities, around five people were rendered homeless in Poza Rica due to flooding on October 1, 2025.' },
+    // Person + housing at a figure of one: singular subject keeps "was".
+    { n: 33, input: { ...base, term: 'DESTROYED_HOUSING', unit: 'PERSON', reported: 1, quantifier: 'EXACT', geoLocations: [geo('ORIGIN', 'Kathmandu, Nepal')], ...disaster('1'), sources: gov, startDate: '2025-04-25' }, expected: 'According to national authorities, the housing of one person was destroyed in Kathmandu due to an earthquake on April 25, 2025.' },
+    { n: 34, input: { ...base, term: 'UNINHABITABLE_HOUSING', unit: 'PERSON', reported: 1, quantifier: 'MORE_THAN_OR_EQUAL', geoLocations: [geo('ORIGIN', 'Manila, Philippines')], ...other('2'), sources: gov, startDate: '2025-06-01' }, expected: 'According to national authorities, the housing of at least one person was rendered uninhabitable in Manila due to eviction on June 1, 2025.' },
+    // Multiple/Other renders "displaced" for households too.
+    { n: 35, input: { ...base, term: 'MULTIPLE_OR_OTHER', unit: 'HOUSEHOLD', reported: 60, quantifier: 'APPROXIMATELY', geoLocations: [geo('ORIGIN_AND_DESTINATION', 'Nairobi, Kenya')], ...other('1'), sources: iom, startDate: '2025-08-01', endDate: '2025-08-20' }, expected: 'According to International Organization for Migration (IOM), around 60 households were displaced in Nairobi due to development between the 1st and 20th of August 2025.' },
+    // In-relief-camp + person, singular.
+    { n: 36, input: { ...base, term: 'IN_RELIEF_CAMP', unit: 'PERSON', reported: 1, quantifier: 'EXACT', geoLocations: [geo('ORIGIN', 'Cox Bazar, Bangladesh')], ...disaster('13'), sources: gov, startDate: '2025-07-04' }, expected: 'According to national authorities, one person was in a relief camp in Cox Bazar due to flooding on July 4, 2025.' },
+    // Inexact quantifier dropped at one via the APPROXIMATELY path (LTE path is case 16).
+    { n: 37, input: { ...base, term: 'DISPLACED', unit: 'PERSON', reported: 1, quantifier: 'APPROXIMATELY', geoLocations: [geo('ORIGIN', 'Goma, North Kivu, DRC')], ...conflict('13'), sources: gov, startDate: '2025-05-02' }, expected: 'According to national authorities, one person was displaced in Goma due to communal violence on May 2, 2025.' },
+    // Crime-related violence keeps its hyphen.
+    { n: 38, input: { ...base, term: 'DISPLACED', unit: 'PERSON', reported: 200, quantifier: 'MORE_THAN_OR_EQUAL', geoLocations: [geo('ORIGIN', 'Tijuana, Mexico')], ...conflict('12'), sources: gov, startDate: '2025-05-02' }, expected: 'According to national authorities, at least 200 people were displaced in Tijuana due to crime-related violence on May 2, 2025.' },
+    // Non-Returns figure tagged only with a DESTINATION reads "in <dest>" ("to" is Returns-only).
+    { n: 39, input: { ...base, term: 'DISPLACED', unit: 'HOUSEHOLD', reported: 100, quantifier: 'MORE_THAN_OR_EQUAL', geoLocations: [geo('DESTINATION', 'Lviv, Ukraine')], ...disaster('13'), sources: gov, startDate: '2025-07-04' }, expected: 'According to national authorities, at least 100 households were displaced in Lviv due to flooding on July 4, 2025.' },
 ];
 
 describe('generateExcerptIduText (all documented cases)', () => {
@@ -214,6 +230,7 @@ describe('formatDateRange', () => {
     it('same month', () => expect(formatDateRange('2025-12-01', '2025-12-16')).toBe('between the 1st and 16th of December 2025'));
     it('same year, different month', () => expect(formatDateRange('2025-01-31', '2025-03-10')).toBe('between January 31 and March 10, 2025'));
     it('different years', () => expect(formatDateRange('2024-11-06', '2025-02-01')).toBe('between November 6, 2024 and February 1, 2025'));
+    it('different years, mid-month both ends', () => expect(formatDateRange('2024-08-14', '2025-01-10')).toBe('between August 14, 2024 and January 10, 2025'));
     it('same-weekday range is not collapsed', () => expect(formatDateRange('2025-10-01', '2025-10-08')).toBe('between the 1st and 8th of October 2025'));
     it('11th-13th ordinal special case', () => expect(formatDateRange('2025-11-11', '2025-11-13')).toBe('between the 11th and 13th of November 2025'));
 });
@@ -242,8 +259,8 @@ describe('getLowestAdminLevel', () => {
 });
 
 describe('generateIduText (placeholders + verb)', () => {
-    it('all placeholders including (Source Type)', () => {
-        expect(generateIduText()).toBe('According to (Source Type), (Figure) (People or Household) were (Term) (Location) due to (Main trigger) (Date of Event DD/MM/YYY).');
+    it('all placeholders including (Source)', () => {
+        expect(generateIduText()).toBe('According to (Source), (Figure) (People or Household) were (Term) (Location) due to (Main trigger) (Date of Event DD/MM/YYY).');
     });
     it('singular verb was', () => {
         expect(generateIduText('flooding', undefined, 1, 'household', 'displaced', 'in X', 'on May 1, 2025', 'IOM')).toContain('one household was displaced');
