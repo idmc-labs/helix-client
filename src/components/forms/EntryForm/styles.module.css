@@ -33,17 +33,68 @@
         flex-direction: column;
         flex-grow: 1;
         padding: var(--spacing-medium);
-        overflow: auto;
+        min-height: 0;
+        overflow: hidden;
         gap: var(--spacing-medium);
+
+        .figures-section {
+            flex: 1 1 auto;
+            min-height: 0;
+        }
 
         .figures-content {
             display: flex;
+            flex-basis: auto;
             flex-direction: column;
+            flex-grow: 1;
+            min-height: 0;
             gap: var(--spacing-medium);
+
+            .figure-filter-row {
+                display: flex;
+                flex-shrink: 0;
+                flex-wrap: wrap;
+                gap: var(--spacing-medium);
+
+                .figure-tab-list {
+                    display: flex;
+                    flex-grow: 1;
+                }
+
+                .checkbox {
+                    display: flex;
+                    flex-shrink: 0;
+                    border: 1px solid var(--color-danger);
+                    border-radius: var(--tui-radius-button);
+                    background-color: transparent;
+                    padding: var(--spacing-small);
+                    color: var(--color-danger);
+
+                    /* stylelint-disable-next-line no-descending-specificity */
+                    .checkmark, .label {
+                        color: var(--color-danger) !important;
+                    }
+                    &.active {
+                        background-color: color-mix(in srgb, var(--color-danger) 20%, transparent);
+                    }
+                    &.no-errors {
+                        border-color: var(--tui-color-separator);
+                        color: var(--color-text-label);
+
+                        /* stylelint-disable-next-line no-descending-specificity */
+                        .checkmark, .label {
+                            color: var(--color-text-label) !important;
+                        }
+                    }
+                }
+            }
 
             .figures {
                 display: flex;
+                flex-basis: auto;
                 flex-direction: column;
+                flex-grow: 1;
+                min-height: 0;
                 gap: var(--spacing-medium);
             }
             .progress-bar {
