@@ -94,6 +94,7 @@ export const FIGURE_LIST = gql`
             results {
                 id
                 oldId
+                hulkUuid
                 createdAt
                 createdBy {
                     id
@@ -110,6 +111,7 @@ export const FIGURE_LIST = gql`
                 entry {
                     id
                     oldId
+                    hulkUuid
                     articleTitle
                 }
                 figureCause
@@ -117,6 +119,7 @@ export const FIGURE_LIST = gql`
                 event {
                     id
                     oldId
+                    hulkUuid
                     name
                     crisis {
                         id
@@ -443,9 +446,8 @@ function useFigureTable(props: Props) {
                         (item) => ({
                             title: item.entry.articleTitle,
                             attrs: { entryId: item.entry.id },
-                            ext: item.entry.oldId
-                                ? `/documents/${item.entry.oldId}`
-                                : undefined,
+                            fromHelixOne: !!item.entry.oldId,
+                            hulkUuid: item.entry.hulkUuid,
                             hash: '/figures-and-analysis',
                             search: `id=${item.id}`,
                             status: item.reviewStatus,
@@ -496,9 +498,8 @@ function useFigureTable(props: Props) {
                     (item) => ({
                         title: item.categoryDisplay,
                         attrs: { entryId: item.entry.id },
-                        ext: item.oldId
-                            ? `/facts/${item.oldId}`
-                            : undefined,
+                        fromHelixOne: !!item.oldId,
+                        hulkUuid: item.hulkUuid,
                         hash: '/figures-and-analysis',
                         search: `id=${item.id}`,
                     }),
@@ -554,9 +555,8 @@ function useFigureTable(props: Props) {
                         (item) => ({
                             title: item.event?.name,
                             attrs: { eventId: item.event?.id },
-                            ext: item.event?.oldId
-                                ? `/events/${item.event.oldId}`
-                                : undefined,
+                            fromHelixOne: !!item.event?.oldId,
+                            hulkUuid: item.event?.hulkUuid,
                         }),
                         route.event,
                         { sortable: true },
@@ -569,7 +569,6 @@ function useFigureTable(props: Props) {
                         (item) => ({
                             title: item.event?.crisis?.name,
                             attrs: { crisisId: item.event?.crisis?.id },
-                            ext: undefined,
                         }),
                         route.crisis,
                         { sortable: true },

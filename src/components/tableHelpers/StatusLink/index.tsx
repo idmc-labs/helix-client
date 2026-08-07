@@ -1,13 +1,11 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
-import {
-    IoCompassOutline,
-} from 'react-icons/io5';
 
 import SmartLink from '#components/SmartLink';
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
 
 import Status, { ReviewStatus } from '../Status';
+import SourceIndicators from '../SourceIndicators';
 import styles from './styles.module.css';
 
 export interface Props {
@@ -18,7 +16,8 @@ export interface Props {
     hash?: string;
     search?: string;
     attrs?: Attrs;
-    ext?: string;
+    fromHelixOne?: boolean;
+    fromHulk?: boolean;
 }
 
 function StatusLink(props: Props) {
@@ -28,24 +27,18 @@ function StatusLink(props: Props) {
         title,
         route,
         attrs,
-        ext,
+        fromHelixOne,
+        fromHulk,
         hash,
         search,
     } = props;
 
     return (
         <div className={_cs(styles.statusLink, className)}>
-            {ext && (
-                <a
-                    className={styles.ext}
-                    title={ext}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={`https://helix.idmcdb.org${ext}`}
-                >
-                    <IoCompassOutline />
-                </a>
-            )}
+            <SourceIndicators
+                fromHelixOne={fromHelixOne}
+                fromHulk={fromHulk}
+            />
             <Status
                 status={status}
             />

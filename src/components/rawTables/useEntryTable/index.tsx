@@ -60,6 +60,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
                 createdAt
                 id
                 oldId
+                hulkUuid
                 createdBy {
                     id
                     fullName
@@ -252,9 +253,8 @@ function useEntryTable(props: Props) {
                 (item) => ({
                     title: item.articleTitle,
                     attrs: { entryId: item.id },
-                    ext: item?.oldId
-                        ? `/documents/${item.oldId}`
-                        : undefined,
+                    fromHelixOne: !!item?.oldId,
+                    hulkUuid: item?.hulkUuid,
                 }),
                 route.entryView,
                 { sortable: true },

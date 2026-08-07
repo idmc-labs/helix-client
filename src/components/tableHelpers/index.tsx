@@ -65,7 +65,8 @@ export function createLinkColumn<D, K>(
     accessor: (item: D) => {
         title: string | undefined | null,
         attrs?: Attrs,
-        ext: string | undefined,
+        fromHelixOne?: boolean,
+        hulkUuid?: string | null,
         hash?: string,
         search?: string,
     } | undefined | null,
@@ -96,7 +97,8 @@ export function createLinkColumn<D, K>(
                 title: value?.title,
                 attrs: value?.attrs,
                 route,
-                ext: value?.ext,
+                fromHelixOne: value?.fromHelixOne,
+                hulkUuid: value?.hulkUuid,
                 hash: value?.hash,
                 search: value?.search,
             };
@@ -193,7 +195,8 @@ export function createStatusColumn<D, K>(
         status: ReviewStatus | undefined | null,
         title: string | undefined | null,
         attrs?: Attrs,
-        ext: string | undefined,
+        fromHelixOne?: boolean,
+        hulkUuid?: string | null,
         hash?: string;
         search?: string;
     } | undefined | null,
@@ -222,7 +225,8 @@ export function createStatusColumn<D, K>(
                 attrs: value?.attrs,
                 route,
                 status: value?.status,
-                ext: value?.ext,
+                fromHelixOne: value?.fromHelixOne,
+                hulkUuid: value?.hulkUuid,
                 hash: value?.hash,
                 search: value?.search,
             };
