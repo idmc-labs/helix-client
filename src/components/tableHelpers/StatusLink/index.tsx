@@ -17,7 +17,7 @@ export interface Props {
     search?: string;
     attrs?: Attrs;
     fromHelixOne?: boolean;
-    fromHulk?: boolean;
+    hulkUuid?: string | null;
 }
 
 function StatusLink(props: Props) {
@@ -28,19 +28,19 @@ function StatusLink(props: Props) {
         route,
         attrs,
         fromHelixOne,
-        fromHulk,
+        hulkUuid,
         hash,
         search,
     } = props;
 
     return (
         <div className={_cs(styles.statusLink, className)}>
-            <SourceIndicators
-                fromHelixOne={fromHelixOne}
-                fromHulk={fromHulk}
-            />
             <Status
                 status={status}
+            />
+            <SourceIndicators
+                fromHelixOne={fromHelixOne}
+                hulkUuid={hulkUuid}
             />
             <SmartLink
                 className={_cs(styles.link, className)}

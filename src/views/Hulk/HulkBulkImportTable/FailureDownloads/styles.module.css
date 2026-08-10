@@ -1,0 +1,11 @@
+.popup-content {
+    display: flex;
+    flex-direction: column;
+
+    .link {
+        display: flex;
+        width: 100%;
+        justify-content: flex-start;
+        white-space: nowrap;
+    }
+}

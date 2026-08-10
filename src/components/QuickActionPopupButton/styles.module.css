@@ -1,0 +1,20 @@
+.button {
+    --padding: var(--spacing-small);
+    width: 26px;
+    height: 26px;
+    font-size: var(--font-size-medium);
+
+    &.round-button {
+        justify-content: center;
+        border-radius: calc(1em + var(--padding) / 2);
+        padding: var(--padding);
+
+        .children {
+            padding: 0;
+        }
+
+        .actions {
+            display: none;
+        }
+    }
+}

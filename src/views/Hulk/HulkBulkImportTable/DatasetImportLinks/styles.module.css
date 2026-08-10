@@ -1,0 +1,14 @@
+.imports {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--spacing-extra-small);
+
+    .separator {
+        margin-left: calc(-1 * var(--spacing-extra-small));
+    }
+
+    .link {
+        white-space: nowrap;
+    }
+}
