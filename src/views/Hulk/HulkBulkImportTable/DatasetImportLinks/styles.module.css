@@ -1,7 +1,7 @@
 .imports {
     display: flex;
-    flex-wrap: wrap;
     align-items: baseline;
+    flex-wrap: wrap;
     gap: var(--spacing-extra-small);
 
     .separator {
