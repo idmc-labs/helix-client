@@ -1,0 +1,12 @@
+.indicator {
+    display: inline-flex;
+    align-items: center;
+
+    &.helix-one {
+        color: var(--color-accent);
+    }
+
+    &.bulk {
+        color: var(--color-accent);
+    }
+}

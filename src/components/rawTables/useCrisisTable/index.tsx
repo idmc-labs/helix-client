@@ -312,7 +312,6 @@ function useCrisisTable(props: Props) {
                     (item) => ({
                         title: item.name,
                         attrs: { crisisId: item.id },
-                        ext: undefined,
                     }),
                     route.crisis,
                     { sortable: true },

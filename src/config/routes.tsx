@@ -406,13 +406,29 @@ const routeSettings = {
     }),
     averageHouseholdSize: wrap({
         path: '/ahhs/',
-        title: 'Average Household Size',
+        title: 'AHHS',
         navbarVisibility: true,
         component: lazy(() => import('../views/AverageHouseholdSize')),
         componentProps: {
             className: styles.view,
         },
         visibility: 'is-authenticated',
+        category: 'administration',
+    }),
+    hulk: wrap({
+        path: '/hulk/',
+        title: 'HULK',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/Hulk')),
+        componentProps: {
+            className: styles.view,
+        },
+        visibility: 'is-authenticated',
+        checkPermissions: (permissions) => (
+            permissions.hulkbulkimport?.add
+            || permissions.hulkbulkimport?.change
+            || permissions.hulkbulkimport?.delete
+        ),
         category: 'administration',
     }),
     signIn: wrap({

@@ -198,6 +198,14 @@ function Navbar(props: Props) {
                         </ButtonLikeLink>
                         <ButtonLikeLink
                             className={styles.button}
+                            route={route.averageHouseholdSize}
+                            transparent
+                        >
+                            {route.averageHouseholdSize.title}
+                        </ButtonLikeLink>
+                        <div className={styles.rowLine} />
+                        <ButtonLikeLink
+                            className={styles.button}
                             route={route.gidd}
                             transparent
                         >
@@ -210,14 +218,14 @@ function Navbar(props: Props) {
                         >
                             {route.apiUsage.title}
                         </ButtonLikeLink>
+                        <div className={styles.rowLine} />
                         <ButtonLikeLink
                             className={styles.button}
-                            route={route.averageHouseholdSize}
+                            route={route.hulk}
                             transparent
                         >
-                            {route.averageHouseholdSize.title}
+                            {route.hulk.title}
                         </ButtonLikeLink>
-                        <div className={styles.rowLine} />
                         <ButtonLikeLink
                             className={styles.button}
                             route={route.parkingLot}

@@ -4,7 +4,6 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
-import { isNaN } from '@togglecorp/fujs';
 import {
     Table,
     Pager,
@@ -332,10 +331,7 @@ function ReportsTable(props: ReportsProps) {
                         || (item.lastGeneration?.isSignedOff && 'SIGNED_OFF')
                         || null
                     ),
-                    // NOTE: filtering out oldId that are not numeric
-                    ext: item.oldId && !isNaN(Number(item.oldId))
-                        ? `/facts/${item.oldId}`
-                        : undefined,
+                    fromHelixOne: !!item.oldId,
                 }),
                 route.report,
                 { sortable: true },

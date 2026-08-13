@@ -219,9 +219,7 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                 (item) => ({
                     title: item.articleTitle,
                     attrs: { contextualUpdateId: item.id },
-                    ext: item.oldId
-                        ? `/documents/${item.oldId}`
-                        : undefined,
+                    fromHelixOne: !!item.oldId,
                 }),
                 route.contextualUpdateView,
                 { sortable: true },
