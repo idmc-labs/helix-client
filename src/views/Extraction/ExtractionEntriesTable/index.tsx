@@ -43,6 +43,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
 
     const {
         page: entriesPage,
+        rawPage: entriesRawPage,
         setPage: setEntriesPage,
 
         ordering: entriesOrdering,
@@ -51,11 +52,13 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         filter: entriesFilter,
 
         pageSize: entriesPageSize,
+        rawPageSize: entriesRawPageSize,
         setPageSize: setEntriesPageSize,
     } = entriesFilterState;
 
     const {
         page: figuresPage,
+        rawPage: figuresRawPage,
         setPage: setFiguresPage,
 
         ordering: figuresOrdering,
@@ -64,6 +67,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         filter: figuresFilter,
 
         pageSize: figuresPageSize,
+        rawPageSize: figuresRawPageSize,
         setPageSize: setFiguresPageSize,
     } = figuresFilterState;
 
@@ -103,8 +107,8 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         pager: entriesPager,
     } = useEntryTable({
         filters: entriesVariables,
-        page: entriesPage,
-        pageSize: entriesPageSize,
+        page: entriesRawPage,
+        pageSize: entriesRawPageSize,
         onPageChange: setEntriesPage,
         onPageSizeChange: setEntriesPageSize,
     });
@@ -116,8 +120,8 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         pager: figuresPager,
     } = useFigureTable({
         filters: figuresVariables,
-        page: figuresPage,
-        pageSize: figuresPageSize,
+        page: figuresRawPage,
+        pageSize: figuresRawPageSize,
         onPageChange: setFiguresPage,
         onPageSizeChange: setFiguresPageSize,
     });

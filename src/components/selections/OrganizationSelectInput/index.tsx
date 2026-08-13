@@ -88,6 +88,7 @@ function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
             filters: {
                 search: debouncedSearchText,
                 orderCountryFirst: country ? [country] : undefined,
+                excludeDeleted: true,
             },
         }),
         [debouncedSearchText, country],

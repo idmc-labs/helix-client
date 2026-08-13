@@ -484,19 +484,19 @@ function UserRoles(props: UserRolesProps) {
                 'is_admin',
                 'Admin',
                 (item) => item.portfoliosMetadata.isAdmin,
-                // { sortable: true },
+                { sortable: true },
             ),
             createYesNoColumn<UserRolesField, string>(
                 'is_directors_office',
                 'Director\'s Office',
                 (item) => item.portfoliosMetadata.isDirectorsOffice,
-                // { sortable: true },
+                { sortable: true },
             ),
             createYesNoColumn<UserRolesField, string>(
                 'is_reporting_team',
                 'Reporting Team',
                 (item) => item.portfoliosMetadata.isReportingTeam,
-                // { sortable: true },
+                { sortable: true },
             ),
             createYesNoColumn<UserRolesField, string>(
                 'is_active',
