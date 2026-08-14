@@ -1,0 +1,27 @@
+.sections {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-large);
+
+    .section {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-small);
+
+        .section-heading {
+            margin: 0;
+        }
+
+        .links {
+            display: flex;
+            flex-direction: column;
+
+            .link {
+                display: flex;
+                justify-content: flex-start;
+                width: 100%;
+                white-space: nowrap;
+            }
+        }
+    }
+}

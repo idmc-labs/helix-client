@@ -32,7 +32,7 @@ import {
 import { hasNoData, diff, formatElapsedTime } from '#utils/common';
 
 import DatasetImportLinks, { DatasetImportLinksProps } from './DatasetImportLinks';
-import FailureDownloads, { FailureDownloadsProps } from './FailureDownloads';
+import ViewFiles, { ViewFilesProps } from './ViewFiles';
 import HulkBulkImportFilter from './HulkBulkImportFilter';
 import styles from './styles.module.css';
 
@@ -51,6 +51,7 @@ const GET_HULK_BULK_IMPORTS_LIST = gql`
         ) {
             results {
                 id
+                name
                 createdAt
                 createdBy {
                     id
@@ -62,14 +63,18 @@ const GET_HULK_BULK_IMPORTS_LIST = gql`
                 statusDisplay
                 successCount
                 failureCount
+                skipCount
                 datasets {
                     id
                     importType
                     importTypeDisplay
                     importFile
+                    successFile
                     failureFile
+                    skipFile
                     successCount
                     failureCount
+                    skipCount
                 }
             }
             totalCount
@@ -166,6 +171,11 @@ function HulkBulkImportTable(props: HulkBulkImportProps) {
                             value: item.successCount,
                         },
                         {
+                            title: 'Skipped',
+                            color: 'var(--color-warning)',
+                            value: item.skipCount,
+                        },
+                        {
                             title: 'Failure',
                             color: 'var(--color-danger)',
                             value: item.failureCount,
@@ -190,16 +200,16 @@ function HulkBulkImportTable(props: HulkBulkImportProps) {
             };
 
             const actionsColumn = createCustomActionColumn<
-                HulkBulkImportFields, string, FailureDownloadsProps
+                HulkBulkImportFields, string, ViewFilesProps
             >(
-                FailureDownloads,
+                ViewFiles,
                 (_, item) => ({
                     datasets: item.datasets,
                 }),
                 'actions',
                 '',
                 undefined,
-                // width for the single failures-download control
+                // width for the single view-files control
                 1,
             );
 
@@ -221,6 +231,12 @@ function HulkBulkImportTable(props: HulkBulkImportProps) {
                     // NOTE: let the Imports column absorb the slack instead
                     columnStretch: false,
                 },
+                createTextColumn<HulkBulkImportFields, string>(
+                    'name',
+                    'Name',
+                    (item) => item.name ?? `Import ${item.id}`,
+                    { sortable: true },
+                ),
                 createTextColumn<HulkBulkImportFields, string>(
                     'status',
                     'Status',
