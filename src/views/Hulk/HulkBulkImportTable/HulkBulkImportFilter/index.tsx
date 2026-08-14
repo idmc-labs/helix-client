@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { Button, MultiSelectInput } from '@togglecorp/toggle-ui';
+import { Button, MultiSelectInput, TextInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
     ObjectSchema,
@@ -10,6 +10,7 @@ import {
     gql,
     useQuery,
 } from '@apollo/client';
+import { IoSearchOutline } from 'react-icons/io5';
 
 import {
     enumKeySelector,
@@ -45,6 +46,7 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
+        search: [],
         statusList: [],
         createdByIds: [],
     }),
@@ -119,6 +121,15 @@ function HulkBulkImportFilter(props: HulkBulkImportFilterProps) {
                 {error?.$internal}
             </NonFieldError>
             <div className={styles.contentContainer}>
+                <TextInput
+                    className={styles.input}
+                    icons={<IoSearchOutline />}
+                    label="Search"
+                    name="search"
+                    value={value.search}
+                    onChange={onValueChange}
+                    error={error?.fields?.search}
+                />
                 <UserMultiSelectInput
                     className={styles.input}
                     label="Created By"
