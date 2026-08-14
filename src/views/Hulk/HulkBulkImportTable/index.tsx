@@ -63,6 +63,7 @@ const GET_HULK_BULK_IMPORTS_LIST = gql`
                 statusDisplay
                 successCount
                 failureCount
+                skipCount
                 datasets {
                     id
                     importType
@@ -165,6 +166,11 @@ function HulkBulkImportTable(props: HulkBulkImportProps) {
                             title: 'Success',
                             color: 'var(--color-success)',
                             value: item.successCount,
+                        },
+                        {
+                            title: 'Skipped',
+                            color: 'var(--color-warning)',
+                            value: item.skipCount,
                         },
                         {
                             title: 'Failure',
