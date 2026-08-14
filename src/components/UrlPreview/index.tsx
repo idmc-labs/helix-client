@@ -41,6 +41,14 @@ function isPdf(url: string) {
 }
 
 // TODO: add a better check
+function isHtml(url: string) {
+    const sanitizedUrl = url.trim().toLowerCase();
+    return sanitizedUrl.endsWith('.html')
+        || sanitizedUrl.endsWith('.htm')
+        || sanitizedUrl.endsWith('.xhtml');
+}
+
+// TODO: add a better check
 function isOfficeCompatible(url: string) {
     const sanitizedUrl = url.trim().toLowerCase();
     return sanitizedUrl.endsWith('.ppt')
@@ -80,11 +88,41 @@ function Message(props: MessageProps) {
     );
 }
 
+interface HtmlPreviewProps {
+    url: string;
+}
+function HtmlPreview(props: HtmlPreviewProps) {
+    const { url } = props;
+    return (
+        <div className={styles.preview}>
+            <div
+                title={url}
+                className={styles.url}
+            >
+                { url }
+            </div>
+            <iframe
+                className={styles.previewFrame}
+                src={url}
+                title="Web Preview"
+                sandbox="allow-scripts allow-popups"
+            />
+        </div>
+    );
+}
+
 interface FilePreviewProps {
     url: string;
 }
 function FilePreview(props: FilePreviewProps) {
     const { url } = props;
+
+    // NOTE: Html can be previewed by browsers natively so no need to use a online previewer
+    if (isHtml(url)) {
+        return (
+            <HtmlPreview url={url} />
+        );
+    }
 
     // NOTE: Pdf can be previewed by browsers natively so no need to use a online previewer
     if (isPdf(url)) {
@@ -142,29 +180,6 @@ function FilePreview(props: FilePreviewProps) {
                     src={createUrlForGoogleViewer(url)}
                 />
             )}
-        </div>
-    );
-}
-
-interface HtmlPreviewProps {
-    url: string;
-}
-function HtmlPreview(props: HtmlPreviewProps) {
-    const { url } = props;
-    return (
-        <div className={styles.preview}>
-            <div
-                title={url}
-                className={styles.url}
-            >
-                { url }
-            </div>
-            <iframe
-                className={styles.previewFrame}
-                src={url}
-                title="Web Preview"
-                sandbox="allow-scripts allow-popups"
-            />
         </div>
     );
 }
