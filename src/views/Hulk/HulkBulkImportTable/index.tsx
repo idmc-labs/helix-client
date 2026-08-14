@@ -51,6 +51,7 @@ const GET_HULK_BULK_IMPORTS_LIST = gql`
         ) {
             results {
                 id
+                name
                 createdAt
                 createdBy {
                     id
@@ -221,6 +222,12 @@ function HulkBulkImportTable(props: HulkBulkImportProps) {
                     // NOTE: let the Imports column absorb the slack instead
                     columnStretch: false,
                 },
+                createTextColumn<HulkBulkImportFields, string>(
+                    'name',
+                    'Name',
+                    (item) => item.name ?? `Import ${item.id}`,
+                    { sortable: true },
+                ),
                 createTextColumn<HulkBulkImportFields, string>(
                     'status',
                     'Status',
