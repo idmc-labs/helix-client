@@ -32,7 +32,7 @@ import {
 import { hasNoData, diff, formatElapsedTime } from '#utils/common';
 
 import DatasetImportLinks, { DatasetImportLinksProps } from './DatasetImportLinks';
-import FailureDownloads, { FailureDownloadsProps } from './FailureDownloads';
+import ViewFiles, { ViewFilesProps } from './ViewFiles';
 import HulkBulkImportFilter from './HulkBulkImportFilter';
 import styles from './styles.module.css';
 
@@ -69,9 +69,12 @@ const GET_HULK_BULK_IMPORTS_LIST = gql`
                     importType
                     importTypeDisplay
                     importFile
+                    successFile
                     failureFile
+                    skipFile
                     successCount
                     failureCount
+                    skipCount
                 }
             }
             totalCount
@@ -197,16 +200,16 @@ function HulkBulkImportTable(props: HulkBulkImportProps) {
             };
 
             const actionsColumn = createCustomActionColumn<
-                HulkBulkImportFields, string, FailureDownloadsProps
+                HulkBulkImportFields, string, ViewFilesProps
             >(
-                FailureDownloads,
+                ViewFiles,
                 (_, item) => ({
                     datasets: item.datasets,
                 }),
                 'actions',
                 '',
                 undefined,
-                // width for the single failures-download control
+                // width for the single view-files control
                 1,
             );
 
