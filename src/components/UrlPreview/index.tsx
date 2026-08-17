@@ -8,6 +8,12 @@ import styles from './styles.module.css';
 
 type Maybe<T> = T | undefined | null;
 
+// NOTE: the previewed document is never served from the app's origin, so its
+// scripts cannot reach the app
+const SCRIPTED_SANDBOX = 'allow-scripts allow-popups';
+// NOTE: images render without scripting
+const STATIC_SANDBOX = '';
+
 interface UrlParams {
     [key: string]: Maybe<string | number | boolean | (string | number | boolean)[]>;
 }
@@ -46,6 +52,19 @@ function isHtml(url: string) {
     return sanitizedUrl.endsWith('.html')
         || sanitizedUrl.endsWith('.htm')
         || sanitizedUrl.endsWith('.xhtml');
+}
+
+// TODO: add a better check
+// NOTE: svg is excluded as the online previewer renders it, tiff as browsers do not
+function isImage(url: string) {
+    const sanitizedUrl = url.trim().toLowerCase();
+    return sanitizedUrl.endsWith('.png')
+        || sanitizedUrl.endsWith('.jpg')
+        || sanitizedUrl.endsWith('.jpeg')
+        || sanitizedUrl.endsWith('.gif')
+        || sanitizedUrl.endsWith('.webp')
+        || sanitizedUrl.endsWith('.bmp')
+        || sanitizedUrl.endsWith('.ico');
 }
 
 // TODO: add a better check
@@ -88,11 +107,17 @@ function Message(props: MessageProps) {
     );
 }
 
-interface HtmlPreviewProps {
+interface NativePreviewProps {
     url: string;
+    title: string;
+    sandbox: string;
 }
-function HtmlPreview(props: HtmlPreviewProps) {
-    const { url } = props;
+function NativePreview(props: NativePreviewProps) {
+    const {
+        url,
+        title,
+        sandbox,
+    } = props;
     return (
         <div className={styles.preview}>
             <div
@@ -104,8 +129,8 @@ function HtmlPreview(props: HtmlPreviewProps) {
             <iframe
                 className={styles.previewFrame}
                 src={url}
-                title="Web Preview"
-                sandbox="allow-scripts allow-popups"
+                title={title}
+                sandbox={sandbox}
             />
         </div>
     );
@@ -120,7 +145,22 @@ function FilePreview(props: FilePreviewProps) {
     // NOTE: Html can be previewed by browsers natively so no need to use a online previewer
     if (isHtml(url)) {
         return (
-            <HtmlPreview url={url} />
+            <NativePreview
+                url={url}
+                title="Html preview"
+                sandbox={SCRIPTED_SANDBOX}
+            />
+        );
+    }
+
+    // NOTE: Images can be previewed by browsers natively so no need to use a online previewer
+    if (isImage(url)) {
+        return (
+            <NativePreview
+                url={url}
+                title="Image preview"
+                sandbox={STATIC_SANDBOX}
+            />
         );
     }
 
@@ -225,8 +265,10 @@ function UrlPreview(props: UrlPreviewProps) {
     return (
         <div className={_cs(styles.urlPreview, className)}>
             {mode === 'html' ? (
-                <HtmlPreview
+                <NativePreview
                     url={url}
+                    title="Web preview"
+                    sandbox={SCRIPTED_SANDBOX}
                 />
             ) : (
                 <FilePreview
