@@ -1,5 +1,4 @@
 import React from 'react';
-import { isDefined } from '@togglecorp/fujs';
 import { IoDownloadOutline } from 'react-icons/io5';
 import { Button, Modal, useBooleanState } from '@togglecorp/toggle-ui';
 
@@ -45,9 +44,9 @@ function ViewFiles(props: ViewFilesProps) {
         hideModal,
     ] = useBooleanState(false);
 
-    const ordered = DATASET_TYPE_ORDER
-        .map((type) => datasets?.find((dataset) => dataset.importType === type))
-        .filter(isDefined);
+    const ordered = [...(datasets ?? [])].sort(
+        (a, b) => DATASET_TYPE_ORDER[a.importType] - DATASET_TYPE_ORDER[b.importType],
+    );
 
     const allSections: Section[] = [
         {

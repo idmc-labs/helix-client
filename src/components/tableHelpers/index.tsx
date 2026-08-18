@@ -20,6 +20,10 @@ import { ReviewStatus } from './Status';
 import Text, { TextProps } from './Text';
 import styles from './styles.module.css';
 
+// The expand column only holds a chevron button, so it should take just the
+// width that button needs rather than the default data-column width.
+export const EXPAND_COLUMN_WIDTH = 48;
+
 type Size = 'very-small' | 'small' | 'medium' | 'medium-large' | 'large';
 
 export function getWidthFromSize(size: Size | undefined) {
