@@ -123,6 +123,9 @@ function FigureTagsTable(props: FigureTagsProps) {
         initialFilter,
         filter,
         setFilter,
+        reset,
+        orderingChanged,
+        pageChanged,
 
         rawPageSize,
         pageSize,
@@ -337,6 +340,8 @@ function FigureTagsTable(props: FigureTagsProps) {
                     currentFilter={rawFilter}
                     initialFilter={initialFilter}
                     onFilterChange={setFilter}
+                    onFilterReset={reset}
+                    orderingOrPageChanged={orderingChanged || pageChanged}
                 />
             )}
             footerContent={(

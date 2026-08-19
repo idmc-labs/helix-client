@@ -119,6 +119,9 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
         initialFilter,
         filter,
         setFilter,
+        reset,
+        orderingChanged,
+        pageChanged,
 
         rawPageSize,
         pageSize,
@@ -287,6 +290,8 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                         currentFilter={rawFilter}
                         initialFilter={initialFilter}
                         onFilterChange={setFilter}
+                        onFilterReset={reset}
+                        orderingOrPageChanged={orderingChanged || pageChanged}
                     />
                 )}
                 footerContent={(

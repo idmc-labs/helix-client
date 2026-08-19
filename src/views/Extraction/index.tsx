@@ -266,10 +266,12 @@ function Extraction(props: ExtractionProps) {
         setFilter: setFiguresFilter,
         rawFilter: rawFiguresFilter,
         initialFilter: initialFiguresFilter,
+        reset: resetFiguresFilter,
     } = figuresFilterState;
 
     const {
         setFilter: setEntriesFilter,
+        reset: resetEntriesFilter,
     } = entriesFilterState;
 
     const setFilter: typeof setFiguresFilter = useCallback(
@@ -278,6 +280,16 @@ function Extraction(props: ExtractionProps) {
             setEntriesFilter(...args);
         },
         [setFiguresFilter, setEntriesFilter],
+    );
+
+    // NOTE: A single filter drives both the figures and entries tables, so reset
+    // must clear both instances.
+    const resetFilter = useCallback(
+        () => {
+            resetFiguresFilter();
+            resetEntriesFilter();
+        },
+        [resetFiguresFilter, resetEntriesFilter],
     );
 
     const [
@@ -608,6 +620,11 @@ function Extraction(props: ExtractionProps) {
                         initialFilter={initialFiguresFilter}
                         disabled={filterDisabled}
                         onFilterChange={setFilter}
+                        onFilterReset={resetFilter}
+                        orderingOrPageChanged={figuresFilterState.orderingChanged
+                            || figuresFilterState.pageChanged
+                            || entriesFilterState.orderingChanged
+                            || entriesFilterState.pageChanged}
                     />
                 </Container>
                 <ExtractionEntriesTable

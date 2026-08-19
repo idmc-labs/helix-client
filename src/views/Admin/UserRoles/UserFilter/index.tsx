@@ -59,6 +59,8 @@ interface UsersFilterProps {
     initialFilter: PartialForm<FormType>;
     currentFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
+    onFilterReset: () => void;
+    orderingOrPageChanged?: boolean;
 }
 
 function UserFilter(props: UsersFilterProps) {
@@ -67,6 +69,8 @@ function UserFilter(props: UsersFilterProps) {
         initialFilter,
         currentFilter,
         onFilterChange,
+        onFilterReset,
+        orderingOrPageChanged = false,
     } = props;
 
     const {
@@ -99,9 +103,9 @@ function UserFilter(props: UsersFilterProps) {
     const onResetFilters = useCallback(
         () => {
             onValueSet(initialFilter);
-            onFilterChange(initialFilter);
+            onFilterReset();
         },
-        [onValueSet, onFilterChange, initialFilter],
+        [onValueSet, onFilterReset, initialFilter],
     );
 
     const handleSubmit = useCallback((finalValues: FormType) => {
@@ -163,7 +167,7 @@ function UserFilter(props: UsersFilterProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset"
-                        disabled={!filterChanged}
+                        disabled={!filterChanged && !orderingOrPageChanged}
                     >
                         Reset
                     </Button>

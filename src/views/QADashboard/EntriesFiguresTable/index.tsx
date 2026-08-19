@@ -52,6 +52,9 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
         initialFilter: initialEntriesFilter,
         filter: entriesFilter,
         setFilter: setEntriesFilter,
+        reset: resetEntriesFilter,
+        orderingChanged: entriesOrderingChanged,
+        pageChanged: entriesPageChanged,
 
         pageSize: entriesPageSize,
         rawPageSize: rawEntriesPageSize,
@@ -76,6 +79,9 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
         initialFilter: initialFiguresFilter,
         filter: figuresFilter,
         setFilter: setFiguresFilter,
+        reset: resetFiguresFilter,
+        orderingChanged: figuresOrderingChanged,
+        pageChanged: figuresPageChanged,
 
         pageSize: figuresPageSize,
         rawPageSize: rawFiguresPageSize,
@@ -204,6 +210,9 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
                                 currentFilter={rawEntriesFilter}
                                 initialFilter={initialEntriesFilter}
                                 onFilterChange={setEntriesFilter}
+                                onFilterReset={resetEntriesFilter}
+                                orderingOrPageChanged={entriesOrderingChanged
+                                    || entriesPageChanged}
                                 hiddenFields={figureHiddenColumns}
                             />
                         )}
@@ -212,6 +221,9 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
                                 currentFilter={rawFiguresFilter}
                                 initialFilter={initialFiguresFilter}
                                 onFilterChange={setFiguresFilter}
+                                onFilterReset={resetFiguresFilter}
+                                orderingOrPageChanged={figuresOrderingChanged
+                                    || figuresPageChanged}
                                 hiddenFields={figureHiddenColumns}
                             />
                         )}

@@ -86,6 +86,8 @@ interface ReportFilterProps {
     currentFilter: PartialForm<FormType>;
     initialFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
+    onFilterReset: () => void;
+    orderingOrPageChanged?: boolean;
 }
 
 function ReportFilter(props: ReportFilterProps) {
@@ -94,6 +96,8 @@ function ReportFilter(props: ReportFilterProps) {
         initialFilter,
         currentFilter,
         onFilterChange,
+        onFilterReset,
+        orderingOrPageChanged = false,
     } = props;
 
     const {
@@ -126,9 +130,9 @@ function ReportFilter(props: ReportFilterProps) {
     const onResetFilters = useCallback(
         () => {
             onValueSet(initialFilter);
-            onFilterChange(initialFilter);
+            onFilterReset();
         },
-        [onValueSet, onFilterChange, initialFilter],
+        [onValueSet, onFilterReset, initialFilter],
     );
 
     const handleSubmit = useCallback((finalValues: FormType) => {
@@ -271,7 +275,7 @@ function ReportFilter(props: ReportFilterProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset Filters"
-                        disabled={!filterChanged}
+                        disabled={!filterChanged && !orderingOrPageChanged}
                     >
                         Reset
                     </Button>

@@ -243,6 +243,8 @@ interface AdvancedFigureFiltersProps {
     currentFilter: PartialForm<FormType>,
     initialFilter: PartialForm<FormType>,
     onFilterChange: (value: PartialForm<FormType>) => void;
+    onFilterReset: () => void;
+    orderingOrPageChanged?: boolean;
     disabled?: boolean;
     hiddenFields?: ('event' | 'crisis' | 'country' | 'reviewStatus' | 'createdBy')[];
     // We use these props to filter out other options
@@ -258,6 +260,8 @@ function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
         initialFilter,
         currentFilter,
         onFilterChange,
+        onFilterReset,
+        orderingOrPageChanged = false,
         countries,
         crises,
         events,
@@ -294,9 +298,9 @@ function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
     const onResetFilters = useCallback(
         () => {
             onValueSet(initialFilter);
-            onFilterChange(initialFilter);
+            onFilterReset();
         },
-        [onValueSet, onFilterChange, initialFilter],
+        [onValueSet, onFilterReset, initialFilter],
     );
 
     const {
@@ -702,7 +706,7 @@ function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
                     name={undefined}
                     onClick={onResetFilters}
                     title="Reset Filters"
-                    disabled={!filterChanged}
+                    disabled={!filterChanged && !orderingOrPageChanged}
                 >
                     Reset
                 </Button>

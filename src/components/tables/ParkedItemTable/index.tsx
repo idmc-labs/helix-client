@@ -151,6 +151,10 @@ function ParkedItemTable(props: ParkedItemProps) {
         rawPageSize,
         pageSize,
         setPageSize,
+
+        reset,
+        orderingChanged,
+        pageChanged,
     } = useFilterState<PurgeNull<NonNullable<ParkedItemListQueryVariables['filters']>>>({
         filter: {},
         ordering: {
@@ -413,6 +417,8 @@ function ParkedItemTable(props: ParkedItemProps) {
                     currentFilter={rawFilter}
                     initialFilter={initialFilter}
                     onFilterChange={setFilter}
+                    onFilterReset={reset}
+                    orderingOrPageChanged={orderingChanged || pageChanged}
                     status={status}
                     assignedUser={assignedUser}
                 />

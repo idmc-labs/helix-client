@@ -502,6 +502,9 @@ function Event(props: EventProps) {
                         currentFilter={rawFiguresFilter}
                         initialFilter={initialFiguresFilter}
                         onFilterChange={setFiguresFilter}
+                        onFilterReset={figuresFilterState.reset}
+                        orderingOrPageChanged={figuresFilterState.orderingChanged
+                            || figuresFilterState.pageChanged}
                         hiddenFields={figureHiddenColumns}
                         events={[eventId]}
                     />

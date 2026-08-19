@@ -143,6 +143,9 @@ function HulkBulkImportTable(props: HulkBulkImportProps) {
         initialFilter,
         filter,
         setFilter,
+        reset,
+        orderingChanged,
+        pageChanged,
 
         rawPageSize,
         pageSize,
@@ -331,6 +334,8 @@ function HulkBulkImportTable(props: HulkBulkImportProps) {
                     currentFilter={rawFilter}
                     initialFilter={initialFilter}
                     onFilterChange={setFilter}
+                    onFilterReset={reset}
+                    orderingOrPageChanged={orderingChanged || pageChanged}
                 />
             )}
             footerContent={(

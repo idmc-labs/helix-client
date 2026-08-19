@@ -41,6 +41,8 @@ interface HouseholdSizeFilterProps {
     initialFilter: PartialForm<FormType>;
     currentFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
+    onFilterReset: () => void;
+    orderingOrPageChanged?: boolean;
 }
 
 function HouseholdSizeRecordsFilter(props: HouseholdSizeFilterProps) {
@@ -49,6 +51,8 @@ function HouseholdSizeRecordsFilter(props: HouseholdSizeFilterProps) {
         initialFilter,
         currentFilter,
         onFilterChange,
+        onFilterReset,
+        orderingOrPageChanged = false,
     } = props;
 
     const {
@@ -76,9 +80,9 @@ function HouseholdSizeRecordsFilter(props: HouseholdSizeFilterProps) {
     const onResetFilters = useCallback(
         () => {
             onValueSet(initialFilter);
-            onFilterChange(initialFilter);
+            onFilterReset();
         },
-        [onValueSet, onFilterChange, initialFilter],
+        [onValueSet, onFilterReset, initialFilter],
     );
 
     const handleSubmit = useCallback((finalValues: FormType) => {
@@ -127,7 +131,7 @@ function HouseholdSizeRecordsFilter(props: HouseholdSizeFilterProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset Filters"
-                        disabled={!filterChanged}
+                        disabled={!filterChanged && !orderingOrPageChanged}
                     >
                         Reset
                     </Button>

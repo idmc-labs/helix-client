@@ -56,6 +56,9 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
         initialFilter: initialCrisesFilter,
         filter: crisesFilter,
         setFilter: setCrisesFilter,
+        reset: resetCrisesFilter,
+        orderingChanged: crisesOrderingChanged,
+        pageChanged: crisesPageChanged,
 
         pageSize: crisesPageSize,
         rawPageSize: rawCrisesPageSize,
@@ -80,6 +83,9 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
         initialFilter: initialEventsFilter,
         filter: eventsFilter,
         setFilter: setEventsFilter,
+        reset: resetEventsFilter,
+        orderingChanged: eventsOrderingChanged,
+        pageChanged: eventsPageChanged,
 
         pageSize: eventsPageSize,
         rawPageSize: rawEventsPageSize,
@@ -374,6 +380,9 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
                                     currentFilter={rawCrisesFilter}
                                     initialFilter={initialCrisesFilter}
                                     onFilterChange={setCrisesFilter}
+                                    onFilterReset={resetCrisesFilter}
+                                    orderingOrPageChanged={crisesOrderingChanged
+                                        || crisesPageChanged}
                                     // NOTE: we do not have countries or fields related to countries
                                     // hiddenFields={crisesHiddenColumns}
                                     // countries={[countryId]}
@@ -384,6 +393,9 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
                                     currentFilter={rawEventsFilter}
                                     initialFilter={initialEventsFilter}
                                     onFilterChange={setEventsFilter}
+                                    onFilterReset={resetEventsFilter}
+                                    orderingOrPageChanged={eventsOrderingChanged
+                                        || eventsPageChanged}
                                     hiddenFields={eventsHiddenColumns}
                                     countries={[countryId]}
                                 />

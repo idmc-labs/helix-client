@@ -129,6 +129,9 @@ function EventsTable(props: EventsProps) {
         initialFilter,
         filter,
         setFilter,
+        reset,
+        orderingChanged,
+        pageChanged,
 
         pageSize,
         rawPageSize,
@@ -222,6 +225,8 @@ function EventsTable(props: EventsProps) {
                     currentFilter={rawFilter}
                     initialFilter={initialFilter}
                     onFilterChange={setFilter}
+                    onFilterReset={reset}
+                    orderingOrPageChanged={orderingChanged || pageChanged}
                     hiddenFields={hiddenFields}
                 />
             )}
