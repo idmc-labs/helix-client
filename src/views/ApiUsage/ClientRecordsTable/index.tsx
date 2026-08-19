@@ -136,6 +136,8 @@ function ClientRecordsTable(props: ClientRecordProps) {
         initialFilter,
         filter,
         setFilter,
+        reset,
+        changed,
 
         pageSize,
         rawPageSize,
@@ -361,6 +363,8 @@ function ClientRecordsTable(props: ClientRecordProps) {
                     currentFilter={rawFilter}
                     initialFilter={initialFilter}
                     onFilterChange={setFilter}
+                    onFilterReset={reset}
+                    changed={changed}
                 />
             )}
         >

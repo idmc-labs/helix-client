@@ -17,13 +17,15 @@ export interface FilterStateResponse<T> {
     initialFilter: T;
     filter: T;
     filterChanged: boolean;
+    changed: boolean;
     filtered: boolean;
     setFilter: (value: SetStateAction<T>, updateInitialFilter?: boolean) => void;
-    resetFilter: () => void;
+    reset: () => void;
     setFilterField: (...args: EntriesAsList<T>) => void;
 
     rawPage: number;
     page: number;
+    pageChanged: boolean;
     setPage: (value: number) => void;
 
     rawPageSize: number;
@@ -32,6 +34,7 @@ export interface FilterStateResponse<T> {
 
     rawOrdering: string | undefined;
     ordering: string | undefined;
+    orderingChanged: boolean;
     sortState: {
         sorting: SortParameter | undefined;
         setSorting: (value: SetStateAction<SortParameter | undefined>) => void;
@@ -53,8 +56,8 @@ function getOrdering(sorting: SortParameter | undefined) {
     return `-${sorting.name}`;
 }
 
-interface ResetFilterAction {
-    type: 'reset-filter';
+interface ResetAction {
+    type: 'reset';
 }
 
 interface SetFilterAction<FILTER extends Record<string, unknown>> {
@@ -79,7 +82,7 @@ interface SetOrderingAction {
 }
 
 type FilterActions<FILTER extends Record<string, unknown>> = (
-    ResetFilterAction
+    ResetAction
     | SetFilterAction<FILTER>
     | SetPageAction
     | SetOrderingAction
@@ -90,18 +93,14 @@ interface FilterState<FILTER> {
     filter: FILTER,
     initialFilter: FILTER,
     ordering: SortParameter | undefined,
+    initialOrdering: SortParameter | undefined,
     page: number,
     pageSize: number,
 }
 
-const defaultOrdering: SortParameter = {
-    name: 'id',
-    direction: 'dsc',
-};
-
 function useFilterState<FILTER extends Record<string, unknown>>(options: {
     filter: FILTER,
-    ordering?: SortParameter | undefined,
+    ordering: SortParameter,
     page?: number,
     pageSize?: number,
     debounceTime?: number,
@@ -109,7 +108,7 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
 }): FilterStateResponse<FILTER> {
     const {
         filter,
-        ordering = defaultOrdering,
+        ordering,
         page = 1,
         pageSize = 10,
         debounceTime = 200,
@@ -126,7 +125,10 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
             return baseFilters;
         }
         const savedFilters = filterStorage.get(persistenceKey);
-        if (isNotDefined(savedFilters)) {
+        // NOTE: Discard persisted state that predates the current shape (missing
+        // initialOrdering) so reset restores the code defaults instead of clearing
+        // ordering. Guards the window before clearOnVersionMismatch runs.
+        if (isNotDefined(savedFilters) || isNotDefined(savedFilters.initialOrdering)) {
             return baseFilters;
         }
 
@@ -135,10 +137,11 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
 
     const [state, dispatch] = useReducer<Reducer, FilterState<FILTER> | undefined>(
         (prevState, action) => {
-            if (action.type === 'reset-filter') {
+            if (action.type === 'reset') {
                 return {
                     ...prevState,
                     filter: prevState.initialFilter,
+                    ordering: prevState.initialOrdering,
                     page: 1,
                 };
             }
@@ -183,6 +186,7 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
             filter,
             initialFilter: filter,
             ordering,
+            initialOrdering: ordering,
             page,
             pageSize,
         },
@@ -241,10 +245,10 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
         },
         [],
     );
-    const resetFilter = useCallback(
+    const reset = useCallback(
         () => {
             dispatch({
-                type: 'reset-filter',
+                type: 'reset',
             });
         },
         [],
@@ -271,26 +275,39 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
         }
     }, [persistenceKey, debouncedState]);
 
+    // NOTE: Compare against raw (undebounced) state so the reset button reacts
+    // immediately. `changed` covers every parameter cleared by reset.
+    const filterChanged = state.filter !== state.initialFilter;
+    const orderingChanged = (
+        state.ordering?.name !== state.initialOrdering?.name
+        || state.ordering?.direction !== state.initialOrdering?.direction
+    );
+    const pageChanged = state.page !== 1;
+    const changed = filterChanged || orderingChanged || pageChanged;
+
     return {
         rawFilter: state.filter,
         initialFilter: state.initialFilter,
         filter: debouncedState.filter,
-        filterChanged: state.filter !== state.initialFilter,
+        filterChanged,
+        changed,
         filtered,
         setFilter,
-        resetFilter,
+        reset,
         setFilterField,
 
         rawPage: state.page,
         page: debouncedState.page,
+        pageChanged,
         setPage,
 
         rawPageSize: state.pageSize,
         pageSize: debouncedState.pageSize,
         setPageSize,
 
-        rawOrdering: getOrdering(ordering),
+        rawOrdering: getOrdering(state.ordering),
         ordering: getOrdering(debouncedState.ordering),
+        orderingChanged,
         sortState,
     };
 }

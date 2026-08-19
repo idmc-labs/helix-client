@@ -67,6 +67,8 @@ interface ClientFilterProps {
     initialFilter: PartialForm<FormType>;
     currentFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
+    onFilterReset: () => void;
+    changed?: boolean;
 }
 
 function ClientRecordsFilter(props: ClientFilterProps) {
@@ -75,6 +77,8 @@ function ClientRecordsFilter(props: ClientFilterProps) {
         initialFilter,
         currentFilter,
         onFilterChange,
+        onFilterReset,
+        changed = false,
     } = props;
 
     const {
@@ -110,9 +114,9 @@ function ClientRecordsFilter(props: ClientFilterProps) {
     const onResetFilters = useCallback(
         () => {
             onValueSet(initialFilter);
-            onFilterChange(initialFilter);
+            onFilterReset();
         },
-        [onValueSet, onFilterChange, initialFilter],
+        [onValueSet, onFilterReset, initialFilter],
     );
 
     const handleSubmit = useCallback((finalValues: FormType) => {
@@ -130,8 +134,6 @@ function ClientRecordsFilter(props: ClientFilterProps) {
         typeof clientTypes,
         NonNullable<typeof value.type>[number]
     >;
-
-    const filterChanged = initialFilter !== value;
 
     return (
         <form
@@ -194,7 +196,7 @@ function ClientRecordsFilter(props: ClientFilterProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset Filters"
-                        disabled={!filterChanged}
+                        disabled={pristine && !changed}
                     >
                         Reset
                     </Button>

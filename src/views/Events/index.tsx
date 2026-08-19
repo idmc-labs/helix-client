@@ -110,6 +110,8 @@ function Events(props: EventsProps) {
                         currentFilter={rawFiguresFilter}
                         initialFilter={initialFiguresFilter}
                         onFilterChange={setFiguresFilter}
+                        onFilterReset={figuresFilterState.reset}
+                        changed={figuresFilterState.changed}
                         hiddenFields={figureHiddenColumns}
                     />
                 </Container>

@@ -52,6 +52,8 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
         initialFilter: initialEntriesFilter,
         filter: entriesFilter,
         setFilter: setEntriesFilter,
+        reset: resetEntriesFilter,
+        changed: entriesChanged,
 
         pageSize: entriesPageSize,
         rawPageSize: rawEntriesPageSize,
@@ -76,6 +78,8 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
         initialFilter: initialFiguresFilter,
         filter: figuresFilter,
         setFilter: setFiguresFilter,
+        reset: resetFiguresFilter,
+        changed: figuresChanged,
 
         pageSize: figuresPageSize,
         rawPageSize: rawFiguresPageSize,
@@ -204,6 +208,8 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
                                 currentFilter={rawEntriesFilter}
                                 initialFilter={initialEntriesFilter}
                                 onFilterChange={setEntriesFilter}
+                                onFilterReset={resetEntriesFilter}
+                                changed={entriesChanged}
                                 hiddenFields={figureHiddenColumns}
                             />
                         )}
@@ -212,6 +218,8 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
                                 currentFilter={rawFiguresFilter}
                                 initialFilter={initialFiguresFilter}
                                 onFilterChange={setFiguresFilter}
+                                onFilterReset={resetFiguresFilter}
+                                changed={figuresChanged}
                                 hiddenFields={figureHiddenColumns}
                             />
                         )}

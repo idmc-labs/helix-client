@@ -57,6 +57,8 @@ interface HulkBulkImportFilterProps {
     initialFilter: PartialForm<FormType>;
     currentFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
+    onFilterReset: () => void;
+    changed?: boolean;
 }
 
 function HulkBulkImportFilter(props: HulkBulkImportFilterProps) {
@@ -65,6 +67,8 @@ function HulkBulkImportFilter(props: HulkBulkImportFilterProps) {
         initialFilter,
         currentFilter,
         onFilterChange,
+        onFilterReset,
+        changed = false,
     } = props;
 
     const {
@@ -100,17 +104,15 @@ function HulkBulkImportFilter(props: HulkBulkImportFilterProps) {
     const onResetFilters = useCallback(
         () => {
             onValueSet(initialFilter);
-            onFilterChange(initialFilter);
+            onFilterReset();
         },
-        [onValueSet, onFilterChange, initialFilter],
+        [onValueSet, onFilterReset, initialFilter],
     );
 
     const handleSubmit = useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
-
-    const filterChanged = initialFilter !== value;
 
     return (
         <form
@@ -155,7 +157,7 @@ function HulkBulkImportFilter(props: HulkBulkImportFilterProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset"
-                        disabled={!filterChanged}
+                        disabled={pristine && !changed}
                     >
                         Reset
                     </Button>

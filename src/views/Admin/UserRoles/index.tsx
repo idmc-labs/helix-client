@@ -181,6 +181,8 @@ function UserRoles(props: UserRolesProps) {
         initialFilter,
         filter,
         setFilter,
+        reset,
+        changed,
 
         pageSize,
         rawPageSize,
@@ -568,6 +570,8 @@ function UserRoles(props: UserRolesProps) {
                     currentFilter={rawFilter}
                     initialFilter={initialFilter}
                     onFilterChange={setFilter}
+                    onFilterReset={reset}
+                    changed={changed}
                 />
             )}
         >

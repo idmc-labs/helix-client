@@ -65,6 +65,8 @@ interface CrisesFilterProps {
     initialFilter: PartialForm<FormType>;
     currentFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
+    onFilterReset: () => void;
+    changed?: boolean;
     hiddenFields?: ('createdBy')[];
 }
 
@@ -74,6 +76,8 @@ function CrisesFilter(props: CrisesFilterProps) {
         initialFilter,
         currentFilter,
         onFilterChange,
+        onFilterReset,
+        changed = false,
         hiddenFields = [],
     } = props;
 
@@ -101,9 +105,9 @@ function CrisesFilter(props: CrisesFilterProps) {
     const onResetFilters = useCallback(
         () => {
             onValueSet(initialFilter);
-            onFilterChange(initialFilter);
+            onFilterReset();
         },
-        [onValueSet, onFilterChange, initialFilter],
+        [onValueSet, onFilterReset, initialFilter],
     );
 
     const handleSubmit = useCallback((finalValues: FormType) => {
@@ -116,8 +120,6 @@ function CrisesFilter(props: CrisesFilterProps) {
         loading: crisisOptionsLoading,
         error: crisisOptionsError,
     } = useQuery<CrisisOptionsForFilterQuery>(CRISIS_OPTIONS);
-
-    const filterChanged = initialFilter !== value;
 
     return (
         <form
@@ -176,7 +178,7 @@ function CrisesFilter(props: CrisesFilterProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset Filters"
-                        disabled={!filterChanged}
+                        disabled={pristine && !changed}
                     >
                         Reset
                     </Button>

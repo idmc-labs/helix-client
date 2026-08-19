@@ -172,6 +172,9 @@ function ReportsTable(props: ReportsProps) {
         rawPageSize,
         pageSize,
         setPageSize,
+
+        reset,
+        changed,
     } = useFilterState<PurgeNull<NonNullable<ReportsQueryVariables['filters']>>>({
         filter: {},
         ordering: {
@@ -467,6 +470,8 @@ function ReportsTable(props: ReportsProps) {
                     currentFilter={rawFilter}
                     initialFilter={initialFilter}
                     onFilterChange={setFilter}
+                    onFilterReset={reset}
+                    changed={changed}
                 />
             )}
         >

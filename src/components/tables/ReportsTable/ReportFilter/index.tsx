@@ -86,6 +86,8 @@ interface ReportFilterProps {
     currentFilter: PartialForm<FormType>;
     initialFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
+    onFilterReset: () => void;
+    changed?: boolean;
 }
 
 function ReportFilter(props: ReportFilterProps) {
@@ -94,6 +96,8 @@ function ReportFilter(props: ReportFilterProps) {
         initialFilter,
         currentFilter,
         onFilterChange,
+        onFilterReset,
+        changed = false,
     } = props;
 
     const {
@@ -126,17 +130,15 @@ function ReportFilter(props: ReportFilterProps) {
     const onResetFilters = useCallback(
         () => {
             onValueSet(initialFilter);
-            onFilterChange(initialFilter);
+            onFilterReset();
         },
-        [onValueSet, onFilterChange, initialFilter],
+        [onValueSet, onFilterReset, initialFilter],
     );
 
     const handleSubmit = useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
-
-    const filterChanged = initialFilter !== value;
 
     return (
         <form
@@ -271,7 +273,7 @@ function ReportFilter(props: ReportFilterProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset Filters"
-                        disabled={!filterChanged}
+                        disabled={pristine && !changed}
                     >
                         Reset
                     </Button>

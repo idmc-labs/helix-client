@@ -129,6 +129,8 @@ function ApiRecordsTable(props: ApiRecordProps) {
         initialFilter,
         filter,
         setFilter,
+        reset,
+        changed,
 
         pageSize,
         rawPageSize,
@@ -303,6 +305,8 @@ function ApiRecordsTable(props: ApiRecordProps) {
                     currentFilter={rawFilter}
                     initialFilter={initialFilter}
                     onFilterChange={setFilter}
+                    onFilterReset={reset}
+                    changed={changed}
                 />
             )}
         >
