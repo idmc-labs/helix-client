@@ -34,7 +34,7 @@
             "^node:(.*)$": "$1"
         },
         "collectCoverageFrom": [
-            "src/components/forms/EntryForm/FigureInput/iduText.ts"
+            "src/**/*.{ts,tsx}"
         ],
         "moduleFileExtensions": [
             "ts",
