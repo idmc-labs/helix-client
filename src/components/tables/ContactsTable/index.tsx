@@ -20,6 +20,7 @@ import {
     createActionColumn,
     createDateColumn,
     createNumberColumn,
+    EXPAND_COLUMN_WIDTH,
 } from '#components/tableHelpers';
 import { expandObject, hasNoData } from '#utils/common';
 import Container from '#components/Container';
@@ -308,6 +309,10 @@ function ContactsTable(props: ContactsTableProps) {
                 handleRowExpand,
                 // TODO: should pass this using context
                 expandedRow,
+                {
+                    columnWidth: EXPAND_COLUMN_WIDTH,
+                    columnStretch: false,
+                },
             ),
             createDateColumn<ContactFields, string>(
                 'created_at',

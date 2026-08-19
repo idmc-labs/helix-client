@@ -20,6 +20,10 @@ import { ReviewStatus } from './Status';
 import Text, { TextProps } from './Text';
 import styles from './styles.module.css';
 
+// The expand column only holds a chevron button, so it should take just the
+// width that button needs rather than the default data-column width.
+export const EXPAND_COLUMN_WIDTH = 48;
+
 type Size = 'very-small' | 'small' | 'medium' | 'medium-large' | 'large';
 
 export function getWidthFromSize(size: Size | undefined) {
@@ -65,7 +69,8 @@ export function createLinkColumn<D, K>(
     accessor: (item: D) => {
         title: string | undefined | null,
         attrs?: Attrs,
-        ext: string | undefined,
+        fromHelixOne?: boolean,
+        hulkUuid?: string | null,
         hash?: string,
         search?: string,
     } | undefined | null,
@@ -96,7 +101,8 @@ export function createLinkColumn<D, K>(
                 title: value?.title,
                 attrs: value?.attrs,
                 route,
-                ext: value?.ext,
+                fromHelixOne: value?.fromHelixOne,
+                hulkUuid: value?.hulkUuid,
                 hash: value?.hash,
                 search: value?.search,
             };
@@ -193,7 +199,8 @@ export function createStatusColumn<D, K>(
         status: ReviewStatus | undefined | null,
         title: string | undefined | null,
         attrs?: Attrs,
-        ext: string | undefined,
+        fromHelixOne?: boolean,
+        hulkUuid?: string | null,
         hash?: string;
         search?: string;
     } | undefined | null,
@@ -222,7 +229,8 @@ export function createStatusColumn<D, K>(
                 attrs: value?.attrs,
                 route,
                 status: value?.status,
-                ext: value?.ext,
+                fromHelixOne: value?.fromHelixOne,
+                hulkUuid: value?.hulkUuid,
                 hash: value?.hash,
                 search: value?.search,
             };

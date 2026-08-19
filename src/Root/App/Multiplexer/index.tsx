@@ -382,6 +382,11 @@ function Multiplexer(props: Props) {
                                         />
                                         <Route
                                             exact
+                                            path={routeSettings.hulk.path}
+                                            render={routeSettings.hulk.load}
+                                        />
+                                        <Route
+                                            exact
                                             path={routeSettings.contextualUpdateView.path}
                                             render={routeSettings.contextualUpdateView.load}
                                         />

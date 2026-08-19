@@ -89,6 +89,7 @@
 }
 
 .row-line {
+    margin: 0px var(--spacing-small);
     border-bottom: var(--width-separator-thin) solid var(--color-separator);
     height: 0px;
 }

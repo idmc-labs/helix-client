@@ -176,9 +176,6 @@ function useCountryTable(props: Props) {
                 (item) => ({
                     title: item.idmcShortName,
                     attrs: { countryId: item.id },
-                    ext: item.iso3
-                        ? `/countries/profiles/${item.iso3}`
-                        : undefined,
                 }),
                 route.country,
                 {

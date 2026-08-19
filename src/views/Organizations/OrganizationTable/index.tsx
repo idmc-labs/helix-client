@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useContext } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     Table,
     Pager,
@@ -8,6 +8,7 @@ import {
     Button,
     SortContext,
     ConfirmButton,
+    createYesNoColumn,
 } from '@togglecorp/toggle-ui';
 import { getOperationName } from 'apollo-link';
 
@@ -58,6 +59,7 @@ const GET_ORGANIZATIONS_LIST = gql`
                 id
                 name
                 createdAt
+                deletedOn
                 shortName
                 organizationKind {
                     id
@@ -309,6 +311,11 @@ function OrganizationTable(props: OrganizationProps) {
                 (item) => item.organizationKind?.name,
                 { sortable: true },
                 'large',
+            ),
+            createYesNoColumn<OrganizationFields, string>(
+                'deleted_on',
+                'Archived',
+                (item) => isDefined(item.deletedOn),
             ),
             createActionColumn<OrganizationFields, string>(
                 'action',

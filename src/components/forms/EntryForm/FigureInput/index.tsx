@@ -98,6 +98,8 @@ import {
     UnApproveFigureMutationVariables,
     ReReviewFigureMutation,
     ReReviewFigureMutationVariables,
+    GenerateIduMutation,
+    GenerateIduMutationVariables,
 
     Identifier,
 } from '#generated/types';
@@ -136,7 +138,6 @@ import {
     OtherSubTypeOptions,
     FigureMetadata,
 } from '../types';
-import { generateExcerptIduText } from './iduText';
 import styles from './styles.module.css';
 
 // NOTE: the comparison should be type-safe but
@@ -204,6 +205,16 @@ const RE_REQUEST_REVIEW_FIGURE = gql`
             result {
                 ...FigureStatusResponse
             }
+        }
+    }
+`;
+
+const GENERATE_IDU = gql`
+    mutation GenerateIdu($data: IDUGenerateInputType!) {
+        generateIdu(data: $data) {
+            ok
+            errors
+            result
         }
     }
 `;
@@ -618,6 +629,39 @@ function FigureInput(props: FigureInputProps) {
 
     const onValueChange = useFormObject(index, onChange, defaultValue);
 
+    const [
+        generateIdu,
+        { loading: generatingIdu },
+    ] = useMutation<GenerateIduMutation, GenerateIduMutationVariables>(
+        GENERATE_IDU,
+        {
+            onCompleted: (response) => {
+                const { generateIdu: generateIduResponse } = response;
+                if (!generateIduResponse) {
+                    return;
+                }
+                const { errors, result } = generateIduResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                    return;
+                }
+                if (isDefined(result)) {
+                    onValueChange(result, 'excerptIdu' as const);
+                    notify({
+                        children: 'Excerpt for IDU generated successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (err) => {
+                notify({
+                    children: err.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
     const [organizations] = useOptions('organization');
     const [, setCountries] = useOptions('country');
 
@@ -966,25 +1010,35 @@ function FigureInput(props: FigureInputProps) {
     }, [setSelectedFigure]);
 
     const handleIduGenerate = useCallback(() => {
-        const excerptIduText = generateExcerptIduText({
-            geoLocations: value.geoLocations,
-            reported: value.reported,
-            figureCause: value.figureCause,
+        // NOTE: the backend generateIdu mutation is permissive and tolerates
+        // partial input (returning placeholders for unset fields), so the
+        // partial form value is forwarded as-is.
+        const data: GenerateIduMutationVariables['data'] = {
+            mainTrigger: value.figureCause,
+            quantifier: value.quantifier,
+            figure: value.reported,
+            unit: value.unit,
+            displacementTerm: value.term,
+            locations: value.geoLocations?.map((location) => ({
+                identifier: location.identifier,
+                displayName: location.displayName,
+            })),
+            startDate: value.startDate,
+            endDate: value.endDate,
+            sources: value.sources
+                ?.map((source) => Number(source))
+                .filter((source) => !Number.isNaN(source)),
             disasterSubType: value.disasterSubType,
             violenceSubType: value.violenceSubType,
             otherSubType: value.otherSubType,
-            term: value.term,
-            unit: value.unit,
-            quantifier: value.quantifier,
-            startDate: value.startDate,
-            endDate: value.endDate,
-            termOptions,
-            sources: selectedSources ?? [],
+        };
+
+        generateIdu({
+            variables: { data },
         });
-        onValueChange(excerptIduText, 'excerptIdu' as const);
     }, [
+        generateIdu,
         value.endDate,
-        onValueChange,
         value.unit,
         value.term,
         value.figureCause,
@@ -992,8 +1046,7 @@ function FigureInput(props: FigureInputProps) {
         value.quantifier,
         value.geoLocations,
         value.startDate,
-        termOptions,
-        selectedSources,
+        value.sources,
         value.disasterSubType,
         value.otherSubType,
         value.violenceSubType,
@@ -2069,17 +2122,16 @@ function FigureInput(props: FigureInputProps) {
                         name="excerptIdu"
                         value={value.excerptIdu}
                         onChange={onValueChange}
-                        disabled={disabled || eventNotChosen}
+                        disabled={disabled || eventNotChosen || generatingIdu}
                         error={error?.fields?.excerptIdu}
                         readOnly={!editMode}
-                        // hint={generateIduText()}
                         actions={editMode && (
                             <Button
                                 name={undefined}
                                 onClick={handleIduGenerate}
                                 transparent
                                 title="Generate excerpt for IDU"
-                                disabled={disabled}
+                                disabled={disabled || generatingIdu}
                             >
                                 <IoCalculatorOutline />
                             </Button>

@@ -1,6 +1,6 @@
 .status {
     padding: 0px;
-    color: var(--tui-color-background-input-section-light);
+    color: var(--color-separator);
 
     .signed-off-icon {
         color: var(--color-success);

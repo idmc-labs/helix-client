@@ -90,6 +90,7 @@ export const EVENT_LIST = gql`
                 name
                 id
                 oldId
+                hulkUuid
                 entryCount
                 ignoreQa
                 crisis {
@@ -701,9 +702,8 @@ function useEventTable(props: Props) {
                     (item) => ({
                         title: item.name,
                         attrs: { eventId: item.id },
-                        ext: item.oldId
-                            ? `/events/${item.oldId}`
-                            : undefined,
+                        fromHelixOne: !!item.oldId,
+                        hulkUuid: item.hulkUuid,
                         status: item.reviewStatus,
                     }),
                     route.event,
@@ -777,7 +777,6 @@ function useEventTable(props: Props) {
                         (item) => ({
                             title: item.crisis?.name,
                             attrs: { crisisId: item.crisis?.id },
-                            ext: undefined,
                         }),
                         route.crisis,
                         { sortable: true },

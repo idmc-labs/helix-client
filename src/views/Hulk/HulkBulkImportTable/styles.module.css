@@ -1,0 +1,20 @@
+.container {
+    flex: 1;
+}
+
+.content {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+
+    .table {
+        width: 100%;
+        overflow-x: auto;
+    }
+}
+
+.modal-footer {
+    display: flex;
+    gap: var(--spacing-small);
+    justify-content: flex-end;
+}

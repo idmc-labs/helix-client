@@ -36,7 +36,6 @@
 
     /* COLOR PALETTE */
     --color-navbar: var(--color-primary);
-    --color-text-on-navbar: rgba(255, 255, 255, .9);
 
     --color-primary: #3E5963; /* dark-blue-ish */
     --color-accent: #3C88A3; /* teal-ish */
@@ -47,7 +46,7 @@
     --color-conflict: #ef7d00; /* orange-ish */
 
     /* COLOR SEPARATOR */
-    --color-separator: rgb(184, 194, 205);
+    --color-separator: rgba(0, 0, 0, .1);
     --color-separator-light: rgba(160, 180, 190, 0.3);
 
     /* RADIUS */
@@ -68,12 +67,12 @@
     --color-text-on-danger: rgba(255, 255, 255, .9);
     --color-text-on-success: rgba(255, 255, 255, .9);
     --color-text-on-warning: rgba(0, 0, 0, .9);
+    --color-text-on-navbar: rgba(255, 255, 255, .9);
 
     --color-text-disabled: rgba(0, 0, 0, .3);
     --color-text-watermark: rgba(0, 0, 0, .3);
     --color-chart-axes: #717171;
 
-    --color-separator: rgba(0, 0, 0, .1);
     --color-link: var(--color-primary);
 
     --duration-transition-slow: .5s;

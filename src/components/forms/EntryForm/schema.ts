@@ -201,7 +201,11 @@ const figure: Figure = {
             calculationLogic: [requiredStringCondition],
             tags: [arrayCondition],
             sourceExcerpt: [],
-            excerptIdu: [],
+            // NOTE: excerpt is required when the figure is included in the IDU.
+            // The backend treats it as non-mandatory (auto-generating it when
+            // omitted), but the client still requires it so users are nudged to
+            // generate the text and edit it.
+            excerptIdu: value?.includeIdu ? [requiredStringCondition] : [],
             includeIdu: [],
             isDisaggregated: [],
             quantifier: [requiredCondition],
