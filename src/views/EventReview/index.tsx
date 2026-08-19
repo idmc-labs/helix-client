@@ -160,6 +160,8 @@ function EventReview(props: Props) {
         setPageSize,
     } = useFilterState({
         filter: {},
+        // NOTE: This list is not sortable; the query has no ordering field. This
+        // only satisfies the required option.
         ordering: {
             name: 'created_at',
             direction: 'dsc',

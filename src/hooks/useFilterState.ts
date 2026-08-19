@@ -125,7 +125,10 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
             return baseFilters;
         }
         const savedFilters = filterStorage.get(persistenceKey);
-        if (isNotDefined(savedFilters)) {
+        // NOTE: Discard persisted state that predates the current shape (missing
+        // initialOrdering) so reset restores the code defaults instead of clearing
+        // ordering. Guards the window before clearOnVersionMismatch runs.
+        if (isNotDefined(savedFilters) || isNotDefined(savedFilters.initialOrdering)) {
             return baseFilters;
         }
 
@@ -302,7 +305,7 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
         pageSize: debouncedState.pageSize,
         setPageSize,
 
-        rawOrdering: getOrdering(ordering),
+        rawOrdering: getOrdering(state.ordering),
         ordering: getOrdering(debouncedState.ordering),
         orderingChanged,
         sortState,

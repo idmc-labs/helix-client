@@ -62,6 +62,8 @@ function ContextualHistoryList(props: ContextualHistoryProps) {
         setPageSize,
     } = useFilterState({
         filter: {},
+        // NOTE: This list is not sortable; ordering is fixed in the query. This
+        // only satisfies the required option.
         ordering: {
             name: 'created_at',
             direction: 'dsc',

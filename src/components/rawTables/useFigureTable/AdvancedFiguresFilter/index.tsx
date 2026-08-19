@@ -704,7 +704,7 @@ function AdvancedFigureFilters(props: AdvancedFigureFiltersProps) {
                     name={undefined}
                     onClick={onResetFilters}
                     title="Reset Filters"
-                    disabled={pristine && !changed}
+                    disabled={disabled || (pristine && !changed)}
                 >
                     Reset
                 </Button>
