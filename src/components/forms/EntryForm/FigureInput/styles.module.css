@@ -23,9 +23,9 @@
 
 .info {
     border-radius: var(--spacing-medium);
-    background-color: var(--color-warning);
+    background-color: color-mix(in srgb, var(--color-warning) 15%, var(--color-foreground));
     padding: var(--spacing-large);
-    color: var(--color-text-on-warning);
+    color: var(--color-text);
 }
 
 .add-button-container {
