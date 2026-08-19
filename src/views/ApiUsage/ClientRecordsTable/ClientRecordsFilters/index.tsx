@@ -68,7 +68,7 @@ interface ClientFilterProps {
     currentFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
     onFilterReset: () => void;
-    orderingOrPageChanged?: boolean;
+    changed?: boolean;
 }
 
 function ClientRecordsFilter(props: ClientFilterProps) {
@@ -78,7 +78,7 @@ function ClientRecordsFilter(props: ClientFilterProps) {
         currentFilter,
         onFilterChange,
         onFilterReset,
-        orderingOrPageChanged = false,
+        changed = false,
     } = props;
 
     const {
@@ -134,8 +134,6 @@ function ClientRecordsFilter(props: ClientFilterProps) {
         typeof clientTypes,
         NonNullable<typeof value.type>[number]
     >;
-
-    const filterChanged = initialFilter !== value;
 
     return (
         <form
@@ -198,7 +196,7 @@ function ClientRecordsFilter(props: ClientFilterProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset Filters"
-                        disabled={!filterChanged && !orderingOrPageChanged}
+                        disabled={pristine && !changed}
                     >
                         Reset
                     </Button>

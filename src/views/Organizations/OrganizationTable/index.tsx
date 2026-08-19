@@ -135,8 +135,7 @@ function OrganizationTable(props: OrganizationProps) {
         setPageSize,
 
         reset,
-        orderingChanged,
-        pageChanged,
+        changed,
     } = useFilterState<PurgeNull<NonNullable<OrganizationsListQueryVariables['filters']>>>({
         filter: {},
         ordering: {
@@ -376,7 +375,7 @@ function OrganizationTable(props: OrganizationProps) {
                     initialFilter={initialFilter}
                     onFilterChange={setFilter}
                     onFilterReset={reset}
-                    orderingOrPageChanged={orderingChanged || pageChanged}
+                    changed={changed}
                 />
             )}
             footerContent={(

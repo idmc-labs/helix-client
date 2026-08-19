@@ -59,7 +59,7 @@ interface ApiFilterProps {
     currentFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
     onFilterReset: () => void;
-    orderingOrPageChanged?: boolean;
+    changed?: boolean;
 }
 
 function ApiRecordsFilter(props: ApiFilterProps) {
@@ -69,7 +69,7 @@ function ApiRecordsFilter(props: ApiFilterProps) {
         currentFilter,
         onFilterChange,
         onFilterReset,
-        orderingOrPageChanged = false,
+        changed = false,
     } = props;
 
     const {
@@ -111,8 +111,6 @@ function ApiRecordsFilter(props: ApiFilterProps) {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
-
-    const filterChanged = initialFilter !== value;
 
     return (
         <form
@@ -160,7 +158,7 @@ function ApiRecordsFilter(props: ApiFilterProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset Filters"
-                        disabled={!filterChanged && !orderingOrPageChanged}
+                        disabled={pristine && !changed}
                     >
                         Reset
                     </Button>

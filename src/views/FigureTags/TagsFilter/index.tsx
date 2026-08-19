@@ -34,7 +34,7 @@ interface TagsFilterProps {
     currentFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
     onFilterReset: () => void;
-    orderingOrPageChanged?: boolean;
+    changed?: boolean;
 }
 
 function TagsFilter(props: TagsFilterProps) {
@@ -44,7 +44,7 @@ function TagsFilter(props: TagsFilterProps) {
         currentFilter,
         onFilterChange,
         onFilterReset,
-        orderingOrPageChanged = false,
+        changed = false,
     } = props;
 
     const {
@@ -81,8 +81,6 @@ function TagsFilter(props: TagsFilterProps) {
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
 
-    const filterChanged = initialFilter !== value;
-
     return (
         <form
             className={_cs(className, styles.queryForm)}
@@ -106,7 +104,7 @@ function TagsFilter(props: TagsFilterProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset"
-                        disabled={!filterChanged && !orderingOrPageChanged}
+                        disabled={pristine && !changed}
                     >
                         Reset
                     </Button>

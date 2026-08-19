@@ -58,7 +58,7 @@ interface HulkBulkImportFilterProps {
     currentFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
     onFilterReset: () => void;
-    orderingOrPageChanged?: boolean;
+    changed?: boolean;
 }
 
 function HulkBulkImportFilter(props: HulkBulkImportFilterProps) {
@@ -68,7 +68,7 @@ function HulkBulkImportFilter(props: HulkBulkImportFilterProps) {
         currentFilter,
         onFilterChange,
         onFilterReset,
-        orderingOrPageChanged = false,
+        changed = false,
     } = props;
 
     const {
@@ -114,8 +114,6 @@ function HulkBulkImportFilter(props: HulkBulkImportFilterProps) {
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
 
-    const filterChanged = initialFilter !== value;
-
     return (
         <form
             className={_cs(className, styles.queryForm)}
@@ -159,7 +157,7 @@ function HulkBulkImportFilter(props: HulkBulkImportFilterProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset"
-                        disabled={!filterChanged && !orderingOrPageChanged}
+                        disabled={pristine && !changed}
                     >
                         Reset
                     </Button>

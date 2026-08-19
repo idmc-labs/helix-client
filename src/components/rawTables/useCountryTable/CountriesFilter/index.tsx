@@ -54,7 +54,7 @@ interface CountriesFiltersProps {
     initialFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
     onFilterReset: () => void;
-    orderingOrPageChanged?: boolean;
+    changed?: boolean;
 
     hiddenFields?: ('year')[];
 }
@@ -66,7 +66,7 @@ function CountriesFilter(props: CountriesFiltersProps) {
         currentFilter,
         onFilterChange,
         onFilterReset,
-        orderingOrPageChanged = false,
+        changed = false,
         hiddenFields = [],
     } = props;
 
@@ -110,8 +110,6 @@ function CountriesFilter(props: CountriesFiltersProps) {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
-
-    const filterChanged = initialFilter !== value;
 
     return (
         <form
@@ -164,7 +162,7 @@ function CountriesFilter(props: CountriesFiltersProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset Filters"
-                        disabled={!filterChanged && !orderingOrPageChanged}
+                        disabled={pristine && !changed}
                     >
                         Reset
                     </Button>

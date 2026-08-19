@@ -59,8 +59,7 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
         filter: countriesFilter,
         setFilter: setCountriesFilter,
         reset: resetCountriesFilter,
-        orderingChanged: countriesOrderingChanged,
-        pageChanged: countriesPageChanged,
+        changed: countriesChanged,
 
         pageSize: countriesPageSize,
         rawPageSize: rawCountriesPageSize,
@@ -86,8 +85,7 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
         filter: eventsFilter,
         setFilter: setEventsFilter,
         reset: resetEventsFilter,
-        orderingChanged: eventsOrderingChanged,
-        pageChanged: eventsPageChanged,
+        changed: eventsChanged,
 
         pageSize: eventsPageSize,
         rawPageSize: rawEventsPageSize,
@@ -391,8 +389,7 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
                                     initialFilter={initialCountriesFilter}
                                     onFilterChange={setCountriesFilter}
                                     onFilterReset={resetCountriesFilter}
-                                    orderingOrPageChanged={countriesOrderingChanged
-                                        || countriesPageChanged}
+                                    changed={countriesChanged}
                                 />
                             )}
                             {selectedTab === 'Events' && (
@@ -401,8 +398,7 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
                                     initialFilter={initialEventsFilter}
                                     onFilterChange={setEventsFilter}
                                     onFilterReset={resetEventsFilter}
-                                    orderingOrPageChanged={eventsOrderingChanged
-                                        || eventsPageChanged}
+                                    changed={eventsChanged}
                                     hiddenFields={eventsHiddenColumns}
                                     crises={[crisisId]}
                                 />

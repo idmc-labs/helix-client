@@ -59,7 +59,7 @@ interface ParkedItemFilterProps {
     currentFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
     onFilterReset: () => void;
-    orderingOrPageChanged?: boolean;
+    changed?: boolean;
 
     assignedUser?: string;
     status?: string;
@@ -72,7 +72,7 @@ function ParkedItemFilter(props: ParkedItemFilterProps) {
         currentFilter,
         onFilterChange,
         onFilterReset,
-        orderingOrPageChanged = false,
+        changed = false,
 
         assignedUser,
         status,
@@ -119,8 +119,6 @@ function ParkedItemFilter(props: ParkedItemFilterProps) {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
-
-    const filterChanged = initialFilter !== value;
 
     return (
         <form
@@ -169,7 +167,7 @@ function ParkedItemFilter(props: ParkedItemFilterProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset"
-                        disabled={!filterChanged && !orderingOrPageChanged}
+                        disabled={pristine && !changed}
                     >
                         Reset
                     </Button>

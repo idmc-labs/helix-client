@@ -60,7 +60,7 @@ interface UsersFilterProps {
     currentFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
     onFilterReset: () => void;
-    orderingOrPageChanged?: boolean;
+    changed?: boolean;
 }
 
 function UserFilter(props: UsersFilterProps) {
@@ -70,7 +70,7 @@ function UserFilter(props: UsersFilterProps) {
         currentFilter,
         onFilterChange,
         onFilterReset,
-        orderingOrPageChanged = false,
+        changed = false,
     } = props;
 
     const {
@@ -112,8 +112,6 @@ function UserFilter(props: UsersFilterProps) {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
-
-    const filterChanged = initialFilter !== value;
 
     const roleOptionsForPortfolio = useMemo(
         () => rolesOptions
@@ -167,7 +165,7 @@ function UserFilter(props: UsersFilterProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset"
-                        disabled={!filterChanged && !orderingOrPageChanged}
+                        disabled={pristine && !changed}
                     >
                         Reset
                     </Button>

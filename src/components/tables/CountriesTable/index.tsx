@@ -46,8 +46,7 @@ function CountriesTable(props: CountriesProps) {
         filter,
         setFilter,
         reset,
-        orderingChanged,
-        pageChanged,
+        changed,
 
         pageSize,
         rawPageSize,
@@ -120,7 +119,7 @@ function CountriesTable(props: CountriesProps) {
                     initialFilter={initialFilter}
                     onFilterChange={setFilter}
                     onFilterReset={reset}
-                    orderingOrPageChanged={orderingChanged || pageChanged}
+                    changed={changed}
                 />
             )}
         >

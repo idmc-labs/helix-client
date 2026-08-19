@@ -36,7 +36,7 @@ interface ContactsFilterProps {
     initialFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
     onFilterReset: () => void;
-    orderingOrPageChanged?: boolean;
+    changed?: boolean;
 }
 
 function ContactsFilter(props: ContactsFilterProps) {
@@ -46,7 +46,7 @@ function ContactsFilter(props: ContactsFilterProps) {
         currentFilter,
         onFilterChange,
         onFilterReset,
-        orderingOrPageChanged = false,
+        changed = false,
     } = props;
 
     const {
@@ -83,8 +83,6 @@ function ContactsFilter(props: ContactsFilterProps) {
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
 
-    const filterChanged = initialFilter !== value;
-
     return (
         <form
             className={_cs(className, styles.queryForm)}
@@ -116,7 +114,7 @@ function ContactsFilter(props: ContactsFilterProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset"
-                        disabled={!filterChanged && !orderingOrPageChanged}
+                        disabled={pristine && !changed}
                     >
                         Reset
                     </Button>

@@ -352,8 +352,7 @@ function Crisis(props: CrisisProps) {
                         initialFilter={initialFiguresFilter}
                         onFilterChange={setFiguresFilter}
                         onFilterReset={figuresFilterState.reset}
-                        orderingOrPageChanged={figuresFilterState.orderingChanged
-                            || figuresFilterState.pageChanged}
+                        changed={figuresFilterState.changed}
                         hiddenFields={figureHiddenColumns}
                         crises={[crisisId]}
                     />

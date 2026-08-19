@@ -621,10 +621,7 @@ function Extraction(props: ExtractionProps) {
                         disabled={filterDisabled}
                         onFilterChange={setFilter}
                         onFilterReset={resetFilter}
-                        orderingOrPageChanged={figuresFilterState.orderingChanged
-                            || figuresFilterState.pageChanged
-                            || entriesFilterState.orderingChanged
-                            || entriesFilterState.pageChanged}
+                        changed={figuresFilterState.changed || entriesFilterState.changed}
                     />
                 </Container>
                 <ExtractionEntriesTable

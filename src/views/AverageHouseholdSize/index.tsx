@@ -110,8 +110,7 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
         filter,
         setFilter,
         reset,
-        orderingChanged,
-        pageChanged,
+        changed,
 
         pageSize,
         rawPageSize,
@@ -277,7 +276,7 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
                             initialFilter={initialFilter}
                             onFilterChange={setFilter}
                             onFilterReset={reset}
-                            orderingOrPageChanged={orderingChanged || pageChanged}
+                            changed={changed}
                         />
                     )}
                     footerContent={(

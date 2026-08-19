@@ -183,7 +183,7 @@ interface EventsFilterProps {
     currentFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
     onFilterReset: () => void;
-    orderingOrPageChanged?: boolean;
+    changed?: boolean;
 
     hiddenFields?: ('createdBy' | 'crisis' | 'countries' | 'reviewStatus')[];
     // We use these props to filter out other options
@@ -198,7 +198,7 @@ function EventsFilter(props: EventsFilterProps) {
         currentFilter,
         onFilterChange,
         onFilterReset,
-        orderingOrPageChanged = false,
+        changed = false,
 
         hiddenFields = [],
         countries,
@@ -274,8 +274,6 @@ function EventsFilter(props: EventsFilterProps) {
     const SignedoffButChanged: EventReviewStatus = 'SIGNED_OFF_BUT_CHANGED';
     const eventReviewStatusOptions = data?.eventReviewStatus?.enumValues
         ?.filter((item) => item.name !== ApprovedButChanged && item.name !== SignedoffButChanged);
-
-    const filterChanged = initialFilter !== value;
 
     const conflictType = value.eventTypes?.includes(conflict);
     const disasterType = value.eventTypes?.includes(disaster);
@@ -406,7 +404,7 @@ function EventsFilter(props: EventsFilterProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset Filters"
-                        disabled={!filterChanged && !orderingOrPageChanged}
+                        disabled={pristine && !changed}
                     >
                         Reset
                     </Button>

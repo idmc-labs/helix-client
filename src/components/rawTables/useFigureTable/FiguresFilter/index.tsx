@@ -231,7 +231,7 @@ interface FiguresFilterProps {
     currentFilter: PurgeNull<FiguresFilterFields>;
     onFilterChange: (value: PurgeNull<FiguresFilterFields>) => void;
     onFilterReset: () => void;
-    orderingOrPageChanged?: boolean;
+    changed?: boolean;
     disabled?: boolean;
 
     // NOTE: We have not implemented createdBy
@@ -250,7 +250,7 @@ function FiguresFilter(props: FiguresFilterProps) {
         currentFilter,
         onFilterChange,
         onFilterReset,
-        orderingOrPageChanged = false,
+        changed = false,
         disabled,
         crises,
         countries,
@@ -326,8 +326,6 @@ function FiguresFilter(props: FiguresFilterProps) {
             ))
         ))
     )).filter(isDefined);
-
-    const filterChanged = initialFilter !== value;
 
     const conflictType = value.filterFigureCrisisTypes?.includes(conflict);
     const disasterType = value.filterFigureCrisisTypes?.includes(disaster);
@@ -531,7 +529,7 @@ function FiguresFilter(props: FiguresFilterProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset Filters"
-                        disabled={!filterChanged && !orderingOrPageChanged}
+                        disabled={pristine && !changed}
                     >
                         Reset
                     </Button>

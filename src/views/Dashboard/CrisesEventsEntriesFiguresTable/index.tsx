@@ -55,8 +55,7 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
         filter: crisesFilter,
         setFilter: setCrisesFilter,
         reset: resetCrisesFilter,
-        orderingChanged: crisesOrderingChanged,
-        pageChanged: crisesPageChanged,
+        changed: crisesChanged,
 
         pageSize: crisesPageSize,
         rawPageSize: rawCrisesPageSize,
@@ -82,8 +81,7 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
         filter: eventsFilter,
         setFilter: setEventsFilter,
         reset: resetEventsFilter,
-        orderingChanged: eventsOrderingChanged,
-        pageChanged: eventsPageChanged,
+        changed: eventsChanged,
 
         pageSize: eventsPageSize,
         rawPageSize: rawEventsPageSize,
@@ -109,8 +107,7 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
         filter: entriesFilter,
         setFilter: setEntriesFilter,
         reset: resetEntriesFilter,
-        orderingChanged: entriesOrderingChanged,
-        pageChanged: entriesPageChanged,
+        changed: entriesChanged,
 
         pageSize: entriesPageSize,
         rawPageSize: rawEntriesPageSize,
@@ -136,8 +133,7 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
         filter: figuresFilter,
         setFilter: setFiguresFilter,
         reset: resetFiguresFilter,
-        orderingChanged: figuresOrderingChanged,
-        pageChanged: figuresPageChanged,
+        changed: figuresChanged,
 
         pageSize: figuresPageSize,
         rawPageSize: rawFiguresPageSize,
@@ -337,8 +333,7 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
                                 initialFilter={initialCrisesFilter}
                                 onFilterChange={setCrisesFilter}
                                 onFilterReset={resetCrisesFilter}
-                                orderingOrPageChanged={crisesOrderingChanged
-                                    || crisesPageChanged}
+                                changed={crisesChanged}
                                 hiddenFields={crisesHiddenColumns}
                             />
                         )}
@@ -348,8 +343,7 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
                                 initialFilter={initialEventsFilter}
                                 onFilterChange={setEventsFilter}
                                 onFilterReset={resetEventsFilter}
-                                orderingOrPageChanged={eventsOrderingChanged
-                                    || eventsPageChanged}
+                                changed={eventsChanged}
                                 hiddenFields={eventsHiddenColumns}
                             />
                         )}
@@ -359,8 +353,7 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
                                 initialFilter={initialEntriesFilter}
                                 onFilterChange={setEntriesFilter}
                                 onFilterReset={resetEntriesFilter}
-                                orderingOrPageChanged={entriesOrderingChanged
-                                    || entriesPageChanged}
+                                changed={entriesChanged}
                                 hiddenFields={figureHiddenColumns}
                             />
                         )}
@@ -370,8 +363,7 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
                                 initialFilter={initialFiguresFilter}
                                 onFilterChange={setFiguresFilter}
                                 onFilterReset={resetFiguresFilter}
-                                orderingOrPageChanged={figuresOrderingChanged
-                                    || figuresPageChanged}
+                                changed={figuresChanged}
                                 hiddenFields={figureHiddenColumns}
                             />
                         )}

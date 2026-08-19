@@ -34,7 +34,7 @@ interface ViolenceContextFilterProps {
     currentFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
     onFilterReset: () => void;
-    orderingOrPageChanged?: boolean;
+    changed?: boolean;
 }
 
 function ViolenceContextFilter(props: ViolenceContextFilterProps) {
@@ -44,7 +44,7 @@ function ViolenceContextFilter(props: ViolenceContextFilterProps) {
         currentFilter,
         onFilterChange,
         onFilterReset,
-        orderingOrPageChanged = false,
+        changed = false,
     } = props;
 
     const {
@@ -81,8 +81,6 @@ function ViolenceContextFilter(props: ViolenceContextFilterProps) {
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
 
-    const filterChanged = initialFilter !== value;
-
     return (
         <form
             className={_cs(className, styles.queryForm)}
@@ -106,7 +104,7 @@ function ViolenceContextFilter(props: ViolenceContextFilterProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset"
-                        disabled={!filterChanged && !orderingOrPageChanged}
+                        disabled={pristine && !changed}
                     >
                         Reset
                     </Button>

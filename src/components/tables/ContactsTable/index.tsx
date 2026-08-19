@@ -144,8 +144,7 @@ function ContactsTable(props: ContactsTableProps) {
         setPageSize,
 
         reset,
-        orderingChanged,
-        pageChanged,
+        changed,
     } = useFilterState<PurgeNull<NonNullable<ContactListQueryVariables['filters']>>>({
         filter: {},
         ordering: {
@@ -407,7 +406,7 @@ function ContactsTable(props: ContactsTableProps) {
                     initialFilter={initialFilter}
                     onFilterChange={setFilter}
                     onFilterReset={reset}
-                    orderingOrPageChanged={orderingChanged || pageChanged}
+                    changed={changed}
                 />
             )}
             footerContent={(

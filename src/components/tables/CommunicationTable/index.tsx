@@ -117,8 +117,7 @@ function CommunicationTable(props: CommunicationListProps) {
         pageSize,
 
         reset,
-        orderingChanged,
-        pageChanged,
+        changed,
     } = useFilterState<PurgeNull<NonNullable<CommunicationListQueryVariables['filters']>>>({
         filter: {},
         ordering: {
@@ -301,7 +300,7 @@ function CommunicationTable(props: CommunicationListProps) {
                     initialFilter={initialFilter}
                     onFilterChange={setFilter}
                     onFilterReset={reset}
-                    orderingOrPageChanged={orderingChanged || pageChanged}
+                    changed={changed}
                 />
             )}
             footerContent={(

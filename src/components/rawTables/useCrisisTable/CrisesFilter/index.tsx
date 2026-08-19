@@ -66,7 +66,7 @@ interface CrisesFilterProps {
     currentFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
     onFilterReset: () => void;
-    orderingOrPageChanged?: boolean;
+    changed?: boolean;
     hiddenFields?: ('createdBy')[];
 }
 
@@ -77,7 +77,7 @@ function CrisesFilter(props: CrisesFilterProps) {
         currentFilter,
         onFilterChange,
         onFilterReset,
-        orderingOrPageChanged = false,
+        changed = false,
         hiddenFields = [],
     } = props;
 
@@ -120,8 +120,6 @@ function CrisesFilter(props: CrisesFilterProps) {
         loading: crisisOptionsLoading,
         error: crisisOptionsError,
     } = useQuery<CrisisOptionsForFilterQuery>(CRISIS_OPTIONS);
-
-    const filterChanged = initialFilter !== value;
 
     return (
         <form
@@ -180,7 +178,7 @@ function CrisesFilter(props: CrisesFilterProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset Filters"
-                        disabled={!filterChanged && !orderingOrPageChanged}
+                        disabled={pristine && !changed}
                     >
                         Reset
                     </Button>

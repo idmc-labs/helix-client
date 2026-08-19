@@ -57,8 +57,7 @@ function CountriesCrisesEventsEntriesFiguresTable(
         filter: countriesFilter,
         setFilter: setCountriesFilter,
         reset: resetCountriesFilter,
-        orderingChanged: countriesOrderingChanged,
-        pageChanged: countriesPageChanged,
+        changed: countriesChanged,
 
         pageSize: countriesPageSize,
         rawPageSize: rawCountriesPageSize,
@@ -84,8 +83,7 @@ function CountriesCrisesEventsEntriesFiguresTable(
         filter: crisesFilter,
         setFilter: setCrisesFilter,
         reset: resetCrisesFilter,
-        orderingChanged: crisesOrderingChanged,
-        pageChanged: crisesPageChanged,
+        changed: crisesChanged,
 
         pageSize: crisesPageSize,
         rawPageSize: rawCrisesPageSize,
@@ -111,8 +109,7 @@ function CountriesCrisesEventsEntriesFiguresTable(
         filter: eventsFilter,
         setFilter: setEventsFilter,
         reset: resetEventsFilter,
-        orderingChanged: eventsOrderingChanged,
-        pageChanged: eventsPageChanged,
+        changed: eventsChanged,
 
         pageSize: eventsPageSize,
         rawPageSize: rawEventsPageSize,
@@ -418,8 +415,7 @@ function CountriesCrisesEventsEntriesFiguresTable(
                                     initialFilter={initialCountriesFilter}
                                     onFilterChange={setCountriesFilter}
                                     onFilterReset={resetCountriesFilter}
-                                    orderingOrPageChanged={countriesOrderingChanged
-                                        || countriesPageChanged}
+                                    changed={countriesChanged}
                                     hiddenFields={countriesHiddenColumns}
                                 />
                             )}
@@ -429,8 +425,7 @@ function CountriesCrisesEventsEntriesFiguresTable(
                                     initialFilter={initialCrisesFilter}
                                     onFilterChange={setCrisesFilter}
                                     onFilterReset={resetCrisesFilter}
-                                    orderingOrPageChanged={crisesOrderingChanged
-                                        || crisesPageChanged}
+                                    changed={crisesChanged}
                                 />
                             )}
                             {selectedTab === 'Events' && (
@@ -439,8 +434,7 @@ function CountriesCrisesEventsEntriesFiguresTable(
                                     initialFilter={initialEventsFilter}
                                     onFilterChange={setEventsFilter}
                                     onFilterReset={resetEventsFilter}
-                                    orderingOrPageChanged={eventsOrderingChanged
-                                        || eventsPageChanged}
+                                    changed={eventsChanged}
                                 />
                             )}
                         </>

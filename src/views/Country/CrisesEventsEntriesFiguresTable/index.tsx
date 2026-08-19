@@ -57,8 +57,7 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
         filter: crisesFilter,
         setFilter: setCrisesFilter,
         reset: resetCrisesFilter,
-        orderingChanged: crisesOrderingChanged,
-        pageChanged: crisesPageChanged,
+        changed: crisesChanged,
 
         pageSize: crisesPageSize,
         rawPageSize: rawCrisesPageSize,
@@ -84,8 +83,7 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
         filter: eventsFilter,
         setFilter: setEventsFilter,
         reset: resetEventsFilter,
-        orderingChanged: eventsOrderingChanged,
-        pageChanged: eventsPageChanged,
+        changed: eventsChanged,
 
         pageSize: eventsPageSize,
         rawPageSize: rawEventsPageSize,
@@ -381,8 +379,7 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
                                     initialFilter={initialCrisesFilter}
                                     onFilterChange={setCrisesFilter}
                                     onFilterReset={resetCrisesFilter}
-                                    orderingOrPageChanged={crisesOrderingChanged
-                                        || crisesPageChanged}
+                                    changed={crisesChanged}
                                     // NOTE: we do not have countries or fields related to countries
                                     // hiddenFields={crisesHiddenColumns}
                                     // countries={[countryId]}
@@ -394,8 +391,7 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
                                     initialFilter={initialEventsFilter}
                                     onFilterChange={setEventsFilter}
                                     onFilterReset={resetEventsFilter}
-                                    orderingOrPageChanged={eventsOrderingChanged
-                                        || eventsPageChanged}
+                                    changed={eventsChanged}
                                     hiddenFields={eventsHiddenColumns}
                                     countries={[countryId]}
                                 />
