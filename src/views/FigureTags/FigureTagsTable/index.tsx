@@ -133,8 +133,8 @@ function FigureTagsTable(props: FigureTagsProps) {
     } = useFilterState<PurgeNull<NonNullable<FigureTagListQueryVariables['filters']>>>({
         filter: {},
         ordering: {
-            name: 'created_at',
-            direction: 'dsc',
+            name: 'name',
+            direction: 'asc',
         },
     });
 
