@@ -11,7 +11,7 @@ type ExtraKeyType = typeof EXTRA_KEYS[number];
 type LocalStorageKeyType = ExtraKeyType | PersistenceKeyType;
 
 // NOTE: Update this if there are any changes made to filters
-export const FILTER_VERSION = '1';
+export const FILTER_VERSION = '2';
 
 export const filterStorage = {
     set: (key: LocalStorageKeyType, value: unknown) => {

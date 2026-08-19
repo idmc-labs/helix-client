@@ -19,11 +19,12 @@ export interface FilterStateResponse<T> {
     filterChanged: boolean;
     filtered: boolean;
     setFilter: (value: SetStateAction<T>, updateInitialFilter?: boolean) => void;
-    resetFilter: () => void;
+    reset: () => void;
     setFilterField: (...args: EntriesAsList<T>) => void;
 
     rawPage: number;
     page: number;
+    pageChanged: boolean;
     setPage: (value: number) => void;
 
     rawPageSize: number;
@@ -32,6 +33,7 @@ export interface FilterStateResponse<T> {
 
     rawOrdering: string | undefined;
     ordering: string | undefined;
+    orderingChanged: boolean;
     sortState: {
         sorting: SortParameter | undefined;
         setSorting: (value: SetStateAction<SortParameter | undefined>) => void;
@@ -53,8 +55,8 @@ function getOrdering(sorting: SortParameter | undefined) {
     return `-${sorting.name}`;
 }
 
-interface ResetFilterAction {
-    type: 'reset-filter';
+interface ResetAction {
+    type: 'reset';
 }
 
 interface SetFilterAction<FILTER extends Record<string, unknown>> {
@@ -79,7 +81,7 @@ interface SetOrderingAction {
 }
 
 type FilterActions<FILTER extends Record<string, unknown>> = (
-    ResetFilterAction
+    ResetAction
     | SetFilterAction<FILTER>
     | SetPageAction
     | SetOrderingAction
@@ -90,6 +92,7 @@ interface FilterState<FILTER> {
     filter: FILTER,
     initialFilter: FILTER,
     ordering: SortParameter | undefined,
+    initialOrdering: SortParameter | undefined,
     page: number,
     pageSize: number,
 }
@@ -135,10 +138,11 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
 
     const [state, dispatch] = useReducer<Reducer, FilterState<FILTER> | undefined>(
         (prevState, action) => {
-            if (action.type === 'reset-filter') {
+            if (action.type === 'reset') {
                 return {
                     ...prevState,
                     filter: prevState.initialFilter,
+                    ordering: prevState.initialOrdering,
                     page: 1,
                 };
             }
@@ -183,6 +187,7 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
             filter,
             initialFilter: filter,
             ordering,
+            initialOrdering: ordering,
             page,
             pageSize,
         },
@@ -241,10 +246,10 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
         },
         [],
     );
-    const resetFilter = useCallback(
+    const reset = useCallback(
         () => {
             dispatch({
-                type: 'reset-filter',
+                type: 'reset',
             });
         },
         [],
@@ -265,6 +270,17 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
         [debouncedState.filter],
     );
 
+    // NOTE: Compare against raw (undebounced) state so the reset button reacts
+    // immediately, and reset covers every parameter retained on refresh.
+    const orderingChanged = useMemo(
+        () => (
+            state.ordering?.name !== state.initialOrdering?.name
+            || state.ordering?.direction !== state.initialOrdering?.direction
+        ),
+        [state.ordering, state.initialOrdering],
+    );
+    const pageChanged = state.page !== 1;
+
     useEffect(() => {
         if (persistenceKey) {
             filterStorage.set(persistenceKey, debouncedState);
@@ -278,11 +294,12 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
         filterChanged: state.filter !== state.initialFilter,
         filtered,
         setFilter,
-        resetFilter,
+        reset,
         setFilterField,
 
         rawPage: state.page,
         page: debouncedState.page,
+        pageChanged,
         setPage,
 
         rawPageSize: state.pageSize,
@@ -291,6 +308,7 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
 
         rawOrdering: getOrdering(ordering),
         ordering: getOrdering(debouncedState.ordering),
+        orderingChanged,
         sortState,
     };
 }

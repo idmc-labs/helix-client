@@ -70,7 +70,7 @@ function SavedFiltersList(props: SavedFiltersListProps) {
         rawFilter,
         filter,
         setFilterField,
-        resetFilter,
+        reset,
 
         rawPageSize,
         pageSize,
@@ -86,7 +86,7 @@ function SavedFiltersList(props: SavedFiltersListProps) {
         searchFieldOpened,
         handleSearchFieldOpen,
         handleSearchFieldClose,
-    ] = useBasicToggle(resetFilter);
+    ] = useBasicToggle(reset);
 
     const {
         data: extractionQueries,
