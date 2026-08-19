@@ -17,6 +17,7 @@ export interface FilterStateResponse<T> {
     initialFilter: T;
     filter: T;
     filterChanged: boolean;
+    changed: boolean;
     filtered: boolean;
     setFilter: (value: SetStateAction<T>, updateInitialFilter?: boolean) => void;
     reset: () => void;
@@ -265,28 +266,28 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
         [debouncedState.filter],
     );
 
-    // NOTE: Compare against raw (undebounced) state so the reset button reacts
-    // immediately, and reset covers every parameter retained on refresh.
-    const orderingChanged = useMemo(
-        () => (
-            state.ordering?.name !== state.initialOrdering?.name
-            || state.ordering?.direction !== state.initialOrdering?.direction
-        ),
-        [state.ordering, state.initialOrdering],
-    );
-    const pageChanged = state.page !== 1;
-
     useEffect(() => {
         if (persistenceKey) {
             filterStorage.set(persistenceKey, debouncedState);
         }
     }, [persistenceKey, debouncedState]);
 
+    // NOTE: Compare against raw (undebounced) state so the reset button reacts
+    // immediately. `changed` covers every parameter cleared by reset.
+    const filterChanged = state.filter !== state.initialFilter;
+    const orderingChanged = (
+        state.ordering?.name !== state.initialOrdering?.name
+        || state.ordering?.direction !== state.initialOrdering?.direction
+    );
+    const pageChanged = state.page !== 1;
+    const changed = filterChanged || orderingChanged || pageChanged;
+
     return {
         rawFilter: state.filter,
         initialFilter: state.initialFilter,
         filter: debouncedState.filter,
-        filterChanged: state.filter !== state.initialFilter,
+        filterChanged,
+        changed,
         filtered,
         setFilter,
         reset,
