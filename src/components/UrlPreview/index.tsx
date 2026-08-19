@@ -8,6 +8,12 @@ import styles from './styles.module.css';
 
 type Maybe<T> = T | undefined | null;
 
+// NOTE: the previewed document is never served from the app's origin, so its
+// scripts cannot reach the app
+const SCRIPTED_SANDBOX = 'allow-scripts allow-popups';
+// NOTE: images render without scripting
+const STATIC_SANDBOX = '';
+
 interface UrlParams {
     [key: string]: Maybe<string | number | boolean | (string | number | boolean)[]>;
 }
@@ -38,6 +44,27 @@ export function prepareUrlParams(params: UrlParams) {
 function isPdf(url: string) {
     const sanitizedUrl = url.trim().toLowerCase();
     return sanitizedUrl.endsWith('.pdf');
+}
+
+// TODO: add a better check
+function isHtml(url: string) {
+    const sanitizedUrl = url.trim().toLowerCase();
+    return sanitizedUrl.endsWith('.html')
+        || sanitizedUrl.endsWith('.htm')
+        || sanitizedUrl.endsWith('.xhtml');
+}
+
+// TODO: add a better check
+// NOTE: svg is excluded as the online previewer renders it, tiff as browsers do not
+function isImage(url: string) {
+    const sanitizedUrl = url.trim().toLowerCase();
+    return sanitizedUrl.endsWith('.png')
+        || sanitizedUrl.endsWith('.jpg')
+        || sanitizedUrl.endsWith('.jpeg')
+        || sanitizedUrl.endsWith('.gif')
+        || sanitizedUrl.endsWith('.webp')
+        || sanitizedUrl.endsWith('.bmp')
+        || sanitizedUrl.endsWith('.ico');
 }
 
 // TODO: add a better check
@@ -80,11 +107,62 @@ function Message(props: MessageProps) {
     );
 }
 
+interface NativePreviewProps {
+    url: string;
+    title: string;
+    sandbox: string;
+}
+function NativePreview(props: NativePreviewProps) {
+    const {
+        url,
+        title,
+        sandbox,
+    } = props;
+    return (
+        <div className={styles.preview}>
+            <div
+                title={url}
+                className={styles.url}
+            >
+                { url }
+            </div>
+            <iframe
+                className={styles.previewFrame}
+                src={url}
+                title={title}
+                sandbox={sandbox}
+            />
+        </div>
+    );
+}
+
 interface FilePreviewProps {
     url: string;
 }
 function FilePreview(props: FilePreviewProps) {
     const { url } = props;
+
+    // NOTE: Html can be previewed by browsers natively so no need to use a online previewer
+    if (isHtml(url)) {
+        return (
+            <NativePreview
+                url={url}
+                title="Html preview"
+                sandbox={SCRIPTED_SANDBOX}
+            />
+        );
+    }
+
+    // NOTE: Images can be previewed by browsers natively so no need to use a online previewer
+    if (isImage(url)) {
+        return (
+            <NativePreview
+                url={url}
+                title="Image preview"
+                sandbox={STATIC_SANDBOX}
+            />
+        );
+    }
 
     // NOTE: Pdf can be previewed by browsers natively so no need to use a online previewer
     if (isPdf(url)) {
@@ -146,29 +224,6 @@ function FilePreview(props: FilePreviewProps) {
     );
 }
 
-interface HtmlPreviewProps {
-    url: string;
-}
-function HtmlPreview(props: HtmlPreviewProps) {
-    const { url } = props;
-    return (
-        <div className={styles.preview}>
-            <div
-                title={url}
-                className={styles.url}
-            >
-                { url }
-            </div>
-            <iframe
-                className={styles.previewFrame}
-                src={url}
-                title="Web Preview"
-                sandbox="allow-scripts allow-popups"
-            />
-        </div>
-    );
-}
-
 interface UrlPreviewProps {
     url: string | undefined | null;
     className?: string;
@@ -210,8 +265,10 @@ function UrlPreview(props: UrlPreviewProps) {
     return (
         <div className={_cs(styles.urlPreview, className)}>
             {mode === 'html' ? (
-                <HtmlPreview
+                <NativePreview
                     url={url}
+                    title="Web preview"
+                    sandbox={SCRIPTED_SANDBOX}
                 />
             ) : (
                 <FilePreview

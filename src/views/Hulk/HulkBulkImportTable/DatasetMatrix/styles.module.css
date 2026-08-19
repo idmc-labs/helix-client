@@ -1,0 +1,56 @@
+.dataset-matrix {
+    padding: var(--spacing-medium) var(--spacing-large);
+    /* Cap the width so the bar (and the gap to the totals) does not stretch
+     * across the full width of the expanded row. */
+    max-width: 40rem;
+
+    .matrix {
+        width: 100%;
+        border-collapse: separate;
+        /* Vertical gaps between rows; columns are spaced with cell padding. */
+        border-spacing: 0 var(--spacing-small);
+    }
+
+    .label {
+        padding-right: var(--spacing-large);
+        vertical-align: middle;
+        text-align: left;
+        white-space: nowrap;
+        color: var(--color-text-label);
+        font-weight: normal;
+    }
+
+    .bar-cell {
+        /* Take the slack so the label and total columns size to content. */
+        width: 100%;
+        vertical-align: middle;
+    }
+
+    .total {
+        padding-left: var(--spacing-large);
+        vertical-align: middle;
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .summary {
+        font-weight: var(--font-weight-bold);
+
+        /* Extra separation above the summary row. */
+        td {
+            padding-top: var(--spacing-large);
+        }
+    }
+
+    /* The label is a whole clickable download link; keep the surrounding
+     * styling and only hint at the link on hover. */
+    .link {
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .link:hover {
+        text-decoration: underline;
+    }
+}

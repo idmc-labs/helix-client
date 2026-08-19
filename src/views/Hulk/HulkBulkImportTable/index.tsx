@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import { IoAddOutline } from 'react-icons/io5';
@@ -11,7 +11,9 @@ import {
     TableColumn,
     TableHeaderCell,
     TableHeaderCellProps,
+    createExpandColumn,
     useBooleanState,
+    useTableRowExpansion,
 } from '@togglecorp/toggle-ui';
 
 import TableMessage from '#components/TableMessage';
@@ -19,7 +21,7 @@ import { PurgeNull } from '#types';
 import {
     createTextColumn,
     createDateTimeColumn,
-    createCustomActionColumn,
+    EXPAND_COLUMN_WIDTH,
 } from '#components/tableHelpers';
 import CompositionBar, { CompositionBarProps } from '#components/CompositionBar';
 import Container from '#components/Container';
@@ -31,8 +33,8 @@ import {
 } from '#generated/types';
 import { hasNoData, diff, formatElapsedTime } from '#utils/common';
 
-import DatasetImportLinks, { DatasetImportLinksProps } from './DatasetImportLinks';
-import ViewFiles, { ViewFilesProps } from './ViewFiles';
+import DatasetMatrix from './DatasetMatrix';
+import DatasetSummary, { DatasetSummaryProps } from './DatasetSummary';
 import HulkBulkImportFilter from './HulkBulkImportFilter';
 import styles from './styles.module.css';
 
@@ -67,7 +69,6 @@ const GET_HULK_BULK_IMPORTS_LIST = gql`
                 datasets {
                     id
                     importType
-                    importTypeDisplay
                     importFile
                     successFile
                     failureFile
@@ -88,6 +89,12 @@ type HulkBulkImportFields = NonNullable<NonNullable<HulkBulkImportsListQuery['hu
 
 const keySelector = (item: HulkBulkImportFields) => item.id;
 
+// Per-dataset counts are only written once the import run finishes, so until
+// then any total would read as zero.
+function countsPending(item: HulkBulkImportFields) {
+    return item.status === 'PENDING' || item.status === 'IN_PROGRESS';
+}
+
 interface HulkBulkImportProps {
     className?: string;
 }
@@ -102,6 +109,27 @@ function HulkBulkImportTable(props: HulkBulkImportProps) {
         showNewImportInfo,
         hideNewImportInfo,
     ] = useBooleanState(false);
+
+    const [expandedRow, setExpandedRow] = useState<string | undefined>();
+
+    const handleRowExpand = useCallback(
+        (rowId: string) => {
+            setExpandedRow((previousExpandedId) => (
+                previousExpandedId === rowId ? undefined : rowId
+            ));
+        },
+        [],
+    );
+
+    const rowModifier = useTableRowExpansion<HulkBulkImportFields, string>(
+        expandedRow,
+        ({ datum }) => (
+            <DatasetMatrix
+                datasets={datum.datasets}
+                pending={countsPending(datum)}
+            />
+        ),
+    );
 
     const {
         page,
@@ -185,7 +213,7 @@ function HulkBulkImportTable(props: HulkBulkImportProps) {
             };
 
             const importsColumn: TableColumn<
-                HulkBulkImportFields, string, DatasetImportLinksProps, TableHeaderCellProps
+                HulkBulkImportFields, string, DatasetSummaryProps, TableHeaderCellProps
             > = {
                 id: 'import_files',
                 title: 'Imports',
@@ -193,27 +221,25 @@ function HulkBulkImportTable(props: HulkBulkImportProps) {
                 columnStretch: true,
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: { sortable: false },
-                cellRenderer: DatasetImportLinks,
+                cellRenderer: DatasetSummary,
                 cellRendererParams: (_, item) => ({
                     datasets: item.datasets,
+                    pending: countsPending(item),
                 }),
             };
 
-            const actionsColumn = createCustomActionColumn<
-                HulkBulkImportFields, string, ViewFilesProps
-            >(
-                ViewFiles,
-                (_, item) => ({
-                    datasets: item.datasets,
-                }),
-                'actions',
-                '',
-                undefined,
-                // width for the single view-files control
-                1,
-            );
-
             return [
+                createExpandColumn<HulkBulkImportFields, string>(
+                    'expand-button',
+                    '',
+                    handleRowExpand,
+                    // TODO: should pass this using context
+                    expandedRow,
+                    {
+                        columnWidth: EXPAND_COLUMN_WIDTH,
+                        columnStretch: false,
+                    },
+                ),
                 createDateTimeColumn<HulkBulkImportFields, string>(
                     'created_at',
                     'Created At',
@@ -275,10 +301,12 @@ function HulkBulkImportTable(props: HulkBulkImportProps) {
                     ),
                 ),
                 outcomeColumn,
-                actionsColumn,
             ];
         },
-        [],
+        [
+            expandedRow,
+            handleRowExpand,
+        ],
     );
 
     const totalHulkBulkImportsCount = hulkBulkImports?.hulkBulkImports?.totalCount ?? 0;
@@ -323,6 +351,7 @@ function HulkBulkImportTable(props: HulkBulkImportProps) {
                         data={hulkBulkImports?.hulkBulkImports?.results}
                         keySelector={keySelector}
                         columns={columns}
+                        rowModifier={rowModifier}
                         resizableColumn
                         fixedColumnWidth
                     />

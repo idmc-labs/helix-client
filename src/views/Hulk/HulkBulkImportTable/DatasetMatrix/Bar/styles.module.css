@@ -1,0 +1,57 @@
+/* One continuous bar: segments sit flush, the rounded container clips their
+ * outer corners, and the grey background shows through the thin gaps as a
+ * seam between adjacent segments. */
+.bar {
+    display: flex;
+    align-items: stretch;
+    border-radius: var(--radius-modal);
+    background-color: var(--color-background);
+    /* Keep a height even with no segments, so an import with no counts (or one
+     * still in progress) shows an empty grey bar. */
+    min-height: 2.5rem;
+    overflow: hidden;
+    gap: var(--width-separator-medium);
+}
+
+/* The slot carries the proportional width; the segment fills it. */
+.segment-slot {
+    display: flex;
+    flex-basis: 0;
+    min-width: 4rem;
+}
+
+.segment {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    padding: 0 var(--spacing-large);
+    overflow: hidden;
+    text-align: left;
+    white-space: nowrap;
+}
+
+/* Opaque tints (mixed over the surface colour) so each segment reads the same
+ * regardless of the seam behind it. */
+.success {
+    background-color: color-mix(in srgb, var(--color-success) 15%, var(--color-foreground));
+}
+
+.warning {
+    background-color: color-mix(in srgb, var(--color-warning) 15%, var(--color-foreground));
+}
+
+.danger {
+    background-color: color-mix(in srgb, var(--color-danger) 15%, var(--color-foreground));
+}
+
+/* Each segment with a file is a whole clickable download link; keep the tint
+ * and only hint at the link on hover. */
+.link {
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
