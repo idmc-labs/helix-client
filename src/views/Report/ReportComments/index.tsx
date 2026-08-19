@@ -56,8 +56,13 @@ export default function ReportComments(props: ReportCommentsProps) {
 
         pageSize,
         rawPageSize,
+        ordering,
     } = useFilterState({
         filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
     });
 
     const [commentIdOnEdit, setCommentIdOnEdit] = useState<string | undefined>();
@@ -68,12 +73,13 @@ export default function ReportComments(props: ReportCommentsProps) {
     const variables = useMemo(
         () => ({
             pageSize,
-            ordering: '-created_at',
+            ordering,
             page,
             reportId,
         }),
         [
             reportId,
+            ordering,
             page,
             pageSize,
         ],

@@ -160,6 +160,10 @@ function EventReview(props: Props) {
         setPageSize,
     } = useFilterState({
         filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
     });
 
     const figureListVariables = useMemo(

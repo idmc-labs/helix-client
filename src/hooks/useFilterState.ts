@@ -97,14 +97,9 @@ interface FilterState<FILTER> {
     pageSize: number,
 }
 
-const defaultOrdering: SortParameter = {
-    name: 'id',
-    direction: 'dsc',
-};
-
 function useFilterState<FILTER extends Record<string, unknown>>(options: {
     filter: FILTER,
-    ordering?: SortParameter | undefined,
+    ordering: SortParameter,
     page?: number,
     pageSize?: number,
     debounceTime?: number,
@@ -112,7 +107,7 @@ function useFilterState<FILTER extends Record<string, unknown>>(options: {
 }): FilterStateResponse<FILTER> {
     const {
         filter,
-        ordering = defaultOrdering,
+        ordering,
         page = 1,
         pageSize = 10,
         debounceTime = 200,

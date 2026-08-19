@@ -62,6 +62,10 @@ function ContextualHistoryList(props: ContextualHistoryProps) {
         setPageSize,
     } = useFilterState({
         filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
     });
 
     const variables = useMemo(
