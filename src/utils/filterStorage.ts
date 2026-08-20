@@ -1,17 +1,21 @@
 const FILTER_KEYS = [
-    'filter_crisisPage', 'filter_crisisPageFigure',
-    'filter_eventPage', 'filter_eventPageFigure',
+    'filter_crisisPage',
+    'filter_eventPage',
     'filter_extractionEntry', 'filter_extractionFigure',
     'filter_countryPage',
     'filter_reportPage',
 ] as const;
 export type PersistenceKeyType = typeof FILTER_KEYS[number];
+// NOTE: Keys no longer used, retained only so their stale blobs are cleared on
+// a version bump. The Events/Crises listing pages now hold the figures filter
+// inside the single page filter state.
+const OBSOLETE_KEYS = ['filter_crisisPageFigure', 'filter_eventPageFigure'] as const;
 const EXTRA_KEYS = ['options', 'filterVersion'] as const;
 type ExtraKeyType = typeof EXTRA_KEYS[number];
 type LocalStorageKeyType = ExtraKeyType | PersistenceKeyType;
 
 // NOTE: Update this if there are any changes made to filters
-export const FILTER_VERSION = '1';
+export const FILTER_VERSION = '2';
 
 export const filterStorage = {
     set: (key: LocalStorageKeyType, value: unknown) => {
@@ -33,7 +37,9 @@ export const filterStorage = {
     },
     clearAll: () => {
         try {
-            [...FILTER_KEYS, ...EXTRA_KEYS].forEach((key) => localStorage.removeItem(key));
+            [...FILTER_KEYS, ...OBSOLETE_KEYS, ...EXTRA_KEYS].forEach(
+                (key) => localStorage.removeItem(key),
+            );
         } catch (e) {
             console.error('Error clearing local storage', e);
         }
