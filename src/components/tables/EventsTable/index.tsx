@@ -199,6 +199,7 @@ function EventsTable(props: EventsProps) {
             filters: expandObject<NonNullable<EventListQueryVariables['filters']>>(
                 filter,
                 {
+                    filterFigures: filter.filterFigures,
                     aggregateFigures: {
                         filterFigures: filter.filterFigures,
                     },

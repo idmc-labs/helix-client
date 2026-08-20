@@ -104,6 +104,7 @@ function CrisesTable(props: CrisesProps) {
             filters: expandObject<NonNullable<CrisesQueryVariables['filters']>>(
                 filter,
                 {
+                    filterFigures: filter.filterFigures,
                     aggregateFigures: {
                         filterFigures: filter.filterFigures,
                     },
