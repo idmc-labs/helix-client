@@ -20,7 +20,7 @@ import CountriesFilter, { CountriesFilterFields } from '#components/rawTables/us
 import useCountryTable from '#components/rawTables/useCountryTable';
 import useEntryTable from '#components/rawTables/useEntryTable';
 import useFigureTable from '#components/rawTables/useFigureTable';
-import { expandObject } from '#utils/common';
+import { expandObject, hasNoData } from '#utils/common';
 import styles from './styles.module.css';
 
 type Filter = PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>;
@@ -125,6 +125,10 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
             const queryFilters = { ...countriesFilter };
             delete queryFilters.year;
 
+            const scopedFigures = expandObject(
+                figuresFilter,
+                { filterFigureEvents: [eventId] },
+            );
             return ({
                 ordering: countriesOrdering,
                 page: countriesPage,
@@ -133,13 +137,9 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
                     queryFilters,
                     {
                         events: [eventId],
+                        filterFigures: hasNoData(figuresFilter) ? undefined : scopedFigures,
                         aggregateFigures: {
-                            filterFigures: expandObject(
-                                figuresFilter,
-                                {
-                                    filterFigureEvents: [eventId],
-                                },
-                            ),
+                            filterFigures: scopedFigures,
                             year: countriesFilter.year,
                         },
                     },

@@ -23,7 +23,7 @@ import CountriesFilter, { CountriesFilterFields } from '#components/rawTables/us
 import useCountryTable from '#components/rawTables/useCountryTable';
 import useEntryTable from '#components/rawTables/useEntryTable';
 import useFigureTable from '#components/rawTables/useFigureTable';
-import { expandObject } from '#utils/common';
+import { expandObject, hasNoData } from '#utils/common';
 import styles from './styles.module.css';
 
 type Filter = PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>;
@@ -154,6 +154,13 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
             const queryFilters = { ...countriesFilter };
             delete queryFilters.year;
 
+            // NOTE: figures are scoped to this crisis for both row filtering and
+            // aggregates; the row filter is only applied once the user sets a
+            // figure filter, otherwise the direct `crises` membership is used.
+            const scopedFigures = expandObject(
+                figuresFilter,
+                { filterFigureCrises: [crisisId] },
+            );
             return ({
                 ordering: countriesOrdering,
                 page: countriesPage,
@@ -162,14 +169,9 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
                     queryFilters,
                     {
                         crises: [crisisId],
-                        filterFigures: figuresFilter,
+                        filterFigures: hasNoData(figuresFilter) ? undefined : scopedFigures,
                         aggregateFigures: {
-                            filterFigures: expandObject(
-                                figuresFilter,
-                                {
-                                    filterFigureCrises: [crisisId],
-                                },
-                            ),
+                            filterFigures: scopedFigures,
                             year: countriesFilter.year,
                         },
                     },
@@ -187,26 +189,27 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
     );
 
     const eventsVariables = useMemo(
-        (): EventListQueryVariables => ({
-            ordering: eventsOrdering,
-            page: eventsPage,
-            pageSize: eventsPageSize,
-            filters: expandObject<NonNullable<EventListQueryVariables['filters']>>(
-                eventsFilter,
-                {
-                    crisisByIds: [crisisId],
-                    filterFigures: figuresFilter,
-                    aggregateFigures: {
-                        filterFigures: expandObject(
-                            figuresFilter,
-                            {
-                                filterFigureCrises: [crisisId],
-                            },
-                        ),
+        (): EventListQueryVariables => {
+            const scopedFigures = expandObject(
+                figuresFilter,
+                { filterFigureCrises: [crisisId] },
+            );
+            return ({
+                ordering: eventsOrdering,
+                page: eventsPage,
+                pageSize: eventsPageSize,
+                filters: expandObject<NonNullable<EventListQueryVariables['filters']>>(
+                    eventsFilter,
+                    {
+                        crisisByIds: [crisisId],
+                        filterFigures: hasNoData(figuresFilter) ? undefined : scopedFigures,
+                        aggregateFigures: {
+                            filterFigures: scopedFigures,
+                        },
                     },
-                },
-            ),
-        }),
+                ),
+            });
+        },
         [
             eventsOrdering,
             eventsPage,
