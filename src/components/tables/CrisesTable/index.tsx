@@ -67,24 +67,9 @@ function CrisesTable(props: CrisesProps) {
         setPageSize,
     } = filterStateFromProps ?? selfFilterState;
 
-    // NOTE: The main filter only edits the crisis part; project out the figures
-    // part and preserve it on write so the sidepane's filter is not clobbered.
-    const mainRawFilter = useMemo(
-        () => {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { filterFigures, ...rest } = rawFilter;
-            return rest;
-        },
-        [rawFilter],
-    );
-    const mainInitialFilter = useMemo(
-        () => {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { filterFigures, ...rest } = initialFilter;
-            return rest;
-        },
-        [initialFilter],
-    );
+    // NOTE: The main filter only edits the crisis part; it receives the whole
+    // filter but its writes preserve `filterFigures` so the sidepane's filter is
+    // not clobbered.
     const handleMainFilterChange = useCallback(
         (value: PartialForm<CrisesFilterFields>) => {
             setFilter((old) => ({
@@ -148,8 +133,8 @@ function CrisesTable(props: CrisesProps) {
             footerContent={crisesPager}
             description={(
                 <CrisesFilter
-                    currentFilter={mainRawFilter}
-                    initialFilter={mainInitialFilter}
+                    currentFilter={rawFilter}
+                    initialFilter={initialFilter}
                     onFilterChange={handleMainFilterChange}
                 />
             )}
