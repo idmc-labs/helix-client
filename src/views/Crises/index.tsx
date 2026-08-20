@@ -5,7 +5,7 @@ import { Button } from '@togglecorp/toggle-ui';
 import { IoClose, IoFilterOutline } from 'react-icons/io5';
 
 import PageHeader from '#components/PageHeader';
-import CrisesTable from '#components/tables/CrisesTable';
+import CrisesTable, { CrisesListFilterFields } from '#components/tables/CrisesTable';
 import useSidebarLayout from '#hooks/useSidebarLayout';
 import { hasNoData } from '#utils/common';
 import Container from '#components/Container';
@@ -17,6 +17,12 @@ import { ExtractionEntryListFiltersQueryVariables } from '#generated/types';
 import { PurgeNull } from '#types';
 
 import styles from './styles.module.css';
+
+type FiguresFilterFields = PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>;
+
+// NOTE: Stable empty reference for the figures slice before it is ever set, so
+// the sidepane form's sync effect does not thrash.
+const emptyFiguresFilter: FiguresFilterFields = {};
 
 interface CrisesProps {
     className?: string;
@@ -33,21 +39,33 @@ function Crises(props: CrisesProps) {
         setShowSidebarFalse,
     } = useSidebarLayout();
 
-    const figuresFilterState = useFilterState<PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>>({
+    const filterState = useFilterState<CrisesListFilterFields>({
         filter: {},
         ordering: {
             name: 'created_at',
             direction: 'dsc',
         },
-        persistenceKey: 'filter_crisisPageFigure',
+        persistenceKey: 'filter_crisisPage',
     });
 
     const {
-        filter: figuresFilter,
-        rawFilter: rawFiguresFilter,
-        initialFilter: initialFiguresFilter,
-        setFilter: setFiguresFilter,
-    } = figuresFilterState;
+        rawFilter,
+        initialFilter,
+        setFilter,
+    } = filterState;
+
+    const figuresRawFilter = rawFilter.filterFigures ?? emptyFiguresFilter;
+    const figuresInitialFilter = initialFilter.filterFigures ?? emptyFiguresFilter;
+
+    const handleFiguresFilterChange = useCallback(
+        (value: FiguresFilterFields) => {
+            setFilter((old) => ({
+                ...old,
+                filterFigures: value,
+            }));
+        },
+        [setFilter],
+    );
 
     const floatingButtonVisibility = useCallback(
         (scroll: number) => scroll >= 80 && !showSidebar,
@@ -55,7 +73,7 @@ function Crises(props: CrisesProps) {
     );
 
     const appliedFiltersCount = mapToList(
-        figuresFilter,
+        figuresRawFilter,
         (item) => !hasNoData(item),
     ).filter(Boolean).length;
 
@@ -81,12 +99,11 @@ function Crises(props: CrisesProps) {
                 <div className={styles.mainContent}>
                     <FiguresFilterOutput
                         className={styles.filterOutputs}
-                        filterState={figuresFilterState.rawFilter}
+                        filterState={figuresRawFilter}
                     />
                     <CrisesTable
                         className={styles.container}
-                        figuresFilter={figuresFilter}
-                        persistenceKey="filter_crisisPage"
+                        filterState={filterState}
                     />
                 </div>
                 <Container
@@ -105,9 +122,9 @@ function Crises(props: CrisesProps) {
                     )}
                 >
                     <AdvancedFiguresFilter
-                        currentFilter={rawFiguresFilter}
-                        initialFilter={initialFiguresFilter}
-                        onFilterChange={setFiguresFilter}
+                        currentFilter={figuresRawFilter}
+                        initialFilter={figuresInitialFilter}
+                        onFilterChange={handleFiguresFilterChange}
                         hiddenFields={figureHiddenColumns}
                     />
                 </Container>
