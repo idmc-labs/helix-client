@@ -4,7 +4,7 @@ import { Button } from '@togglecorp/toggle-ui';
 import { IoClose, IoFilterOutline } from 'react-icons/io5';
 
 import PageHeader from '#components/PageHeader';
-import EventsTable from '#components/tables/EventsTable';
+import EventsTable, { EventsListFilterFields } from '#components/tables/EventsTable';
 import useSidebarLayout from '#hooks/useSidebarLayout';
 import { hasNoData } from '#utils/common';
 import Container from '#components/Container';
@@ -16,6 +16,12 @@ import { ExtractionEntryListFiltersQueryVariables } from '#generated/types';
 import { PurgeNull } from '#types';
 
 import styles from './styles.module.css';
+
+type FiguresFilterFields = PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>;
+
+// NOTE: Stable empty reference for the figures slice before it is ever set, so
+// the sidepane form's sync effect does not thrash.
+const emptyFiguresFilter: FiguresFilterFields = {};
 
 interface EventsProps {
     className?: string;
@@ -35,21 +41,33 @@ function Events(props: EventsProps) {
         setShowSidebarFalse,
     } = useSidebarLayout();
 
-    const figuresFilterState = useFilterState<PurgeNull<NonNullable<ExtractionEntryListFiltersQueryVariables['filters']>>>({
+    const filterState = useFilterState<EventsListFilterFields>({
         filter: {},
         ordering: {
             name: 'created_at',
             direction: 'dsc',
         },
-        persistenceKey: 'filter_eventPageFigure',
+        persistenceKey: 'filter_eventPage',
     });
 
     const {
-        filter: figuresFilter,
-        rawFilter: rawFiguresFilter,
-        initialFilter: initialFiguresFilter,
-        setFilter: setFiguresFilter,
-    } = figuresFilterState;
+        rawFilter,
+        initialFilter,
+        setFilter,
+    } = filterState;
+
+    const figuresRawFilter = rawFilter.filterFigures ?? emptyFiguresFilter;
+    const figuresInitialFilter = initialFilter.filterFigures ?? emptyFiguresFilter;
+
+    const handleFiguresFilterChange = useCallback(
+        (value: FiguresFilterFields) => {
+            setFilter((old) => ({
+                ...old,
+                filterFigures: value,
+            }));
+        },
+        [setFilter],
+    );
 
     const floatingButtonVisibility = useCallback(
         (scroll: number) => scroll >= 80 && !showSidebar,
@@ -57,7 +75,7 @@ function Events(props: EventsProps) {
     );
 
     const appliedFiltersCount = mapToList(
-        figuresFilter,
+        figuresRawFilter,
         (item) => !hasNoData(item),
     ).filter(Boolean).length;
 
@@ -83,12 +101,11 @@ function Events(props: EventsProps) {
                 <div className={styles.mainContent}>
                     <FiguresFilterOutput
                         className={styles.filterOutputs}
-                        filterState={figuresFilterState.rawFilter}
+                        filterState={figuresRawFilter}
                     />
                     <EventsTable
                         className={styles.container}
-                        figuresFilter={figuresFilter}
-                        persistenceKey="filter_eventPage"
+                        filterState={filterState}
                     />
                 </div>
                 <Container
@@ -107,9 +124,9 @@ function Events(props: EventsProps) {
                     )}
                 >
                     <AdvancedFiguresFilter
-                        currentFilter={rawFiguresFilter}
-                        initialFilter={initialFiguresFilter}
-                        onFilterChange={setFiguresFilter}
+                        currentFilter={figuresRawFilter}
+                        initialFilter={figuresInitialFilter}
+                        onFilterChange={handleFiguresFilterChange}
                         hiddenFields={figureHiddenColumns}
                     />
                 </Container>

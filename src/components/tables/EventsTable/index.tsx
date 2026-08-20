@@ -1,27 +1,30 @@
-import React, { useMemo, useContext, useEffect } from 'react';
+import React, {
+    useCallback,
+    useMemo,
+    useContext,
+    useEffect,
+} from 'react';
 import { SortContext } from '@togglecorp/toggle-ui';
 import { isDefined } from '@togglecorp/fujs';
-import { PurgeNull } from '@togglecorp/toggle-form';
+import { PartialForm } from '@togglecorp/toggle-form';
 
 import EventsFilter from '#components/rawTables/useEventTable/EventsFilter';
 import useEventTable from '#components/rawTables/useEventTable';
 import Container from '#components/Container';
 import {
     EventListQueryVariables,
-    FigureExtractionFilterDataInputType,
+    ExtractionEntryListFiltersQueryVariables,
     Qa_Rule_Type as QaRuleType,
     User_Role as UserRole,
 } from '#generated/types';
-import useFilterState from '#hooks/useFilterState';
+import useFilterState, { FilterStateResponse } from '#hooks/useFilterState';
 import { PersistenceKeyType } from '#utils/filterStorage';
 import DomainContext from '#components/DomainContext';
-import { User } from '#types';
+import { User, PurgeNull } from '#types';
 import { expandObject } from '#utils/common';
 import useOptions from '#hooks/useOptions';
 
 import styles from './styles.module.css';
-
-// type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];
 
 const regionalCoordinator: UserRole = 'REGIONAL_COORDINATOR';
 const monitoringExpert: UserRole = 'MONITORING_EXPERT';
@@ -34,6 +37,17 @@ function isUserRegionalCoordinator(userInfo: User | undefined): userInfo is User
     return userInfo?.portfolioRole === regionalCoordinator;
 }
 
+type EventsFilterFields = NonNullable<PurgeNull<EventListQueryVariables['filters']>>;
+type FiguresFilterFields = NonNullable<PurgeNull<ExtractionEntryListFiltersQueryVariables['filters']>>;
+
+// NOTE: The listing page drives a single filter state where the main (event)
+// filter and the sidepane (figures) filter live together. The figures part is
+// nested under `filterFigures` and typed as the entry filter so the sidepane's
+// entry-level fields survive.
+export type EventsListFilterFields = Omit<EventsFilterFields, 'filterFigures'> & {
+    filterFigures?: FiguresFilterFields;
+};
+
 interface EventsProps {
     className?: string;
     title?: string;
@@ -41,7 +55,7 @@ interface EventsProps {
     reviewStatus?: string[] | null
     assignee?: string | null;
     qaMode?: 'MULTIPLE_RF' | 'NO_RF' | 'IGNORE_QA' | undefined;
-    figuresFilter?: FigureExtractionFilterDataInputType;
+    filterState?: FilterStateResponse<EventsListFilterFields>;
     persistenceKey?: PersistenceKeyType;
 }
 
@@ -52,7 +66,7 @@ function EventsTable(props: EventsProps) {
         title,
         assignee,
         reviewStatus,
-        figuresFilter,
+        filterState: filterStateFromProps,
         persistenceKey,
     } = props;
 
@@ -117,6 +131,19 @@ function EventsTable(props: EventsProps) {
         ? qaMode === 'IGNORE_QA'
         : undefined;
 
+    const selfFilterState = useFilterState<EventsListFilterFields>({
+        filter: {
+            createdByIds,
+            countries: regionalCoordinatorCountryIds,
+        },
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
+        // NOTE: When controlled by the page, the page owns persistence.
+        persistenceKey: filterStateFromProps ? undefined : persistenceKey,
+    });
+
     const {
         page,
         rawPage,
@@ -133,17 +160,36 @@ function EventsTable(props: EventsProps) {
         pageSize,
         rawPageSize,
         setPageSize,
-    } = useFilterState<PurgeNull<NonNullable<EventListQueryVariables['filters']>>>({
-        filter: {
-            createdByIds,
-            countries: regionalCoordinatorCountryIds,
+    } = filterStateFromProps ?? selfFilterState;
+
+    // NOTE: The main filter only edits the event part; project out the figures
+    // part and preserve it on write so the sidepane's filter is not clobbered.
+    const mainRawFilter = useMemo(
+        () => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { filterFigures, ...rest } = rawFilter;
+            return rest;
         },
-        ordering: {
-            name: 'created_at',
-            direction: 'dsc',
+        [rawFilter],
+    );
+    const mainInitialFilter = useMemo(
+        () => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { filterFigures, ...rest } = initialFilter;
+            return rest;
         },
-        persistenceKey,
-    });
+        [initialFilter],
+    );
+    const handleMainFilterChange = useCallback(
+        (value: PartialForm<EventsFilterFields>) => {
+            setFilter((old) => ({
+                ...old,
+                ...value,
+                filterFigures: old.filterFigures,
+            }));
+        },
+        [setFilter],
+    );
 
     const eventsVariables = useMemo(
         () => ({
@@ -153,9 +199,8 @@ function EventsTable(props: EventsProps) {
             filters: expandObject<NonNullable<EventListQueryVariables['filters']>>(
                 filter,
                 {
-                    filterFigures: figuresFilter,
                     aggregateFigures: {
-                        filterFigures: figuresFilter,
+                        filterFigures: filter.filterFigures,
                     },
                     qaRule,
                     ignoreQa,
@@ -173,7 +218,6 @@ function EventsTable(props: EventsProps) {
             qaRule,
             reviewStatus,
             ignoreQa,
-            figuresFilter,
         ],
     );
 
@@ -191,14 +235,6 @@ function EventsTable(props: EventsProps) {
         onPageChange: setPage,
         onPageSizeChange: setPageSize,
     });
-
-    // NOTE: reset page to 1 when figures filter changes
-    useEffect(
-        () => {
-            setPage(1);
-        },
-        [setPage, figuresFilter],
-    );
 
     const hiddenFields = [
         reviewStatus ? 'reviewStatus' as const : undefined,
@@ -219,9 +255,9 @@ function EventsTable(props: EventsProps) {
             footerContent={eventsPager}
             description={(
                 <EventsFilter
-                    currentFilter={rawFilter}
-                    initialFilter={initialFilter}
-                    onFilterChange={setFilter}
+                    currentFilter={mainRawFilter}
+                    initialFilter={mainInitialFilter}
+                    onFilterChange={handleMainFilterChange}
                     hiddenFields={hiddenFields}
                 />
             )}
