@@ -15,6 +15,7 @@ import {
     SourcePreviewPollQuery,
 } from '#generated/types';
 import route from '#config/routes';
+import { prepareUrlParams } from '#utils/common';
 
 import EntryForm from '#components/forms/EntryForm';
 import { Attachment, SourcePreview } from '#components/forms/EntryForm/types';
@@ -83,6 +84,10 @@ function Entry(props: EntryProps) {
             <ButtonLikeLink
                 route={route.entryView}
                 attrs={{ entryId }}
+                search={prepareUrlParams({
+                    id: figureId,
+                    field: commentFieldName,
+                })}
             >
                 Go to view
             </ButtonLikeLink>
@@ -93,6 +98,10 @@ function Entry(props: EntryProps) {
             <ButtonLikeLink
                 route={route.entryEdit}
                 attrs={{ entryId }}
+                search={prepareUrlParams({
+                    id: figureId,
+                    field: commentFieldName,
+                })}
             >
                 Go to edit
             </ButtonLikeLink>
