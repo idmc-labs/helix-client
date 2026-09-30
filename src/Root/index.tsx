@@ -22,7 +22,7 @@ const history = createBrowserHistory();
 const mapboxToken = import.meta.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
 const sentryDsn = import.meta.env.REACT_APP_SENTRY_DSN;
-const appCommitHash = import.meta.env.REACT_APP_COMMITHASH;
+const appCommitHash = import.meta.env.REACT_APP_COMMIT_HASH;
 // const runtimeEnv = import.meta.env.NODE_ENV;
 const env = import.meta.env.REACT_APP_ENV;
 
