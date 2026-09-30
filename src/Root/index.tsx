@@ -25,6 +25,7 @@ const sentryDsn = import.meta.env.REACT_APP_SENTRY_DSN;
 const appCommitHash = import.meta.env.REACT_APP_COMMIT_HASH;
 // const runtimeEnv = import.meta.env.NODE_ENV;
 const env = import.meta.env.REACT_APP_ENV;
+const graphqlEndpoint = import.meta.env.REACT_APP_GRAPHQL_ENDPOINT;
 
 // Mapbox fetches map tiles and font glyphs in parallel batches, which Sentry
 // reports as "N+1 API Call" performance issues.
@@ -55,9 +56,10 @@ if (sentryDsn) {
                 colorScheme: 'system',
             }),
         ],
-        tracesSampleRate: 1.0,
-        // FIXME: set this to the domains we have
-        tracePropagationTargets: ['localhost', /^\//],
+        // Matches SENTRY_SAMPLE_RATE on helix-server, which follows the
+        // sampling decision propagated from the client
+        tracesSampleRate: 0.2,
+        tracePropagationTargets: ['localhost', /^\//, graphqlEndpoint],
         replaysSessionSampleRate: 1.0,
         profilesSampleRate: 1.0,
     });
