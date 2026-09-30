@@ -25,6 +25,14 @@ const sentryDsn = import.meta.env.REACT_APP_SENTRY_DSN;
 const appCommitHash = import.meta.env.REACT_APP_COMMITHASH;
 // const runtimeEnv = import.meta.env.NODE_ENV;
 const env = import.meta.env.REACT_APP_ENV;
+
+// Mapbox fetches map tiles and font glyphs in parallel batches, which Sentry
+// reports as "N+1 API Call" performance issues.
+const mapboxUrlRegex = /^https:\/\/([a-z0-9-]+\.)*mapbox\.com\//;
+function shouldCreateSpanForRequest(url: string) {
+    return !mapboxUrlRegex.test(url);
+}
+
 if (sentryDsn) {
     init({
         dsn: sentryDsn,
@@ -34,11 +42,14 @@ if (sentryDsn) {
         // sendDefaultPii: true,
         normalizeDepth: 5,
         integrations: [
-            reactRouterV5BrowserTracingIntegration({ history }),
+            reactRouterV5BrowserTracingIntegration({
+                history,
+                shouldCreateSpanForRequest,
+            }),
             // TODO: We should also set document response header to include
             // Document-Policy: js-profiling
             browserProfilingIntegration(),
-            browserTracingIntegration(),
+            browserTracingIntegration({ shouldCreateSpanForRequest }),
             replayIntegration(),
             feedbackIntegration({
                 colorScheme: 'system',
