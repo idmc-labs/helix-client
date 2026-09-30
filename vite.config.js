@@ -11,7 +11,7 @@ import svgr from 'vite-plugin-svgr';
 import envConfig from './env';
 
 /* Get commit hash */
-const commitHash = execSync('git rev-parse --short HEAD').toString();
+const commitHash = execSync('git rev-parse --short HEAD').toString().trim();
 
 export default defineConfig((config) => {
     const { mode } = config;
