@@ -24,6 +24,7 @@ export default defineConfig({
         REACT_APP_HCATPCHA_SITEKEY: Schema.string(),
         REACT_APP_MMP_ENDPOINT: Schema.string.optional({ format: 'url', protocol: true, tld: false }),
         REACT_APP_SENTRY_DSN: Schema.string.optional(),
+        REACT_APP_SENTRY_TRACES_SAMPLE_RATE: Schema.string.optional(),
         REACT_APP_MAPBOX_ACCESS_TOKEN: Schema.string(),
         REACT_APP_GOOGLE_ANALYTICS_ID: Schema.string.optional(),
     },

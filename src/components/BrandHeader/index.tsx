@@ -4,10 +4,9 @@ import { _cs } from '@togglecorp/fujs';
 import styles from './styles.module.css';
 
 const appVersion = import.meta.env.REACT_APP_VERSION;
-const appCommitHash = import.meta.env.REACT_APP_COMMITHASH;
-const appBranch = import.meta.env.REACT_APP_BRANCH;
+const appCommitHash = import.meta.env.REACT_APP_COMMIT_HASH;
 
-const tooltipInfo = `Version: ${appVersion}\nCommit: ${appCommitHash}\nBranch: ${appBranch}`;
+const tooltipInfo = `Version: ${appVersion}\nCommit: ${appCommitHash}`;
 
 interface BrandHeaderProps {
     title?: string;

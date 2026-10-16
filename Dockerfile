@@ -42,6 +42,7 @@ ENV REACT_APP_GRAPHIQL_ENDPOINT=https://web-app-serve-placeholder.com/graphiql
 ENV REACT_APP_SWAGGER_ENDPOINT=https://web-app-serve-placeholder.com/external-api/
 ENV REACT_APP_MAPBOX_ACCESS_TOKEN=web-app-serve-placeholder
 ENV REACT_APP_SENTRY_DSN=web-app-serve-placeholder
+ENV REACT_APP_SENTRY_TRACES_SAMPLE_RATE=web-app-serve-placeholder
 ENV REACT_APP_HCATPCHA_SITEKEY=web-app-serve-placeholder
 ENV REACT_APP_GOOGLE_ANALYTICS_ID=web-app-serve-placeholder
 

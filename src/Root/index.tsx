@@ -11,6 +11,7 @@ import {
     feedbackIntegration,
 } from '@sentry/react';
 import mapboxgl from 'mapbox-gl';
+import { isTruthyString } from '@togglecorp/fujs';
 
 import Error from '#views/Error';
 import App from './App';
@@ -22,9 +23,26 @@ const history = createBrowserHistory();
 const mapboxToken = import.meta.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
 const sentryDsn = import.meta.env.REACT_APP_SENTRY_DSN;
-const appCommitHash = import.meta.env.REACT_APP_COMMITHASH;
+const appCommitHash = import.meta.env.REACT_APP_COMMIT_HASH;
 // const runtimeEnv = import.meta.env.NODE_ENV;
 const env = import.meta.env.REACT_APP_ENV;
+const graphqlEndpoint = import.meta.env.REACT_APP_GRAPHQL_ENDPOINT;
+// helix-server follows the sampling decision propagated from the client, so
+// this matches its SENTRY_SAMPLE_RATE (default 0.2).
+// The check runs through a function call because web-app-serve builds
+// contain a placeholder string that is replaced after the build.
+const sentryTracesSampleRateEnv = import.meta.env.REACT_APP_SENTRY_TRACES_SAMPLE_RATE;
+const sentryTracesSampleRate = isTruthyString(sentryTracesSampleRateEnv)
+    ? Number(sentryTracesSampleRateEnv)
+    : 0.2;
+
+// Mapbox fetches map tiles and font glyphs in parallel batches, which Sentry
+// reports as "N+1 API Call" performance issues.
+const mapboxUrlRegex = /^https:\/\/([a-z0-9-]+\.)*mapbox\.com\//;
+function shouldCreateSpanForRequest(url: string) {
+    return !mapboxUrlRegex.test(url);
+}
+
 if (sentryDsn) {
     init({
         dsn: sentryDsn,
@@ -34,19 +52,21 @@ if (sentryDsn) {
         // sendDefaultPii: true,
         normalizeDepth: 5,
         integrations: [
-            reactRouterV5BrowserTracingIntegration({ history }),
+            reactRouterV5BrowserTracingIntegration({
+                history,
+                shouldCreateSpanForRequest,
+            }),
             // TODO: We should also set document response header to include
             // Document-Policy: js-profiling
             browserProfilingIntegration(),
-            browserTracingIntegration(),
+            browserTracingIntegration({ shouldCreateSpanForRequest }),
             replayIntegration(),
             feedbackIntegration({
                 colorScheme: 'system',
             }),
         ],
-        tracesSampleRate: 1.0,
-        // FIXME: set this to the domains we have
-        tracePropagationTargets: ['localhost', /^\//],
+        tracesSampleRate: sentryTracesSampleRate,
+        tracePropagationTargets: ['localhost', /^\//, graphqlEndpoint],
         replaysSessionSampleRate: 1.0,
         profilesSampleRate: 1.0,
     });
