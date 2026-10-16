@@ -266,6 +266,15 @@ export const FIGURES_FOR_ENTRY = gql`
     }
 `;
 
+export const FIGURE = gql`
+    ${FIGURE_FRAGMENT}
+    query Figure($id: ID!) {
+        figure(id: $id) {
+            ...FigureResponse
+        }
+    }
+`;
+
 export const CREATE_ENTRY = gql`
     ${ENTRY_FRAGMENT}
     mutation CreateEntry($entry: EntryCreateInputType!) {

@@ -180,7 +180,7 @@ type Figure = ObjectSchema<PartialForm<FigureFormProps>>;
 type FigureField = ReturnType<Figure['fields']>;
 const figure: Figure = {
     fields: (value): FigureField => {
-        if (!value?.stale) {
+        if (!value?.stale || value?.deleted) {
             // NOTE: we do not validate nor update any figure that is not stale
             // or deleted
             return {
