@@ -7,15 +7,29 @@ import {
     useMutation,
 } from '@apollo/client';
 import {
+    Button,
     ConfirmButton,
+    Modal,
+    NumberInput,
     Pager,
     SortContext,
     Table,
 } from '@togglecorp/toggle-ui';
+import {
+    ObjectSchema,
+    PartialForm,
+    useForm,
+    createSubmitHandler,
+    removeNull,
+    requiredCondition,
+    integerCondition,
+} from '@togglecorp/toggle-form';
 
 import Container from '#components/Container';
+import DomainContext from '#components/DomainContext';
 import Loading from '#components/Loading';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
+import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import PageHeader from '#components/PageHeader';
 import TableMessage from '#components/TableMessage';
@@ -25,9 +39,13 @@ import {
     createNumberColumn,
 } from '#components/tableHelpers';
 import useFilterState from '#hooks/useFilterState';
+import useModalState from '#hooks/useModalState';
 import { PurgeNull } from '#types';
 import { hasNoData } from '#utils/common';
+import { transformToFormError } from '#utils/errorTransform';
 import {
+    CarryOverHouseholdSizeMutation,
+    CarryOverHouseholdSizeMutationVariables,
     ExportHouseholdSizeMutation,
     ExportHouseholdSizeMutationVariables,
     HouseholdSizeListQuery,
@@ -86,7 +104,31 @@ const EXPORT_HOUSEHOLD_SIZE = gql`
     }
 `;
 
+const CARRY_OVER_HOUSEHOLD_SIZE = gql`
+    mutation CarryOverHouseholdSize($targetYear: Int!) {
+        carryOverHouseholdSize(targetYear: $targetYear) {
+            errors
+            ok
+            result {
+                id
+            }
+        }
+    }
+`;
+
 type HouseholdSizeFields = NonNullable<NonNullable<HouseholdSizeListQuery['householdSizeList']>['results']>[number];
+
+type CarryOverFormType = PurgeNull<PartialForm<CarryOverHouseholdSizeMutationVariables>>;
+type CarryOverFormSchema = ObjectSchema<CarryOverFormType>;
+type CarryOverFormSchemaFields = ReturnType<CarryOverFormSchema['fields']>;
+
+const carryOverSchema: CarryOverFormSchema = {
+    fields: (): CarryOverFormSchemaFields => ({
+        targetYear: [requiredCondition, integerCondition],
+    }),
+};
+
+const carryOverDefaultValue: PartialForm<CarryOverFormType> = {};
 
 const keySelector = (item: HouseholdSizeFields) => item.id;
 
@@ -146,6 +188,7 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
         data: householdSizeListData = previousData,
         loading: householdSizeDataLoading,
         error: householdSizeFetchError,
+        refetch: refetchHouseholdSizeList,
     } = useQuery<HouseholdSizeListQuery, HouseholdSizeListQueryVariables>(HOUSEHOLD_SIZE_LIST, {
         variables: householdSizeListVariables,
     });
@@ -233,6 +276,74 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
         },
     );
 
+    const { user } = useContext(DomainContext);
+    const householdSizePermissions = user?.permissions?.householdsize;
+
+    const [
+        shouldShowCarryOverModal, ,
+        showCarryOverModal,
+        hideCarryOverModal,
+    ] = useModalState();
+
+    const {
+        pristine,
+        value: carryOverValue,
+        error: carryOverError,
+        onValueChange,
+        validate,
+        onErrorSet,
+        onValueSet,
+    } = useForm(carryOverDefaultValue, carryOverSchema);
+
+    const handleCarryOverModalClose = useCallback(
+        () => {
+            onValueSet(carryOverDefaultValue);
+            hideCarryOverModal();
+        },
+        [onValueSet, hideCarryOverModal],
+    );
+
+    const [
+        carryOverHouseholdSize,
+        { loading: carryOverPending },
+    ] = useMutation<CarryOverHouseholdSizeMutation, CarryOverHouseholdSizeMutationVariables>(
+        CARRY_OVER_HOUSEHOLD_SIZE,
+        {
+            onCompleted: (response) => {
+                const { carryOverHouseholdSize: carryOverResponse } = response;
+                if (!carryOverResponse) {
+                    return;
+                }
+                const { errors, ok, result } = carryOverResponse;
+                if (errors) {
+                    onErrorSet(transformToFormError(removeNull(errors)));
+                }
+                if (ok) {
+                    notify({
+                        children: `${result?.length ?? 0} AHHS values carried over successfully!`,
+                        variant: 'success',
+                    });
+                    refetchHouseholdSizeList();
+                    handleCarryOverModalClose();
+                }
+            },
+            onError: (error) => {
+                onErrorSet({
+                    $internal: error.message,
+                });
+            },
+        },
+    );
+
+    const handleCarryOverSubmit = useCallback(
+        (finalValue: CarryOverFormType) => {
+            carryOverHouseholdSize({
+                variables: finalValue as CarryOverHouseholdSizeMutationVariables,
+            });
+        },
+        [carryOverHouseholdSize],
+    );
+
     const handleExportTableData = useCallback(
         () => {
             exportHouseholdSizes({
@@ -252,6 +363,15 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
             <div className={styles.mainContent}>
                 <PageHeader
                     title="AHHS"
+                    actions={householdSizePermissions?.add && (
+                        <Button
+                            name={undefined}
+                            onClick={showCarryOverModal}
+                            variant="primary"
+                        >
+                            Carry Over
+                        </Button>
+                    )}
                 />
                 <Container
                     compactContent
@@ -310,6 +430,54 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
                     )}
                 </Container>
             </div>
+            {shouldShowCarryOverModal && (
+                <Modal
+                    onClose={handleCarryOverModalClose}
+                    heading="Carry Over AHHS"
+                    size="small"
+                    freeHeight
+                >
+                    <form
+                        className={styles.carryOverForm}
+                        onSubmit={createSubmitHandler(
+                            validate,
+                            onErrorSet,
+                            handleCarryOverSubmit,
+                        )}
+                    >
+                        {carryOverPending && <Loading absolute />}
+                        <NonFieldError>
+                            {carryOverError?.$internal}
+                        </NonFieldError>
+                        <NumberInput
+                            label="Target Year *"
+                            name="targetYear"
+                            value={carryOverValue.targetYear}
+                            onChange={onValueChange}
+                            error={carryOverError?.fields?.targetYear}
+                            disabled={carryOverPending}
+                            autoFocus
+                        />
+                        <div className={styles.formButtons}>
+                            <Button
+                                name={undefined}
+                                onClick={handleCarryOverModalClose}
+                                disabled={carryOverPending}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                name={undefined}
+                                disabled={carryOverPending || pristine}
+                                variant="primary"
+                            >
+                                Submit
+                            </Button>
+                        </div>
+                    </form>
+                </Modal>
+            )}
         </div>
     );
 }
