@@ -19,16 +19,3 @@
         gap: var(--spacing-large);
     }
 }
-
-.carry-over-form {
-    display: flex;
-    position: relative;
-    flex-direction: column;
-    gap: var(--spacing-medium);
-
-    .form-buttons {
-        display: flex;
-        justify-content: flex-end;
-        gap: var(--spacing-medium);
-    }
-}
