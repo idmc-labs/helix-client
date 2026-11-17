@@ -15,6 +15,7 @@ export interface Props {
     route: RouteData;
     hash?: string;
     search?: string;
+    target?: string;
     attrs?: Attrs;
     fromHelixOne?: boolean;
     hulkUuid?: string | null;
@@ -31,6 +32,7 @@ function StatusLink(props: Props) {
         hulkUuid,
         hash,
         search,
+        target,
     } = props;
 
     return (
@@ -48,6 +50,7 @@ function StatusLink(props: Props) {
                 attrs={attrs}
                 hash={hash}
                 search={search}
+                target={target}
             >
                 {title}
             </SmartLink>

@@ -73,6 +73,7 @@ export function createLinkColumn<D, K>(
         hulkUuid?: string | null,
         hash?: string,
         search?: string,
+        target?: string,
     } | undefined | null,
     route: RouteData,
     options?: ColumnOptions,
@@ -105,6 +106,7 @@ export function createLinkColumn<D, K>(
                 hulkUuid: value?.hulkUuid,
                 hash: value?.hash,
                 search: value?.search,
+                target: value?.target,
             };
         },
         valueSelector: (it) => accessor(it)?.title,
@@ -203,6 +205,7 @@ export function createStatusColumn<D, K>(
         hulkUuid?: string | null,
         hash?: string;
         search?: string;
+        target?: string;
     } | undefined | null,
     route: RouteData,
     options?: ColumnOptions,
@@ -233,6 +236,7 @@ export function createStatusColumn<D, K>(
                 hulkUuid: value?.hulkUuid,
                 hash: value?.hash,
                 search: value?.search,
+                target: value?.target,
             };
         },
     };

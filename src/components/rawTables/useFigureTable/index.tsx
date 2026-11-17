@@ -130,6 +130,7 @@ export const FIGURE_LIST = gql`
                 role
                 roleDisplay
                 totalFigures
+                householdSize
                 term
                 termDisplay
                 flowEndDate
@@ -177,7 +178,9 @@ const keySelector = (item: FigureFields) => item.id;
 interface Props {
     className?: string;
     filters?: ExtractionEntryListFiltersQueryVariables;
-    hiddenColumns?: ('event' | 'crisis' | 'entry' | 'country' | 'createdBy')[];
+    hiddenColumns?: ('event' | 'crisis' | 'entry' | 'country' | 'createdBy' | 'select' | 'action')[];
+    extraColumns?: ('householdSize')[];
+    openLinksInNewTab?: boolean;
     page: number;
     pageSize: number;
     onPageChange: (value: number) => void;
@@ -190,6 +193,8 @@ function useFigureTable(props: Props) {
         className,
         filters,
         hiddenColumns = [],
+        extraColumns,
+        openLinksInNewTab,
         page,
         pageSize,
         onPageChange,
@@ -371,6 +376,8 @@ function useFigureTable(props: Props) {
 
     const queryBasedFigureList = figuresData?.figureList?.results;
 
+    const linkTarget = openLinksInNewTab ? '_blank' : undefined;
+
     const columns = useMemo(
         () => {
             const selectColumn: TableColumn<
@@ -421,7 +428,7 @@ function useFigureTable(props: Props) {
             };
 
             return [
-                entryPermissions?.change
+                entryPermissions?.change && !hiddenColumns.includes('select')
                     ? selectColumn
                     : undefined,
                 createDateColumn<FigureFields, string>(
@@ -450,6 +457,7 @@ function useFigureTable(props: Props) {
                             hulkUuid: item.entry.hulkUuid,
                             hash: '/figures-and-analysis',
                             search: `id=${item.id}`,
+                            target: linkTarget,
                             status: item.reviewStatus,
                         }),
                         route.entryView,
@@ -502,6 +510,7 @@ function useFigureTable(props: Props) {
                         hulkUuid: item.hulkUuid,
                         hash: '/figures-and-analysis',
                         search: `id=${item.id}`,
+                        target: linkTarget,
                     }),
                     route.entryView,
                     { sortable: true },
@@ -513,6 +522,14 @@ function useFigureTable(props: Props) {
                     (item) => item.totalFigures,
                     { sortable: true },
                 ),
+                extraColumns?.includes('householdSize')
+                    ? createNumberColumn<FigureFields, string>(
+                        'household_size',
+                        'Household Size',
+                        (item) => item.householdSize,
+                        { sortable: true },
+                    )
+                    : undefined,
                 createDateColumn<FigureFields, string>(
                     'flow_start_date',
                     'Start Date',
@@ -555,6 +572,7 @@ function useFigureTable(props: Props) {
                         (item) => ({
                             title: item.event?.name,
                             attrs: { eventId: item.event?.id },
+                            target: linkTarget,
                             fromHelixOne: !!item.event?.oldId,
                             hulkUuid: item.event?.hulkUuid,
                         }),
@@ -569,32 +587,37 @@ function useFigureTable(props: Props) {
                         (item) => ({
                             title: item.event?.crisis?.name,
                             attrs: { crisisId: item.event?.crisis?.id },
+                            target: linkTarget,
                         }),
                         route.crisis,
                         { sortable: true },
                     ),
-                createCustomActionColumn<FigureFields, string, ActionProps>(
-                    ActionCell,
-                    (_, datum) => ({
-                        id: datum.id,
-                        deleteTitle: 'figure',
-                        onDelete: entryPermissions?.delete ? handleFigureDelete : undefined,
-                        editLinkRoute: route.entryEdit,
-                        editLinkAttrs: { entryId: datum.entry.id },
-                        editHash: '/figures-and-analysis',
-                        editSearch: `id=${datum.id}`,
-                        disabled: disableOtherActions,
-                    }),
-                    'action',
-                    '',
-                    undefined,
-                    2,
-                ),
+                hiddenColumns.includes('action')
+                    ? undefined
+                    : createCustomActionColumn<FigureFields, string, ActionProps>(
+                        ActionCell,
+                        (_, datum) => ({
+                            id: datum.id,
+                            deleteTitle: 'figure',
+                            onDelete: entryPermissions?.delete ? handleFigureDelete : undefined,
+                            editLinkRoute: route.entryEdit,
+                            editLinkAttrs: { entryId: datum.entry.id },
+                            editHash: '/figures-and-analysis',
+                            editSearch: `id=${datum.id}`,
+                            disabled: disableOtherActions,
+                        }),
+                        'action',
+                        '',
+                        undefined,
+                        2,
+                    ),
             ].filter(isDefined);
         },
         [
             handleFigureDelete,
             hiddenColumns,
+            extraColumns,
+            linkTarget,
             entryPermissions?.delete,
             handleHeaderCheckboxClick,
             handleCheckboxClick,
@@ -608,6 +631,9 @@ function useFigureTable(props: Props) {
     );
 
     return {
+        totalCount: totalFiguresCount,
+        loading: loadingFigures,
+        errored: !!figuresError,
         exportButton: !disableOtherActions ? (
             <ConfirmButton
                 confirmationHeader="Confirm Export"

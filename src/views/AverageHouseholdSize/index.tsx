@@ -7,13 +7,16 @@ import {
     useMutation,
 } from '@apollo/client';
 import {
+    Button,
     ConfirmButton,
+    Modal,
     Pager,
     SortContext,
     Table,
 } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
+import DomainContext from '#components/DomainContext';
 import Loading from '#components/Loading';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import NotificationContext from '#components/NotificationContext';
@@ -23,8 +26,10 @@ import {
     createTextColumn,
     createDateColumn,
     createNumberColumn,
+    createActionColumn,
 } from '#components/tableHelpers';
 import useFilterState from '#hooks/useFilterState';
+import useModalState from '#hooks/useModalState';
 import { PurgeNull } from '#types';
 import { hasNoData } from '#utils/common';
 import {
@@ -34,6 +39,8 @@ import {
     HouseholdSizeListQueryVariables,
 } from '#generated/types';
 import HouseholdSizeRecordsFilter from './HouseholdSizeRecordsFilter';
+import HouseholdSizeForm from './HouseholdSizeForm';
+import CarryOverForm from './CarryOverForm';
 import styles from './styles.module.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
@@ -60,6 +67,7 @@ const HOUSEHOLD_SIZE_LIST = gql`
                 year
                 source
                 sourceLink
+                dataSourceCategory
                 notes
                 gapFillingMethod
                 gapFillingMethodDisplay
@@ -146,12 +154,28 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
         data: householdSizeListData = previousData,
         loading: householdSizeDataLoading,
         error: householdSizeFetchError,
+        refetch: refetchHouseholdSizeList,
     } = useQuery<HouseholdSizeListQuery, HouseholdSizeListQueryVariables>(HOUSEHOLD_SIZE_LIST, {
         variables: householdSizeListVariables,
     });
 
     const totalHouseholdSizeCount = householdSizeListData?.householdSizeList?.totalCount ?? 0;
     const householdSizeRecords = householdSizeListData?.householdSizeList?.results;
+
+    const { user } = useContext(DomainContext);
+    const householdSizePermissions = user?.permissions?.householdsize;
+
+    const [
+        shouldShowEditModal,
+        editableHouseholdSizeId,
+        showEditModal,
+        hideEditModal,
+    ] = useModalState();
+
+    const editableHouseholdSize = useMemo(
+        () => householdSizeRecords?.find((item) => item.id === editableHouseholdSizeId),
+        [householdSizeRecords, editableHouseholdSizeId],
+    );
 
     const columns = useMemo(
         () => ([
@@ -199,8 +223,19 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
                 undefined,
                 'large',
             ),
+            createActionColumn<HouseholdSizeFields, string>(
+                'action',
+                '',
+                (item) => ({
+                    id: item.id,
+                    onEdit: householdSizePermissions?.add ? showEditModal : undefined,
+                    onDelete: undefined,
+                }),
+                undefined,
+                1,
+            ),
         ]),
-        [],
+        [householdSizePermissions, showEditModal],
     );
     const [
         exportHouseholdSizes,
@@ -233,6 +268,28 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
         },
     );
 
+    const [
+        shouldShowCarryOverModal, ,
+        showCarryOverModal,
+        hideCarryOverModal,
+    ] = useModalState();
+
+    const handleCarryOverSave = useCallback(
+        () => {
+            refetchHouseholdSizeList();
+            hideCarryOverModal();
+        },
+        [refetchHouseholdSizeList, hideCarryOverModal],
+    );
+
+    const handleEditSave = useCallback(
+        () => {
+            refetchHouseholdSizeList();
+            hideEditModal();
+        },
+        [refetchHouseholdSizeList, hideEditModal],
+    );
+
     const handleExportTableData = useCallback(
         () => {
             exportHouseholdSizes({
@@ -252,6 +309,15 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
             <div className={styles.mainContent}>
                 <PageHeader
                     title="AHHS"
+                    actions={householdSizePermissions?.add && (
+                        <Button
+                            name={undefined}
+                            onClick={showCarryOverModal}
+                            variant="primary"
+                        >
+                            Carry Over
+                        </Button>
+                    )}
                 />
                 <Container
                     compactContent
@@ -310,6 +376,33 @@ function AverageHouseholdSize(props: AverageHouseholdSizeProps) {
                     )}
                 </Container>
             </div>
+            {shouldShowCarryOverModal && (
+                <Modal
+                    onClose={hideCarryOverModal}
+                    heading="Carry Over AHHS"
+                    size="small"
+                    freeHeight
+                >
+                    <CarryOverForm
+                        onFormCancel={hideCarryOverModal}
+                        onFormSave={handleCarryOverSave}
+                    />
+                </Modal>
+            )}
+            {shouldShowEditModal && editableHouseholdSize && (
+                <Modal
+                    onClose={hideEditModal}
+                    heading="Edit AHHS"
+                    size="small"
+                    freeHeight
+                >
+                    <HouseholdSizeForm
+                        householdSize={editableHouseholdSize}
+                        onFormCancel={hideEditModal}
+                        onFormSave={handleEditSave}
+                    />
+                </Modal>
+            )}
         </div>
     );
 }
