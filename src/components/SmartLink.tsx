@@ -26,6 +26,7 @@ function SmartLink(props: SmartLinkProps) {
         search,
         hash,
         title,
+        target,
         ...otherProps
     } = props;
 
@@ -41,6 +42,8 @@ function SmartLink(props: SmartLinkProps) {
     return (
         <Link
             {...otherProps}
+            target={target}
+            rel={target === '_blank' ? 'noopener noreferrer' : undefined}
             to={{
                 pathname: routeData.to,
                 hash,

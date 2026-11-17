@@ -1,8 +1,10 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import {
     Button,
     DateInput,
+    Modal,
     NumberInput,
+    SortContext,
     TextArea,
     TextInput,
 } from '@togglecorp/toggle-ui';
@@ -25,11 +27,14 @@ import FormActions from '#components/FormActions';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
+import useFigureTable from '#components/rawTables/useFigureTable';
+import useFilterState from '#hooks/useFilterState';
 import { transformToFormError } from '#utils/errorTransform';
 import { urlConditionWithProtocolCheck } from '#utils/common';
 import {
     CreateHouseholdSizeMutation,
     CreateHouseholdSizeMutationVariables,
+    ExtractionFigureListQueryVariables,
     HouseholdSizeListQuery,
 } from '#generated/types';
 
@@ -49,7 +54,7 @@ const CREATE_HOUSEHOLD_SIZE = gql`
 
 type HouseholdSizeRecord = Pick<
     NonNullable<NonNullable<HouseholdSizeListQuery['householdSizeList']>['results']>[number],
-    'country' | 'year' | 'size' | 'dataSourceCategory' | 'source' | 'sourceLink' | 'referenceDate'
+    'id' | 'country' | 'year' | 'size' | 'dataSourceCategory' | 'source' | 'sourceLink' | 'referenceDate'
 >;
 
 type HouseholdSizeFormFields = CreateHouseholdSizeMutationVariables['data'];
@@ -70,6 +75,112 @@ const schema: FormSchema = {
         notes: [],
     }),
 };
+
+const hiddenColumns: ('country' | 'select' | 'action')[] = ['country', 'select', 'action'];
+const extraColumns: ('householdSize')[] = ['householdSize'];
+
+interface AffectedFiguresModalProps {
+    householdSizeId: string;
+    disabled: boolean;
+    onClose: () => void;
+    onAbandon: () => void;
+    onContinue: () => void;
+}
+
+function AffectedFiguresModal(props: AffectedFiguresModalProps) {
+    const {
+        householdSizeId,
+        disabled,
+        onClose,
+        onAbandon,
+        onContinue,
+    } = props;
+
+    const {
+        page,
+        rawPage,
+        setPage,
+        ordering,
+        sortState,
+        pageSize,
+        rawPageSize,
+        setPageSize,
+    } = useFilterState<NonNullable<ExtractionFigureListQueryVariables['filters']>>({
+        filter: {},
+        ordering: {
+            name: 'household_size',
+            direction: 'asc',
+        },
+    });
+
+    const variables = useMemo(
+        (): ExtractionFigureListQueryVariables => ({
+            ordering,
+            page,
+            pageSize,
+            filters: { householdSizeId },
+        }),
+        [ordering, page, pageSize, householdSizeId],
+    );
+
+    const {
+        totalCount,
+        loading,
+        errored,
+        table,
+        pager,
+    } = useFigureTable({
+        filters: variables,
+        hiddenColumns,
+        extraColumns,
+        page: rawPage,
+        pageSize: rawPageSize,
+        onPageChange: setPage,
+        onPageSizeChange: setPageSize,
+        openLinksInNewTab: true,
+    });
+
+    return (
+        <Modal
+            heading={loading ? 'Affected figures' : `${totalCount} figures affected`}
+            onClose={onClose}
+            size="large"
+            freeHeight
+            footer={(
+                <>
+                    <Button
+                        name={undefined}
+                        onClick={onAbandon}
+                        disabled={disabled}
+                    >
+                        Abandon
+                    </Button>
+                    <Button
+                        name={undefined}
+                        variant="primary"
+                        onClick={onContinue}
+                        disabled={disabled || loading || errored}
+                    >
+                        Continue
+                    </Button>
+                </>
+            )}
+        >
+            <div className={styles.form}>
+                {disabled && <Loading absolute />}
+                <p>
+                    Recommended household figures for this country and year.
+                    Each figure keeps its own household size.
+                    Sort on it to see which use the value being changed.
+                </p>
+                <SortContext.Provider value={sortState}>
+                    {table}
+                </SortContext.Provider>
+                {pager}
+            </div>
+        </Modal>
+    );
+}
 
 interface HouseholdSizeFormProps {
     householdSize: HouseholdSizeRecord;
@@ -109,6 +220,8 @@ function HouseholdSizeForm(props: HouseholdSizeFormProps) {
         onPristineSet,
     } = useForm(initialFormValues, schema);
 
+    const [pendingValues, setPendingValues] = useState<PartialForm<FormType>>();
+
     const [
         createHouseholdSize,
         { loading: createLoading },
@@ -118,6 +231,7 @@ function HouseholdSizeForm(props: HouseholdSizeFormProps) {
             onCompleted: (response) => {
                 const { createHouseholdSize: createHouseholdSizeRes } = response;
                 if (!createHouseholdSizeRes) {
+                    setPendingValues(undefined);
                     return;
                 }
                 const { errors, result } = createHouseholdSizeRes;
@@ -125,6 +239,7 @@ function HouseholdSizeForm(props: HouseholdSizeFormProps) {
                     const formError = transformToFormError(removeNull(errors));
                     notifyGQLError(errors);
                     onErrorSet(formError);
+                    setPendingValues(undefined);
                 }
                 if (result) {
                     notify({
@@ -143,19 +258,36 @@ function HouseholdSizeForm(props: HouseholdSizeFormProps) {
                 onErrorSet({
                     $internal: errors.message,
                 });
+                setPendingValues(undefined);
             },
         },
     );
 
     const handleSubmit = useCallback(
         (finalValues: PartialForm<FormType>) => {
+            setPendingValues(finalValues);
+        },
+        [],
+    );
+
+    const handleBack = useCallback(
+        () => {
+            if (!createLoading) {
+                setPendingValues(undefined);
+            }
+        },
+        [createLoading],
+    );
+
+    const handleContinue = useCallback(
+        () => {
             createHouseholdSize({
                 variables: {
-                    data: finalValues,
+                    data: pendingValues,
                 } as CreateHouseholdSizeMutationVariables,
             });
         },
-        [createHouseholdSize],
+        [createHouseholdSize, pendingValues],
     );
 
     const disabled = createLoading;
@@ -165,7 +297,15 @@ function HouseholdSizeForm(props: HouseholdSizeFormProps) {
             className={styles.form}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
-            {createLoading && <Loading absolute />}
+            {pendingValues && (
+                <AffectedFiguresModal
+                    householdSizeId={householdSize.id}
+                    disabled={disabled}
+                    onClose={handleBack}
+                    onAbandon={onFormCancel}
+                    onContinue={handleContinue}
+                />
+            )}
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>

@@ -16,6 +16,7 @@ export interface LinkProps {
     hulkUuid?: string | null;
     hash?: string;
     search?: string;
+    target?: string;
 }
 function LinkCell(props: LinkProps) {
     const {
@@ -27,6 +28,7 @@ function LinkCell(props: LinkProps) {
         hulkUuid,
         hash,
         search,
+        target,
     } = props;
 
     return (
@@ -41,6 +43,7 @@ function LinkCell(props: LinkProps) {
                 attrs={attrs}
                 hash={hash}
                 search={search}
+                target={target}
             >
                 {title}
             </SmartLink>
