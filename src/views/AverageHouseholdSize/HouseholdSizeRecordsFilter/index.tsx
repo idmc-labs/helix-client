@@ -3,8 +3,13 @@ import {
     Button,
     TextInput,
     NumberInput,
+    SelectInput,
 } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
+import {
+    gql,
+    useQuery,
+} from '@apollo/client';
 import {
     ObjectSchema,
     useForm,
@@ -18,9 +23,26 @@ import NonFieldError from '#components/NonFieldError';
 import CountryMultiSelectInput from '#components/selections/CountryMultiSelectInput';
 import {
     HouseholdSizeListQueryVariables,
+    HouseholdSizeOptionsQuery,
 } from '#generated/types';
+import {
+    enumKeySelector,
+    enumLabelSelector,
+    GetEnumOptions,
+} from '#utils/common';
 
 import styles from './styles.module.css';
+
+const GET_HOUSEHOLD_SIZE_OPTIONS = gql`
+    query HouseholdSizeOptions {
+        householdSizeStatusList: __type(name: "HouseholdSizeStatusEnum") {
+            enumValues {
+                name
+                description
+            }
+        }
+    }
+`;
 
 type HouseholdSizeFilterFields = NonNullable<HouseholdSizeListQueryVariables['filters']>;
 type FormType = PurgeNull<PartialForm<HouseholdSizeFilterFields>>;
@@ -33,6 +55,7 @@ const schema: FormSchema = {
         search: [],
         year: [],
         countries: [],
+        status: [],
     }),
 };
 
@@ -72,6 +95,16 @@ function HouseholdSizeRecordsFilter(props: HouseholdSizeFilterProps) {
         },
         [currentFilter, initialFilter, onValueSet],
     );
+
+    const {
+        data: householdSizeOptions,
+    } = useQuery<HouseholdSizeOptionsQuery>(GET_HOUSEHOLD_SIZE_OPTIONS);
+
+    const householdSizeStatusList = householdSizeOptions?.householdSizeStatusList?.enumValues;
+    type HouseholdSizeStatusOptions = GetEnumOptions<
+        typeof householdSizeStatusList,
+        NonNullable<typeof value.status>
+    >;
 
     const onResetFilters = useCallback(
         () => {
@@ -121,6 +154,18 @@ function HouseholdSizeRecordsFilter(props: HouseholdSizeFilterProps) {
                     value={value.year}
                     error={error?.fields?.year}
                     onChange={onValueChange}
+                />
+                <SelectInput
+                    className={styles.input}
+                    name="status"
+                    label="Status"
+                    options={householdSizeStatusList as HouseholdSizeStatusOptions}
+                    value={value.status}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    onChange={onValueChange}
+                    error={error?.fields?.status}
+                    nonClearable
                 />
                 <div className={styles.formButtons}>
                     <Button
