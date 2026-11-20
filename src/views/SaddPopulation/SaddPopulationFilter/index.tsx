@@ -1,0 +1,156 @@
+import React, { useCallback, useEffect } from 'react';
+import {
+    Button,
+    TextInput,
+    NumberInput,
+    SegmentInput,
+} from '@togglecorp/toggle-ui';
+import { _cs } from '@togglecorp/fujs';
+import {
+    ObjectSchema,
+    useForm,
+    createSubmitHandler,
+    PartialForm,
+} from '@togglecorp/toggle-form';
+import { IoSearchOutline } from 'react-icons/io5';
+
+import NonFieldError from '#components/NonFieldError';
+
+import { PopulationStatus } from '../dummyData';
+import styles from './styles.module.css';
+
+export type SaddPopulationFilterFields = {
+    search?: string;
+    year?: number;
+    status?: PopulationStatus;
+};
+
+type FormSchema = ObjectSchema<PartialForm<SaddPopulationFilterFields>>;
+type FormSchemaFields = ReturnType<FormSchema['fields']>;
+
+const schema: FormSchema = {
+    fields: (): FormSchemaFields => ({
+        search: [],
+        year: [],
+        status: [],
+    }),
+};
+
+const statusOptions: { key: PopulationStatus, label: string }[] = [
+    { key: 'ACTIVE', label: 'Active' },
+    { key: 'ARCHIVED', label: 'Archived' },
+    { key: 'ALL', label: 'All' },
+];
+const statusKeySelector = (item: typeof statusOptions[number]) => item.key;
+const statusLabelSelector = (item: typeof statusOptions[number]) => item.label;
+
+interface SaddPopulationFilterProps {
+    className?: string;
+    initialFilter: SaddPopulationFilterFields;
+    currentFilter: SaddPopulationFilterFields;
+    onFilterChange: (value: SaddPopulationFilterFields) => void;
+}
+
+function SaddPopulationFilter(props: SaddPopulationFilterProps) {
+    const {
+        className,
+        initialFilter,
+        currentFilter,
+        onFilterChange,
+    } = props;
+
+    const {
+        pristine,
+        value,
+        error,
+        onValueChange,
+        validate,
+        onErrorSet,
+        onValueSet,
+    } = useForm(currentFilter, schema);
+
+    useEffect(
+        () => {
+            if (initialFilter === currentFilter) {
+                onValueSet(initialFilter);
+            }
+        },
+        [currentFilter, initialFilter, onValueSet],
+    );
+
+    const onResetFilters = useCallback(
+        () => {
+            onValueSet(initialFilter);
+            onFilterChange(initialFilter);
+        },
+        [onValueSet, onFilterChange, initialFilter],
+    );
+
+    const handleSubmit = useCallback((finalValues: SaddPopulationFilterFields) => {
+        onValueSet(finalValues);
+        onFilterChange(finalValues);
+    }, [onValueSet, onFilterChange]);
+
+    const filterChanged = initialFilter !== value;
+
+    return (
+        <form
+            className={_cs(className, styles.queryForm)}
+            onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
+        >
+            <NonFieldError>
+                {error?.$internal}
+            </NonFieldError>
+            <div className={styles.contentContainer}>
+                <TextInput
+                    className={styles.input}
+                    name="search"
+                    label="Search"
+                    value={value.search}
+                    error={error?.fields?.search}
+                    onChange={onValueChange}
+                    icons={<IoSearchOutline />}
+                    placeholder="Search by country or ISO3"
+                />
+                <NumberInput
+                    className={styles.input}
+                    name="year"
+                    label="Year"
+                    value={value.year}
+                    error={error?.fields?.year}
+                    onChange={onValueChange}
+                />
+                <SegmentInput
+                    name="status"
+                    label="History"
+                    value={value.status}
+                    options={statusOptions}
+                    keySelector={statusKeySelector}
+                    labelSelector={statusLabelSelector}
+                    onChange={onValueChange}
+                />
+                <div className={styles.formButtons}>
+                    <Button
+                        name={undefined}
+                        onClick={onResetFilters}
+                        title="Reset Filters"
+                        disabled={!filterChanged}
+                    >
+                        Reset
+                    </Button>
+                    <Button
+                        name={undefined}
+                        type="submit"
+                        title="Apply"
+                        disabled={pristine}
+                        variant="primary"
+                    >
+                        Apply
+                    </Button>
+                </div>
+            </div>
+        </form>
+    );
+}
+
+export default SaddPopulationFilter;

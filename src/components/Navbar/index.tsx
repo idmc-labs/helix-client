@@ -203,6 +203,13 @@ function Navbar(props: Props) {
                         >
                             {route.averageHouseholdSize.title}
                         </ButtonLikeLink>
+                        <ButtonLikeLink
+                            className={styles.button}
+                            route={route.saddPopulation}
+                            transparent
+                        >
+                            {route.saddPopulation.title}
+                        </ButtonLikeLink>
                         <div className={styles.rowLine} />
                         <ButtonLikeLink
                             className={styles.button}

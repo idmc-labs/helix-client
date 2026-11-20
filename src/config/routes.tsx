@@ -415,6 +415,17 @@ const routeSettings = {
         visibility: 'is-authenticated',
         category: 'administration',
     }),
+    saddPopulation: wrap({
+        path: '/sadd-population/',
+        title: 'SADD Population',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/SaddPopulation')),
+        componentProps: {
+            className: styles.view,
+        },
+        visibility: 'is-authenticated',
+        category: 'administration',
+    }),
     hulk: wrap({
         path: '/hulk/',
         title: 'HULK',
