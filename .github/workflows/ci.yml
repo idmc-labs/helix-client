@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - deploy
+      - deploy-idmc-staging
 
 jobs:
   commit_lint:
@@ -104,6 +105,24 @@ jobs:
           REACT_APP_GRAPHIQL_ENDPOINT: "https://helix-tools-api-staging.idmcdb.org/graphiql"
           REACT_APP_SWAGGER_ENDPOINT:  "https://helix-tools-api-staging.idmcdb.org/external-api/"
 
+      - name: 🤞 Run Build 🧪 (Helix-IDMC-STAGING)
+        uses: ./.github/actions/run_build
+        if: github.ref == 'refs/heads/deploy-idmc-staging'
+        with:
+          BUILD_OUTPUT_DIR: build-idmc-staging/
+          UPLOAD_ARTIFACT_NAME: helix-idmc-staging
+          REACT_APP_ENV: "staging"
+          REACT_APP_MAPBOX_ACCESS_TOKEN: ${{ secrets.REACT_APP_MAPBOX_ACCESS_TOKEN }}
+          REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}
+          # Keep in sync with helix-server SENTRY_SAMPLE_RATE
+          REACT_APP_SENTRY_TRACES_SAMPLE_RATE: "0.2"
+          REACT_APP_HCATPCHA_SITEKEY: ${{ secrets.REACT_APP_HCATPCHA_SITEKEY }}
+          REACT_APP_GOOGLE_ANALYTICS_ID: "G-85Y8J3LDGL"
+          # Overwrite
+          REACT_APP_GRAPHQL_ENDPOINT: "https://helix-api.staging.idmcdb.org/graphql"
+          REACT_APP_GRAPHIQL_ENDPOINT: "https://helix-api.staging.idmcdb.org/graphiql"
+          REACT_APP_SWAGGER_ENDPOINT:  "https://helix-api.staging.idmcdb.org/external-api/"
+
       - name: 🤞 Run Build 🧪 (Helix-PROD)
         if: github.ref == 'refs/heads/deploy'
         uses: ./.github/actions/run_build
@@ -128,6 +147,17 @@ jobs:
       GH_ENVIRONMENT_NAME: staging
       GH_ENVIRONMENT_URL: https://helix.staging.tools.idmcdb.org
       ARTIFACT_NAME: helix-staging
+
+  helix_idmc_staging_deploy:
+    name: HELIX-IDMC-STAGING
+    if: github.ref == 'refs/heads/deploy-idmc-staging'
+    needs: run_build
+    uses: ./.github/workflows/aws_deploy.yml
+    secrets: inherit
+    with:
+      GH_ENVIRONMENT_NAME: idmc-staging
+      GH_ENVIRONMENT_URL: https://helix.staging.idmcdb.org
+      ARTIFACT_NAME: helix-idmc-staging
 
   helix_prod_deploy:
     name: HELIX-PROD
