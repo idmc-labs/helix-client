@@ -33,6 +33,8 @@ interface TagsFilterProps {
     initialFilter: PartialForm<FormType>;
     currentFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
+    onFilterReset: () => void;
+    changed?: boolean;
 }
 
 function TagsFilter(props: TagsFilterProps) {
@@ -41,6 +43,8 @@ function TagsFilter(props: TagsFilterProps) {
         initialFilter,
         currentFilter,
         onFilterChange,
+        onFilterReset,
+        changed = false,
     } = props;
 
     const {
@@ -67,17 +71,15 @@ function TagsFilter(props: TagsFilterProps) {
     const onResetFilters = useCallback(
         () => {
             onValueSet(initialFilter);
-            onFilterChange(initialFilter);
+            onFilterReset();
         },
-        [onValueSet, onFilterChange, initialFilter],
+        [onValueSet, onFilterReset, initialFilter],
     );
 
     const handleSubmit = useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
-
-    const filterChanged = initialFilter !== value;
 
     return (
         <form
@@ -102,7 +104,7 @@ function TagsFilter(props: TagsFilterProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset"
-                        disabled={!filterChanged}
+                        disabled={pristine && !changed}
                     >
                         Reset
                     </Button>

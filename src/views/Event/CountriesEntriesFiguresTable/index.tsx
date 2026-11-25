@@ -55,6 +55,8 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
         initialFilter: initialCountriesFilter,
         filter: countriesFilter,
         setFilter: setCountriesFilter,
+        reset: resetCountriesFilter,
+        changed: countriesChanged,
 
         pageSize: countriesPageSize,
         rawPageSize: rawCountriesPageSize,
@@ -296,6 +298,8 @@ function CountriesEntriesFiguresTable(props: EntriesFiguresTableProps) {
                                     currentFilter={rawCountriesFilter}
                                     initialFilter={initialCountriesFilter}
                                     onFilterChange={setCountriesFilter}
+                                    onFilterReset={resetCountriesFilter}
+                                    changed={countriesChanged}
                                     // hiddenFields={countriesHiddenColumns}
                                     // events={eventId ? [eventId] : undefined}
                                 />

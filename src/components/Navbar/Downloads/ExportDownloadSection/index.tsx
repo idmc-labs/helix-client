@@ -53,17 +53,22 @@ function ExportDownloadSection() {
         setPage,
         pageSize,
         rawPageSize,
+        ordering,
     } = useFilterState({
         filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
     });
 
     const downloadVariables = useMemo(
         (): ExcelExportsQueryVariables => ({
-            ordering: '-created_at',
+            ordering,
             page,
             pageSize,
         }),
-        [page, pageSize],
+        [ordering, page, pageSize],
     );
 
     const {

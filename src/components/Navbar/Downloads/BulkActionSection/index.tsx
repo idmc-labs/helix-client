@@ -58,17 +58,22 @@ function BulkActionSection() {
         setPage,
         pageSize,
         rawPageSize,
+        ordering,
     } = useFilterState({
         filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
     });
 
     const variables = useMemo(
         (): BulkApiOperationsQueryVariables => ({
-            ordering: '-created_at',
+            ordering,
             page,
             pageSize,
         }),
-        [page, pageSize],
+        [ordering, page, pageSize],
     );
 
     const {

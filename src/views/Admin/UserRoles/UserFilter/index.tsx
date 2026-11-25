@@ -59,6 +59,8 @@ interface UsersFilterProps {
     initialFilter: PartialForm<FormType>;
     currentFilter: PartialForm<FormType>;
     onFilterChange: (value: PartialForm<FormType>) => void;
+    onFilterReset: () => void;
+    changed?: boolean;
 }
 
 function UserFilter(props: UsersFilterProps) {
@@ -67,6 +69,8 @@ function UserFilter(props: UsersFilterProps) {
         initialFilter,
         currentFilter,
         onFilterChange,
+        onFilterReset,
+        changed = false,
     } = props;
 
     const {
@@ -99,17 +103,15 @@ function UserFilter(props: UsersFilterProps) {
     const onResetFilters = useCallback(
         () => {
             onValueSet(initialFilter);
-            onFilterChange(initialFilter);
+            onFilterReset();
         },
-        [onValueSet, onFilterChange, initialFilter],
+        [onValueSet, onFilterReset, initialFilter],
     );
 
     const handleSubmit = useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
-
-    const filterChanged = initialFilter !== value;
 
     const roleOptionsForPortfolio = useMemo(
         () => rolesOptions
@@ -163,7 +165,7 @@ function UserFilter(props: UsersFilterProps) {
                         name={undefined}
                         onClick={onResetFilters}
                         title="Reset"
-                        disabled={!filterChanged}
+                        disabled={pristine && !changed}
                     >
                         Reset
                     </Button>

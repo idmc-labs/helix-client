@@ -125,6 +125,9 @@ function ActorTable(props: ActorProps) {
         rawPageSize,
         pageSize,
         setPageSize,
+
+        reset,
+        changed,
     } = useFilterState<PurgeNull<NonNullable<ActorsListQueryVariables['filters']>>>({
         filter: {},
         ordering: {
@@ -341,6 +344,8 @@ function ActorTable(props: ActorProps) {
                     currentFilter={rawFilter}
                     initialFilter={initialFilter}
                     onFilterChange={setFilter}
+                    onFilterReset={reset}
+                    changed={changed}
                 />
             )}
             footerContent={(

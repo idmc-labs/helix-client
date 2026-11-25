@@ -58,6 +58,8 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
         initialFilter: initialCountriesFilter,
         filter: countriesFilter,
         setFilter: setCountriesFilter,
+        reset: resetCountriesFilter,
+        changed: countriesChanged,
 
         pageSize: countriesPageSize,
         rawPageSize: rawCountriesPageSize,
@@ -82,6 +84,8 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
         initialFilter: initialEventsFilter,
         filter: eventsFilter,
         setFilter: setEventsFilter,
+        reset: resetEventsFilter,
+        changed: eventsChanged,
 
         pageSize: eventsPageSize,
         rawPageSize: rawEventsPageSize,
@@ -384,6 +388,8 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
                                     currentFilter={rawCountriesFilter}
                                     initialFilter={initialCountriesFilter}
                                     onFilterChange={setCountriesFilter}
+                                    onFilterReset={resetCountriesFilter}
+                                    changed={countriesChanged}
                                 />
                             )}
                             {selectedTab === 'Events' && (
@@ -391,6 +397,8 @@ function CountriesEventsEntriesFiguresTable(props: CountriesEventsEntriesFigures
                                     currentFilter={rawEventsFilter}
                                     initialFilter={initialEventsFilter}
                                     onFilterChange={setEventsFilter}
+                                    onFilterReset={resetEventsFilter}
+                                    changed={eventsChanged}
                                     hiddenFields={eventsHiddenColumns}
                                     crises={[crisisId]}
                                 />

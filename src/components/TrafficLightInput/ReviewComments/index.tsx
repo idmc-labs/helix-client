@@ -98,8 +98,13 @@ export default function ReviewComments(props: ReportCommentsProps) {
         setPage,
         pageSize,
         rawPageSize,
+        ordering,
     } = useFilterState({
         filter: {},
+        ordering: {
+            name: 'created_at',
+            direction: 'dsc',
+        },
     });
 
     const { user } = useContext(DomainContext);
@@ -109,7 +114,7 @@ export default function ReviewComments(props: ReportCommentsProps) {
     const variables = useMemo(
         (): ReviewCommentsQueryVariables => ({
             pageSize,
-            ordering: '-created_at',
+            ordering,
             page,
 
             filters: {
@@ -122,6 +127,7 @@ export default function ReviewComments(props: ReportCommentsProps) {
             eventId,
             figureId,
             name,
+            ordering,
             page,
             pageSize,
         ],

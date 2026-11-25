@@ -123,6 +123,8 @@ function FigureTagsTable(props: FigureTagsProps) {
         initialFilter,
         filter,
         setFilter,
+        reset,
+        changed,
 
         rawPageSize,
         pageSize,
@@ -130,8 +132,8 @@ function FigureTagsTable(props: FigureTagsProps) {
     } = useFilterState<PurgeNull<NonNullable<FigureTagListQueryVariables['filters']>>>({
         filter: {},
         ordering: {
-            name: 'created_at',
-            direction: 'dsc',
+            name: 'name',
+            direction: 'asc',
         },
     });
 
@@ -337,6 +339,8 @@ function FigureTagsTable(props: FigureTagsProps) {
                     currentFilter={rawFilter}
                     initialFilter={initialFilter}
                     onFilterChange={setFilter}
+                    onFilterReset={reset}
+                    changed={changed}
                 />
             )}
             footerContent={(

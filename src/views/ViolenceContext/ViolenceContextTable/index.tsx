@@ -114,11 +114,13 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
         initialFilter,
         filter,
         setFilter,
+        reset,
+        changed,
     } = useFilterState<PurgeNull<NonNullable<ContextOfViolenceListQueryVariables['filters']>>>({
         filter: {},
         ordering: {
-            name: 'created_at',
-            direction: 'dsc',
+            name: 'name',
+            direction: 'asc',
         },
     });
 
@@ -329,6 +331,8 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
                     currentFilter={rawFilter}
                     initialFilter={initialFilter}
                     onFilterChange={setFilter}
+                    onFilterReset={reset}
+                    changed={changed}
                 />
             )}
         >

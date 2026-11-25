@@ -108,6 +108,8 @@ function Crises(props: CrisesProps) {
                         currentFilter={rawFiguresFilter}
                         initialFilter={initialFiguresFilter}
                         onFilterChange={setFiguresFilter}
+                        onFilterReset={figuresFilterState.reset}
+                        changed={figuresFilterState.changed}
                         hiddenFields={figureHiddenColumns}
                     />
                 </Container>

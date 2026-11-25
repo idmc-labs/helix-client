@@ -421,6 +421,8 @@ function Country(props: CountryProps) {
                         currentFilter={rawFiguresFilter}
                         initialFilter={initialFiguresFilter}
                         onFilterChange={setFiguresFilter}
+                        onFilterReset={figuresFilterState.reset}
+                        changed={figuresFilterState.changed}
                         hiddenFields={figureHiddenColumns}
                         countries={[countryId]}
                     />

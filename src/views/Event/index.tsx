@@ -502,6 +502,8 @@ function Event(props: EventProps) {
                         currentFilter={rawFiguresFilter}
                         initialFilter={initialFiguresFilter}
                         onFilterChange={setFiguresFilter}
+                        onFilterReset={figuresFilterState.reset}
+                        changed={figuresFilterState.changed}
                         hiddenFields={figureHiddenColumns}
                         events={[eventId]}
                     />

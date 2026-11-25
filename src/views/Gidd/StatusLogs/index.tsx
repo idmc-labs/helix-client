@@ -50,17 +50,22 @@ function StatusLogs(props: StatusLogsProps) {
 
         rawPageSize,
         pageSize,
+        ordering,
     } = useFilterState({
         filter: {},
+        ordering: {
+            name: 'triggered_at',
+            direction: 'dsc',
+        },
     });
 
     const statusLogVariables = useMemo(
         (): StatusLogsQueryVariables => ({
-            ordering: '-triggered_at',
+            ordering,
             page,
             pageSize,
         }),
-        [page, pageSize],
+        [ordering, page, pageSize],
     );
 
     const {

@@ -44,6 +44,8 @@ function CrisesTable(props: CrisesProps) {
         initialFilter,
         filter,
         setFilter,
+        reset,
+        changed,
 
         pageSize,
         rawPageSize,
@@ -121,6 +123,8 @@ function CrisesTable(props: CrisesProps) {
                     currentFilter={rawFilter}
                     initialFilter={initialFilter}
                     onFilterChange={setFilter}
+                    onFilterReset={reset}
+                    changed={changed}
                 />
             )}
         >

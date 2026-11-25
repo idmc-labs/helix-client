@@ -56,6 +56,8 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
         initialFilter: initialCrisesFilter,
         filter: crisesFilter,
         setFilter: setCrisesFilter,
+        reset: resetCrisesFilter,
+        changed: crisesChanged,
 
         pageSize: crisesPageSize,
         rawPageSize: rawCrisesPageSize,
@@ -80,6 +82,8 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
         initialFilter: initialEventsFilter,
         filter: eventsFilter,
         setFilter: setEventsFilter,
+        reset: resetEventsFilter,
+        changed: eventsChanged,
 
         pageSize: eventsPageSize,
         rawPageSize: rawEventsPageSize,
@@ -374,6 +378,8 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
                                     currentFilter={rawCrisesFilter}
                                     initialFilter={initialCrisesFilter}
                                     onFilterChange={setCrisesFilter}
+                                    onFilterReset={resetCrisesFilter}
+                                    changed={crisesChanged}
                                     // NOTE: we do not have countries or fields related to countries
                                     // hiddenFields={crisesHiddenColumns}
                                     // countries={[countryId]}
@@ -384,6 +390,8 @@ function CrisesEventsEntriesFiguresTable(props: CrisesEventsEntriesFiguresTableP
                                     currentFilter={rawEventsFilter}
                                     initialFilter={initialEventsFilter}
                                     onFilterChange={setEventsFilter}
+                                    onFilterReset={resetEventsFilter}
+                                    changed={eventsChanged}
                                     hiddenFields={eventsHiddenColumns}
                                     countries={[countryId]}
                                 />
