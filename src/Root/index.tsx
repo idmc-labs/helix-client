@@ -1,5 +1,5 @@
 import React from 'react';
-import { Router } from 'react-router-dom';
+import { Router, matchPath } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
 import {
     init,
@@ -13,6 +13,7 @@ import {
 import mapboxgl from 'mapbox-gl';
 import { isTruthyString } from '@togglecorp/fujs';
 
+import routeSettings from '#config/routes';
 import Error from '#views/Error';
 import App from './App';
 
@@ -40,7 +41,16 @@ const sentryTracesSampleRate = isTruthyString(sentryTracesSampleRateEnv)
 // reports as "N+1 API Call" performance issues.
 const mapboxUrlRegex = /^https:\/\/([a-z0-9-]+\.)*mapbox\.com\//;
 function shouldCreateSpanForRequest(url: string) {
-    return !mapboxUrlRegex.test(url);
+    if (mapboxUrlRegex.test(url)) {
+        return false;
+    }
+    // The entry edit page polls the source preview every few seconds, which
+    // Sentry reports as "Consecutive HTTP" performance issues. This is
+    // expected so requests made from this page are not traced.
+    return !matchPath(window.location.pathname, {
+        path: routeSettings.entryEdit.path,
+        exact: true,
+    });
 }
 
 if (sentryDsn) {
