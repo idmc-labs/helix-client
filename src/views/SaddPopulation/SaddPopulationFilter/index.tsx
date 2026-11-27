@@ -3,7 +3,6 @@ import {
     Button,
     TextInput,
     NumberInput,
-    SegmentInput,
 } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -35,14 +34,6 @@ const schema: FormSchema = {
         status: [],
     }),
 };
-
-const statusOptions: { key: PopulationStatus, label: string }[] = [
-    { key: 'ACTIVE', label: 'Active' },
-    { key: 'ARCHIVED', label: 'Archived' },
-    { key: 'ALL', label: 'All' },
-];
-const statusKeySelector = (item: typeof statusOptions[number]) => item.key;
-const statusLabelSelector = (item: typeof statusOptions[number]) => item.label;
 
 interface SaddPopulationFilterProps {
     className?: string;
@@ -118,15 +109,6 @@ function SaddPopulationFilter(props: SaddPopulationFilterProps) {
                     label="Year"
                     value={value.year}
                     error={error?.fields?.year}
-                    onChange={onValueChange}
-                />
-                <SegmentInput
-                    name="status"
-                    label="History"
-                    value={value.status}
-                    options={statusOptions}
-                    keySelector={statusKeySelector}
-                    labelSelector={statusLabelSelector}
                     onChange={onValueChange}
                 />
                 <div className={styles.formButtons}>
