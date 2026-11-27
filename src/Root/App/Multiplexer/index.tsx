@@ -382,6 +382,11 @@ function Multiplexer(props: Props) {
                                         />
                                         <Route
                                             exact
+                                            path={routeSettings.saddPopulation.path}
+                                            render={routeSettings.saddPopulation.load}
+                                        />
+                                        <Route
+                                            exact
                                             path={routeSettings.hulk.path}
                                             render={routeSettings.hulk.load}
                                         />
